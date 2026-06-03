@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "13420289918",
+    "project_id": "ard-bazar",
+    "storage_bucket": "ard-bazar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13420289918:android:72692759ab111419539d2f",
+        "android_client_info": {
+          "package_name": "com.ard.ard_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNCCswGusBTPo0JerTn-An6Ic00sjpRJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

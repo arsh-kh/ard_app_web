@@ -1,0 +1,888 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-05-22T17:13:06+03:00",
+
+  "appName": "ئارد",
+  "@appName": {
+    "description": "The application name, always displayed in Kurdish/Arabic script"
+  },
+
+  "appTagline": "Flour Distribution Management",
+  "@appTagline": {
+    "description": "Tagline shown below the app name on splash/login screens"
+  },
+
+  "login": "Login",
+  "@login": {
+    "description": "Login button and page title"
+  },
+
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button label"
+  },
+
+  "email": "Email",
+  "@email": {
+    "description": "Email input field label"
+  },
+
+  "password": "Password",
+  "@password": {
+    "description": "Password input field label"
+  },
+
+  "rememberMe": "Remember Me",
+  "@rememberMe": {
+    "description": "Checkbox label for persisting login session"
+  },
+
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Link to password reset flow"
+  },
+
+  "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Main dashboard navigation label"
+  },
+
+  "inventory": "Inventory",
+  "@inventory": {
+    "description": "Inventory section navigation label"
+  },
+
+  "sales": "Sales",
+  "@sales": {
+    "description": "Sales section navigation label"
+  },
+
+  "purchases": "Purchases",
+  "@purchases": {
+    "description": "Purchases section navigation label"
+  },
+
+  "customers": "Customers",
+  "@customers": {
+    "description": "Customers section navigation label"
+  },
+
+  "invoices": "Invoices",
+  "@invoices": {
+    "description": "Invoices section navigation label"
+  },
+
+  "reports": "Reports",
+  "@reports": {
+    "description": "Reports section navigation label"
+  },
+
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings section navigation label"
+  },
+
+  "totalInventory": "Total Inventory",
+  "@totalInventory": {
+    "description": "Dashboard card title showing total inventory value or count"
+  },
+
+  "todaySales": "Today's Sales",
+  "@todaySales": {
+    "description": "Dashboard card title showing today's sales total"
+  },
+
+  "monthlyProfit": "Monthly Profit",
+  "@monthlyProfit": {
+    "description": "Dashboard card title showing current month profit"
+  },
+
+  "pendingDebts": "Pending Debts",
+  "@pendingDebts": {
+    "description": "Dashboard card title showing total outstanding debts"
+  },
+
+  "lowStockAlerts": "Low Stock Alerts",
+  "@lowStockAlerts": {
+    "description": "Dashboard section title for products below minimum stock"
+  },
+
+  "recentTransactions": "Recent Transactions",
+  "@recentTransactions": {
+    "description": "Dashboard section title for latest transactions"
+  },
+
+  "bestSellingFlour": "Best Selling Flour",
+  "@bestSellingFlour": {
+    "description": "Dashboard section title for top-selling flour products"
+  },
+
+  "addProduct": "Add Product",
+  "@addProduct": {
+    "description": "Button label for adding a new product"
+  },
+
+  "editProduct": "Edit Product",
+  "@editProduct": {
+    "description": "Button/page title for editing an existing product"
+  },
+
+  "deleteProduct": "Delete Product",
+  "@deleteProduct": {
+    "description": "Button label for deleting a product"
+  },
+
+  "productName": "Product Name",
+  "@productName": {
+    "description": "Input field label for product name"
+  },
+
+  "flourType": "Flour Type",
+  "@flourType": {
+    "description": "Input field label for flour type classification"
+  },
+
+  "brand": "Brand",
+  "@brand": {
+    "description": "Input field label for product brand"
+  },
+
+  "stockQuantity": "Stock Quantity",
+  "@stockQuantity": {
+    "description": "Input field label for current stock amount"
+  },
+
+  "unitType": "Unit Type",
+  "@unitType": {
+    "description": "Dropdown label for selecting measurement unit"
+  },
+
+  "buyPrice": "Buy Price",
+  "@buyPrice": {
+    "description": "Input field label for purchase/cost price"
+  },
+
+  "sellPrice": "Sell Price",
+  "@sellPrice": {
+    "description": "Input field label for selling price"
+  },
+
+  "minimumStock": "Minimum Stock",
+  "@minimumStock": {
+    "description": "Input field label for low stock threshold"
+  },
+
+  "barcode": "Barcode",
+  "@barcode": {
+    "description": "Input field label for product barcode"
+  },
+
+  "kg": "Kilogram",
+  "@kg": {
+    "description": "Unit of measurement: kilogram"
+  },
+
+  "bag": "Bag",
+  "@bag": {
+    "description": "Unit of measurement: bag/sack of flour"
+  },
+
+  "ton": "Ton",
+  "@ton": {
+    "description": "Unit of measurement: metric ton"
+  },
+
+  "pieces": "Pieces",
+  "@pieces": {
+    "description": "Unit of measurement: individual pieces"
+  },
+
+  "searchInventory": "Search Inventory",
+  "@searchInventory": {
+    "description": "Placeholder text for inventory search field"
+  },
+
+  "filterBy": "Filter By",
+  "@filterBy": {
+    "description": "Label for filter dropdown/dialog"
+  },
+
+  "sortBy": "Sort By",
+  "@sortBy": {
+    "description": "Label for sort dropdown/dialog"
+  },
+
+  "lowStock": "Low Stock",
+  "@lowStock": {
+    "description": "Stock status label when quantity is below minimum"
+  },
+
+  "inStock": "In Stock",
+  "@inStock": {
+    "description": "Stock status label when quantity is available"
+  },
+
+  "outOfStock": "Out of Stock",
+  "@outOfStock": {
+    "description": "Stock status label when quantity is zero"
+  },
+
+  "addCustomer": "Add Customer",
+  "@addCustomer": {
+    "description": "Button label for adding a new customer"
+  },
+
+  "editCustomer": "Edit Customer",
+  "@editCustomer": {
+    "description": "Button/page title for editing an existing customer"
+  },
+
+  "customerName": "Customer Name",
+  "@customerName": {
+    "description": "Input field label for customer full name"
+  },
+
+  "bakeryName": "Bakery Name",
+  "@bakeryName": {
+    "description": "Input field label for the customer's bakery business name"
+  },
+
+  "phone": "Phone",
+  "@phone": {
+    "description": "Input field label for phone number"
+  },
+
+  "address": "Address",
+  "@address": {
+    "description": "Input field label for physical address"
+  },
+
+  "currentDebt": "Current Debt",
+  "@currentDebt": {
+    "description": "Label showing customer's current outstanding debt"
+  },
+
+  "paymentHistory": "Payment History",
+  "@paymentHistory": {
+    "description": "Section title for list of past payments"
+  },
+
+  "purchaseHistory": "Purchase History",
+  "@purchaseHistory": {
+    "description": "Section title for list of past purchases"
+  },
+
+  "customerNotes": "Customer Notes",
+  "@customerNotes": {
+    "description": "Input field label for notes about a customer"
+  },
+
+  "createSale": "Create Sale",
+  "@createSale": {
+    "description": "Button label for creating a new sale transaction"
+  },
+
+  "salesHistory": "Sales History",
+  "@salesHistory": {
+    "description": "Page title for list of past sales"
+  },
+
+  "saleDetails": "Sale Details",
+  "@saleDetails": {
+    "description": "Page title for individual sale detail view"
+  },
+
+  "selectCustomer": "Select Customer",
+  "@selectCustomer": {
+    "description": "Dropdown/search label for choosing a customer"
+  },
+
+  "selectProduct": "Select Product",
+  "@selectProduct": {
+    "description": "Dropdown/search label for choosing a product"
+  },
+
+  "quantity": "Quantity",
+  "@quantity": {
+    "description": "Input field label for item quantity"
+  },
+
+  "unitPrice": "Unit Price",
+  "@unitPrice": {
+    "description": "Label for price per single unit"
+  },
+
+  "totalPrice": "Total Price",
+  "@totalPrice": {
+    "description": "Label for total price of a line item"
+  },
+
+  "subtotal": "Subtotal",
+  "@subtotal": {
+    "description": "Label for sum before discount"
+  },
+
+  "discount": "Discount",
+  "@discount": {
+    "description": "Input field label for discount amount"
+  },
+
+  "totalAmount": "Total Amount",
+  "@totalAmount": {
+    "description": "Label for final total after discount"
+  },
+
+  "paidAmount": "Paid Amount",
+  "@paidAmount": {
+    "description": "Input field label for amount paid by customer"
+  },
+
+  "remainingDebt": "Remaining Debt",
+  "@remainingDebt": {
+    "description": "Label for unpaid balance after partial payment"
+  },
+
+  "paymentStatus": "Payment Status",
+  "@paymentStatus": {
+    "description": "Label for the current payment status of a transaction"
+  },
+
+  "paid": "Paid",
+  "@paid": {
+    "description": "Payment status: fully paid"
+  },
+
+  "partial": "Partial",
+  "@partial": {
+    "description": "Payment status: partially paid"
+  },
+
+  "unpaid": "Unpaid",
+  "@unpaid": {
+    "description": "Payment status: not paid at all"
+  },
+
+  "addPayment": "Add Payment",
+  "@addPayment": {
+    "description": "Button label for adding a new payment record"
+  },
+
+  "recordPayment": "Record Payment",
+  "@recordPayment": {
+    "description": "Button/page title for recording a payment"
+  },
+
+  "paymentMethod": "Payment Method",
+  "@paymentMethod": {
+    "description": "Dropdown label for selecting how payment was made"
+  },
+
+  "cash": "Cash",
+  "@cash": {
+    "description": "Payment method: cash"
+  },
+
+  "transfer": "Bank Transfer",
+  "@transfer": {
+    "description": "Payment method: bank transfer"
+  },
+
+  "check": "Check",
+  "@check": {
+    "description": "Payment method: bank check/cheque"
+  },
+
+  "createPurchase": "Create Purchase",
+  "@createPurchase": {
+    "description": "Button label for creating a new purchase from supplier"
+  },
+
+  "supplierName": "Supplier Name",
+  "@supplierName": {
+    "description": "Input field label for supplier/vendor name"
+  },
+
+  "transportCost": "Transport Cost",
+  "@transportCost": {
+    "description": "Input field label for delivery/transport expense"
+  },
+
+  "purchaseDate": "Purchase Date",
+  "@purchaseDate": {
+    "description": "Input field label for date of purchase"
+  },
+
+  "invoiceNumber": "Invoice Number",
+  "@invoiceNumber": {
+    "description": "Input field label for invoice reference number"
+  },
+
+  "generateInvoice": "Generate Invoice",
+  "@generateInvoice": {
+    "description": "Button label for creating an invoice document"
+  },
+
+  "printInvoice": "Print Invoice",
+  "@printInvoice": {
+    "description": "Button label for printing an invoice"
+  },
+
+  "shareInvoice": "Share Invoice",
+  "@shareInvoice": {
+    "description": "Button label for sharing an invoice via other apps"
+  },
+
+  "downloadPdf": "Download PDF",
+  "@downloadPdf": {
+    "description": "Button label for downloading invoice as PDF"
+  },
+
+  "businessName": "Business Name",
+  "@businessName": {
+    "description": "Input field label for the user's business name in settings"
+  },
+
+  "businessAddress": "Business Address",
+  "@businessAddress": {
+    "description": "Input field label for the user's business address in settings"
+  },
+
+  "businessPhone": "Business Phone",
+  "@businessPhone": {
+    "description": "Input field label for the user's business phone in settings"
+  },
+
+  "dailyReport": "Daily Report",
+  "@dailyReport": {
+    "description": "Report type: daily summary"
+  },
+
+  "weeklyReport": "Weekly Report",
+  "@weeklyReport": {
+    "description": "Report type: weekly summary"
+  },
+
+  "monthlyReport": "Monthly Report",
+  "@monthlyReport": {
+    "description": "Report type: monthly summary"
+  },
+
+  "profitLoss": "Profit & Loss",
+  "@profitLoss": {
+    "description": "Report type: profit and loss statement"
+  },
+
+  "inventoryReport": "Inventory Report",
+  "@inventoryReport": {
+    "description": "Report type: inventory status summary"
+  },
+
+  "salesReport": "Sales Report",
+  "@salesReport": {
+    "description": "Report type: sales performance summary"
+  },
+
+  "debtReport": "Debt Report",
+  "@debtReport": {
+    "description": "Report type: outstanding debts summary"
+  },
+
+  "exportPdf": "Export PDF",
+  "@exportPdf": {
+    "description": "Button label for exporting data as PDF"
+  },
+
+  "exportExcel": "Export Excel",
+  "@exportExcel": {
+    "description": "Button label for exporting data as Excel spreadsheet"
+  },
+
+  "syncStatus": "Sync Status",
+  "@syncStatus": {
+    "description": "Label for the current synchronization state"
+  },
+
+  "synced": "Synced",
+  "@synced": {
+    "description": "Sync status: data is fully synced with cloud"
+  },
+
+  "pendingSyncLabel": "Pending Sync",
+  "@pendingSyncLabel": {
+    "description": "Sync status: data is waiting to be synced"
+  },
+
+  "syncing": "Syncing...",
+  "@syncing": {
+    "description": "Sync status: data is currently being synced"
+  },
+
+  "syncFailed": "Sync Failed",
+  "@syncFailed": {
+    "description": "Sync status: synchronization encountered an error"
+  },
+
+  "online": "Online",
+  "@online": {
+    "description": "Connectivity status: device is connected to internet"
+  },
+
+  "offline": "Offline",
+  "@offline": {
+    "description": "Connectivity status: device has no internet connection"
+  },
+
+  "lastSynced": "Last Synced",
+  "@lastSynced": {
+    "description": "Label for the timestamp of last successful sync"
+  },
+
+  "syncNow": "Sync Now",
+  "@syncNow": {
+    "description": "Button label to trigger manual sync"
+  },
+
+  "lightMode": "Light Mode",
+  "@lightMode": {
+    "description": "Theme option: light color scheme"
+  },
+
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Theme option: dark color scheme"
+  },
+
+  "language": "Language",
+  "@language": {
+    "description": "Settings label for language selection"
+  },
+
+  "currency": "Currency",
+  "@currency": {
+    "description": "Settings label for currency selection"
+  },
+
+  "employees": "Employees",
+  "@employees": {
+    "description": "Navigation label for employee management section"
+  },
+
+  "addEmployee": "Add Employee",
+  "@addEmployee": {
+    "description": "Button label for adding a new employee"
+  },
+
+  "editEmployee": "Edit Employee",
+  "@editEmployee": {
+    "description": "Button/page title for editing an employee"
+  },
+
+  "role": "Role",
+  "@role": {
+    "description": "Input field label for employee role"
+  },
+
+  "admin": "Admin",
+  "@admin": {
+    "description": "Employee role: administrator with full access"
+  },
+
+  "employee": "Employee",
+  "@employee": {
+    "description": "Employee role: standard employee with limited access"
+  },
+
+  "activityLog": "Activity Log",
+  "@activityLog": {
+    "description": "Page title for system activity/audit log"
+  },
+
+  "backup": "Backup",
+  "@backup": {
+    "description": "Button label for creating a data backup"
+  },
+
+  "restore": "Restore",
+  "@restore": {
+    "description": "Button label for restoring data from backup"
+  },
+
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Generic confirm button label"
+  },
+
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Generic cancel button label"
+  },
+
+  "save": "Save",
+  "@save": {
+    "description": "Generic save button label"
+  },
+
+  "delete": "Delete",
+  "@delete": {
+    "description": "Generic delete button label"
+  },
+
+  "edit": "Edit",
+  "@edit": {
+    "description": "Generic edit button label"
+  },
+
+  "add": "Add",
+  "@add": {
+    "description": "Generic add button label"
+  },
+
+  "search": "Search",
+  "@search": {
+    "description": "Generic search button/field label"
+  },
+
+  "filter": "Filter",
+  "@filter": {
+    "description": "Generic filter button label"
+  },
+
+  "clear": "Clear",
+  "@clear": {
+    "description": "Generic clear/reset button label"
+  },
+
+  "noData": "No data available",
+  "@noData": {
+    "description": "Empty state message when no data exists"
+  },
+
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading indicator text"
+  },
+
+  "error": "An error occurred",
+  "@error": {
+    "description": "Generic error message"
+  },
+
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button label to retry a failed operation"
+  },
+
+  "success": "Success",
+  "@success": {
+    "description": "Generic success message/title"
+  },
+
+  "areYouSure": "Are you sure?",
+  "@areYouSure": {
+    "description": "Confirmation dialog title"
+  },
+
+  "deleteConfirmation": "This item will be permanently deleted.",
+  "@deleteConfirmation": {
+    "description": "Confirmation dialog message for delete action"
+  },
+
+  "cannotUndo": "This action cannot be undone.",
+  "@cannotUndo": {
+    "description": "Warning text shown in destructive action confirmations"
+  },
+
+  "notes": "Notes",
+  "@notes": {
+    "description": "Input field label for general notes"
+  },
+
+  "date": "Date",
+  "@date": {
+    "description": "Generic date label"
+  },
+
+  "createdAt": "Created At",
+  "@createdAt": {
+    "description": "Label for creation timestamp"
+  },
+
+  "updatedAt": "Updated At",
+  "@updatedAt": {
+    "description": "Label for last update timestamp"
+  },
+
+  "total": "Total",
+  "@total": {
+    "description": "Generic total label for summations"
+  },
+
+  "average": "Average",
+  "@average": {
+    "description": "Generic average label for statistics"
+  },
+
+  "count": "Count",
+  "@count": {
+    "description": "Generic count label for statistics"
+  },
+
+  "minimum": "Minimum",
+  "@minimum": {
+    "description": "Generic minimum label for statistics"
+  },
+
+  "maximum": "Maximum",
+  "@maximum": {
+    "description": "Generic maximum label for statistics"
+  },
+
+  "today": "Today",
+  "@today": {
+    "description": "Date range filter: current day"
+  },
+
+  "thisWeek": "This Week",
+  "@thisWeek": {
+    "description": "Date range filter: current week"
+  },
+
+  "thisMonth": "This Month",
+  "@thisMonth": {
+    "description": "Date range filter: current month"
+  },
+
+  "thisYear": "This Year",
+  "@thisYear": {
+    "description": "Date range filter: current year"
+  },
+
+  "custom": "Custom",
+  "@custom": {
+    "description": "Date range filter: custom date range"
+  },
+
+  "dateRange": "Date Range",
+  "@dateRange": {
+    "description": "Label for custom date range selector"
+  },
+
+  "all": "All",
+  "@all": {
+    "description": "Filter option: show all items"
+  },
+
+  "active": "Active",
+  "@active": {
+    "description": "Status filter: active items"
+  },
+
+  "inactive": "Inactive",
+  "@inactive": {
+    "description": "Status filter: inactive items"
+  },
+
+  "welcome": "Welcome",
+  "@welcome": {
+    "description": "Welcome greeting for first-time users"
+  },
+
+  "welcomeBack": "Welcome Back",
+  "@welcomeBack": {
+    "description": "Welcome greeting for returning users"
+  },
+
+  "lowStockWarning": "{productName} is running low ({quantity} remaining)",
+  "@lowStockWarning": {
+    "description": "Warning message when a product's stock falls below the minimum threshold",
+    "placeholders": {
+      "productName": {
+        "type": "String",
+        "example": "Type 1 Flour"
+      },
+      "quantity": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
+  "debtReminder": "{customerName} has outstanding debt of {amount}",
+  "@debtReminder": {
+    "description": "Reminder message showing a customer's unpaid debt amount",
+    "placeholders": {
+      "customerName": {
+        "type": "String",
+        "example": "Ahmed Bakery"
+      },
+      "amount": {
+        "type": "String",
+        "example": "500,000 د.ع"
+      }
+    }
+  },
+
+  "saleCreated": "Sale #{invoiceNumber} created successfully",
+  "@saleCreated": {
+    "description": "Success message after creating a new sale",
+    "placeholders": {
+      "invoiceNumber": {
+        "type": "String",
+        "example": "1042"
+      }
+    }
+  },
+
+  "paymentRecorded": "Payment of {amount} recorded",
+  "@paymentRecorded": {
+    "description": "Success message after recording a payment",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "250,000 د.ع"
+      }
+    }
+  },
+
+  "productAdded": "{productName} added to inventory",
+  "@productAdded": {
+    "description": "Success message after adding a new product",
+    "placeholders": {
+      "productName": {
+        "type": "String",
+        "example": "Premium Flour 50kg"
+      }
+    }
+  },
+
+  "syncComplete": "All data synced successfully",
+  "@syncComplete": {
+    "description": "Success message when all pending data has been synced"
+  },
+
+  "syncPending": "{count} items pending sync",
+  "@syncPending": {
+    "description": "Status message showing number of items waiting to sync",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+
+  "noInternetConnection": "No internet connection",
+  "@noInternetConnection": {
+    "description": "Error message when device has no network connectivity"
+  },
+
+  "currencySymbol": "د.ع",
+  "@currencySymbol": {
+    "description": "Iraqi Dinar currency symbol, same across all locales"
+  },
+
+  "iraqiDinar": "Iraqi Dinar",
+  "@iraqiDinar": {
+    "description": "Full name of the Iraqi Dinar currency"
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "@@locale": "ar",
+
+  "appName": "ئارد",
+  "appTagline": "إدارة توزيع الطحين",
+
+  "login": "تسجيل الدخول",
+  "logout": "تسجيل الخروج",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "rememberMe": "تذكرني",
+  "forgotPassword": "نسيت كلمة المرور؟",
+
+  "dashboard": "لوحة التحكم",
+  "inventory": "المخزون",
+  "sales": "المبيعات",
+  "purchases": "المشتريات",
+  "customers": "العملاء",
+  "invoices": "الفواتير",
+  "reports": "التقارير",
+  "settings": "الإعدادات",
+
+  "totalInventory": "إجمالي المخزون",
+  "todaySales": "مبيعات اليوم",
+  "monthlyProfit": "الربح الشهري",
+  "pendingDebts": "الديون المعلّقة",
+  "lowStockAlerts": "تنبيهات انخفاض المخزون",
+
+  "recentTransactions": "المعاملات الأخيرة",
+  "bestSellingFlour": "الطحين الأكثر مبيعاً",
+
+  "addProduct": "إضافة منتج",
+  "editProduct": "تعديل المنتج",
+  "deleteProduct": "حذف المنتج",
+  "productName": "اسم المنتج",
+  "flourType": "نوع الطحين",
+  "brand": "العلامة التجارية",
+
+  "stockQuantity": "الكمية المتوفرة",
+  "unitType": "نوع الوحدة",
+  "buyPrice": "سعر الشراء",
+  "sellPrice": "سعر البيع",
+  "minimumStock": "الحد الأدنى للمخزون",
+  "barcode": "الباركود",
+
+  "kg": "كيلوغرام",
+  "bag": "كيس",
+  "ton": "طن",
+  "pieces": "قطعة",
+
+  "searchInventory": "البحث في المخزون",
+  "filterBy": "تصفية حسب",
+  "sortBy": "ترتيب حسب",
+  "lowStock": "مخزون منخفض",
+  "inStock": "متوفر",
+  "outOfStock": "غير متوفر",
+
+  "addCustomer": "إضافة عميل",
+  "editCustomer": "تعديل العميل",
+  "customerName": "اسم العميل",
+  "bakeryName": "اسم المخبز",
+  "phone": "الهاتف",
+  "address": "العنوان",
+
+  "currentDebt": "الدين الحالي",
+  "paymentHistory": "سجل المدفوعات",
+  "purchaseHistory": "سجل المشتريات",
+  "customerNotes": "ملاحظات العميل",
+
+  "createSale": "إنشاء عملية بيع",
+  "salesHistory": "سجل المبيعات",
+  "saleDetails": "تفاصيل البيع",
+  "selectCustomer": "اختر العميل",
+  "selectProduct": "اختر المنتج",
+
+  "quantity": "الكمية",
+  "unitPrice": "سعر الوحدة",
+  "totalPrice": "السعر الإجمالي",
+  "subtotal": "المجموع الفرعي",
+  "discount": "الخصم",
+  "totalAmount": "المبلغ الإجمالي",
+
+  "paidAmount": "المبلغ المدفوع",
+  "remainingDebt": "الدين المتبقي",
+  "paymentStatus": "حالة الدفع",
+
+  "paid": "مدفوع",
+  "partial": "مدفوع جزئياً",
+  "unpaid": "غير مدفوع",
+
+  "addPayment": "إضافة دفعة",
+  "recordPayment": "تسجيل دفعة",
+  "paymentMethod": "طريقة الدفع",
+  "cash": "نقداً",
+  "transfer": "حوالة مصرفية",
+  "check": "صك",
+
+  "createPurchase": "إنشاء عملية شراء",
+  "supplierName": "اسم المورّد",
+  "transportCost": "تكلفة النقل",
+  "purchaseDate": "تاريخ الشراء",
+  "invoiceNumber": "رقم الفاتورة",
+
+  "generateInvoice": "إنشاء فاتورة",
+  "printInvoice": "طباعة الفاتورة",
+  "shareInvoice": "مشاركة الفاتورة",
+  "downloadPdf": "تحميل PDF",
+
+  "businessName": "اسم المؤسسة",
+  "businessAddress": "عنوان المؤسسة",
+  "businessPhone": "هاتف المؤسسة",
+
+  "dailyReport": "التقرير اليومي",
+  "weeklyReport": "التقرير الأسبوعي",
+  "monthlyReport": "التقرير الشهري",
+  "profitLoss": "الأرباح والخسائر",
+
+  "inventoryReport": "تقرير المخزون",
+  "salesReport": "تقرير المبيعات",
+  "debtReport": "تقرير الديون",
+
+  "exportPdf": "تصدير PDF",
+  "exportExcel": "تصدير Excel",
+
+  "syncStatus": "حالة المزامنة",
+  "synced": "تمت المزامنة",
+  "pendingSyncLabel": "بانتظار المزامنة",
+  "syncing": "جارٍ المزامنة...",
+  "syncFailed": "فشلت المزامنة",
+
+  "online": "متصل",
+  "offline": "غير متصل",
+  "lastSynced": "آخر مزامنة",
+  "syncNow": "مزامنة الآن",
+
+  "lightMode": "الوضع الفاتح",
+  "darkMode": "الوضع الداكن",
+  "language": "اللغة",
+  "currency": "العملة",
+
+  "employees": "الموظفون",
+  "addEmployee": "إضافة موظف",
+  "editEmployee": "تعديل الموظف",
+  "role": "الصلاحية",
+  "admin": "مدير",
+  "employee": "موظف",
+
+  "activityLog": "سجل النشاطات",
+  "backup": "نسخ احتياطي",
+  "restore": "استعادة",
+
+  "confirm": "تأكيد",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "delete": "حذف",
+  "edit": "تعديل",
+  "add": "إضافة",
+  "search": "بحث",
+  "filter": "تصفية",
+  "clear": "مسح",
+
+  "noData": "لا توجد بيانات",
+  "loading": "جارٍ التحميل...",
+  "error": "حدث خطأ",
+  "retry": "إعادة المحاولة",
+  "success": "تمت العملية بنجاح",
+
+  "areYouSure": "هل أنت متأكد؟",
+  "deleteConfirmation": "سيتم حذف هذا العنصر نهائياً.",
+  "cannotUndo": "لا يمكن التراجع عن هذا الإجراء.",
+
+  "notes": "ملاحظات",
+  "date": "التاريخ",
+  "createdAt": "تاريخ الإنشاء",
+  "updatedAt": "تاريخ التحديث",
+
+  "total": "الإجمالي",
+  "average": "المعدل",
+  "count": "العدد",
+  "minimum": "الحد الأدنى",
+  "maximum": "الحد الأقصى",
+
+  "today": "اليوم",
+  "thisWeek": "هذا الأسبوع",
+  "thisMonth": "هذا الشهر",
+  "thisYear": "هذه السنة",
+  "custom": "مخصص",
+  "dateRange": "النطاق الزمني",
+
+  "all": "الكل",
+  "active": "نشط",
+  "inactive": "غير نشط",
+
+  "welcome": "مرحباً",
+  "welcomeBack": "مرحباً بعودتك",
+
+  "lowStockWarning": "{productName} على وشك النفاد ({quantity} متبقي)",
+  "debtReminder": "{customerName} لديه دين مستحق بقيمة {amount}",
+  "saleCreated": "تم إنشاء عملية البيع رقم #{invoiceNumber} بنجاح",
+  "paymentRecorded": "تم تسجيل دفعة بقيمة {amount}",
+  "productAdded": "تمت إضافة {productName} إلى المخزون",
+  "syncComplete": "تمت مزامنة جميع البيانات بنجاح",
+  "syncPending": "{count} عناصر بانتظار المزامنة",
+
+  "noInternetConnection": "لا يوجد اتصال بالإنترنت",
+
+  "currencySymbol": "د.ع",
+  "iraqiDinar": "الدينار العراقي"
+}
