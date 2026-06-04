@@ -22,8 +22,10 @@ class Users extends Table with SyncMetadata {
   
   TextColumn get email => text().nullable()();
   TextColumn get phone => text().nullable()();
+  TextColumn get passwordHash => text().nullable()(); // SHA-256 hex hash
   TextColumn get role => text()(); // 'admin', 'employee', 'bakery'
   TextColumn get name => text()();
+  TextColumn get imageUrl => text().nullable()();
 }
 
 @DataClassName('ProductEntity')
@@ -38,6 +40,7 @@ class Products extends Table with SyncMetadata {
   RealColumn get buyPrice => real()();
   RealColumn get sellPrice => real()();
   TextColumn get barcode => text().nullable()();
+  TextColumn get imageUrl => text().nullable()();
 }
 
 @DataClassName('CategoryEntity')
@@ -58,6 +61,7 @@ class Customers extends Table with SyncMetadata {
   TextColumn get phone => text().nullable()();
   TextColumn get address => text().nullable()();
   RealColumn get debtBalance => real().withDefault(const Constant(0.0))();
+  TextColumn get imageUrl => text().nullable()();
 }
 
 @DataClassName('OrderEntity')
@@ -65,6 +69,7 @@ class Orders extends Table with SyncMetadata {
   @override
   Set<Column> get primaryKey => {id};
 
+  IntColumn get orderNumber => integer().nullable()();
   TextColumn get customerId => text()();
   TextColumn get status => text()(); // 'pending', 'approved', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'
   RealColumn get totalAmount => real()();

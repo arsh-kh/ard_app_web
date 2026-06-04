@@ -38,6 +38,7 @@ class ClientsOrdersScreen extends ConsumerWidget {
           ),
         ),
         body: const TabBarView(
+          physics: NeverScrollableScrollPhysics(),
           children: [
             // Embedded customers view (without its own scaffold appbar if possible, or we just use it directly)
             CustomersScreen(isEmbedded: true),

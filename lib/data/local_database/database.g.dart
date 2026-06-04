@@ -72,6 +72,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _passwordHashMeta = const VerificationMeta(
+    'passwordHash',
+  );
+  @override
+  late final GeneratedColumn<String> passwordHash = GeneratedColumn<String>(
+    'password_hash',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   @override
   late final GeneratedColumn<String> role = GeneratedColumn<String>(
@@ -90,6 +101,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -98,8 +120,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
     isDeleted,
     email,
     phone,
+    passwordHash,
     role,
     name,
+    imageUrl,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -145,6 +169,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
         phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta),
       );
     }
+    if (data.containsKey('password_hash')) {
+      context.handle(
+        _passwordHashMeta,
+        passwordHash.isAcceptableOrUnknown(
+          data['password_hash']!,
+          _passwordHashMeta,
+        ),
+      );
+    }
     if (data.containsKey('role')) {
       context.handle(
         _roleMeta,
@@ -160,6 +193,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
     }
     return context;
   }
@@ -196,6 +235,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
         DriftSqlType.string,
         data['${effectivePrefix}phone'],
       ),
+      passwordHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}password_hash'],
+      ),
       role: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}role'],
@@ -204,6 +247,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserEntity> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
     );
   }
 
@@ -223,8 +270,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
   final bool isDeleted;
   final String? email;
   final String? phone;
+  final String? passwordHash;
   final String role;
   final String name;
+  final String? imageUrl;
   const UserEntity({
     required this.id,
     required this.syncStatus,
@@ -232,8 +281,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
     required this.isDeleted,
     this.email,
     this.phone,
+    this.passwordHash,
     required this.role,
     required this.name,
+    this.imageUrl,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -252,8 +303,14 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
     if (!nullToAbsent || phone != null) {
       map['phone'] = Variable<String>(phone);
     }
+    if (!nullToAbsent || passwordHash != null) {
+      map['password_hash'] = Variable<String>(passwordHash);
+    }
     map['role'] = Variable<String>(role);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
     return map;
   }
 
@@ -269,8 +326,14 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
       phone: phone == null && nullToAbsent
           ? const Value.absent()
           : Value(phone),
+      passwordHash: passwordHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(passwordHash),
       role: Value(role),
       name: Value(name),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
     );
   }
 
@@ -288,8 +351,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       email: serializer.fromJson<String?>(json['email']),
       phone: serializer.fromJson<String?>(json['phone']),
+      passwordHash: serializer.fromJson<String?>(json['passwordHash']),
       role: serializer.fromJson<String>(json['role']),
       name: serializer.fromJson<String>(json['name']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
     );
   }
   @override
@@ -304,8 +369,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'email': serializer.toJson<String?>(email),
       'phone': serializer.toJson<String?>(phone),
+      'passwordHash': serializer.toJson<String?>(passwordHash),
       'role': serializer.toJson<String>(role),
       'name': serializer.toJson<String>(name),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
     };
   }
 
@@ -316,8 +383,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
     bool? isDeleted,
     Value<String?> email = const Value.absent(),
     Value<String?> phone = const Value.absent(),
+    Value<String?> passwordHash = const Value.absent(),
     String? role,
     String? name,
+    Value<String?> imageUrl = const Value.absent(),
   }) => UserEntity(
     id: id ?? this.id,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -325,8 +394,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
     isDeleted: isDeleted ?? this.isDeleted,
     email: email.present ? email.value : this.email,
     phone: phone.present ? phone.value : this.phone,
+    passwordHash: passwordHash.present ? passwordHash.value : this.passwordHash,
     role: role ?? this.role,
     name: name ?? this.name,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
   );
   UserEntity copyWithCompanion(UsersCompanion data) {
     return UserEntity(
@@ -340,8 +411,12 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       email: data.email.present ? data.email.value : this.email,
       phone: data.phone.present ? data.phone.value : this.phone,
+      passwordHash: data.passwordHash.present
+          ? data.passwordHash.value
+          : this.passwordHash,
       role: data.role.present ? data.role.value : this.role,
       name: data.name.present ? data.name.value : this.name,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
     );
   }
 
@@ -354,8 +429,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
           ..write('isDeleted: $isDeleted, ')
           ..write('email: $email, ')
           ..write('phone: $phone, ')
+          ..write('passwordHash: $passwordHash, ')
           ..write('role: $role, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('imageUrl: $imageUrl')
           ..write(')'))
         .toString();
   }
@@ -368,8 +445,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
     isDeleted,
     email,
     phone,
+    passwordHash,
     role,
     name,
+    imageUrl,
   );
   @override
   bool operator ==(Object other) =>
@@ -381,8 +460,10 @@ class UserEntity extends DataClass implements Insertable<UserEntity> {
           other.isDeleted == this.isDeleted &&
           other.email == this.email &&
           other.phone == this.phone &&
+          other.passwordHash == this.passwordHash &&
           other.role == this.role &&
-          other.name == this.name);
+          other.name == this.name &&
+          other.imageUrl == this.imageUrl);
 }
 
 class UsersCompanion extends UpdateCompanion<UserEntity> {
@@ -392,8 +473,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
   final Value<bool> isDeleted;
   final Value<String?> email;
   final Value<String?> phone;
+  final Value<String?> passwordHash;
   final Value<String> role;
   final Value<String> name;
+  final Value<String?> imageUrl;
   final Value<int> rowid;
   const UsersCompanion({
     this.id = const Value.absent(),
@@ -402,8 +485,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
     this.isDeleted = const Value.absent(),
     this.email = const Value.absent(),
     this.phone = const Value.absent(),
+    this.passwordHash = const Value.absent(),
     this.role = const Value.absent(),
     this.name = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UsersCompanion.insert({
@@ -413,8 +498,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
     this.isDeleted = const Value.absent(),
     this.email = const Value.absent(),
     this.phone = const Value.absent(),
+    this.passwordHash = const Value.absent(),
     required String role,
     required String name,
+    this.imageUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        role = Value(role),
@@ -426,8 +513,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
     Expression<bool>? isDeleted,
     Expression<String>? email,
     Expression<String>? phone,
+    Expression<String>? passwordHash,
     Expression<String>? role,
     Expression<String>? name,
+    Expression<String>? imageUrl,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -437,8 +526,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
+      if (passwordHash != null) 'password_hash': passwordHash,
       if (role != null) 'role': role,
       if (name != null) 'name': name,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -450,8 +541,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
     Value<bool>? isDeleted,
     Value<String?>? email,
     Value<String?>? phone,
+    Value<String?>? passwordHash,
     Value<String>? role,
     Value<String>? name,
+    Value<String?>? imageUrl,
     Value<int>? rowid,
   }) {
     return UsersCompanion(
@@ -461,8 +554,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
       isDeleted: isDeleted ?? this.isDeleted,
       email: email ?? this.email,
       phone: phone ?? this.phone,
+      passwordHash: passwordHash ?? this.passwordHash,
       role: role ?? this.role,
       name: name ?? this.name,
+      imageUrl: imageUrl ?? this.imageUrl,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -490,11 +585,17 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
     if (phone.present) {
       map['phone'] = Variable<String>(phone.value);
     }
+    if (passwordHash.present) {
+      map['password_hash'] = Variable<String>(passwordHash.value);
+    }
     if (role.present) {
       map['role'] = Variable<String>(role.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -511,8 +612,10 @@ class UsersCompanion extends UpdateCompanion<UserEntity> {
           ..write('isDeleted: $isDeleted, ')
           ..write('email: $email, ')
           ..write('phone: $phone, ')
+          ..write('passwordHash: $passwordHash, ')
           ..write('role: $role, ')
           ..write('name: $name, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -647,6 +750,17 @@ class $ProductsTable extends Products
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -660,6 +774,7 @@ class $ProductsTable extends Products
     buyPrice,
     sellPrice,
     barcode,
+    imageUrl,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -748,6 +863,12 @@ class $ProductsTable extends Products
         barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
       );
     }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
     return context;
   }
 
@@ -803,6 +924,10 @@ class $ProductsTable extends Products
         DriftSqlType.string,
         data['${effectivePrefix}barcode'],
       ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
     );
   }
 
@@ -827,6 +952,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
   final double buyPrice;
   final double sellPrice;
   final String? barcode;
+  final String? imageUrl;
   const ProductEntity({
     required this.id,
     required this.syncStatus,
@@ -839,6 +965,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
     required this.buyPrice,
     required this.sellPrice,
     this.barcode,
+    this.imageUrl,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -860,6 +987,9 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
     if (!nullToAbsent || barcode != null) {
       map['barcode'] = Variable<String>(barcode);
     }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
     return map;
   }
 
@@ -878,6 +1008,9 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
       barcode: barcode == null && nullToAbsent
           ? const Value.absent()
           : Value(barcode),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
     );
   }
 
@@ -900,6 +1033,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
       buyPrice: serializer.fromJson<double>(json['buyPrice']),
       sellPrice: serializer.fromJson<double>(json['sellPrice']),
       barcode: serializer.fromJson<String?>(json['barcode']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
     );
   }
   @override
@@ -919,6 +1053,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
       'buyPrice': serializer.toJson<double>(buyPrice),
       'sellPrice': serializer.toJson<double>(sellPrice),
       'barcode': serializer.toJson<String?>(barcode),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
     };
   }
 
@@ -934,6 +1069,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
     double? buyPrice,
     double? sellPrice,
     Value<String?> barcode = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
   }) => ProductEntity(
     id: id ?? this.id,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -946,6 +1082,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
     buyPrice: buyPrice ?? this.buyPrice,
     sellPrice: sellPrice ?? this.sellPrice,
     barcode: barcode.present ? barcode.value : this.barcode,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
   );
   ProductEntity copyWithCompanion(ProductsCompanion data) {
     return ProductEntity(
@@ -968,6 +1105,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
       buyPrice: data.buyPrice.present ? data.buyPrice.value : this.buyPrice,
       sellPrice: data.sellPrice.present ? data.sellPrice.value : this.sellPrice,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
     );
   }
 
@@ -984,7 +1122,8 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
           ..write('unitType: $unitType, ')
           ..write('buyPrice: $buyPrice, ')
           ..write('sellPrice: $sellPrice, ')
-          ..write('barcode: $barcode')
+          ..write('barcode: $barcode, ')
+          ..write('imageUrl: $imageUrl')
           ..write(')'))
         .toString();
   }
@@ -1002,6 +1141,7 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
     buyPrice,
     sellPrice,
     barcode,
+    imageUrl,
   );
   @override
   bool operator ==(Object other) =>
@@ -1017,7 +1157,8 @@ class ProductEntity extends DataClass implements Insertable<ProductEntity> {
           other.unitType == this.unitType &&
           other.buyPrice == this.buyPrice &&
           other.sellPrice == this.sellPrice &&
-          other.barcode == this.barcode);
+          other.barcode == this.barcode &&
+          other.imageUrl == this.imageUrl);
 }
 
 class ProductsCompanion extends UpdateCompanion<ProductEntity> {
@@ -1032,6 +1173,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
   final Value<double> buyPrice;
   final Value<double> sellPrice;
   final Value<String?> barcode;
+  final Value<String?> imageUrl;
   final Value<int> rowid;
   const ProductsCompanion({
     this.id = const Value.absent(),
@@ -1045,6 +1187,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
     this.buyPrice = const Value.absent(),
     this.sellPrice = const Value.absent(),
     this.barcode = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductsCompanion.insert({
@@ -1059,6 +1202,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
     required double buyPrice,
     required double sellPrice,
     this.barcode = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -1078,6 +1222,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
     Expression<double>? buyPrice,
     Expression<double>? sellPrice,
     Expression<String>? barcode,
+    Expression<String>? imageUrl,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1092,6 +1237,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
       if (buyPrice != null) 'buy_price': buyPrice,
       if (sellPrice != null) 'sell_price': sellPrice,
       if (barcode != null) 'barcode': barcode,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1108,6 +1254,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
     Value<double>? buyPrice,
     Value<double>? sellPrice,
     Value<String?>? barcode,
+    Value<String?>? imageUrl,
     Value<int>? rowid,
   }) {
     return ProductsCompanion(
@@ -1122,6 +1269,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
       buyPrice: buyPrice ?? this.buyPrice,
       sellPrice: sellPrice ?? this.sellPrice,
       barcode: barcode ?? this.barcode,
+      imageUrl: imageUrl ?? this.imageUrl,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1164,6 +1312,9 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
     if (barcode.present) {
       map['barcode'] = Variable<String>(barcode.value);
     }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1184,6 +1335,7 @@ class ProductsCompanion extends UpdateCompanion<ProductEntity> {
           ..write('buyPrice: $buyPrice, ')
           ..write('sellPrice: $sellPrice, ')
           ..write('barcode: $barcode, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1665,6 +1817,17 @@ class $CustomersTable extends Customers
     requiredDuringInsert: false,
     defaultValue: const Constant(0.0),
   );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1676,6 +1839,7 @@ class $CustomersTable extends Customers
     phone,
     address,
     debtBalance,
+    imageUrl,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1747,6 +1911,12 @@ class $CustomersTable extends Customers
         ),
       );
     }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
     return context;
   }
 
@@ -1794,6 +1964,10 @@ class $CustomersTable extends Customers
         DriftSqlType.double,
         data['${effectivePrefix}debt_balance'],
       )!,
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
     );
   }
 
@@ -1816,6 +1990,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
   final String? phone;
   final String? address;
   final double debtBalance;
+  final String? imageUrl;
   const CustomerEntity({
     required this.id,
     required this.syncStatus,
@@ -1826,6 +2001,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
     this.phone,
     this.address,
     required this.debtBalance,
+    this.imageUrl,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1849,6 +2025,9 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
       map['address'] = Variable<String>(address);
     }
     map['debt_balance'] = Variable<double>(debtBalance);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
     return map;
   }
 
@@ -1869,6 +2048,9 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
           ? const Value.absent()
           : Value(address),
       debtBalance: Value(debtBalance),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
     );
   }
 
@@ -1889,6 +2071,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
       phone: serializer.fromJson<String?>(json['phone']),
       address: serializer.fromJson<String?>(json['address']),
       debtBalance: serializer.fromJson<double>(json['debtBalance']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
     );
   }
   @override
@@ -1906,6 +2089,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
       'phone': serializer.toJson<String?>(phone),
       'address': serializer.toJson<String?>(address),
       'debtBalance': serializer.toJson<double>(debtBalance),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
     };
   }
 
@@ -1919,6 +2103,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
     Value<String?> phone = const Value.absent(),
     Value<String?> address = const Value.absent(),
     double? debtBalance,
+    Value<String?> imageUrl = const Value.absent(),
   }) => CustomerEntity(
     id: id ?? this.id,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -1929,6 +2114,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
     phone: phone.present ? phone.value : this.phone,
     address: address.present ? address.value : this.address,
     debtBalance: debtBalance ?? this.debtBalance,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
   );
   CustomerEntity copyWithCompanion(CustomersCompanion data) {
     return CustomerEntity(
@@ -1949,6 +2135,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
       debtBalance: data.debtBalance.present
           ? data.debtBalance.value
           : this.debtBalance,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
     );
   }
 
@@ -1963,7 +2150,8 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
           ..write('businessName: $businessName, ')
           ..write('phone: $phone, ')
           ..write('address: $address, ')
-          ..write('debtBalance: $debtBalance')
+          ..write('debtBalance: $debtBalance, ')
+          ..write('imageUrl: $imageUrl')
           ..write(')'))
         .toString();
   }
@@ -1979,6 +2167,7 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
     phone,
     address,
     debtBalance,
+    imageUrl,
   );
   @override
   bool operator ==(Object other) =>
@@ -1992,7 +2181,8 @@ class CustomerEntity extends DataClass implements Insertable<CustomerEntity> {
           other.businessName == this.businessName &&
           other.phone == this.phone &&
           other.address == this.address &&
-          other.debtBalance == this.debtBalance);
+          other.debtBalance == this.debtBalance &&
+          other.imageUrl == this.imageUrl);
 }
 
 class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
@@ -2005,6 +2195,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
   final Value<String?> phone;
   final Value<String?> address;
   final Value<double> debtBalance;
+  final Value<String?> imageUrl;
   final Value<int> rowid;
   const CustomersCompanion({
     this.id = const Value.absent(),
@@ -2016,6 +2207,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
     this.phone = const Value.absent(),
     this.address = const Value.absent(),
     this.debtBalance = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CustomersCompanion.insert({
@@ -2028,6 +2220,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
     this.phone = const Value.absent(),
     this.address = const Value.absent(),
     this.debtBalance = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        businessName = Value(businessName);
@@ -2041,6 +2234,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
     Expression<String>? phone,
     Expression<String>? address,
     Expression<double>? debtBalance,
+    Expression<String>? imageUrl,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2053,6 +2247,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
       if (phone != null) 'phone': phone,
       if (address != null) 'address': address,
       if (debtBalance != null) 'debt_balance': debtBalance,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2067,6 +2262,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
     Value<String?>? phone,
     Value<String?>? address,
     Value<double>? debtBalance,
+    Value<String?>? imageUrl,
     Value<int>? rowid,
   }) {
     return CustomersCompanion(
@@ -2079,6 +2275,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
       phone: phone ?? this.phone,
       address: address ?? this.address,
       debtBalance: debtBalance ?? this.debtBalance,
+      imageUrl: imageUrl ?? this.imageUrl,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2115,6 +2312,9 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
     if (debtBalance.present) {
       map['debt_balance'] = Variable<double>(debtBalance.value);
     }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2133,6 +2333,7 @@ class CustomersCompanion extends UpdateCompanion<CustomerEntity> {
           ..write('phone: $phone, ')
           ..write('address: $address, ')
           ..write('debtBalance: $debtBalance, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2190,6 +2391,17 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, OrderEntity> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _orderNumberMeta = const VerificationMeta(
+    'orderNumber',
+  );
+  @override
+  late final GeneratedColumn<int> orderNumber = GeneratedColumn<int>(
+    'order_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _customerIdMeta = const VerificationMeta(
     'customerId',
   );
@@ -2239,6 +2451,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, OrderEntity> {
     syncStatus,
     lastUpdated,
     isDeleted,
+    orderNumber,
     customerId,
     status,
     totalAmount,
@@ -2274,6 +2487,15 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, OrderEntity> {
       context.handle(
         _isDeletedMeta,
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('order_number')) {
+      context.handle(
+        _orderNumberMeta,
+        orderNumber.isAcceptableOrUnknown(
+          data['order_number']!,
+          _orderNumberMeta,
+        ),
       );
     }
     if (data.containsKey('customer_id')) {
@@ -2336,6 +2558,10 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, OrderEntity> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
+      orderNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_number'],
+      ),
       customerId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}customer_id'],
@@ -2369,6 +2595,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
   final SyncStatus syncStatus;
   final DateTime lastUpdated;
   final bool isDeleted;
+  final int? orderNumber;
   final String customerId;
   final String status;
   final double totalAmount;
@@ -2378,6 +2605,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
     required this.syncStatus,
     required this.lastUpdated,
     required this.isDeleted,
+    this.orderNumber,
     required this.customerId,
     required this.status,
     required this.totalAmount,
@@ -2394,6 +2622,9 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
     }
     map['last_updated'] = Variable<DateTime>(lastUpdated);
     map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || orderNumber != null) {
+      map['order_number'] = Variable<int>(orderNumber);
+    }
     map['customer_id'] = Variable<String>(customerId);
     map['status'] = Variable<String>(status);
     map['total_amount'] = Variable<double>(totalAmount);
@@ -2407,6 +2638,9 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
       syncStatus: Value(syncStatus),
       lastUpdated: Value(lastUpdated),
       isDeleted: Value(isDeleted),
+      orderNumber: orderNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(orderNumber),
       customerId: Value(customerId),
       status: Value(status),
       totalAmount: Value(totalAmount),
@@ -2426,6 +2660,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
       ),
       lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      orderNumber: serializer.fromJson<int?>(json['orderNumber']),
       customerId: serializer.fromJson<String>(json['customerId']),
       status: serializer.fromJson<String>(json['status']),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
@@ -2442,6 +2677,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
       ),
       'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
       'isDeleted': serializer.toJson<bool>(isDeleted),
+      'orderNumber': serializer.toJson<int?>(orderNumber),
       'customerId': serializer.toJson<String>(customerId),
       'status': serializer.toJson<String>(status),
       'totalAmount': serializer.toJson<double>(totalAmount),
@@ -2454,6 +2690,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
     SyncStatus? syncStatus,
     DateTime? lastUpdated,
     bool? isDeleted,
+    Value<int?> orderNumber = const Value.absent(),
     String? customerId,
     String? status,
     double? totalAmount,
@@ -2463,6 +2700,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
     syncStatus: syncStatus ?? this.syncStatus,
     lastUpdated: lastUpdated ?? this.lastUpdated,
     isDeleted: isDeleted ?? this.isDeleted,
+    orderNumber: orderNumber.present ? orderNumber.value : this.orderNumber,
     customerId: customerId ?? this.customerId,
     status: status ?? this.status,
     totalAmount: totalAmount ?? this.totalAmount,
@@ -2478,6 +2716,9 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
           ? data.lastUpdated.value
           : this.lastUpdated,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      orderNumber: data.orderNumber.present
+          ? data.orderNumber.value
+          : this.orderNumber,
       customerId: data.customerId.present
           ? data.customerId.value
           : this.customerId,
@@ -2496,6 +2737,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
           ..write('syncStatus: $syncStatus, ')
           ..write('lastUpdated: $lastUpdated, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('orderNumber: $orderNumber, ')
           ..write('customerId: $customerId, ')
           ..write('status: $status, ')
           ..write('totalAmount: $totalAmount, ')
@@ -2510,6 +2752,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
     syncStatus,
     lastUpdated,
     isDeleted,
+    orderNumber,
     customerId,
     status,
     totalAmount,
@@ -2523,6 +2766,7 @@ class OrderEntity extends DataClass implements Insertable<OrderEntity> {
           other.syncStatus == this.syncStatus &&
           other.lastUpdated == this.lastUpdated &&
           other.isDeleted == this.isDeleted &&
+          other.orderNumber == this.orderNumber &&
           other.customerId == this.customerId &&
           other.status == this.status &&
           other.totalAmount == this.totalAmount &&
@@ -2534,6 +2778,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
   final Value<SyncStatus> syncStatus;
   final Value<DateTime> lastUpdated;
   final Value<bool> isDeleted;
+  final Value<int?> orderNumber;
   final Value<String> customerId;
   final Value<String> status;
   final Value<double> totalAmount;
@@ -2544,6 +2789,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
     this.syncStatus = const Value.absent(),
     this.lastUpdated = const Value.absent(),
     this.isDeleted = const Value.absent(),
+    this.orderNumber = const Value.absent(),
     this.customerId = const Value.absent(),
     this.status = const Value.absent(),
     this.totalAmount = const Value.absent(),
@@ -2555,6 +2801,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
     this.syncStatus = const Value.absent(),
     this.lastUpdated = const Value.absent(),
     this.isDeleted = const Value.absent(),
+    this.orderNumber = const Value.absent(),
     required String customerId,
     required String status,
     required double totalAmount,
@@ -2569,6 +2816,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
     Expression<int>? syncStatus,
     Expression<DateTime>? lastUpdated,
     Expression<bool>? isDeleted,
+    Expression<int>? orderNumber,
     Expression<String>? customerId,
     Expression<String>? status,
     Expression<double>? totalAmount,
@@ -2580,6 +2828,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
       if (syncStatus != null) 'sync_status': syncStatus,
       if (lastUpdated != null) 'last_updated': lastUpdated,
       if (isDeleted != null) 'is_deleted': isDeleted,
+      if (orderNumber != null) 'order_number': orderNumber,
       if (customerId != null) 'customer_id': customerId,
       if (status != null) 'status': status,
       if (totalAmount != null) 'total_amount': totalAmount,
@@ -2593,6 +2842,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
     Value<SyncStatus>? syncStatus,
     Value<DateTime>? lastUpdated,
     Value<bool>? isDeleted,
+    Value<int?>? orderNumber,
     Value<String>? customerId,
     Value<String>? status,
     Value<double>? totalAmount,
@@ -2604,6 +2854,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
       syncStatus: syncStatus ?? this.syncStatus,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       isDeleted: isDeleted ?? this.isDeleted,
+      orderNumber: orderNumber ?? this.orderNumber,
       customerId: customerId ?? this.customerId,
       status: status ?? this.status,
       totalAmount: totalAmount ?? this.totalAmount,
@@ -2628,6 +2879,9 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
     }
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (orderNumber.present) {
+      map['order_number'] = Variable<int>(orderNumber.value);
     }
     if (customerId.present) {
       map['customer_id'] = Variable<String>(customerId.value);
@@ -2654,6 +2908,7 @@ class OrdersCompanion extends UpdateCompanion<OrderEntity> {
           ..write('syncStatus: $syncStatus, ')
           ..write('lastUpdated: $lastUpdated, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('orderNumber: $orderNumber, ')
           ..write('customerId: $customerId, ')
           ..write('status: $status, ')
           ..write('totalAmount: $totalAmount, ')
@@ -3698,8 +3953,10 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<bool> isDeleted,
       Value<String?> email,
       Value<String?> phone,
+      Value<String?> passwordHash,
       required String role,
       required String name,
+      Value<String?> imageUrl,
       Value<int> rowid,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
@@ -3710,8 +3967,10 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<bool> isDeleted,
       Value<String?> email,
       Value<String?> phone,
+      Value<String?> passwordHash,
       Value<String> role,
       Value<String> name,
+      Value<String?> imageUrl,
       Value<int> rowid,
     });
 
@@ -3754,6 +4013,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get role => $composableBuilder(
     column: $table.role,
     builder: (column) => ColumnFilters(column),
@@ -3761,6 +4025,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3804,6 +4073,11 @@ class $$UsersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get role => $composableBuilder(
     column: $table.role,
     builder: (column) => ColumnOrderings(column),
@@ -3811,6 +4085,11 @@ class $$UsersTableOrderingComposer
 
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -3847,11 +4126,19 @@ class $$UsersTableAnnotationComposer
   GeneratedColumn<String> get phone =>
       $composableBuilder(column: $table.phone, builder: (column) => column);
 
+  GeneratedColumn<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get role =>
       $composableBuilder(column: $table.role, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 }
 
 class $$UsersTableTableManager
@@ -3888,8 +4175,10 @@ class $$UsersTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
                 Value<String?> email = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
+                Value<String?> passwordHash = const Value.absent(),
                 Value<String> role = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
@@ -3898,8 +4187,10 @@ class $$UsersTableTableManager
                 isDeleted: isDeleted,
                 email: email,
                 phone: phone,
+                passwordHash: passwordHash,
                 role: role,
                 name: name,
+                imageUrl: imageUrl,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3910,8 +4201,10 @@ class $$UsersTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
                 Value<String?> email = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
+                Value<String?> passwordHash = const Value.absent(),
                 required String role,
                 required String name,
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
@@ -3920,8 +4213,10 @@ class $$UsersTableTableManager
                 isDeleted: isDeleted,
                 email: email,
                 phone: phone,
+                passwordHash: passwordHash,
                 role: role,
                 name: name,
+                imageUrl: imageUrl,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -3959,6 +4254,7 @@ typedef $$ProductsTableCreateCompanionBuilder =
       required double buyPrice,
       required double sellPrice,
       Value<String?> barcode,
+      Value<String?> imageUrl,
       Value<int> rowid,
     });
 typedef $$ProductsTableUpdateCompanionBuilder =
@@ -3974,6 +4270,7 @@ typedef $$ProductsTableUpdateCompanionBuilder =
       Value<double> buyPrice,
       Value<double> sellPrice,
       Value<String?> barcode,
+      Value<String?> imageUrl,
       Value<int> rowid,
     });
 
@@ -4041,6 +4338,11 @@ class $$ProductsTableFilterComposer
     column: $table.barcode,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$ProductsTableOrderingComposer
@@ -4106,6 +4408,11 @@ class $$ProductsTableOrderingComposer
     column: $table.barcode,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProductsTableAnnotationComposer
@@ -4158,6 +4465,9 @@ class $$ProductsTableAnnotationComposer
 
   GeneratedColumn<String> get barcode =>
       $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 }
 
 class $$ProductsTableTableManager
@@ -4202,6 +4512,7 @@ class $$ProductsTableTableManager
                 Value<double> buyPrice = const Value.absent(),
                 Value<double> sellPrice = const Value.absent(),
                 Value<String?> barcode = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductsCompanion(
                 id: id,
@@ -4215,6 +4526,7 @@ class $$ProductsTableTableManager
                 buyPrice: buyPrice,
                 sellPrice: sellPrice,
                 barcode: barcode,
+                imageUrl: imageUrl,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4230,6 +4542,7 @@ class $$ProductsTableTableManager
                 required double buyPrice,
                 required double sellPrice,
                 Value<String?> barcode = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductsCompanion.insert(
                 id: id,
@@ -4243,6 +4556,7 @@ class $$ProductsTableTableManager
                 buyPrice: buyPrice,
                 sellPrice: sellPrice,
                 barcode: barcode,
+                imageUrl: imageUrl,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4487,6 +4801,7 @@ typedef $$CustomersTableCreateCompanionBuilder =
       Value<String?> phone,
       Value<String?> address,
       Value<double> debtBalance,
+      Value<String?> imageUrl,
       Value<int> rowid,
     });
 typedef $$CustomersTableUpdateCompanionBuilder =
@@ -4500,6 +4815,7 @@ typedef $$CustomersTableUpdateCompanionBuilder =
       Value<String?> phone,
       Value<String?> address,
       Value<double> debtBalance,
+      Value<String?> imageUrl,
       Value<int> rowid,
     });
 
@@ -4557,6 +4873,11 @@ class $$CustomersTableFilterComposer
     column: $table.debtBalance,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$CustomersTableOrderingComposer
@@ -4612,6 +4933,11 @@ class $$CustomersTableOrderingComposer
     column: $table.debtBalance,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CustomersTableAnnotationComposer
@@ -4658,6 +4984,9 @@ class $$CustomersTableAnnotationComposer
     column: $table.debtBalance,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 }
 
 class $$CustomersTableTableManager
@@ -4700,6 +5029,7 @@ class $$CustomersTableTableManager
                 Value<String?> phone = const Value.absent(),
                 Value<String?> address = const Value.absent(),
                 Value<double> debtBalance = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CustomersCompanion(
                 id: id,
@@ -4711,6 +5041,7 @@ class $$CustomersTableTableManager
                 phone: phone,
                 address: address,
                 debtBalance: debtBalance,
+                imageUrl: imageUrl,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4724,6 +5055,7 @@ class $$CustomersTableTableManager
                 Value<String?> phone = const Value.absent(),
                 Value<String?> address = const Value.absent(),
                 Value<double> debtBalance = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CustomersCompanion.insert(
                 id: id,
@@ -4735,6 +5067,7 @@ class $$CustomersTableTableManager
                 phone: phone,
                 address: address,
                 debtBalance: debtBalance,
+                imageUrl: imageUrl,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4768,6 +5101,7 @@ typedef $$OrdersTableCreateCompanionBuilder =
       Value<SyncStatus> syncStatus,
       Value<DateTime> lastUpdated,
       Value<bool> isDeleted,
+      Value<int?> orderNumber,
       required String customerId,
       required String status,
       required double totalAmount,
@@ -4780,6 +5114,7 @@ typedef $$OrdersTableUpdateCompanionBuilder =
       Value<SyncStatus> syncStatus,
       Value<DateTime> lastUpdated,
       Value<bool> isDeleted,
+      Value<int?> orderNumber,
       Value<String> customerId,
       Value<String> status,
       Value<double> totalAmount,
@@ -4814,6 +5149,11 @@ class $$OrdersTableFilterComposer
 
   ColumnFilters<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderNumber => $composableBuilder(
+    column: $table.orderNumber,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4867,6 +5207,11 @@ class $$OrdersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get orderNumber => $composableBuilder(
+    column: $table.orderNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get customerId => $composableBuilder(
     column: $table.customerId,
     builder: (column) => ColumnOrderings(column),
@@ -4913,6 +5258,11 @@ class $$OrdersTableAnnotationComposer
 
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<int> get orderNumber => $composableBuilder(
+    column: $table.orderNumber,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get customerId => $composableBuilder(
     column: $table.customerId,
@@ -4966,6 +5316,7 @@ class $$OrdersTableTableManager
                 Value<SyncStatus> syncStatus = const Value.absent(),
                 Value<DateTime> lastUpdated = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
+                Value<int?> orderNumber = const Value.absent(),
                 Value<String> customerId = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<double> totalAmount = const Value.absent(),
@@ -4976,6 +5327,7 @@ class $$OrdersTableTableManager
                 syncStatus: syncStatus,
                 lastUpdated: lastUpdated,
                 isDeleted: isDeleted,
+                orderNumber: orderNumber,
                 customerId: customerId,
                 status: status,
                 totalAmount: totalAmount,
@@ -4988,6 +5340,7 @@ class $$OrdersTableTableManager
                 Value<SyncStatus> syncStatus = const Value.absent(),
                 Value<DateTime> lastUpdated = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
+                Value<int?> orderNumber = const Value.absent(),
                 required String customerId,
                 required String status,
                 required double totalAmount,
@@ -4998,6 +5351,7 @@ class $$OrdersTableTableManager
                 syncStatus: syncStatus,
                 lastUpdated: lastUpdated,
                 isDeleted: isDeleted,
+                orderNumber: orderNumber,
                 customerId: customerId,
                 status: status,
                 totalAmount: totalAmount,

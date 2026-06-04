@@ -12,14 +12,37 @@ import '../../features/orders/bakery_catalog_screen.dart';
 import '../../features/dashboard/admin_dashboard_screen.dart';
 import '../../features/dashboard/main_shell_layout.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/settings/edit_profile_screen.dart';
+import '../../features/settings/notifications_screen.dart';
+import '../../features/auth/login_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
 import '../../data/local_database/database.dart';
+import '../../core/providers/auth_provider.dart';
 import 'routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final authListenable = ValueNotifier<AuthState>(ref.read(authProvider));
+  ref.listen(authProvider, (_, next) => authListenable.value = next);
+
   return GoRouter(
-    initialLocation: Routes.adminDashboard, // Testing as Admin
+    initialLocation: Routes.login,
     debugLogDiagnostics: true,
+    refreshListenable: authListenable,
+    redirect: (context, state) {
+      final auth = authListenable.value;
+      // Still loading — show splash
+      if (auth.isLoading) return Routes.splash;
+      
+      final isOnLogin = state.matchedLocation == Routes.login;
+      final isOnSplash = state.matchedLocation == Routes.splash;
+      
+      if (!auth.isLoggedIn && !isOnLogin) return Routes.login;
+      
+      // If logged in and currently on the login or splash screen, go to dashboard
+      if (auth.isLoggedIn && (isOnLogin || isOnSplash)) return Routes.adminDashboard;
+      
+      return null;
+    },
     routes: [
       GoRoute(
         path: Routes.splash,
@@ -29,9 +52,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.login,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Login Screen - TODO')),
-        ),
+        builder: (context, state) => const LoginScreen(),
       ),
       StatefulShellRoute(
         branches: [
@@ -78,7 +99,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
         navigatorContainerBuilder: (context, navigationShell, children) {
           return AnimatedBranchContainer(
-            currentIndex: navigationShell.currentIndex,
+            navigationShell: navigationShell,
             children: children,
           );
         },
@@ -88,87 +109,50 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.analytics,
-        pageBuilder: (context, state) => buildSlideTransitionPage(
-          state: state,
-          child: const AnalyticsScreen(),
-        ),
+        builder: (context, state) => const AnalyticsScreen(),
       ),
+
       GoRoute(
         path: Routes.productForm,
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           final productToEdit = state.extra as ProductEntity?;
-          return buildSlideTransitionPage(
-            state: state,
-            child: ProductFormScreen(productToEdit: productToEdit),
-          );
+          return ProductFormScreen(productToEdit: productToEdit);
         },
       ),
       GoRoute(
         path: Routes.customerForm,
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           final customerToEdit = state.extra as CustomerEntity?;
-          return buildSlideTransitionPage(
-            state: state,
-            child: CustomerFormScreen(customerToEdit: customerToEdit),
-          );
+          return CustomerFormScreen(customerToEdit: customerToEdit);
         },
       ),
       GoRoute(
         path: Routes.customerDetail,
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           final customer = state.extra as CustomerEntity;
-          return buildSlideTransitionPage(
-            state: state,
-            child: CustomerDetailScreen(customer: customer),
-          );
+          return CustomerDetailScreen(customer: customer);
         },
+      ),
+      GoRoute(
+        path: Routes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.notifications,
+        builder: (context, state) => const NotificationsScreen(),
       ),
     ],
   );
 });
 
-CustomTransitionPage<T> buildSlideTransitionPage<T>({
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 320),
-    reverseTransitionDuration: const Duration(milliseconds: 280),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        )),
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: Offset.zero,
-            end: const Offset(-0.24, 0.0),
-          ).animate(CurvedAnimation(
-            parent: secondaryAnimation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          )),
-          child: child,
-        ),
-      );
-    },
-  );
-}
 
 class AnimatedBranchContainer extends StatefulWidget {
-  final int currentIndex;
+  final StatefulNavigationShell navigationShell;
   final List<Widget> children;
 
   const AnimatedBranchContainer({
     super.key,
-    required this.currentIndex,
+    required this.navigationShell,
     required this.children,
   });
 
@@ -176,93 +160,53 @@ class AnimatedBranchContainer extends StatefulWidget {
   State<AnimatedBranchContainer> createState() => _AnimatedBranchContainerState();
 }
 
-class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> with TickerProviderStateMixin {
-  late List<AnimationController> _controllers;
-  late List<Animation<double>> _animations;
-  int? _previousIndex;
+class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> {
+  late PageController _pageController;
+  bool _isNavigatingFromBottomBar = false;
 
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(widget.children.length, (index) {
-      return AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 240),
-        value: index == widget.currentIndex ? 1.0 : 0.0,
-      );
-    });
-    _animations = _controllers.map((c) {
-      return CurvedAnimation(
-        parent: c,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      );
-    }).toList();
+    _pageController = PageController(initialPage: widget.navigationShell.currentIndex);
   }
 
   @override
   void didUpdateWidget(covariant AnimatedBranchContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentIndex != widget.currentIndex) {
-      _previousIndex = oldWidget.currentIndex;
-      _controllers[oldWidget.currentIndex].reverse();
-      _controllers[widget.currentIndex].forward();
+    if (oldWidget.navigationShell.currentIndex != widget.navigationShell.currentIndex) {
+      // Sync PageController with BottomNav taps
+      _isNavigatingFromBottomBar = true;
+      _pageController.animateToPage(
+        widget.navigationShell.currentIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      ).then((_) {
+        if (mounted) {
+          setState(() {
+            _isNavigatingFromBottomBar = false;
+          });
+        }
+      });
     }
   }
 
   @override
   void dispose() {
-    for (final controller in _controllers) {
-      controller.dispose();
-    }
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: List.generate(widget.children.length, (index) {
-        final child = widget.children[index];
-        final animation = _animations[index];
-        
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (context, _) {
-            final isVisible = animation.value > 0.0;
-            
-            Offset slideOffset;
-            if (_previousIndex != null) {
-              final bool isMovingForward = widget.currentIndex > _previousIndex!;
-              if (index == widget.currentIndex) {
-                slideOffset = isMovingForward ? const Offset(0.04, 0.0) : const Offset(-0.04, 0.0);
-              } else if (index == _previousIndex) {
-                slideOffset = isMovingForward ? const Offset(-0.04, 0.0) : const Offset(0.04, 0.0);
-              } else {
-                slideOffset = Offset.zero;
-              }
-            } else {
-              slideOffset = Offset.zero;
-            }
-
-            return Offstage(
-              offstage: !isVisible && index != widget.currentIndex,
-              child: TickerMode(
-                enabled: isVisible || index == widget.currentIndex,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: slideOffset,
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      }),
+    return PageView(
+      controller: _pageController,
+      onPageChanged: (index) {
+        // Sync BottomNav with Swipe gesture ONLY if not jumping from bottom nav
+        if (!_isNavigatingFromBottomBar && index != widget.navigationShell.currentIndex) {
+          widget.navigationShell.goBranch(index);
+        }
+      },
+      children: widget.children,
     );
   }
 }

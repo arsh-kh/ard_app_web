@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,6 +48,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final stockLabel = isKurdish ? 'کۆگا' : isArabic ? 'المخزون' : 'Stock';
     final lowLabel = isKurdish ? 'کەمە' : isArabic ? 'منخفض' : 'LOW';
     final registerFirst = isKurdish ? 'یەکەم بەرهەم تۆمار بکە' : isArabic ? 'سجل منتجك الأول' : 'Register Your First Product';
+    final newProductLabel = isKurdish ? 'بەرهەمی نوێ' : isArabic ? 'منتج جديد' : 'New Product';
 
     return Scaffold(
       appBar: AppBar(
@@ -60,6 +62,15 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           ),
           const SizedBox(width: 8),
         ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 96.0),
+        child: FloatingActionButton.extended(
+          heroTag: 'inventory_fab',
+          onPressed: () => context.push(Routes.productForm),
+          icon: const Icon(Icons.add_box),
+          label: Text(newProductLabel),
+        ),
       ),
       body: Column(
         children: [
@@ -168,7 +179,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
 
                 return ListView.builder(
                   itemCount: filtered.length,
-                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  padding: const EdgeInsets.only(top: 8, bottom: 120),
                   itemBuilder: (context, index) {
                     final product = filtered[index];
                     final isLowStock = product.stockQuantity < 10.0;
@@ -189,14 +200,25 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        leading: CircleAvatar(
-                          backgroundColor: isLowStock
-                              ? Colors.red.withValues(alpha: 0.1)
-                              : theme.colorScheme.primary.withValues(alpha: 0.08),
-                          child: Icon(
-                            isLowStock ? Icons.warning : Icons.inventory_2,
-                            color: isLowStock ? Colors.red : theme.colorScheme.primary,
+                        leading: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: isLowStock ? Colors.red.withValues(alpha: 0.1) : theme.colorScheme.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(10),
                           ),
+                          child: product.imageUrl != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.file(
+                                    File(product.imageUrl!),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(
+                                  isLowStock ? Icons.warning : Icons.inventory_2,
+                                  color: isLowStock ? Colors.red : theme.colorScheme.primary,
+                                ),
                         ),
                         title: Text(
                           product.name,
@@ -207,7 +229,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                           child: Row(
                             children: [
                               Text(
-                                '$stockLabel: ${product.stockQuantity} ${product.unitType}',
+                                '${CurrencyFormatter.formatQuantity(product.stockQuantity, product.unitType)} $stockLabel',
                                 style: TextStyle(
                                   color: isLowStock ? Colors.red : Colors.grey.shade600,
                                   fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal,

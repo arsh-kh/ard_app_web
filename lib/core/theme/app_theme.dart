@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Buzne Inspired Palette
-  static const Color primaryColor = Color(0xFFDC2626); // Bright Red
-  static const Color secondaryColor = Color(0xFF171717); // Dark Charcoal/Black for prominent cards
-  static const Color backgroundLight = Color(0xFFF8F9FA); // Very light gray/off-white
-  static const Color backgroundDark = Color(0xFF121212); // True Dark
-  static const Color surfaceLight = Colors.white;
-  static const Color surfaceDark = Color(0xFF1E1E1E);
-  static const Color textLight = Color(0xFF171717);
-  static const Color textDark = Color(0xFFF9FAFB);
+  // Monochrome Palette
+  static const Color primaryColor = Color(0xFF000000); // True Black
+  static const Color secondaryColor = Color(0xFF222222); // Dark Charcoal
+  static const Color backgroundLight = Color(0xFFFFFFFF); // Pure White
+  static const Color backgroundDark = Color(0xFF0B0D12); // Deep midnight blue-black
+  static const Color surfaceLight = Color(0xFFF8F9FA); // Very light grey for cards
+  static const Color surfaceDark = Color(0xFF151821); // Elevated sleek dark blue-grey
+  static const Color textLight = Color(0xFF000000);
+  static const Color textDark = Color(0xFFFFFFFF);
   static const Color textMutedLight = Color(0xFF6B7280);
   static const Color textMutedDark = Color(0xFF9CA3AF);
-  static const Color errorColor = Color(0xFFEF4444);
-  static const Color successColor = Color(0xFF10B981);
+  static const Color errorColor = Color(0xFF4B5563); // Muted grey instead of red
+  static const Color successColor = Color(0xFF000000); // Black instead of green
   
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: secondaryColor,
@@ -31,15 +38,25 @@ class AppTheme {
         onSurface: textLight,
       ),
       scaffoldBackgroundColor: backgroundLight,
-      textTheme: GoogleFonts.outfitTextTheme().apply(
+      textTheme: GoogleFonts.notoSansArabicTextTheme().apply(
         bodyColor: textLight,
         displayColor: textLight,
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: backgroundLight,
         foregroundColor: textLight,
         elevation: 0,
         centerTitle: true,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -48,15 +65,15 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // Slightly rounder buttons
+            borderRadius: BorderRadius.circular(16), 
           ),
         ),
       ),
       cardTheme: CardThemeData(
         color: surfaceLight,
-        elevation: 0, // Flat with custom shadows if needed
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24), // Very rounded cards
+          borderRadius: BorderRadius.circular(24),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -65,11 +82,11 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -83,32 +100,48 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       colorScheme: const ColorScheme.dark(
-        primary: primaryColor,
+        primary: Colors.white,
         secondary: secondaryColor,
         surface: surfaceDark,
         background: backgroundDark,
         error: errorColor,
-        onPrimary: Colors.white,
+        onPrimary: Colors.black,
         onSecondary: Colors.white,
         onSurface: textDark,
         onBackground: textDark,
       ),
       scaffoldBackgroundColor: backgroundDark,
-      textTheme: GoogleFonts.outfitTextTheme().apply(
+      textTheme: GoogleFonts.notoSansArabicTextTheme().apply(
         bodyColor: textDark,
         displayColor: textDark,
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: backgroundDark,
         foregroundColor: textDark,
         elevation: 0,
         centerTitle: true,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -137,7 +170,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: primaryColor, width: 2),
+          borderSide: const BorderSide(color: Colors.white, width: 2),
         ),
       ),
     );

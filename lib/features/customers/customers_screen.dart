@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import '../../core/providers/customer_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/routing/routes.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/widgets/initials_avatar.dart';
 import '../../data/local_database/database.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -63,10 +65,14 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      floatingActionButton: widget.isEmbedded ? FloatingActionButton.extended(
-        onPressed: () => context.push(Routes.customerForm),
-        icon: const Icon(Icons.person_add),
-        label: Text(newClient),
+      floatingActionButton: widget.isEmbedded ? Padding(
+        padding: const EdgeInsets.only(bottom: 96.0),
+        child: FloatingActionButton.extended(
+          heroTag: 'customers_fab',
+          onPressed: () => context.push(Routes.customerForm),
+          icon: const Icon(Icons.person_add),
+          label: Text(newClient),
+        ),
       ) : null,
       body: Column(
         children: [
@@ -175,7 +181,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
 
                 return ListView.builder(
                   itemCount: filtered.length,
-                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  padding: EdgeInsets.only(top: 8, bottom: widget.isEmbedded ? 120 : 24),
                   itemBuilder: (context, index) {
                     final customer = filtered[index];
                     final hasDebt = customer.debtBalance > 0.0;
@@ -196,17 +202,10 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        leading: CircleAvatar(
-                          backgroundColor: hasDebt
-                              ? Colors.amber.withValues(alpha: 0.1)
-                              : theme.colorScheme.primary.withValues(alpha: 0.08),
-                          child: Text(
-                            customer.businessName[0].toUpperCase(),
-                            style: TextStyle(
-                              color: hasDebt ? Colors.amber.shade800 : theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        leading: InitialsAvatar(
+                          text: customer.businessName,
+                          imageUrl: customer.imageUrl,
+                          radius: 20,
                         ),
                         title: Text(
                           customer.businessName,
@@ -225,6 +224,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                                     Text(
                                       customer.phone!,
                                       style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                                      textDirection: TextDirection.ltr,
                                     ),
                                   ],
                                 ),

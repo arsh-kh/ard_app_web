@@ -216,7 +216,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
 
     return ListView.builder(
       itemCount: orders.length,
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.only(top: 12, bottom: widget.isEmbedded ? 120 : 24),
       itemBuilder: (context, index) {
         final order = orders[index];
 
@@ -247,7 +247,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 subtitle: Text(
-                  '${t('orderNo')}${order.id.substring(0, 8).toUpperCase()} • ${DateFormat('MM-dd HH:mm').format(order.orderDate)}',
+                  '${t('orderNo')}${order.orderNumber ?? "..."} • ${DateFormat('dd/MM/yyyy HH:mm').format(order.orderDate)}',
                   style: const TextStyle(fontSize: 12),
                 ),
                 trailing: Column(

@@ -1,8 +1,10 @@
+import 'package:ard_app/core/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/providers/dashboard_providers.dart';
 import '../../core/providers/locale_provider.dart';
@@ -10,7 +12,11 @@ import '../../core/providers/notification_providers.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/local_database/database.dart';
+import '../../core/widgets/initials_avatar.dart';
+import '../../core/providers/admin_profile_provider.dart';
+import '../../core/routing/routes.dart';
 import 'month_year_picker_dialog.dart';
+import '../../core/widgets/custom_loader.dart';
 
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
@@ -20,7 +26,8 @@ class AdminDashboardScreen extends ConsumerWidget {
     final metricsAsync = ref.watch(dashboardMetricsProvider);
     final currentLocale = ref.watch(localeProvider);
     final unreadNotifsCount = ref.watch(unreadNotificationsCountProvider);
-    
+    final authState = ref.watch(authProvider);
+    final user = authState.user;
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
@@ -39,34 +46,34 @@ class AdminDashboardScreen extends ConsumerWidget {
             ref.invalidate(recentActivityProvider);
           },
           child: metricsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text('Error: $err')),
+            loading: () => const Center(child: CustomLoader()),
+            error: (err, stack) => Center(child: Text(isKurdish ? 'هەڵە: $err' : isArabic ? 'خطأ: $err' : 'Error: $err')),
             data: (metrics) {
               return SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                padding: const EdgeInsets.fromLTRB(24.0, 12.0, 24.0, 120.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildHeader(context, isKurdish, isArabic, isDark, unreadNotifsCount).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
+                    _buildHeader(context, isKurdish, isArabic, isDark, unreadNotifsCount, user).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
                     const SizedBox(height: 24),
                     
                     _buildHeroCard(metrics, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
                     const SizedBox(height: 32),
                     
-                    _buildSectionHeader(isKurdish ? 'شیکارییەکان' : isArabic ? 'التحليلات' : 'Analytics', 'View detail', isDark, theme).animate().fadeIn(delay: 150.ms),
+                    _buildRecentActivity(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1),
+                    const SizedBox(height: 32),
+
+                    _buildTopDebtors(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1),
+                    const SizedBox(height: 32),
+                    
+                    _buildLowStockAlerts(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 250.ms).slideX(begin: 0.1),
+                    const SizedBox(height: 32),
+
+                    _buildSectionHeader(isKurdish ? 'شیکارییەکان' : isArabic ? 'التحليلات' : 'Analytics', '', isDark, theme).animate().fadeIn(delay: 300.ms),
                     const SizedBox(height: 16),
                     
-                    _buildReportButtons(context, ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                    const SizedBox(height: 32),
-                    
-                    _buildTopDebtors(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 250.ms).slideX(begin: -0.1),
-                    
-                    const SizedBox(height: 32),
-                    _buildLowStockAlerts(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1),
-                    
-                    const SizedBox(height: 32),
-                    _buildRecentActivity(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 350.ms).slideY(begin: 0.1),
+                    _buildReportButtons(context, ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 350.ms).slideY(begin: 0.1),
                     const SizedBox(height: 48),
                   ],
                 ),
@@ -78,16 +85,17 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isKurdish, bool isArabic, bool isDark, int unreadNotifsCount) {
+  Widget _buildHeader(BuildContext context, bool isKurdish, bool isArabic, bool isDark, int unreadNotifsCount, UserEntity? user) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            CircleAvatar(
+            InitialsAvatar(
+              text: user?.name ?? 'U',
+              imageUrl: user?.imageUrl,
               radius: 22,
-              backgroundColor: Colors.grey.shade300,
-              child: const Icon(Icons.person, color: Colors.white),
             ),
             const SizedBox(width: 12),
             Column(
@@ -98,7 +106,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                   style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 13),
                 ),
                 Text(
-                  'Admin',
+                  user?.name ?? 'Admin',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: isDark ? Colors.white : Colors.black87),
                 ),
               ],
@@ -115,9 +123,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               ),
               child: IconButton(
                 icon: Icon(Icons.notifications_outlined, size: 22, color: isDark ? Colors.white : Colors.black87),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notifications coming soon!')));
-                },
+                onPressed: () => context.push(Routes.notifications),
               ),
             ),
             if (unreadNotifsCount > 0)
@@ -126,10 +132,10 @@ class AdminDashboardScreen extends ConsumerWidget {
                 top: 0,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: theme.colorScheme.primary, shape: BoxShape.circle),
                   child: Text(
                     '$unreadNotifsCount',
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ).animate().scale(duration: 300.ms),
               )
@@ -140,64 +146,115 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildHeroCard(DashboardMetrics metrics, bool isKurdish, bool isArabic, bool isDark, ThemeData theme) {
+    final textColor = Colors.white;
+    final mutedTextColor = Colors.white70;
+    
     return Container(
-      padding: const EdgeInsets.all(24),
+      clipBehavior: Clip.antiAlias, // Ensures the watermark icon doesn't bleed out
       decoration: BoxDecoration(
-        color: theme.colorScheme.secondary,
+        gradient: LinearGradient(
+          colors: isDark 
+            ? [const Color(0xFF181A20), const Color(0xFF0D0E12)] // Sleek dark blue-grey tint to stand out from black background
+            : [const Color(0xFF222222), const Color(0xFF000000)], // True black for Light Mode
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(32),
-        boxShadow: [
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+          width: 1,
+        ),
+        boxShadow: isDark ? [] : [
           BoxShadow(
-            color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Text(
-            isKurdish ? 'پوختەی هەفتە' : isArabic ? 'ملخص الأسبوع' : 'Weekly Summary',
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          // Background Watermark Icon for premium depth
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Transform.rotate(
+              angle: -0.2,
+              child: Icon(
+                Icons.trending_up_rounded,
+                size: 140,
+                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
           ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isKurdish ? 'پوختەی هەفتە' : isArabic ? 'ملخص الأسبوع' : 'Weekly Summary',
+                  style: TextStyle(color: mutedTextColor, fontSize: 13, letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 24),
+                Row(
                   children: [
-                    Text(
-                      isKurdish ? 'قازانج' : isArabic ? 'الأرباح' : 'Profit',
-                      style: const TextStyle(color: Colors.white54, fontSize: 13),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isKurdish ? 'قازانج' : isArabic ? 'الأرباح' : 'Profit',
+                            style: TextStyle(color: mutedTextColor, fontSize: 13),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: isArabic || isKurdish ? Alignment.centerRight : Alignment.centerLeft,
+                              child: Text(
+                                CurrencyFormatter.format(metrics.thisWeekProfit),
+                                style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      CurrencyFormatter.format(metrics.thisWeekProfit),
-                      style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                    const SizedBox(width: 16),
+                    Container(width: 1, height: 40, color: Colors.white24),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isKurdish ? 'داواکارییەکان' : isArabic ? 'الطلبات' : 'Orders',
+                            style: TextStyle(color: mutedTextColor, fontSize: 13),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: isArabic || isKurdish ? Alignment.centerRight : Alignment.centerLeft,
+                              child: Text(
+                                metrics.thisWeekOrders.toString(),
+                                style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-              Container(width: 1, height: 40, color: Colors.white12),
-              const SizedBox(width: 24),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isKurdish ? 'داواکارییەکان' : isArabic ? 'الطلبات' : 'Orders',
-                      style: const TextStyle(color: Colors.white54, fontSize: 13),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      metrics.thisWeekOrders.toString(),
-                      style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -308,40 +365,43 @@ class AdminDashboardScreen extends ConsumerWidget {
             border: Border.all(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
           ),
           child: debtorsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => const Text('Error loading debtors'),
+            loading: () => const Center(child: CustomLoader()),
+            error: (err, _) => Text(isKurdish ? 'هەڵە لە هێنانی قەرزدارەکان' : isArabic ? 'خطأ في تحميل المدينين' : 'Error loading debtors'),
             data: (customers) {
               if (customers.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text(isKurdish ? 'هیچ قەرزێک نییە' : isArabic ? 'لا توجد ديون' : 'No outstanding debts!', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                    child: Text(isKurdish ? 'هیچ قەرزێک نییە' : isArabic ? 'لا توجد ديون' : 'No outstanding debts!', style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                   ),
                 );
               }
               return Column(
-                children: customers.map((c) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Icon(Icons.person_outline, color: isDark ? Colors.white70 : Colors.black54, size: 20),
+                children: [
+                  for (var i = 0; i < customers.length; i++)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: i == customers.length - 1 ? 0 : 16.0),
+                      child: Row(
+                        children: [
+                          InitialsAvatar(
+                            text: customers[i].businessName,
+                            imageUrl: customers[i].imageUrl,
+                            radius: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              customers[i].businessName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : customers[i].businessName, 
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14), 
+                              maxLines: 1, 
+                              overflow: TextOverflow.ellipsis
+                            )
+                          ),
+                          Text(CurrencyFormatter.format(customers[i].debtBalance), style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          c.businessName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : c.businessName, 
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14), 
-                          maxLines: 1, 
-                          overflow: TextOverflow.ellipsis
-                        )
-                      ),
-                      Text(CurrencyFormatter.format(c.debtBalance), style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14)),
-                    ],
-                  ),
-                )).toList(),
+                    ),
+                ],
               );
             },
           ),
@@ -366,8 +426,8 @@ class AdminDashboardScreen extends ConsumerWidget {
             border: Border.all(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
           ),
           child: lowStockAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => const Text('Error loading alerts'),
+            loading: () => const Center(child: CustomLoader()),
+            error: (err, _) => Text(isKurdish ? 'هەڵە لە هێنانی ئاگادارییەکان' : isArabic ? 'خطأ في تحميل التنبيهات' : 'Error loading alerts'),
             data: (products) {
               if (products.isEmpty) {
                 return Center(
@@ -375,7 +435,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Column(
                       children: [
-                        Icon(Icons.check_circle_outline, color: Colors.green.shade400, size: 40),
+                        Icon(Icons.check_circle_outline, color: theme.colorScheme.primary, size: 40),
                         const SizedBox(height: 8),
                         Text(isKurdish ? 'هیچ کێشەیەک نییە' : isArabic ? 'المخزون جيد' : 'Stock Levels Good', style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
@@ -384,21 +444,24 @@ class AdminDashboardScreen extends ConsumerWidget {
                 );
               }
               return Column(
-                children: products.map((p) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 20),
+                children: [
+                  for (var i = 0; i < products.length; i++)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: i == products.length - 1 ? 0 : 16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05), shape: BoxShape.circle),
+                            child: Icon(Icons.warning_amber_rounded, color: theme.colorScheme.primary, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(child: Text(products[i].name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          Text(isKurdish ? '${CurrencyFormatter.formatQuantity(products[i].stockQuantity, '')} ماوە' : isArabic ? 'متبقي ${CurrencyFormatter.formatQuantity(products[i].stockQuantity, '')}' : '${CurrencyFormatter.formatQuantity(products[i].stockQuantity, '')} left', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                      Text('${p.stockQuantity} left', style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 14)),
-                    ],
-                  ),
-                )).toList(),
+                    ),
+                ],
               );
             },
           ),
@@ -423,42 +486,93 @@ class AdminDashboardScreen extends ConsumerWidget {
             border: Border.all(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
           ),
           child: recentAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => const Text('Error loading activity'),
-            data: (orders) {
-              if (orders.isEmpty) {
+            loading: () => const Center(child: CustomLoader()),
+            error: (err, _) => Text(isKurdish ? 'هەڵە لە هێنانی چالاکییەکان' : isArabic ? 'خطأ في تحميل النشاط' : 'Error loading activity'),
+            data: (activities) {
+              if (activities.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Text(isKurdish ? 'هیچ داواکارییەک نییە' : isArabic ? 'لا توجد طلبات' : 'No recent orders', style: const TextStyle(color: Colors.grey)),
+                    child: Text(isKurdish ? 'هیچ داواکارییەک نییە' : isArabic ? 'لا توجد طلبات' : 'No recent activity', style: const TextStyle(color: Colors.grey)),
                   ),
                 );
               }
               return Column(
-                children: orders.map((o) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: theme.colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Icon(Icons.shopping_bag_outlined, color: theme.colorScheme.primary, size: 20),
+                children: [
+                  for (var i = 0; i < activities.length; i++)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: i == activities.length - 1 ? 0 : 16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+                              shape: BoxShape.circle
+                            ),
+                            child: Icon(
+                              activities[i].isPayment 
+                                ? Icons.payments_outlined 
+                                : (activities[i].status == 'out_for_delivery' 
+                                    ? Icons.local_shipping_outlined 
+                                    : (activities[i].status == 'delivered' 
+                                        ? Icons.check_circle_outline 
+                                        : (activities[i].status == 'preparing' 
+                                            ? Icons.inventory_2_outlined 
+                                            : Icons.shopping_bag_outlined))), 
+                              color: isDark ? Colors.white : Colors.black87, 
+                              size: 20
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  activities[i].isPayment 
+                                    ? (activities[i].customerName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : activities[i].customerName)
+                                    : '${activities[i].customerName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : activities[i].customerName}${activities[i].orderNumber != null ? ' (#${activities[i].orderNumber})' : ''}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Text(
+                                      activities[i].isPayment
+                                          ? (isKurdish ? 'پارەدان' : isArabic ? 'دفع' : 'Payment')
+                                          : (activities[i].status == 'delivered'
+                                              ? (isKurdish ? 'گەیەنرا' : isArabic ? 'تم التوصيل' : 'Delivered')
+                                              : activities[i].status == 'out_for_delivery'
+                                                  ? (isKurdish ? 'لە ڕێگایە' : isArabic ? 'في الطريق' : 'Out for delivery')
+                                                  : (isKurdish ? 'داواکاری' : isArabic ? 'طلب' : 'Order')),
+                                      style: TextStyle(
+                                        color: isDark ? Colors.white70 : Colors.black54,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text('•', style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
+                                    const SizedBox(width: 6),
+                                    Text(DateFormat('dd/MM/yyyy - HH:mm').format(activities[i].date), style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            CurrencyFormatter.format(activities[i].totalAmount), 
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900, 
+                              fontSize: 15, 
+                              color: isDark ? Colors.white : Colors.black87
+                            )
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(o.customerName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : o.customerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            const SizedBox(height: 2),
-                            Text(DateFormat('MMM dd, HH:mm', isKurdish ? 'ku' : isArabic ? 'ar' : 'en').format(o.date), style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                      Text(CurrencyFormatter.format(o.totalAmount), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: isDark ? Colors.white : Colors.black87)),
-                    ],
-                  ),
-                )).toList(),
+                    ),
+                ],
               );
             },
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../data/local_database/database.dart';
@@ -22,16 +23,22 @@ class DashboardMetrics {
 }
 
 class RecentActivityItem {
-  final String orderId;
+  final String orderId; // or payment id
   final String customerName;
   final double totalAmount;
   final DateTime date;
+  final bool isPayment;
+  final String? status;
+  final int? orderNumber;
 
   RecentActivityItem({
     required this.orderId,
     required this.customerName,
     required this.totalAmount,
     required this.date,
+    this.isPayment = false,
+    this.status,
+    this.orderNumber,
   });
 }
 
@@ -123,30 +130,60 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
   }
 });
 
-final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) async* {
+final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
   final db = ref.watch(databaseProvider);
   
-  final query = db.select(db.orders).join([
+  final ordersStream = (db.select(db.orders).join([
     drift.leftOuterJoin(db.customers, db.customers.id.equalsExp(db.orders.customerId)),
   ])
     ..where(db.orders.isDeleted.equals(false))
     ..orderBy([drift.OrderingTerm.desc(db.orders.orderDate)])
-    ..limit(5);
+    ..limit(5)).watch();
 
-  final stream = query.watch();
-  
-  await for (final rows in stream) {
-    yield rows.map((row) {
-      final order = row.readTable(db.orders);
-      final customer = row.readTableOrNull(db.customers);
-      return RecentActivityItem(
-        orderId: order.id,
-        customerName: customer?.businessName ?? 'Unknown Client',
-        totalAmount: order.totalAmount,
-        date: order.orderDate,
-      );
-    }).toList();
-  }
+  final paymentsStream = (db.select(db.payments).join([
+    drift.leftOuterJoin(db.customers, db.customers.id.equalsExp(db.payments.customerId)),
+  ])
+    ..where(db.payments.isDeleted.equals(false))
+    ..orderBy([drift.OrderingTerm.desc(db.payments.paymentDate)])
+    ..limit(5)).watch();
+
+  return CombineLatestStream.combine2(
+    ordersStream,
+    paymentsStream,
+    (List<drift.TypedResult> orderRows, List<drift.TypedResult> paymentRows) {
+      final List<RecentActivityItem> combined = [];
+      
+      for (final row in orderRows) {
+        final order = row.readTable(db.orders);
+        final customer = row.readTableOrNull(db.customers);
+        combined.add(RecentActivityItem(
+          orderId: order.id,
+          customerName: customer?.businessName ?? 'Unknown Client',
+          totalAmount: order.totalAmount,
+          date: order.orderDate,
+          isPayment: false,
+          status: order.status,
+          orderNumber: order.orderNumber,
+        ));
+      }
+
+      for (final row in paymentRows) {
+        final payment = row.readTable(db.payments);
+        final customer = row.readTableOrNull(db.customers);
+        combined.add(RecentActivityItem(
+          orderId: payment.id,
+          customerName: customer?.businessName ?? 'Unknown Client',
+          totalAmount: payment.amount,
+          date: payment.paymentDate,
+          isPayment: true,
+        ));
+      }
+
+      // Sort by newest first
+      combined.sort((a, b) => b.date.compareTo(a.date));
+      return combined.take(5).toList();
+    },
+  );
 });
 
 final topDebtorsProvider = StreamProvider<List<CustomerEntity>>((ref) {

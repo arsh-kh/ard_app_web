@@ -1,6 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/notification_service.dart';
 
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:drift/drift.dart';
+import '../../data/local_database/database.dart';
+
 class AppNotification {
   final String id;
   final String title;
@@ -35,12 +40,94 @@ class AppNotification {
       type: type ?? this.type,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'message': message,
+        'timestamp': timestamp.toIso8601String(),
+        'isRead': isRead,
+        'type': type,
+      };
+
+  factory AppNotification.fromJson(Map<String, dynamic> json) => AppNotification(
+        id: json['id'],
+        title: json['title'],
+        message: json['message'],
+        timestamp: DateTime.parse(json['timestamp']),
+        isRead: json['isRead'] ?? false,
+        type: json['type'],
+      );
 }
 
 class NotificationNotifier extends StateNotifier<List<AppNotification>> {
+  final AppDatabase db;
   final NotificationService _notificationService = NotificationService();
+  static const _prefsKey = 'app_notifications';
 
-  NotificationNotifier() : super([]);
+  NotificationNotifier(this.db) : super([]) {
+    _loadFromPrefs().then((_) {
+      _checkSystemAlerts();
+    });
+  }
+
+  Future<void> _checkSystemAlerts() async {
+    // 1. Check Low Stock
+    final lowStockItems = await (db.select(db.products)
+          ..where((t) => t.isDeleted.equals(false))
+          ..where((t) => t.stockQuantity.isSmallerThanValue(50.0)))
+        .get();
+
+    if (lowStockItems.isNotEmpty) {
+      // Create a notification for low stock, but only if we haven't alerted recently
+      final title = 'Low Stock Alert';
+      final message = '${lowStockItems.length} items are running low on stock (below 50 units).';
+      
+      final hasRecentAlert = state.any((n) => 
+        n.type == 'stock' && 
+        DateTime.now().difference(n.timestamp).inHours < 24
+      );
+
+      if (!hasRecentAlert) {
+        await addNotification(title: title, message: message, type: 'stock');
+      }
+    }
+
+    // 2. Check Overdue Debt (simplistic approach: customers with balance > 0)
+    final debtCustomers = await (db.select(db.customers)
+          ..where((t) => t.isDeleted.equals(false))
+          ..where((t) => t.id.isNotValue('walk-in'))
+          ..where((t) => t.debtBalance.isBiggerThanValue(0.0)))
+        .get();
+
+    if (debtCustomers.isNotEmpty) {
+      final title = 'Debt Collection Reminder';
+      final message = '${debtCustomers.length} clients have outstanding debt balances.';
+      
+      final hasRecentAlert = state.any((n) => 
+        n.type == 'debt' && 
+        DateTime.now().difference(n.timestamp).inHours < 48 // alert every 48 hours max
+      );
+
+      if (!hasRecentAlert) {
+        await addNotification(title: title, message: message, type: 'debt');
+      }
+    }
+  }
+
+  Future<void> _loadFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = prefs.getStringList(_prefsKey) ?? [];
+    if (jsonList.isNotEmpty) {
+      state = jsonList.map((j) => AppNotification.fromJson(jsonDecode(j))).toList();
+    }
+  }
+
+  Future<void> _saveToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = state.map((n) => jsonEncode(n.toJson())).toList();
+    await prefs.setStringList(_prefsKey, jsonList);
+  }
 
   Future<void> addNotification({
     required String title,
@@ -56,6 +143,7 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
     );
 
     state = [notification, ...state];
+    _saveToPrefs();
 
     await _notificationService.showNotification(
       id: notification.hashCode,
@@ -70,21 +158,25 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
       for (final n in state)
         if (n.id == id) n.copyWith(isRead: true) else n
     ];
+    _saveToPrefs();
   }
 
   void markAllAsRead() {
     state = [
       for (final n in state) n.copyWith(isRead: true)
     ];
+    _saveToPrefs();
   }
 
   void clearAll() {
     state = [];
+    _saveToPrefs();
   }
 }
 
 final notificationProvider = StateNotifierProvider<NotificationNotifier, List<AppNotification>>((ref) {
-  return NotificationNotifier();
+  final db = ref.watch(databaseProvider);
+  return NotificationNotifier(db);
 });
 
 final unreadNotificationsCountProvider = Provider<int>((ref) {

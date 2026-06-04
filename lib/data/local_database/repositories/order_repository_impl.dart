@@ -69,7 +69,15 @@ class OrderRepositoryImpl  {
   
   Future<void> createOrder(OrdersCompanion order, List<OrderItemsCompanion> items) async {
     await _db.transaction(() async {
-      await _db.into(_db.orders).insert(order);
+      final maxOrderRow = await (_db.select(_db.orders)
+            ..orderBy([(t) => OrderingTerm.desc(t.orderNumber)])
+            ..limit(1))
+          .getSingleOrNull();
+      
+      final nextNum = (maxOrderRow?.orderNumber ?? 0) + 1;
+      final finalOrder = order.copyWith(orderNumber: Value(nextNum));
+
+      await _db.into(_db.orders).insert(finalOrder);
       for (final item in items) {
         await _db.into(_db.orderItems).insert(item);
         

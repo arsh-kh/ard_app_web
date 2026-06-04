@@ -23,7 +23,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -34,6 +34,30 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await migrator.createTable(payments);
+      }
+      if (from < 4) {
+        try {
+          await migrator.addColumn(products, products.imageUrl);
+        } catch (_) {}
+        try {
+          await migrator.addColumn(customers, customers.imageUrl);
+        } catch (_) {}
+        try {
+          await migrator.addColumn(users, users.imageUrl);
+        } catch (_) {}
+      }
+      if (from < 5) {
+        // Add proper passwordHash column — replaces pw: prefix in phone field.
+        // Data migration (pw:<hash> → passwordHash) is handled LAZILY at login
+        // time in auth_provider.dart — no risky SQL needed here.
+        try {
+          await migrator.addColumn(users, users.passwordHash);
+        } catch (_) {}
+      }
+      if (from < 6) {
+        try {
+          await migrator.addColumn(orders, orders.orderNumber);
+        } catch (_) {}
       }
     },
   );

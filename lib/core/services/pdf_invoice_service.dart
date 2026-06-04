@@ -15,7 +15,7 @@ class PdfInvoiceService {
   }) async {
     final pdf = pw.Document();
 
-    final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
 
     pdf.addPage(
       pw.MultiPage(
@@ -41,7 +41,7 @@ class PdfInvoiceService {
                   children: [
                     pw.Text('INVOICE', style: pw.TextStyle(fontSize: 28, fontWeight: pw.FontWeight.bold, color: PdfColors.blueGrey800)),
                     pw.SizedBox(height: 8),
-                    pw.Text('Invoice #: ${order.id.substring(0, 8).toUpperCase()}'),
+                    pw.Text('Invoice #: ${order.orderNumber ?? "..."}'),
                     pw.Text('Date: ${dateFormat.format(order.orderDate)}'),
                   ],
                 ),

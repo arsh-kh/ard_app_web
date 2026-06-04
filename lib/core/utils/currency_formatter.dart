@@ -10,7 +10,7 @@ class CurrencyFormatter {
   /// Formats a number as Iraqi Dinar currency.
   /// Example: 150000 → "150,000 د.ع"
   static String format(double amount) {
-    return '${_formatter.format(amount.round())} ${AppConstants.currencySymbol}';
+    return '${AppConstants.currencySymbol} ${_formatter.format(amount.round())}';
   }
 
   /// Formats a number as currency without the symbol.
@@ -43,25 +43,25 @@ class CurrencyFormatter {
     return '$formattedQty $unitType';
   }
 
-  /// Formats a weight in kg with appropriate unit.
-  /// Converts to tons if >= 1000 kg.
   static String formatWeight(double weightInKg) {
     if (weightInKg >= 1000) {
       final tons = weightInKg / 1000;
-      return '${tons.toStringAsFixed(2)} ton';
+      final formattedTons = tons.toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
+      return '$formattedTons ton';
     }
-    return '${weightInKg.toStringAsFixed(weightInKg == weightInKg.roundToDouble() ? 0 : 2)} kg';
+    final formattedKg = weightInKg.toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
+    return '$formattedKg kg';
   }
 
   /// Formats a compact number for dashboard stats.
   /// Example: 1500000 → "1.5M"
   static String formatCompact(double amount) {
     if (amount >= 1000000000) {
-      return '${(amount / 1000000000).toStringAsFixed(1)}B';
+      return '${(amount / 1000000000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}B';
     } else if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)}M';
+      return '${(amount / 1000000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}M';
     } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(1)}K';
+      return '${(amount / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}K';
     }
     return amount.toInt().toString();
   }

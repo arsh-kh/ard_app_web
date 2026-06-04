@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +46,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
   void _showCheckoutSheet(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _CheckoutSheet(),
@@ -67,7 +69,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
-    final title = isKurdish ? 'کەتەلۆگ و فرۆشتن' : isArabic ? 'الكتالوج والبيع' : 'Catalog & POS';
+    final title = isKurdish ? 'فرۆشتن' : isArabic ? 'نقطة البيع' : 'POS';
     final searchHint = isKurdish ? 'گەڕان بۆ بەرهەم...' : isArabic ? 'البحث عن منتجات...' : 'Search products...';
     final allProducts = isKurdish ? 'هەموو بەرهەمەکان' : isArabic ? 'كل المنتجات' : 'All Products';
     final bag = localizations.bag;
@@ -208,7 +210,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                     }
 
                     return GridView.builder(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, cartItems.isNotEmpty ? 100 : 24),
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, cartItems.isNotEmpty ? 200 : 100),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 0.72,
@@ -277,21 +279,38 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                                       )
                                   ],
                                 ),
-                                const Spacer(),
-                                Center(
-                                  child: Icon(
-                                    Icons.bakery_dining_outlined,
-                                    size: 48,
-                                    color: quantityInCart > 0
-                                        ? theme.colorScheme.primary
-                                        : Colors.grey.shade400,
-                                  ).animate(target: quantityInCart > 0 ? 1 : 0).scale(
-                                        begin: const Offset(1, 1),
-                                        end: const Offset(1.15, 1.15),
-                                        duration: 200.ms,
-                                      ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: Center(
+                                    child: product.imageUrl != null
+                                        ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: Image.file(
+                                              File(product.imageUrl!),
+                                              width: double.infinity,
+                                              fit: BoxFit.contain,
+                                              color: quantityInCart == 0 ? Colors.grey.withValues(alpha: 0.8) : null,
+                                              colorBlendMode: quantityInCart == 0 ? BlendMode.saturation : null,
+                                            ),
+                                          ).animate(target: quantityInCart > 0 ? 1 : 0).scale(
+                                            begin: const Offset(1, 1),
+                                            end: const Offset(1.15, 1.15),
+                                            duration: 200.ms,
+                                          )
+                                        : Icon(
+                                            Icons.bakery_dining_outlined,
+                                            size: 48,
+                                            color: quantityInCart > 0
+                                                ? theme.colorScheme.primary
+                                                : Colors.grey.shade400,
+                                          ).animate(target: quantityInCart > 0 ? 1 : 0).scale(
+                                              begin: const Offset(1, 1),
+                                              end: const Offset(1.15, 1.15),
+                                              duration: 200.ms,
+                                            ),
+                                  ),
                                 ),
-                                const Spacer(),
+                                const SizedBox(height: 8),
                                 Text(
                                   product.name,
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -385,7 +404,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
             Positioned(
               left: 16,
               right: 16,
-              bottom: 16,
+              bottom: 130,
               child: GestureDetector(
                 onTap: () => _showCheckoutSheet(context, ref),
                 child: Container(
@@ -406,12 +425,12 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: Text(
                               '${cartItems.length}',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -421,11 +440,11 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                             children: [
                               Text(
                                 localizations.totalAmount,
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                                style: TextStyle(color: theme.colorScheme.onPrimary.withValues(alpha: 0.8), fontSize: 12),
                               ),
                               Text(
                                 CurrencyFormatter.format(cartNotifier.totalCartPrice),
-                                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -435,10 +454,10 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                         children: [
                           Text(
                             isKurdish ? 'پارەدان' : isArabic ? 'الدفع' : 'Checkout',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                          Icon(Icons.arrow_forward_ios, color: theme.colorScheme.onPrimary, size: 16),
                         ],
                       )
                     ],
@@ -495,6 +514,17 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
     final controller = TextEditingController(text: currentQty > 0 ? currentQty.toInt().toString() : '');
     final focusNode = FocusNode();
     
+    // Localization
+    final currentLocale = ref.read(localeProvider);
+    final isKurdish = currentLocale.languageCode == 'ku';
+    final isArabic = currentLocale.languageCode == 'ar';
+    
+    final title = isKurdish ? 'بڕی ${product.name} دیاری بکە' : isArabic ? 'أدخل كمية ${product.name}' : 'Enter Quantity for ${product.name}';
+    final hint = isKurdish ? 'بڕ' : isArabic ? 'الكمية' : 'Quantity';
+    final cancelText = isKurdish ? 'پاشگەزبوونەوە' : isArabic ? 'إلغاء' : 'Cancel';
+    final updateText = isKurdish ? 'نوێکردنەوە' : isArabic ? 'تحديث' : 'Update';
+    final errorText = isKurdish ? 'بڕەکە هەڵەیە یان کۆگا بەش ناکات' : isArabic ? 'كمية غير صالحة أو لا يوجد مخزون كافٍ' : 'Invalid quantity or not enough stock';
+
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
         controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.text.length);
@@ -505,21 +535,22 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Enter Quantity for ${product.name}'),
+          title: Text(title),
           content: TextField(
             controller: controller,
             focusNode: focusNode,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [ArabicToEnglishFormatter()],
             autofocus: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Quantity',
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              hintText: hint,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(cancelText),
             ),
             ElevatedButton(
               onPressed: () {
@@ -531,11 +562,10 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                   }
                   Navigator.pop(context);
                 } else {
-                  // Assuming AppFeedback exists in project scope
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid quantity or not enough stock')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorText)));
                 }
               },
-              child: const Text('Update'),
+              child: Text(updateText),
             ),
           ],
         );
@@ -555,11 +585,13 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
   CustomerEntity? _selectedCustomer;
 
   void _processCheckout(WidgetRef ref, List<CartItem> cartItems, double totalAmount, bool isQuickSell) async {
-    final customerName = isQuickSell ? 'Walk-In Customer' : (_selectedCustomer?.businessName ?? 'Client');
     final localizations = AppLocalizations.of(context)!;
     final currentLocale = ref.read(localeProvider);
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
+    
+    final walkInStr = isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer';
+    final customerName = isQuickSell ? walkInStr : (_selectedCustomer?.businessName ?? 'Client');
 
     final confirmOrderStr = isKurdish ? 'داواکاری بسەلمێنە' : isArabic ? 'تأكيد الطلب' : 'Confirm Order';
 
@@ -659,7 +691,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
           controller: controller,
           focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [CurrencyInputFormatter()],
+          inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
           autofocus: true,
           decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Price per unit'),
         ),
@@ -777,7 +809,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            hint: const Text('Select a registered customer'),
+                            hint: Text(isKurdish ? 'کڕیارێکی تۆمارکراو هەڵبژێرە' : isArabic ? 'اختر عميلاً مسجلاً' : 'Select a registered customer'),
                             items: customers.map((c) {
                               return DropdownMenuItem(
                                 value: c.id,
@@ -790,7 +822,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                                 _selectedCustomer = customers.firstWhereOrNull((c) => c.id == val);
                               });
                             },
-                            validator: (value) => value == null ? 'Please assign a customer' : null,
+                            validator: (value) => value == null ? (isKurdish ? 'تکایە کڕیارێک دیاری بکە' : isArabic ? 'يرجى تحديد عميل' : 'Please assign a customer') : null,
                           );
                         },
                         loading: () => const Center(child: CircularProgressIndicator()),
@@ -856,8 +888,8 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                                   _processCheckout(ref, cartItems, cartNotifier.totalCartPrice, false);
                                 }
                               },
-                              icon: const Icon(Icons.check, color: Colors.white),
-                              label: Text(isKurdish ? 'سەلماندن' : isArabic ? 'تأكيد للعميل' : 'Checkout to Client', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                              icon: Icon(Icons.check, color: theme.colorScheme.onPrimary),
+                              label: Text(isKurdish ? 'سەلماندن' : isArabic ? 'تأكيد للعميل' : 'Checkout to Client', style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 13, fontWeight: FontWeight.bold)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
                                 padding: const EdgeInsets.symmetric(vertical: 14),

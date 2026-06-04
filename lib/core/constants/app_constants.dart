@@ -8,7 +8,7 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Currency
-  static const String currencySymbol = 'د.ع';
+  static const String currencySymbol = 'IQD';
   static const String currencyCode = 'IQD';
   static const String currencyName = 'Iraqi Dinar';
   static const int currencyDecimalPlaces = 0; // IQD has no decimal subdivision

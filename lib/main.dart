@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/routing/app_router.dart';
-import 'core/constants/app_theme.dart'; // Switched to Cairo-based themes
+import 'core/theme/app_theme.dart';
 import 'core/services/notification_service.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/localization/kurdish_localizations.dart';
@@ -11,6 +12,7 @@ import 'l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:workmanager/workmanager.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/providers/customer_providers.dart';
 import 'sync/sync_engine.dart';
 import 'data/local_database/database.dart';
 import 'core/constants/app_constants.dart';
@@ -55,6 +57,15 @@ void main() async {
   await notificationService.init();
   await notificationService.requestPermissions();
 
+  // Configure Edge-to-Edge System UI
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
+    ),
+  );
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   // Initialize Firebase
   try {
     await Firebase.initializeApp(
@@ -91,8 +102,15 @@ class _ArdAppState extends ConsumerState<ArdApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(syncEngineProvider).startMonitoring();
-      ref.read(syncEngineProvider).triggerSync();
+      // Delay sync by 3s so auth (_restoreSession) can finish its DB query first.
+      // Drift queries are sequential — flooding the queue at startup blocks auth.
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          ref.read(customerRepositoryProvider).ensureWalkInCustomerExists();
+          ref.read(syncEngineProvider).startMonitoring();
+          ref.read(syncEngineProvider).triggerSync();
+        }
+      });
     });
   }
 
@@ -112,8 +130,8 @@ class _ArdAppState extends ConsumerState<ArdApp> {
     return MaterialApp.router(
       title: 'ئارد',
       debugShowCheckedModeBanner: false,
-      theme: buildLightTheme(), 
-      darkTheme: buildDarkTheme(), 
+      theme: AppTheme.lightTheme, 
+      darkTheme: AppTheme.darkTheme, 
       themeMode: themeMode,
       locale: currentLocale,
       localizationsDelegates: const [

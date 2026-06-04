@@ -8,7 +8,22 @@ class CustomerRepositoryImpl  {
 
   CustomerRepositoryImpl(this._db);
 
-  
+  /// Seeds a default "Walk-in Customer" if it doesn't already exist.
+  Future<void> ensureWalkInCustomerExists() async {
+    final exists = await (_db.select(_db.customers)..where((t) => t.id.equals('walk-in'))).getSingleOrNull();
+    if (exists == null) {
+      await _db.into(_db.customers).insert(
+        CustomersCompanion.insert(
+          id: 'walk-in',
+          businessName: 'Walk-in Customer',
+          phone: const Value(null),
+          address: const Value(null),
+          debtBalance: const Value(0.0),
+        ),
+      );
+    }
+  }
+
   Stream<List<CustomerEntity>> watchAllCustomers() {
     return (_db.select(_db.customers)
           ..where((t) => t.isDeleted.equals(false))

@@ -7,9 +7,11 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/providers/inventory_providers.dart';
 import '../../core/providers/notification_providers.dart';
+import '../../core/providers/locale_provider.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/local_database/database.dart';
+import '../../core/widgets/image_picker_widget.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   final ProductEntity? productToEdit;
@@ -30,6 +32,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   
   String _selectedUnit = 'bag'; // Default unit
   final List<String> _units = ['bag', 'kg', 'ton', 'box'];
+  String? _imagePath;
 
   @override
   void initState() {
@@ -42,6 +45,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     if (widget.productToEdit != null && _units.contains(widget.productToEdit!.unitType)) {
       _selectedUnit = widget.productToEdit!.unitType;
     }
+    _imagePath = widget.productToEdit?.imageUrl;
   }
 
   @override
@@ -55,6 +59,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   void _saveProduct() async {
     if (_formKey.currentState!.validate()) {
+      final currentLocale = ref.read(localeProvider);
+      final isKurdish = currentLocale.languageCode == 'ku';
+      final isArabic = currentLocale.languageCode == 'ar';
+
       final repo = ref.read(inventoryRepositoryProvider);
       
       final product = ProductsCompanion(
@@ -65,6 +73,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         unitType: drift.Value(_selectedUnit),
         buyPrice: drift.Value(double.tryParse(_buyPriceController.text.replaceAll(',', '')) ?? 0.0),
         sellPrice: drift.Value(double.tryParse(_sellPriceController.text.replaceAll(',', '')) ?? 0.0),
+        imageUrl: drift.Value(_imagePath),
       );
 
       final isAdd = widget.productToEdit == null;
@@ -81,7 +90,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       }
 
       if (mounted) {
-        AppFeedback.showSuccess(context, isAdd ? 'Product created successfully!' : 'Product updated successfully!');
+        AppFeedback.showSuccess(context, isAdd 
+          ? (isKurdish ? 'بەرهەمەکە بە سەرکەوتوویی دروستکرا!' : isArabic ? 'تم إنشاء المنتج بنجاح!' : 'Product created successfully!') 
+          : (isKurdish ? 'بەرهەمەکە بە سەرکەوتوویی نوێکرایەوە!' : isArabic ? 'تم تحديث المنتج بنجاح!' : 'Product updated successfully!')
+        );
         context.pop();
       }
     }
@@ -89,11 +101,35 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentLocale = ref.watch(localeProvider);
+    final isKurdish = currentLocale.languageCode == 'ku';
+    final isArabic = currentLocale.languageCode == 'ar';
     final isNew = widget.productToEdit == null;
+
+    final title = isNew 
+      ? (isKurdish ? 'دروستکردنی بەرهەمی نوێ' : isArabic ? 'إنشاء منتج جديد' : 'Create New Product') 
+      : (isKurdish ? 'گۆڕینی پرۆفایلی بەرهەم' : isArabic ? 'تعديل ملف المنتج' : 'Modify Product Profile');
+    
+    final nameLabel = isKurdish ? 'ناوی بەرهەم' : isArabic ? 'اسم المنتج' : 'Product Name';
+    final nameHint = isKurdish ? 'بۆ نموونە: ئاردی سپی کوردی' : isArabic ? 'مثل: طحين أبيض كردي ممتاز' : 'e.g. Kurdish White Flour Premium';
+    final nameReq = isKurdish ? 'ناوی بەرهەم داواکراوە' : isArabic ? 'اسم المنتج مطلوب' : 'Product name is required';
+    
+    final stockLabel = isKurdish ? 'کۆگای سەرەتا' : isArabic ? 'المخزون الافتتاحي' : 'Opening Stock';
+    final reqLabel = isKurdish ? 'داواکراوە' : isArabic ? 'مطلوب' : 'Required';
+    final numReqLabel = isKurdish ? 'دەبێت ژمارە بێت' : isArabic ? 'يجب أن يكون رقماً' : 'Must be a number';
+    final negLabel = isKurdish ? 'نابێت نەرێنی بێت' : isArabic ? 'لا يمكن أن يكون سالباً' : 'Cannot be negative';
+    
+    final unitLabel = isKurdish ? 'یەکە' : isArabic ? 'الوحدة' : 'Unit';
+    final buyLabel = isKurdish ? 'نرخی کڕین' : isArabic ? 'سعر الشراء' : 'Buy Price';
+    final sellLabel = isKurdish ? 'نرخی فرۆشتن' : isArabic ? 'سعر البيع' : 'Sell Price';
+    
+    final saveBtn = isNew 
+      ? (isKurdish ? 'پاشەکەوتکردنی بەرهەمی نوێ' : isArabic ? 'حفظ المنتج الجديد' : 'Save New Product') 
+      : (isKurdish ? 'نوێکردنەوەی وردەکارییەکانی بەرهەم' : isArabic ? 'تحديث تفاصيل المنتج' : 'Update Product Details');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isNew ? 'Create New Product' : 'Modify Product Profile'),
+        title: Text(title),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -102,16 +138,27 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              ImagePickerWidget(
+                initialImagePath: _imagePath,
+                isKurdish: isKurdish,
+                isArabic: isArabic,
+                radius: 60,
+                placeholderIcon: Icons.inventory_2_outlined,
+                onImageSelected: (path) {
+                  setState(() => _imagePath = path);
+                },
+              ),
+              const SizedBox(height: 24),
               // Product Name field
               TextFormField(
                 controller: _nameController,
                 autofocus: isNew,
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                  prefixIcon: Icon(Icons.label_outline),
-                  hintText: 'e.g. Kurdish White Flour Premium',
+                decoration: InputDecoration(
+                  labelText: nameLabel,
+                  prefixIcon: const Icon(Icons.label_outline),
+                  hintText: nameHint,
                 ),
-                validator: (value) => value == null || value.trim().isEmpty ? 'Product name is required' : null,
+                validator: (value) => value == null || value.trim().isEmpty ? nameReq : null,
               ),
               const SizedBox(height: 16),
               
@@ -123,18 +170,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     flex: 2,
                     child: TextFormField(
                       controller: _stockController,
-                      decoration: const InputDecoration(
-                        labelText: 'Opening Stock',
-                        prefixIcon: Icon(Icons.warehouse_outlined),
+                      decoration: InputDecoration(
+                        labelText: stockLabel,
+                        prefixIcon: const Icon(Icons.warehouse_outlined),
                         hintText: '0.0',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [CurrencyInputFormatter()],
+                      inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
+                        if (value == null || value.isEmpty) return reqLabel;
                         final doubleValue = double.tryParse(value.replaceAll(',', ''));
-                        if (doubleValue == null) return 'Must be a number';
-                        if (doubleValue < 0) return 'Cannot be negative';
+                        if (doubleValue == null) return numReqLabel;
+                        if (doubleValue < 0) return negLabel;
                         return null;
                       },
                     ),
@@ -144,11 +191,23 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     flex: 1,
                     child: DropdownButtonFormField<String>(
                       value: _selectedUnit,
-                      decoration: const InputDecoration(
-                        labelText: 'Unit',
+                      decoration: InputDecoration(
+                        labelText: unitLabel,
                       ),
                       items: _units.map((unit) {
-                        return DropdownMenuItem(value: unit, child: Text(unit));
+                        String displayUnit = unit;
+                        if (isKurdish) {
+                          if (unit == 'bag') displayUnit = 'فەردە';
+                          if (unit == 'kg') displayUnit = 'کیلۆگرام';
+                          if (unit == 'ton') displayUnit = 'تۆن';
+                          if (unit == 'box') displayUnit = 'سندوق';
+                        } else if (isArabic) {
+                          if (unit == 'bag') displayUnit = 'كيس';
+                          if (unit == 'kg') displayUnit = 'كيلوغرام';
+                          if (unit == 'ton') displayUnit = 'طن';
+                          if (unit == 'box') displayUnit = 'صندوق';
+                        }
+                        return DropdownMenuItem(value: unit, child: Text(displayUnit));
                       }).toList(),
                       onChanged: (val) {
                         if (val != null) setState(() => _selectedUnit = val);
@@ -166,19 +225,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _buyPriceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Buy Price',
-                        prefixIcon: Icon(Icons.shopping_basket_outlined),
+                      decoration: InputDecoration(
+                        labelText: buyLabel,
+                        prefixIcon: const Icon(Icons.shopping_basket_outlined),
                         suffixText: ' ${AppConstants.currencySymbol}',
                         hintText: '0',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [CurrencyInputFormatter()],
+                      inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
+                        if (value == null || value.isEmpty) return reqLabel;
                         final doubleValue = double.tryParse(value.replaceAll(',', ''));
-                        if (doubleValue == null) return 'Must be a number';
-                        if (doubleValue < 0) return 'Cannot be negative';
+                        if (doubleValue == null) return numReqLabel;
+                        if (doubleValue < 0) return negLabel;
                         return null;
                       },
                     ),
@@ -187,19 +246,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _sellPriceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Sell Price',
-                        prefixIcon: Icon(Icons.monetization_on_outlined),
+                      decoration: InputDecoration(
+                        labelText: sellLabel,
+                        prefixIcon: const Icon(Icons.monetization_on_outlined),
                         suffixText: ' ${AppConstants.currencySymbol}',
                         hintText: '0',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [CurrencyInputFormatter()],
+                      inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
+                        if (value == null || value.isEmpty) return reqLabel;
                         final doubleValue = double.tryParse(value.replaceAll(',', ''));
-                        if (doubleValue == null) return 'Must be a number';
-                        if (doubleValue < 0) return 'Cannot be negative';
+                        if (doubleValue == null) return numReqLabel;
+                        if (doubleValue < 0) return negLabel;
                         return null;
                       },
                     ),
@@ -213,7 +272,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _saveProduct,
-                  child: Text(isNew ? 'Save New Product' : 'Update Product Details'),
+                  child: Text(saveBtn),
                 ),
               ),
             ],

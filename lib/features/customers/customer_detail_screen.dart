@@ -1,8 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/providers/order_providers.dart';
@@ -11,11 +12,13 @@ import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/order_status_utils.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/widgets/initials_avatar.dart';
 import '../../data/local_database/database.dart';
 import '../../data/local_database/tables.dart';
 import '../../core/providers/customer_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/notification_providers.dart';
+import '../../core/providers/payment_providers.dart';
 import 'package:drift/drift.dart' as drift;
 
 class CustomerDetailScreen extends ConsumerWidget {
@@ -37,6 +40,7 @@ class CustomerDetailScreen extends ConsumerWidget {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
+            iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -58,24 +62,17 @@ class CustomerDetailScreen extends ConsumerWidget {
                       // Avatar
                       Hero(
                         tag: 'customer_${customer.id}',
-                        child: CircleAvatar(
+                        child: InitialsAvatar(
+                          text: customer.businessName,
+                          imageUrl: customer.imageUrl,
                           radius: 36,
-                          backgroundColor: Colors.white.withOpacity(0.2),
-                          child: Text(
-                            customer.businessName[0].toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
                         customer.businessName,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: theme.colorScheme.onPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -86,12 +83,12 @@ class CustomerDetailScreen extends ConsumerWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.location_on, size: 14, color: Colors.white.withOpacity(0.7)),
+                              Icon(Icons.location_on, size: 14, color: theme.colorScheme.onPrimary.withOpacity(0.7)),
                               const SizedBox(width: 4),
                               Text(
                                 customer.address!,
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: theme.colorScheme.onPrimary.withOpacity(0.8),
                                   fontSize: 12,
                                 ),
                               ),
@@ -105,13 +102,13 @@ class CustomerDetailScreen extends ConsumerWidget {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                icon: Icon(Icons.edit_outlined, color: theme.colorScheme.onPrimary),
                 onPressed: () {
                   context.push(Routes.customerForm, extra: customer);
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.white),
+                icon: Icon(Icons.delete_outline, color: theme.colorScheme.onPrimary),
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
@@ -150,7 +147,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     child: _buildActionButton(
                       context,
                       icon: Icons.phone_outlined,
-                      label: 'Call',
+                      label: langCode == 'ku' ? 'پەیوەندیکردن' : langCode == 'ar' ? 'اتصال' : 'Call',
                       color: Colors.green,
                       onTap: () => _callCustomer(context),
                     ),
@@ -160,7 +157,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     child: _buildActionButton(
                       context,
                       icon: Icons.edit_note,
-                      label: 'Edit Profile',
+                      label: langCode == 'ku' ? 'گۆڕینی پڕۆفایل' : langCode == 'ar' ? 'تعديل الملف' : 'Edit Profile',
                       color: theme.colorScheme.primary,
                       onTap: () => context.push(Routes.customerForm, extra: customer),
                     ),
@@ -220,7 +217,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Outstanding Debt',
+                                langCode == 'ku' ? 'قەرزی ماوە' : langCode == 'ar' ? 'الديون المتبقية' : 'Outstanding Debt',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -320,11 +317,11 @@ class CustomerDetailScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildInfoRow(Icons.phone_outlined, 'Phone', customer.phone ?? 'Not provided', isDark),
+                    _buildInfoRow(Icons.phone_outlined, 'Phone', customer.phone ?? 'Not provided', isDark, isLtr: true),
                     const SizedBox(height: 10),
                     _buildInfoRow(Icons.location_on_outlined, 'Address', customer.address ?? 'Not provided', isDark),
                     const SizedBox(height: 10),
-                    _buildInfoRow(Icons.badge_outlined, 'Customer ID', customer.id.substring(0, 8).toUpperCase(), isDark),
+                    _buildInfoRow(Icons.badge_outlined, 'Customer ID', customer.id.substring(0, 8).toUpperCase(), isDark, isLtr: true),
                   ],
                 ),
               ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
@@ -437,7 +434,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      DateFormat('MMM dd, yyyy • HH:mm').format(item.orderDate),
+                                      DateFormat('dd/MM/yyyy • HH:mm').format(item.orderDate),
                                       style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                                     ),
                                   ],
@@ -495,7 +492,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      DateFormat('MMM dd, yyyy • HH:mm').format(item.paymentDate),
+                                      DateFormat('dd/MM/yyyy • HH:mm').format(item.paymentDate),
                                       style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                                     ),
                                   ],
@@ -559,7 +556,6 @@ class CustomerDetailScreen extends ConsumerWidget {
       controller.text = customer.debtBalance.toInt().toString();
     }
     final focusNode = FocusNode();
-    
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
         controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.text.length);
@@ -580,7 +576,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 controller: controller,
                 focusNode: focusNode,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [CurrencyInputFormatter()],
+                inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: langCode == 'ku' ? 'بڕی پارە' : langCode == 'ar' ? 'المبلغ المدفوع' : 'Amount Paid',
@@ -599,36 +595,18 @@ class CustomerDetailScreen extends ConsumerWidget {
               onPressed: () async {
                 final amount = double.tryParse(controller.text.replaceAll(',', ''));
                 if (amount != null && amount > 0) {
-                  final repo = ref.read(customerRepositoryProvider);
-                  final newDebt = customer.debtBalance - amount;
-                  
-                  await repo.updateCustomer(
-                    CustomersCompanion(
-                      id: drift.Value(customer.id),
-                      businessName: drift.Value(customer.businessName),
-                      address: drift.Value(customer.address),
-                      debtBalance: drift.Value(newDebt >= 0 ? newDebt : 0),
-                      syncStatus: const drift.Value(SyncStatus.pendingSync),
-                    ),
+                  // Use PaymentRepositoryImpl for atomic payment + debt reduction
+                  await ref.read(paymentRepositoryProvider).recordPayment(
+                    customerId: customer.id,
+                    amount: amount,
                   );
-                  
-                  // Insert Payment
-                  final paymentId = DateTime.now().millisecondsSinceEpoch.toString();
-                  await repo.addPayment(
-                    PaymentsCompanion(
-                      id: drift.Value(paymentId),
-                      customerId: drift.Value(customer.id),
-                      amount: drift.Value(amount),
-                      syncStatus: const drift.Value(SyncStatus.pendingSync),
-                    ),
-                  );
-                  
+
                   await ref.read(notificationProvider.notifier).addNotification(
                     title: 'Payment Received',
                     message: '${CurrencyFormatter.format(amount)} received from ${customer.businessName}',
                     type: 'sync',
                   );
-                  
+
                   if (context.mounted) {
                     Navigator.pop(context);
                     AppFeedback.showSuccess(context, langCode == 'ku' ? 'بە سەرکەوتووی درا' : langCode == 'ar' ? 'تم الدفع بنجاح' : 'Payment applied successfully');
@@ -645,7 +623,7 @@ class CustomerDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, bool isDark) {
+  Widget _buildInfoRow(IconData icon, String label, String value, bool isDark, {bool isLtr = false}) {
     return Row(
       children: [
         Icon(icon, size: 18, color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
@@ -668,6 +646,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white : Colors.black87,
               ),
+              textDirection: isLtr ? TextDirection.rtl : null,
             ),
           ],
         ),
