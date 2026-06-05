@@ -7,6 +7,7 @@ import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import 'package:printing/printing.dart';
 import '../../core/services/pdf_report_service.dart';
+import '../../core/widgets/pdf_preview_screen.dart';
 
 class ReportPickerModal extends ConsumerStatefulWidget {
   final bool isMonth;
@@ -78,7 +79,16 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
         periodName: dateLabel,
         isMonth: isMonth,
       );
-      await Printing.sharePdf(bytes: bytes, filename: 'Report_$dateLabel.pdf');
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => PdfPreviewScreen(
+              title: 'Report_$dateLabel',
+              pdfBytes: bytes,
+            ),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error generating PDF: $e')));

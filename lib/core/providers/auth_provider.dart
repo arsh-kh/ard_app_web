@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../data/models/user_entity.dart';
 
 class AuthState {
@@ -34,11 +33,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _initAndRestore() async {
-    // Enforce a minimum delay to allow the beautiful splash screen animation to complete its filling steps
-    await Future.wait([
-      _restoreSession(),
-      Future.delayed(const Duration(milliseconds: 2500)),
-    ]);
+    // Wait for native splash and ensure minimum UI settling time
+    await Future.delayed(const Duration(milliseconds: 400));
+    
+    await _restoreSession();
+    
+    // Final settling before transition
+    await Future.delayed(const Duration(milliseconds: 600));
     
     if (state.isLoading) {
       state = state.copyWith(isLoading: false);
@@ -56,11 +57,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _restoreSession() async {
     await Future.any([
       _doRestoreSession(),
-      Future.delayed(const Duration(seconds: 6)),
+      Future.delayed(const Duration(seconds: 3)),
     ]);
     if (state.isLoading) {
-      debugPrint('[Auth] _restoreSession timed out — forcing logout state');
-      state = const AuthState();
+      // Just keep it loading until the visual sequence finishes
     }
   }
 
@@ -69,17 +69,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final prefs = await SharedPreferences.getInstance();
       final savedId = prefs.getString(_keyUserId);
       if (savedId != null) {
-        final doc = await _firestore.collection('users').doc(savedId).get();
+        // Enforce a strict 2-second timeout on the network call to prevent the splash screen from hanging
+        final doc = await _firestore.collection('users').doc(savedId).get().timeout(const Duration(seconds: 2));
         if (doc.exists) {
           final user = UserEntity.fromJson({'id': doc.id, ...doc.data()!});
-          state = AuthState(userId: savedId, user: user);
-          return;
+          state = state.copyWith(userId: savedId, user: user);
+        } else {
+          state = state.copyWith(userId: null, user: null);
         }
+      } else {
+        state = state.copyWith(userId: null, user: null);
       }
-      state = const AuthState();
     } catch (e) {
-      debugPrint('[Auth] _restoreSession failed: $e');
-      state = const AuthState();
+      debugPrint('[Auth] Restore error: $e');
+      state = state.copyWith(userId: null, user: null);
     }
   }
 

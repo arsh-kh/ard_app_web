@@ -12,6 +12,7 @@ import '../../core/services/pdf_invoice_service.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/order_status_utils.dart';
+import '../../core/widgets/pdf_preview_screen.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/models/order_entity.dart';
@@ -475,10 +476,16 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
         products: products,
       );
 
-      await Printing.layoutPdf(
-        onLayout: (format) async => pdfBytes,
-        name: 'Invoice_${order.id.substring(0, 8)}.pdf',
-      );
+      if (context.mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => PdfPreviewScreen(
+              title: 'Invoice_${order.id.substring(0, 8)}',
+              pdfBytes: pdfBytes,
+            ),
+          ),
+        );
+      }
     } catch (e) {
       if (context.mounted && isDialogOpen) {
         Navigator.of(context, rootNavigator: true).pop();
