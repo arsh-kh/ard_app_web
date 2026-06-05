@@ -42,7 +42,7 @@ class MainShellLayout extends ConsumerWidget {
             left: 0,
             right: 0,
             bottom: 0,
-            height: 80, // Starts around the middle/top of the navigation pill
+            height: 150, // Increased height to start even higher up
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
@@ -51,7 +51,7 @@ class MainShellLayout extends ConsumerWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       theme.scaffoldBackgroundColor.withOpacity(0.0),
-                      theme.scaffoldBackgroundColor.withOpacity(0.7), // Lower capacity at the bottom
+                      theme.scaffoldBackgroundColor.withOpacity(0.9), // Increased capacity at the bottom
                     ],
                     stops: const [0.0, 1.0],
                   ),

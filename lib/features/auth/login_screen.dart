@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -195,45 +196,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       backgroundColor: bg,
       body: Stack(
         children: [
-          // Ambient glowing wave effect at the top
-          Positioned(
-            top: -100,
-            left: -50,
-            right: -50,
-            child: Container(
-              height: 400,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    theme.colorScheme.primary.withOpacity(0.15),
-                    theme.colorScheme.primary.withOpacity(0.0),
-                  ],
-                  radius: 0.8,
-                ),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-             .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 4.seconds),
-          ),
-          Positioned(
-            top: -150,
-            right: -100,
-            child: Container(
-              height: 350,
-              width: 350,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.purpleAccent.withOpacity(0.12),
-                    Colors.purpleAccent.withOpacity(0.0),
-                  ],
-                  radius: 0.8,
-                ),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-             .scale(begin: const Offset(1, 1), end: const Offset(1.15, 1.15), duration: 5.seconds)
-             .moveX(begin: 0, end: -30, duration: 6.seconds),
+          // Elegant Animated Monochrome Waves
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _floatAnim,
+              builder: (context, _) {
+                return CustomPaint(
+                  painter: _MonochromeWavePainter(
+                    baseColor: fg,
+                    animValue: _floatAnim.value,
+                  ),
+                );
+              },
+            ),
           ),
           SafeArea(
             child: Center(
@@ -245,21 +220,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 // ── Mascot ───────────────────────────────────────────────
                 AnimatedBuilder(
                   animation: Listenable.merge([_floatAnim, _peekAnim]),
-                  builder: (_, __) => Transform.translate(
-                    offset: Offset(0, (_floatAnim.value - 0.5) * 6),
-                    child: SizedBox(
-                      width: 130,
-                      height: 150,
-                      child: CustomPaint(
-                        painter: _BagPainter(
-                          look: _look,
-                          eyeX: _eyeX,
-                          peek: _peekAnim.value,
-                          isDark: isDark,
+                  builder: (_, __) {
+                    final floatOffset = (_floatAnim.value - 0.5) * 6;
+                    return Column(
+                      children: [
+                        Transform.translate(
+                          offset: Offset(0, floatOffset),
+                          child: SizedBox(
+                            width: 130,
+                            height: 150,
+                            child: CustomPaint(
+                              painter: _BagPainter(
+                                look: _look,
+                                eyeX: _eyeX,
+                                peek: _peekAnim.value,
+                                isDark: isDark,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
+                        // Dynamic Pedestal Shadow
+                        Container(
+                          width: 80 - (_floatAnim.value * 20),
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            borderRadius: BorderRadius.circular(100),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(isDark ? 0.4 : 0.08),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.15, end: 0, curve: Curves.easeOutBack),
 
                 const SizedBox(height: 20),
@@ -270,15 +268,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   child: Column(
                     key: ValueKey(_isLogin),
                     children: [
-                      Text(
-                        _isLogin ? loginTitle : regTitle,
-                        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: fg, letterSpacing: -0.5),
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '${(_isLogin ? loginTitle : regTitle).split(' ').first} ',
+                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: fg, letterSpacing: -1.0),
+                            ),
+                            TextSpan(
+                              text: (_isLogin ? loginTitle : regTitle).split(' ').skip(1).join(' '),
+                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w300, color: fg, letterSpacing: -0.5),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         _isLogin ? loginSub : regSub,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, color: muted),
+                        style: TextStyle(fontSize: 14, color: muted, letterSpacing: 0.2),
                       ),
                     ],
                   ),
@@ -286,37 +295,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                 const SizedBox(height: 24),
 
-                // ── Card ─────────────────────────────────────────────────
-                Container(
-                  decoration: BoxDecoration(
-                    color: card,
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: border),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 7),
+                // ── Glassmorphism Card ───────────────────────────────────
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
                   child: Column(
                     children: [
                       // ── Tab bar ───────────────────────────────────────
                       Padding(
                         padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
-                        child: Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Row(
-                            children: [
-                              _tab(label: signIn, selected: _isLogin, isDark: isDark, fg: fg, onTap: () => _switchTab(true)),
-                              _tab(label: register, selected: !_isLogin, isDark: isDark, fg: fg, onTap: () => _switchTab(false)),
-                            ],
-                          ),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final tabWidth = constraints.maxWidth / 2;
+                            return Container(
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Stack(
+                                children: [
+                                  // Sliding Pill Indicator
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeOutCubic,
+                                    top: 4,
+                                    bottom: 4,
+                                    left: _isLogin ? 4 : tabWidth + 2,
+                                    width: tabWidth - 6,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: isDark ? Colors.black : Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.05),
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // Tab Buttons
+                                  Row(
+                                    children: [
+                                      _tab(label: signIn, selected: _isLogin, isDark: isDark, fg: fg, onTap: () => _switchTab(true)),
+                                      _tab(label: register, selected: !_isLogin, isDark: isDark, fg: fg, onTap: () => _switchTab(false)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
                         ),
                       ),
 
@@ -333,7 +381,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       ),
                     ],
                   ),
-                ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
+                ),
+              ),
+            ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
               ],
             ),
             ),
@@ -348,21 +398,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: selected ? (isDark ? Colors.white : Colors.black) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-          ),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
           alignment: Alignment.center,
-          child: Text(
-            label,
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 250),
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: selected ? (isDark ? Colors.black : Colors.white) : Colors.grey.shade500,
+              color: selected ? fg : Colors.grey.shade500,
             ),
+            child: Text(label),
           ),
         ),
       ),
@@ -723,4 +769,86 @@ class _BagPainter extends CustomPainter {
   @override
   bool shouldRepaint(_BagPainter o) =>
       o.look != look || o.eyeX != eyeX || o.peek != peek || o.isDark != isDark;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MONOCHROME WAVE PAINTER
+// ════════════════════════════════════════════════════════════════════════════
+class _MonochromeWavePainter extends CustomPainter {
+  final Color baseColor;
+  final double animValue; // 0.0 to 1.0
+
+  _MonochromeWavePainter({required this.baseColor, required this.animValue});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // We create smooth, sweeping curves that gently shift with animValue.
+    // animValue goes 0 -> 1 -> 0 continuously over 3 seconds.
+    final shift = (animValue - 0.5) * 40; // Shifts up to +/- 20 pixels
+
+    // Wave 1: Large soft background wave
+    final path1 = Path();
+    path1.lineTo(0, size.height * 0.55 + shift);
+    path1.quadraticBezierTo(size.width * 0.25, size.height * 0.40 - shift, size.width * 0.60, size.height * 0.55 + shift * 0.5);
+    path1.quadraticBezierTo(size.width * 0.85, size.height * 0.65 - shift * 0.5, size.width, size.height * 0.50 + shift);
+    path1.lineTo(size.width, 0);
+    path1.close();
+
+    canvas.drawPath(path1, Paint()..color = baseColor.withOpacity(0.02));
+
+    // Wave 2: Medium overlapping wave
+    final path2 = Path();
+    path2.lineTo(0, size.height * 0.40 - shift);
+    path2.quadraticBezierTo(size.width * 0.35, size.height * 0.55 + shift, size.width * 0.70, size.height * 0.40 - shift * 0.5);
+    path2.quadraticBezierTo(size.width * 0.90, size.height * 0.35 + shift * 0.5, size.width, size.height * 0.45 - shift);
+    path2.lineTo(size.width, 0);
+    path2.close();
+
+    canvas.drawPath(path2, Paint()..color = baseColor.withOpacity(0.025));
+
+    // Wave 3: Smallest accent wave
+    final path3 = Path();
+    path3.lineTo(0, size.height * 0.25 + shift * 0.5);
+    path3.quadraticBezierTo(size.width * 0.40, size.height * 0.15 - shift, size.width * 0.80, size.height * 0.30 + shift);
+    path3.quadraticBezierTo(size.width * 0.95, size.height * 0.35 - shift * 0.5, size.width, size.height * 0.25);
+    path3.lineTo(size.width, 0);
+    path3.close();
+
+    canvas.drawPath(path3, Paint()..color = baseColor.withOpacity(0.03));
+    
+    // Aesthetic structural circles
+    canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.75 + shift), 120, 
+      Paint()..color = baseColor.withOpacity(0.015)
+             ..style = PaintingStyle.stroke
+             ..strokeWidth = 1.5);
+             
+    canvas.drawCircle(Offset(size.width * 0.15, size.height * 0.85 - shift), 80, 
+      Paint()..color = baseColor.withOpacity(0.015)
+             ..style = PaintingStyle.stroke
+             ..strokeWidth = 1);
+
+    // Cinematic Dust Particles
+    final random = math.Random(42); // Seeded for consistency
+    for (int i = 0; i < 20; i++) {
+      final startX = random.nextDouble() * size.width;
+      final startY = random.nextDouble() * size.height;
+      final speed = 0.2 + random.nextDouble() * 0.8;
+      final r = 1.0 + random.nextDouble() * 2.0;
+      
+      // Calculate current Y position moving upward over time
+      final currentY = startY - (animValue * size.height * speed);
+      // Wrap around
+      final wrappedY = currentY < 0 ? currentY + size.height : currentY;
+      
+      // Gentle horizontal sway
+      final sway = math.sin((animValue * math.pi * 2) + i) * 10;
+      
+      canvas.drawCircle(Offset(startX + sway, wrappedY), r, 
+        Paint()..color = baseColor.withOpacity(0.03 + random.nextDouble() * 0.05));
+    }
+  }
+
+  @override
+  bool shouldRepaint(_MonochromeWavePainter oldDelegate) => 
+      oldDelegate.baseColor != baseColor || oldDelegate.animValue != animValue;
 }

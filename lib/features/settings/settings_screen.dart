@@ -164,7 +164,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             value: themeMode == ThemeMode.dark || (themeMode == ThemeMode.system && isDark),
                             activeColor: theme.colorScheme.primary,
                             onChanged: (val) {
-                              ref.read(themeModeProvider.notifier).state = val ? ThemeMode.dark : ThemeMode.light;
+                              ref.read(themeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
                             },
                           ),
                         ),
