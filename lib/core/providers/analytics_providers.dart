@@ -1,6 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/product_entity.dart';
+import '../../data/models/customer_entity.dart';
+import '../../data/models/order_entity.dart';
+import 'order_providers.dart';
+import 'inventory_providers.dart';
+import 'customer_providers.dart';
 
 // 1. Margin Analytics Data Structures
 class ProductMarginData {
@@ -16,10 +20,8 @@ class ProductMarginData {
 }
 
 final productMarginsProvider = FutureProvider<List<ProductMarginData>>((ref) async {
-  final db = ref.watch(databaseProvider);
-  final products = await (db.select(db.products)
-        ..where((t) => t.isDeleted.equals(false)))
-      .get();
+  final inventoryRepo = ref.read(inventoryRepositoryProvider);
+  final products = await inventoryRepo.getAllProducts();
   
   final list = products.map((p) {
     final margin = p.sellPrice - p.buyPrice;
@@ -50,17 +52,15 @@ class CustomerSalesData {
 }
 
 final topCustomersProvider = FutureProvider<List<CustomerSalesData>>((ref) async {
-  final db = ref.watch(databaseProvider);
+  final orderRepo = ref.read(orderRepositoryProvider);
+  final customerRepo = ref.read(customerRepositoryProvider);
   
   // Fetch all delivered orders
-  final orders = await (db.select(db.orders)
-        ..where((t) => t.status.equals('delivered'))
-        ..where((t) => t.isDeleted.equals(false)))
-      .get();
+  final allOrders = await orderRepo.getAllOrders();
+  final orders = allOrders.where((o) => o.status == 'delivered').toList();
       
-  final customers = await (db.select(db.customers)
-        ..where((t) => t.isDeleted.equals(false)))
-      .get();
+  final allCustomers = await customerRepo.getAllCustomers();
+  final customers = allCustomers.toList();
   
   final Map<String, List<OrderEntity>> ordersByCustomer = {};
   for (final order in orders) {
@@ -98,11 +98,11 @@ class DebtAgingData {
 }
 
 final debtAgingProvider = FutureProvider<DebtAgingData>((ref) async {
-  final db = ref.watch(databaseProvider);
-  final customers = await (db.select(db.customers)
-        ..where((t) => t.debtBalance.isBiggerThanValue(0.0))
-        ..where((t) => t.isDeleted.equals(false)))
-      .get();
+  final orderRepo = ref.read(orderRepositoryProvider);
+  final customerRepo = ref.read(customerRepositoryProvider);
+
+  final allCustomers = await customerRepo.getAllCustomers();
+  final customers = allCustomers.where((c) => c.debtBalance > 0).toList();
       
   double recent = 0.0;
   double due = 0.0;
@@ -115,13 +115,10 @@ final debtAgingProvider = FutureProvider<DebtAgingData>((ref) async {
     total += customer.debtBalance;
     
     // Find last order date of this customer
-    final lastOrder = await (db.select(db.orders)
-          ..where((t) => t.customerId.equals(customer.id))
-          ..where((t) => t.status.equals('delivered'))
-          ..where((t) => t.isDeleted.equals(false))
-          ..orderBy([(t) => OrderingTerm.desc(t.orderDate)])
-          ..limit(1))
-        .getSingleOrNull();
+    final cOrders = await orderRepo.getOrdersByCustomer(customer.id);
+    final deliveredOrders = cOrders.where((o) => o.status == 'delivered').toList();
+    deliveredOrders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
+    final lastOrder = deliveredOrders.isNotEmpty ? deliveredOrders.first : null;
         
     if (lastOrder != null) {
       final days = now.difference(lastOrder.orderDate).inDays;

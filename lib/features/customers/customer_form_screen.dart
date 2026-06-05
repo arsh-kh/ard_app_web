@@ -1,7 +1,5 @@
-import 'package:ard_app/data/local_database/tables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,7 +9,7 @@ import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/customer_entity.dart';
 import '../../core/widgets/image_picker_widget.dart';
 
 class CustomerFormScreen extends ConsumerStatefulWidget {
@@ -59,14 +57,13 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
 
       final repo = ref.read(customerRepositoryProvider);
 
-      final customer = CustomersCompanion(
-        id: drift.Value(widget.customerToEdit?.id ?? const Uuid().v4()),
-        businessName: drift.Value(_nameController.text),
-        phone: drift.Value(_phoneController.text.isNotEmpty ? _phoneController.text : null),
-        address: drift.Value(_addressController.text),
-        debtBalance: drift.Value(double.tryParse(_debtController.text.replaceAll(',', '')) ?? 0.0),
-        imageUrl: drift.Value(_imagePath),
-        syncStatus: const drift.Value(SyncStatus.pendingSync),
+      final customer = CustomerEntity(
+        id: widget.customerToEdit?.id ?? const Uuid().v4(),
+        businessName: _nameController.text,
+        phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
+        address: _addressController.text,
+        debtBalance: double.tryParse(_debtController.text.replaceAll(',', '')) ?? 0.0,
+        imageUrl: _imagePath,
       );
 
       final isAdd = widget.customerToEdit == null;
@@ -217,3 +214,4 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     );
   }
 }
+

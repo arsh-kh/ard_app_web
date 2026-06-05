@@ -3,11 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/providers/theme_provider.dart';
 import '../../core/widgets/custom_loader.dart';
+import '../../core/widgets/flour_bag_painter.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -184,10 +185,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     final theme  = Theme.of(context);
     final bg     = theme.scaffoldBackgroundColor;
-    final card   = theme.colorScheme.surface;
+    
     final fg     = theme.colorScheme.onSurface;
     final muted  = Colors.grey.shade500;
-    final border = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
+    final border = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
 
     final authState = ref.watch(authProvider);
     final isLoading = authState.isLoading;
@@ -230,11 +231,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             width: 130,
                             height: 150,
                             child: CustomPaint(
-                              painter: _BagPainter(
+                              painter: FlourBagPainter(
                                 look: _look,
                                 eyeX: _eyeX,
                                 peek: _peekAnim.value,
                                 isDark: isDark,
+                                textDirection: Directionality.of(context),
                               ),
                             ),
                           ),
@@ -244,11 +246,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           width: 80 - (_floatAnim.value * 20),
                           height: 8,
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                             borderRadius: BorderRadius.circular(100),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.4 : 0.08),
+                                color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -302,15 +304,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.6),
+                        color: isDark ? Colors.black.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+                          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                             blurRadius: 30,
                             offset: const Offset(0, 10),
                           ),
@@ -327,7 +329,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             return Container(
                               height: 44,
                               decoration: BoxDecoration(
-                                color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade100,
+                                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Stack(
@@ -346,7 +348,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         borderRadius: BorderRadius.circular(10),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
+                                            color: Colors.black.withValues(alpha: 0.05),
                                             blurRadius: 5,
                                             offset: const Offset(0, 2),
                                           ),
@@ -495,7 +497,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         prefixIcon: Icon(icon, color: Colors.grey.shade500, size: 20),
         suffixIcon: suffix,
         filled: true,
-        fillColor: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: border)),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: border)),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: fg, width: 1.8)),
@@ -527,249 +529,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  FLOUR BAG PAINTER
-// ════════════════════════════════════════════════════════════════════════════
-class _BagPainter extends CustomPainter {
-  final int look;    // 0=idle, 1=tracking, 2=cover
-  final double eyeX; // -0.8..+0.8
-  final double peek; // 0=covered, 1=peeking
-  final bool isDark;
 
-  const _BagPainter({
-    required this.look,
-    required this.eyeX,
-    required this.peek,
-    required this.isDark,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2 + 10;
-
-    final bagColor = Colors.white;
-    final shadeColor = const Color(0xFFDEDEDE);
-    final knotColor = const Color(0xFF777777);
-    final inkColor = Colors.black87;
-
-    // ── Drop shadow ───────────────────────────────────────────────────────
-    canvas.drawOval(
-      Rect.fromCenter(center: Offset(cx, cy + 62), width: 65, height: 9),
-      Paint()
-        ..color = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7),
-    );
-
-    // ── Bag body ──────────────────────────────────────────────────────────
-    final body = Path()
-      ..moveTo(cx - 34, cy + 58)
-      ..quadraticBezierTo(cx, cy + 66, cx + 34, cy + 58)
-      ..quadraticBezierTo(cx + 47, cy + 24, cx + 38, cy - 6)
-      ..quadraticBezierTo(cx + 32, cy - 30, cx + 17, cy - 36)
-      ..lineTo(cx - 17, cy - 36)
-      ..quadraticBezierTo(cx - 32, cy - 30, cx - 38, cy - 6)
-      ..quadraticBezierTo(cx - 47, cy + 24, cx - 34, cy + 58)
-      ..close();
-
-    canvas.drawPath(body, Paint()..color = bagColor);
-    canvas.drawPath(body, Paint()
-      ..shader = LinearGradient(
-        colors: [Colors.transparent, shadeColor.withOpacity(0.38)],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
-      ).createShader(Rect.fromLTWH(cx, cy - 36, 48, 102)));
-    canvas.drawPath(body, Paint()
-      ..color = inkColor.withOpacity(0.08)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.3);
-
-    // Seams
-    final s = Paint()..color = shadeColor..strokeWidth = 0.9..style = PaintingStyle.stroke;
-    for (final dy in [6.0, 20.0, 36.0]) {
-      canvas.drawLine(Offset(cx - 26, cy + dy), Offset(cx + 26, cy + dy), s);
-    }
-
-    // Neck gather
-    final fold = Paint()..color = knotColor.withOpacity(0.28)..strokeWidth = 1.6..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
-    for (int i = -2; i <= 2; i++) {
-      canvas.drawLine(Offset(cx + i * 3.5, cy - 33), Offset(cx + i * 2.0, cy - 44), fold);
-    }
-
-    // Knot
-    canvas.drawOval(Rect.fromCenter(center: Offset(cx, cy - 48), width: 15, height: 10), Paint()..color = knotColor);
-    canvas.drawOval(Rect.fromCenter(center: Offset(cx - 11, cy - 51), width: 10, height: 7), Paint()..color = knotColor);
-    canvas.drawOval(Rect.fromCenter(center: Offset(cx + 11, cy - 51), width: 10, height: 7), Paint()..color = knotColor);
-    final t = Paint()..color = knotColor..strokeWidth = 2.5..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(cx - 6, cy - 43), Offset(cx - 11, cy - 36), t);
-    canvas.drawLine(Offset(cx + 6, cy - 43), Offset(cx + 11, cy - 36), t);
-
-    // (No belly text)
-
-    // ═══ FACE ════════════════════════════════════════════════════════════
-    if (look == 2) {
-      _drawCovering(canvas, cx, cy, bagColor, shadeColor, knotColor, inkColor);
-    } else {
-      final ex = eyeX * 5.0;
-      final ey = look == 1 ? 3.5 : 0.0;
-
-      // Brows: two small round dots above eyes (not lines) — neutral look
-      _drawBrowDot(canvas, cx - 14, cy - 27, inkColor);
-      _drawBrowDot(canvas, cx + 14, cy - 27, inkColor);
-
-      // Eyes
-      _drawEye(canvas, cx - 14, cy - 10, ex, ey, bagColor, inkColor);
-      _drawEye(canvas, cx + 14, cy - 10, ex, ey, bagColor, inkColor);
-
-      // Blush
-      canvas.drawOval(Rect.fromCenter(center: Offset(cx - 27, cy + 1), width: 12, height: 7),
-          Paint()..color = inkColor.withOpacity(0.05));
-      canvas.drawOval(Rect.fromCenter(center: Offset(cx + 27, cy + 1), width: 12, height: 7),
-          Paint()..color = inkColor.withOpacity(0.05));
-
-      // Smile
-      canvas.drawArc(
-        Rect.fromCenter(center: Offset(cx, cy + 7), width: 20, height: 10),
-        0, math.pi, false,
-        Paint()..color = inkColor.withOpacity(0.25)..style = PaintingStyle.stroke..strokeWidth = 2.0..strokeCap = StrokeCap.round,
-      );
-    }
-  }
-
-  // Covering: two hands from sides come in to cover eyes; on peek they drop revealing eyes above
-  void _drawCovering(Canvas canvas, double cx, double cy,
-      Color bag, Color shade, Color knot, Color ink) {
-    // eyeY = cy - 10
-    // hands at full cover: top of hands at ~cy-22, covering eyes
-    // when peeking (peek=1): hands drop 22px → top of hands at cy
-    //   → eyes (at cy-10) are fully visible ABOVE the hands
-    final drop = peek * 22.0;
-    final handTopY = cy - 22 + drop; // top edge of hand bar
-    final handCenterY = handTopY + 14; // center of hand bar (28px tall)
-
-    // Eyes become visible above the hands as they drop
-    if (drop > 5) {
-      final eyeReveal = ((drop - 5) / 17.0).clamp(0.0, 1.0);
-      final eyeH = 3.0 + eyeReveal * 11.0;
-      _drawNarrowEye(canvas, cx - 14, cy - 10, eyeH, bag, ink);
-      _drawNarrowEye(canvas, cx + 14, cy - 10, eyeH, bag, ink);
-    } else {
-      // Fully shut eyes — but brows still drawn above
-      final sp = Paint()
-        ..color = ink.withOpacity(0.45)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.3
-        ..strokeCap = StrokeCap.round;
-      canvas.drawArc(Rect.fromCenter(center: Offset(cx - 14, cy - 12), width: 16, height: 8), 0, math.pi, false, sp);
-      canvas.drawArc(Rect.fromCenter(center: Offset(cx + 14, cy - 12), width: 16, height: 8), 0, math.pi, false, sp);
-    }
-
-    // ── Two rounded hand-pads covering eyes ───────────────────────────────
-    // Left hand: comes from the left side of the bag
-    _drawHandPad(canvas, cx - 14, handCenterY, bag, shade);
-    // Right hand: comes from the right side of the bag
-    _drawHandPad(canvas, cx + 14, handCenterY, bag, shade);
-
-    // ── Draw brows (always on top of everything) ────────────
-    _drawBrowDot(canvas, cx - 14, cy - 27, ink);
-    _drawBrowDot(canvas, cx + 14, cy - 27, ink);
-
-    // Blush (stronger when peeking)
-    final blush = 0.04 + peek * 0.14;
-    canvas.drawOval(Rect.fromCenter(center: Offset(cx - 28, cy + 4), width: 15, height: 9),
-        Paint()..color = ink.withOpacity(blush));
-    canvas.drawOval(Rect.fromCenter(center: Offset(cx + 28, cy + 4), width: 15, height: 9),
-        Paint()..color = ink.withOpacity(blush));
-
-    // Mouth: nervous flat line → sneaky smirk when peeking
-    final mp = Paint()
-      ..color = ink.withOpacity(0.2)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round;
-    if (peek > 0.5) {
-      canvas.drawArc(
-        Rect.fromCenter(center: Offset(cx + 4, cy + 10), width: 15, height: 7),
-        0.1, math.pi * 0.75, false, mp,
-      );
-    } else {
-      canvas.drawLine(Offset(cx - 7, cy + 10), Offset(cx + 7, cy + 10), mp);
-    }
-  }
-
-  // A single hand-pad: rounded rectangle + 4 finger bumps on top
-  void _drawHandPad(Canvas canvas, double cx, double cy, Color bag, Color shade) {
-    // Shadow
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: Offset(cx + 1.5, cy + 2.5), width: 32, height: 26),
-        const Radius.circular(13),
-      ),
-      Paint()..color = shade.withOpacity(0.28)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
-    );
-    // Palm
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: Offset(cx, cy), width: 32, height: 26),
-        const Radius.circular(13),
-      ),
-      Paint()..color = bag,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: Offset(cx, cy), width: 32, height: 26),
-        const Radius.circular(13),
-      ),
-      Paint()..color = shade.withOpacity(0.35)..style = PaintingStyle.stroke..strokeWidth = 1.0,
-    );
-    // 4 finger bumps
-    for (int i = 0; i < 4; i++) {
-      final fx = cx - 10.5 + i * 7.0;
-      final fy = cy - 14.5;
-      canvas.drawCircle(Offset(fx + 1, fy + 1), 5.2, Paint()..color = shade.withOpacity(0.2));
-      canvas.drawCircle(Offset(fx, fy), 5.2, Paint()..color = bag);
-      canvas.drawCircle(Offset(fx, fy), 5.2,
-          Paint()..color = shade.withOpacity(0.35)..style = PaintingStyle.stroke..strokeWidth = 0.8);
-    }
-  }
-
-  // Normal open eye with pupil that tracks position
-  void _drawEye(Canvas canvas, double x, double y, double ex, double ey, Color white, Color dark) {
-    canvas.drawOval(Rect.fromCenter(center: Offset(x, y), width: 21, height: 16), Paint()..color = white);
-    canvas.drawOval(Rect.fromCenter(center: Offset(x, y), width: 21, height: 16),
-        Paint()..color = dark.withOpacity(0.1)..style = PaintingStyle.stroke..strokeWidth = 1.1);
-    final px = (x + ex).clamp(x - 5.0, x + 5.0);
-    final py = (y + ey).clamp(y - 3.0, y + 3.0);
-    canvas.drawCircle(Offset(px, py), 5.5, Paint()..color = dark);
-    // Highlight top-center of pupil (not shifted right)
-    canvas.drawCircle(Offset(px, py - 2.2), 1.7, Paint()..color = white.withOpacity(0.82));
-  }
-
-  // Narrow slit eye for peeking (height grows as peek progresses)
-  void _drawNarrowEye(Canvas canvas, double x, double y, double h, Color white, Color dark) {
-    if (h < 1.0) return;
-    canvas.drawOval(Rect.fromCenter(center: Offset(x, y), width: 21, height: h), Paint()..color = white);
-    canvas.drawOval(Rect.fromCenter(center: Offset(x, y), width: 21, height: h),
-        Paint()..color = dark.withOpacity(0.1)..style = PaintingStyle.stroke..strokeWidth = 1.0);
-    final pr = (h * 0.45).clamp(1.5, 6.0);
-    // Pupil looks slightly downward (toward the hands/password)
-    canvas.drawCircle(Offset(x, y + h * 0.12), pr, Paint()..color = dark);
-    canvas.drawCircle(Offset(x, y + h * 0.12 - pr * 0.35), (pr * 0.3).clamp(0.5, 2.0),
-        Paint()..color = white.withOpacity(0.8));
-  }
-
-  // Two small dot brows (no lines, no angles — completely neutral)
-  void _drawBrowDot(Canvas canvas, double x, double y, Color color) {
-    final paint = Paint()..color = color.withOpacity(0.28);
-    // Two small oval dots per brow
-    canvas.drawOval(Rect.fromCenter(center: Offset(x - 4, y), width: 5, height: 3.5), paint);
-    canvas.drawOval(Rect.fromCenter(center: Offset(x + 4, y), width: 5, height: 3.5), paint);
-  }
-
-  @override
-  bool shouldRepaint(_BagPainter o) =>
-      o.look != look || o.eyeX != eyeX || o.peek != peek || o.isDark != isDark;
-}
 
 // ════════════════════════════════════════════════════════════════════════════
 //  MONOCHROME WAVE PAINTER
@@ -794,7 +554,7 @@ class _MonochromeWavePainter extends CustomPainter {
     path1.lineTo(size.width, 0);
     path1.close();
 
-    canvas.drawPath(path1, Paint()..color = baseColor.withOpacity(0.02));
+    canvas.drawPath(path1, Paint()..color = baseColor.withValues(alpha: 0.02));
 
     // Wave 2: Medium overlapping wave
     final path2 = Path();
@@ -804,7 +564,7 @@ class _MonochromeWavePainter extends CustomPainter {
     path2.lineTo(size.width, 0);
     path2.close();
 
-    canvas.drawPath(path2, Paint()..color = baseColor.withOpacity(0.025));
+    canvas.drawPath(path2, Paint()..color = baseColor.withValues(alpha: 0.025));
 
     // Wave 3: Smallest accent wave
     final path3 = Path();
@@ -814,16 +574,16 @@ class _MonochromeWavePainter extends CustomPainter {
     path3.lineTo(size.width, 0);
     path3.close();
 
-    canvas.drawPath(path3, Paint()..color = baseColor.withOpacity(0.03));
+    canvas.drawPath(path3, Paint()..color = baseColor.withValues(alpha: 0.03));
     
     // Aesthetic structural circles
     canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.75 + shift), 120, 
-      Paint()..color = baseColor.withOpacity(0.015)
+      Paint()..color = baseColor.withValues(alpha: 0.015)
              ..style = PaintingStyle.stroke
              ..strokeWidth = 1.5);
              
     canvas.drawCircle(Offset(size.width * 0.15, size.height * 0.85 - shift), 80, 
-      Paint()..color = baseColor.withOpacity(0.015)
+      Paint()..color = baseColor.withValues(alpha: 0.015)
              ..style = PaintingStyle.stroke
              ..strokeWidth = 1);
 
@@ -844,7 +604,7 @@ class _MonochromeWavePainter extends CustomPainter {
       final sway = math.sin((animValue * math.pi * 2) + i) * 10;
       
       canvas.drawCircle(Offset(startX + sway, wrappedY), r, 
-        Paint()..color = baseColor.withOpacity(0.03 + random.nextDouble() * 0.05));
+        Paint()..color = baseColor.withValues(alpha: 0.03 + random.nextDouble() * 0.05));
     }
   }
 

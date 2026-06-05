@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Monochrome Palette
@@ -31,14 +30,14 @@ class AppTheme {
         primary: primaryColor,
         secondary: secondaryColor,
         surface: surfaceLight,
-        background: backgroundLight,
         error: errorColor,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textLight,
       ),
       scaffoldBackgroundColor: backgroundLight,
-      textTheme: GoogleFonts.notoSansArabicTextTheme().apply(
+      textTheme: ThemeData.light().textTheme.apply(
+        fontFamily: 'NotoNaskhArabic',
         bodyColor: textLight,
         displayColor: textLight,
       ),
@@ -110,15 +109,14 @@ class AppTheme {
         primary: Colors.white,
         secondary: secondaryColor,
         surface: surfaceDark,
-        background: backgroundDark,
         error: errorColor,
         onPrimary: Colors.black,
         onSecondary: Colors.white,
         onSurface: textDark,
-        onBackground: textDark,
       ),
       scaffoldBackgroundColor: backgroundDark,
-      textTheme: GoogleFonts.notoSansArabicTextTheme().apply(
+      textTheme: ThemeData.dark().textTheme.apply(
+        fontFamily: 'NotoNaskhArabic',
         bodyColor: textDark,
         displayColor: textDark,
       ),
@@ -176,3 +174,4 @@ class AppTheme {
     );
   }
 }
+

@@ -2,7 +2,6 @@ import 'package:ard_app/core/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,10 +9,8 @@ import '../../core/providers/dashboard_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../core/constants/app_constants.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/user_entity.dart';
 import '../../core/widgets/initials_avatar.dart';
-import '../../core/providers/admin_profile_provider.dart';
 import '../../core/routing/routes.dart';
 import 'month_year_picker_dialog.dart';
 import '../../core/widgets/custom_loader.dart';
@@ -156,8 +153,8 @@ class AdminDashboardScreen extends ConsumerWidget {
           colors: isDark 
             ? [const Color(0xFF181A20), const Color(0xFF0D0E12)] // Sleek dark blue-grey tint to stand out from black background
             : [const Color(0xFF222222), const Color(0xFF000000)], // True black for Light Mode
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
@@ -214,7 +211,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                             width: double.infinity,
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
-                              alignment: isArabic || isKurdish ? Alignment.centerRight : Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: Text(
                                 CurrencyFormatter.format(metrics.thisWeekProfit),
                                 style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
@@ -241,7 +238,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                             width: double.infinity,
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
-                              alignment: isArabic || isKurdish ? Alignment.centerRight : Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: Text(
                                 metrics.thisWeekOrders.toString(),
                                 style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
@@ -581,3 +578,4 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 }
+

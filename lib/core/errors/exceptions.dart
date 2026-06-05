@@ -32,6 +32,7 @@ class SyncException extends AppException {
 
 /// Exception when offline and operation requires network.
 class OfflineException extends AppException {
-  const OfflineException([String message = 'No internet connection'])
-      : super(message, code: 'OFFLINE');
+  const OfflineException([super.message = 'No internet connection'])
+      : super(code: 'OFFLINE');
 }
+

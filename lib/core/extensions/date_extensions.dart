@@ -50,3 +50,4 @@ extension DateTimeExtension on DateTime {
   /// Returns the end of this month.
   DateTime get endOfMonth => DateTime(year, month + 1, 0, 23, 59, 59, 999);
 }
+

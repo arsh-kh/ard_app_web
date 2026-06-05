@@ -48,3 +48,4 @@ extension StringExtension on String {
     return '${words[0][0]}${words[words.length - 1][0]}'.toUpperCase();
   }
 }
+

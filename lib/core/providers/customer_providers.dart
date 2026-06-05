@@ -1,13 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/local_database/database.dart';
-import '../../data/local_database/repositories/customer_repository_impl.dart';
+import '../services/audit_service.dart';
+import '../../data/repositories/customer_repository.dart';
+import '../../data/models/customer_entity.dart';
 
-final customerRepositoryProvider = Provider<CustomerRepositoryImpl>((ref) {
-  final db = ref.watch(databaseProvider);
-  return CustomerRepositoryImpl(db);
+final customerRepositoryProvider = Provider<CustomerRepository>((ref) {
+  final auditService = ref.watch(auditServiceProvider);
+  return CustomerRepository(auditService);
 });
 
 final dashboardCustomersProvider = StreamProvider<List<CustomerEntity>>((ref) {
   final repo = ref.watch(customerRepositoryProvider);
-  return repo.watchAllCustomers();
+  return repo.watchCustomers();
 });
+

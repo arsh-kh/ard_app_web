@@ -58,3 +58,4 @@ class InsufficientStockFailure extends Failure {
           'Insufficient stock for $productName. Available: $availableStock, Requested: $requestedQuantity',
         );
 }
+

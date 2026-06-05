@@ -79,3 +79,4 @@ class AdminProfileNotifier extends StateNotifier<AdminProfile> {
 final adminProfileProvider = StateNotifierProvider<AdminProfileNotifier, AdminProfile>((ref) {
   return AdminProfileNotifier();
 });
+

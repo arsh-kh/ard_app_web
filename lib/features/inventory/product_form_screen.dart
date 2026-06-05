@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,7 +9,7 @@ import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/product_entity.dart';
 import '../../core/widgets/image_picker_widget.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
@@ -65,15 +64,15 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
       final repo = ref.read(inventoryRepositoryProvider);
       
-      final product = ProductsCompanion(
-        id: drift.Value(widget.productToEdit?.id ?? const Uuid().v4()),
-        name: drift.Value(_nameController.text),
-        categoryId: const drift.Value('default_category'), 
-        stockQuantity: drift.Value(double.tryParse(_stockController.text.replaceAll(',', '')) ?? 0.0),
-        unitType: drift.Value(_selectedUnit),
-        buyPrice: drift.Value(double.tryParse(_buyPriceController.text.replaceAll(',', '')) ?? 0.0),
-        sellPrice: drift.Value(double.tryParse(_sellPriceController.text.replaceAll(',', '')) ?? 0.0),
-        imageUrl: drift.Value(_imagePath),
+      final product = ProductEntity(
+        id: widget.productToEdit?.id ?? const Uuid().v4(),
+        name: _nameController.text,
+        categoryId: 'default_category', 
+        stockQuantity: double.tryParse(_stockController.text.replaceAll(',', '')) ?? 0.0,
+        unitType: _selectedUnit,
+        buyPrice: double.tryParse(_buyPriceController.text.replaceAll(',', '')) ?? 0.0,
+        sellPrice: double.tryParse(_sellPriceController.text.replaceAll(',', '')) ?? 0.0,
+        imageUrl: _imagePath,
       );
 
       final isAdd = widget.productToEdit == null;
@@ -114,7 +113,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final nameHint = isKurdish ? 'بۆ نموونە: ئاردی سپی کوردی' : isArabic ? 'مثل: طحين أبيض كردي ممتاز' : 'e.g. Kurdish White Flour Premium';
     final nameReq = isKurdish ? 'ناوی بەرهەم داواکراوە' : isArabic ? 'اسم المنتج مطلوب' : 'Product name is required';
     
-    final stockLabel = isKurdish ? 'کۆگای سەرەتا' : isArabic ? 'المخزون الافتتاحي' : 'Opening Stock';
+    final stockLabel = isNew 
+      ? (isKurdish ? 'کۆگای سەرەتا' : isArabic ? 'المخزون الافتتاحي' : 'Opening Stock')
+      : (isKurdish ? 'کۆگای ئێستا (دەستکاری مەکە بۆ کڕینی نوێ)' : isArabic ? 'المخزون الحالي' : 'Current Stock (Use Restock to add)');
     final reqLabel = isKurdish ? 'داواکراوە' : isArabic ? 'مطلوب' : 'Required';
     final numReqLabel = isKurdish ? 'دەبێت ژمارە بێت' : isArabic ? 'يجب أن يكون رقماً' : 'Must be a number';
     final negLabel = isKurdish ? 'نابێت نەرێنی بێت' : isArabic ? 'لا يمكن أن يكون سالباً' : 'Cannot be negative';
@@ -190,7 +191,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   Expanded(
                     flex: 1,
                     child: DropdownButtonFormField<String>(
-                      value: _selectedUnit,
+                      initialValue: _selectedUnit,
                       decoration: InputDecoration(
                         labelText: unitLabel,
                       ),
@@ -282,3 +283,4 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     );
   }
 }
+

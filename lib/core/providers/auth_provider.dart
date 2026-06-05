@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:drift/drift.dart' show Value;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../data/local_database/database.dart';
+import '../../data/models/user_entity.dart';
 
 class AuthState {
   final String? userId;
@@ -27,29 +27,37 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final AppDatabase _db;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  AuthNotifier(this._db) : super(const AuthState(isLoading: true)) {
-    _restoreSession();
+  AuthNotifier() : super(const AuthState(isLoading: true)) {
+    _initAndRestore();
+  }
+
+  Future<void> _initAndRestore() async {
+    // Enforce a minimum delay to allow the beautiful splash screen animation to complete its filling steps
+    await Future.wait([
+      _restoreSession(),
+      Future.delayed(const Duration(milliseconds: 2500)),
+    ]);
+    
+    if (state.isLoading) {
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   static const _keyUserId = 'logged_in_user_id';
   static const _salt = 'ard_bazar_2025_salt';
 
-  /// Real SHA-256 hash with a static salt.
   String _hash(String input) {
     final bytes = utf8.encode('$_salt:$input');
     return sha256.convert(bytes).toString(); // hex string
   }
 
   Future<void> _restoreSession() async {
-    // Hard 6-second timeout — ensures we NEVER stay stuck on the loading screen
-    // even if the database migration or SharedPreferences hangs.
     await Future.any([
       _doRestoreSession(),
       Future.delayed(const Duration(seconds: 6)),
     ]);
-    // If timeout fired and we're still loading, force to logged-out state
     if (state.isLoading) {
       debugPrint('[Auth] _restoreSession timed out — forcing logout state');
       state = const AuthState();
@@ -61,11 +69,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final prefs = await SharedPreferences.getInstance();
       final savedId = prefs.getString(_keyUserId);
       if (savedId != null) {
-        final user = await (_db.select(_db.users)
-              ..where((u) => u.id.equals(savedId))
-              ..where((u) => u.isDeleted.equals(false)))
-            .getSingleOrNull();
-        if (user != null) {
+        final doc = await _firestore.collection('users').doc(savedId).get();
+        if (doc.exists) {
+          final user = UserEntity.fromJson({'id': doc.id, ...doc.data()!});
           state = AuthState(userId: savedId, user: user);
           return;
         }
@@ -77,43 +83,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Returns null on success, or an error message string.
   Future<String?> login({required String email, required String password}) async {
     state = state.copyWith(isLoading: true);
     try {
       final hashed = _hash(password);
-      final users = await (_db.select(_db.users)
-            ..where((u) => u.email.equals(email.trim().toLowerCase()))
-            ..where((u) => u.isDeleted.equals(false)))
+      final snapshot = await _firestore.collection('users')
+          .where('email', isEqualTo: email.trim().toLowerCase())
           .get();
 
-      // First try new passwordHash column
-      UserEntity? match = users.where((u) => u.passwordHash == hashed).firstOrNull;
-
-      // Fallback: legacy pw: prefix in phone column (for accounts that haven't been migrated yet)
-      match ??= users.where((u) {
-        final ph = u.phone ?? '';
-        return ph.startsWith('pw:') && ph.substring(3) == _legacyHash(password);
-      }).firstOrNull;
-
-      if (match == null) {
+      if (snapshot.docs.isEmpty) {
         state = state.copyWith(isLoading: false);
         return 'Invalid email or password';
       }
 
-      // Silently upgrade legacy hash to SHA-256 on next login
-      if (match.passwordHash == null || match.passwordHash!.isEmpty) {
-        await (_db.update(_db.users)..where((u) => u.id.equals(match!.id))).write(
-          UsersCompanion(
-            passwordHash: Value(hashed),
-            phone: const Value(null),
-          ),
-        );
+      final doc = snapshot.docs.first;
+      final user = UserEntity.fromJson({'id': doc.id, ...doc.data()});
+
+      if (user.passwordHash != hashed) {
+        state = state.copyWith(isLoading: false);
+        return 'Invalid email or password';
       }
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_keyUserId, match.id);
-      state = AuthState(userId: match.id, user: match);
+      await prefs.setString(_keyUserId, user.id);
+      state = AuthState(userId: user.id, user: user);
       return null;
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -121,13 +114,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Legacy hash used by old accounts before the crypto upgrade.
-  String _legacyHash(String input) {
-    final bytes = utf8.encode('ard_salt_$input');
-    return base64Url.encode(bytes);
-  }
-
-  /// Returns null on success, or an error message string.
   Future<String?> register({
     required String name,
     required String email,
@@ -137,12 +123,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final emailLower = email.trim().toLowerCase();
 
-      // Check for duplicate email
-      final existing = await (_db.select(_db.users)
-            ..where((u) => u.email.equals(emailLower))
-            ..where((u) => u.isDeleted.equals(false)))
+      final existing = await _firestore.collection('users')
+          .where('email', isEqualTo: emailLower)
           .get();
-      if (existing.isNotEmpty) {
+          
+      if (existing.docs.isNotEmpty) {
         state = state.copyWith(isLoading: false);
         return 'An account with this email already exists';
       }
@@ -155,15 +140,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final id = const Uuid().v4();
       final hashed = _hash(password);
 
-      await _db.into(_db.users).insert(UsersCompanion.insert(
+      final user = UserEntity(
         id: id,
         name: name.trim(),
-        email: Value(emailLower),
-        passwordHash: Value(hashed), // use new column — no phone hack
+        email: emailLower,
+        passwordHash: hashed,
         role: 'admin',
-      ));
+        createdAt: DateTime.now(),
+      );
 
-      final user = await (_db.select(_db.users)..where((u) => u.id.equals(id))).getSingle();
+      await _firestore.collection('users').doc(id).set(user.toJson());
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_keyUserId, id);
       state = AuthState(userId: id, user: user);
@@ -192,17 +179,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     
     final updated = current.copyWith(
       name: name ?? current.name,
-      email: Value(email ?? current.email),
-      phone: Value(phone ?? current.phone),
+      email: email ?? current.email,
+      phone: phone ?? current.phone,
       role: role ?? current.role,
-      imageUrl: Value(avatarPath ?? current.imageUrl),
+      imageUrl: avatarPath ?? current.imageUrl,
     );
     
-    await (_db.update(_db.users)..where((u) => u.id.equals(current.id))).write(updated);
+    await _firestore.collection('users').doc(current.id).update(updated.toJson());
     state = state.copyWith(user: updated);
   }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier(ref.watch(databaseProvider));
+  return AuthNotifier();
 });

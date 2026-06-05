@@ -7,7 +7,9 @@ import '../../core/providers/inventory_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/routing/routes.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../data/local_database/database.dart';
+import '../../core/utils/formatters.dart';
+import '../../core/constants/app_constants.dart';
+import '../../data/models/product_entity.dart';
 import '../../l10n/app_localizations.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
@@ -26,6 +28,89 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _showRestockDialog(ProductEntity product) async {
+    final qtyCtrl = TextEditingController();
+    final costCtrl = TextEditingController(text: CurrencyFormatter.formatNumber(product.buyPrice));
+    
+    final currentLocale = ref.read(localeProvider);
+    final isKurdish = currentLocale.languageCode == 'ku';
+    final isArabic = currentLocale.languageCode == 'ar';
+    
+    final title = isKurdish ? 'زیادکردنی کۆگا' : isArabic ? 'إضافة مخزون' : 'Add Stock';
+    final qtyLbl = isKurdish ? 'بڕ' : isArabic ? 'الكمية' : 'Quantity';
+    final costLbl = isKurdish ? 'تێچووی گشتی' : isArabic ? 'التكلفة الإجمالية' : 'Total Cost';
+    final cancelLbl = isKurdish ? 'پاشگەزبوونەوە' : isArabic ? 'إلغاء' : 'Cancel';
+    final addLbl = isKurdish ? 'زیادکردن' : isArabic ? 'إضافة' : 'Add';
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: qtyCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: qtyLbl,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.add_box),
+                ),
+                onChanged: (val) {
+                  final q = double.tryParse(val) ?? 0;
+                  costCtrl.text = CurrencyFormatter.formatNumber(q * product.buyPrice);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: costCtrl,
+                keyboardType: TextInputType.number,
+                inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
+                decoration: InputDecoration(
+                  labelText: costLbl,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.payments_outlined),
+                  suffixText: ' ${AppConstants.currencySymbol}',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(cancelLbl),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final q = double.tryParse(qtyCtrl.text) ?? 0;
+                final c = CurrencyFormatter.parse(costCtrl.text);
+                if (q > 0) {
+                  ref.read(inventoryRepositoryProvider).restockProduct(
+                    product.id,
+                    q,
+                  );
+                  Navigator.pop(context);
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isKurdish ? 'سەرکەوتوو بوو' : isArabic ? 'نجاح' : 'Stock Added Successfully'),
+                      backgroundColor: Colors.green,
+                    )
+                  );
+                }
+              },
+              child: Text(addLbl),
+            ),
+          ],
+        );
+      }
+    );
   }
 
   @override
@@ -50,28 +135,37 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final registerFirst = isKurdish ? 'یەکەم بەرهەم تۆمار بکە' : isArabic ? 'سجل منتجك الأول' : 'Register Your First Product';
     final newProductLabel = isKurdish ? 'بەرهەمی نوێ' : isArabic ? 'منتج جديد' : 'New Product';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 28),
-            onPressed: () {
-              context.push(Routes.productForm);
-            },
+    return StreamBuilder<List<ProductEntity>>(
+      stream: productsStream,
+      builder: (context, snapshot) {
+        final products = snapshot.data ?? [];
+        final hasProducts = products.isNotEmpty;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+            actions: [
+              if (hasProducts)
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline, size: 28),
+                  onPressed: () {
+                    context.push(Routes.productForm);
+                  },
+                ),
+              const SizedBox(width: 8),
+            ],
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 96.0),
-        child: FloatingActionButton.extended(
-          heroTag: 'inventory_fab',
-          onPressed: () => context.push(Routes.productForm),
-          icon: const Icon(Icons.add_box),
-          label: Text(newProductLabel),
-        ),
-      ),
+          floatingActionButton: hasProducts
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 96.0),
+                  child: FloatingActionButton.extended(
+                    heroTag: 'inventory_fab',
+                    onPressed: () => context.push(Routes.productForm),
+                    icon: const Icon(Icons.add_box),
+                    label: Text(newProductLabel),
+                  ),
+                )
+              : null,
       body: Column(
         children: [
           Padding(
@@ -136,9 +230,8 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<ProductEntity>>(
-              stream: productsStream,
-              builder: (context, snapshot) {
+            child: Builder(
+              builder: (context) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -147,7 +240,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
-                final products = snapshot.data ?? [];
+                // Use the products from the outer snapshot
 
                 final filtered = products.where((p) {
                   final matchesSearch = p.name.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -253,37 +346,48 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                             ],
                           ),
                         ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        trailing: Row(
                           mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              CurrencyFormatter.format(product.sellPrice),
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: theme.colorScheme.primary),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  CurrencyFormatter.format(product.sellPrice),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: theme.colorScheme.primary),
+                                ),
+                                const SizedBox(height: 3),
+                                Builder(builder: (_) {
+                                  final margin = product.buyPrice > 0
+                                      ? ((product.sellPrice - product.buyPrice) / product.buyPrice * 100)
+                                      : 0.0;
+                                  final marginColor = margin > 15
+                                      ? Colors.green
+                                      : margin > 0
+                                          ? Colors.amber.shade700
+                                          : Colors.red;
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: marginColor.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '${margin >= 0 ? '+' : ''}${margin.toStringAsFixed(0)}%',
+                                      style: TextStyle(color: marginColor, fontSize: 9, fontWeight: FontWeight.bold),
+                                    ),
+                                  );
+                                }),
+                              ],
                             ),
-                            const SizedBox(height: 3),
-                            Builder(builder: (_) {
-                              final margin = product.buyPrice > 0
-                                  ? ((product.sellPrice - product.buyPrice) / product.buyPrice * 100)
-                                  : 0.0;
-                              final marginColor = margin > 15
-                                  ? Colors.green
-                                  : margin > 0
-                                      ? Colors.amber.shade700
-                                      : Colors.red;
-                              return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: marginColor.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${margin >= 0 ? '+' : ''}${margin.toStringAsFixed(0)}%',
-                                  style: TextStyle(color: marginColor, fontSize: 9, fontWeight: FontWeight.bold),
-                                ),
-                              );
-                            }),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: Icon(Icons.add_shopping_cart, color: theme.colorScheme.primary),
+                              onPressed: () => _showRestockDialog(product),
+                              tooltip: isKurdish ? 'زیادکردنی کۆگا' : isArabic ? 'إضافة مخزون' : 'Add Stock',
+                            ),
                           ],
                         ),
                         onTap: () {
@@ -322,5 +426,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         ],
       ),
     );
+  });
   }
 }
+

@@ -42,3 +42,4 @@ extension NumExtension on num {
     return toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   }
 }
+

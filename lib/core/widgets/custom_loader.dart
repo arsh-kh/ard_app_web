@@ -5,52 +5,55 @@ class CustomLoader extends StatelessWidget {
   final double size;
   final Color? color;
 
-  const CustomLoader({super.key, this.size = 48.0, this.color});
+  const CustomLoader({super.key, this.size = 32.0, this.color});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final loaderColor = color ?? theme.colorScheme.primary;
+    
+    // Default to a premium monochrome color based on theme if no color provided
+    final loaderColor = color ?? (isDark ? Colors.white : Colors.black87);
+    
+    final barWidth = size * 0.22;
+    final barHeight = size * 0.8;
+    final gap = size * 0.12;
 
     return Center(
-      child: Container(
+      child: SizedBox(
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: loaderColor.withOpacity(0.4),
-              blurRadius: 20,
-              spreadRadius: 2,
-            )
-          ],
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Outer glowing ring
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: loaderColor.withOpacity(0.5), width: 2),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat())
-             .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.4, 1.4), duration: 1500.ms, curve: Curves.easeOut)
-             .fadeOut(duration: 1500.ms, curve: Curves.easeOut),
-            
-            // Inner pulsing dot
-            Container(
-              width: size * 0.4,
-              height: size * 0.4,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: List.generate(3, (index) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: gap / 2),
+              width: barWidth,
+              height: barHeight * 0.3, // Initial squeezed height
               decoration: BoxDecoration(
                 color: loaderColor,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(barWidth / 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: loaderColor.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  )
+                ],
               ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-             .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 800.ms, curve: Curves.easeInOut),
-          ],
+            )
+            .animate(
+              onPlay: (controller) => controller.repeat(reverse: true),
+              delay: (index * 150).ms, // Staggered delay for wave effect
+            )
+            .scaleY(
+              begin: 1.0, 
+              end: 3.0, 
+              duration: 450.ms, 
+              curve: Curves.easeInOutSine,
+            );
+          }),
         ),
       ),
     );

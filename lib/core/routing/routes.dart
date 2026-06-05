@@ -13,4 +13,6 @@ class Routes {
   static const String notifications = '/notifications';
   static const String analytics = '/analytics';
   static const customerDetail = '/customer-detail';
+  static const auditLogs = '/audit-logs';
 }
+

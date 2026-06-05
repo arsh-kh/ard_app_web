@@ -57,3 +57,4 @@ class AppConstants {
   static const String keyBusinessPhone = 'business_phone';
   static const String keyBusinessAddress = 'business_address';
 }
+

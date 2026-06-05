@@ -32,7 +32,7 @@ class NotificationsScreen extends ConsumerWidget {
           SliverAppBar(
             expandedHeight: 120,
             pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.8),
+            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
             actions: [
               if (notifications.isNotEmpty)
                 PopupMenuButton<String>(
@@ -74,7 +74,7 @@ class NotificationsScreen extends ConsumerWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: FlexibleSpaceBar(
-                  titlePadding: const EdgeInsets.only(left: 60, bottom: 16, right: 60),
+                  titlePadding: const EdgeInsetsDirectional.only(start: 60, bottom: 16, end: 60),
                   title: Text(
                     title,
                     style: TextStyle(
@@ -101,13 +101,13 @@ class NotificationsScreen extends ConsumerWidget {
                         color: theme.colorScheme.surface,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.notifications_off_rounded, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.2)),
+                      child: Icon(Icons.notifications_off_rounded, size: 64, color: theme.colorScheme.onSurface.withValues(alpha: 0.2)),
                     ).animate().scale(delay: 200.ms, duration: 400.ms, curve: Curves.easeOutBack),
                     const SizedBox(height: 24),
                     Text(
                       noData,
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -141,12 +141,12 @@ class NotificationsScreen extends ConsumerWidget {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: isRead ? theme.colorScheme.surface.withOpacity(0.5) : theme.colorScheme.surface,
+                        color: isRead ? theme.colorScheme.surface.withValues(alpha: 0.5) : theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isRead 
                             ? Colors.transparent 
-                            : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05)),
+                            : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05)),
                         ),
                       ),
                       child: Material(
@@ -166,13 +166,13 @@ class NotificationsScreen extends ConsumerWidget {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: isRead ? (isDark ? Colors.white10 : Colors.black12) : iconColor.withOpacity(0.15),
+                                    color: isRead ? (isDark ? Colors.white10 : Colors.black12) : iconColor.withValues(alpha: 0.15),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
                                     iconData,
                                     size: 20,
-                                    color: isRead ? theme.colorScheme.onSurface.withOpacity(0.3) : iconColor,
+                                    color: isRead ? theme.colorScheme.onSurface.withValues(alpha: 0.3) : iconColor,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -189,7 +189,7 @@ class NotificationsScreen extends ConsumerWidget {
                                               style: TextStyle(
                                                 fontWeight: isRead ? FontWeight.w600 : FontWeight.w800,
                                                 fontSize: 15,
-                                                color: isRead ? theme.colorScheme.onSurface.withOpacity(0.7) : theme.colorScheme.onSurface,
+                                                color: isRead ? theme.colorScheme.onSurface.withValues(alpha: 0.7) : theme.colorScheme.onSurface,
                                               ),
                                             ),
                                           ),
@@ -199,7 +199,7 @@ class NotificationsScreen extends ConsumerWidget {
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: isRead ? FontWeight.w500 : FontWeight.w700,
-                                              color: isRead ? theme.colorScheme.onSurface.withOpacity(0.4) : theme.colorScheme.primary,
+                                              color: isRead ? theme.colorScheme.onSurface.withValues(alpha: 0.4) : theme.colorScheme.primary,
                                             ),
                                           ),
                                         ],
@@ -210,7 +210,7 @@ class NotificationsScreen extends ConsumerWidget {
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
-                                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                                           height: 1.4,
                                         ),
                                       ),
@@ -315,3 +315,4 @@ class NotificationsScreen extends ConsumerWidget {
     return message;
   }
 }
+

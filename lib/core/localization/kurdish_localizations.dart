@@ -132,3 +132,4 @@ class _KurdishWidgetsLocalizationsDelegate extends LocalizationsDelegate<Widgets
   @override
   bool shouldReload(_KurdishWidgetsLocalizationsDelegate old) => false;
 }
+

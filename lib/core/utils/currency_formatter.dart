@@ -5,24 +5,24 @@ import '../constants/app_constants.dart';
 class CurrencyFormatter {
   CurrencyFormatter._();
 
-  static final NumberFormat _formatter = NumberFormat('#,###', 'en_US');
+  static final NumberFormat _formatter = NumberFormat('#,##0.##', 'en_US');
 
   /// Formats a number as Iraqi Dinar currency.
-  /// Example: 150000 → "150,000 د.ع"
+  /// Example: 150000 → "IQD 150,000"
   static String format(double amount) {
-    return '${AppConstants.currencySymbol} ${_formatter.format(amount.round())}';
+    return '${AppConstants.currencySymbol} ${_formatter.format(amount)}';
   }
 
   /// Formats a number as currency without the symbol.
   /// Example: 150000 → "150,000"
   static String formatNumber(double amount) {
-    return _formatter.format(amount.round());
+    return _formatter.format(amount);
   }
 
   /// Formats a number as currency with symbol prefix.
-  /// Example: 150000 → "د.ع 150,000"
+  /// Example: 150000 → "IQD 150,000"
   static String formatWithPrefix(double amount) {
-    return '${AppConstants.currencySymbol} ${_formatter.format(amount.round())}';
+    return '${AppConstants.currencySymbol} ${_formatter.format(amount)}';
   }
 
   /// Parses a formatted currency string back to double.
@@ -66,3 +66,4 @@ class CurrencyFormatter {
     return amount.toInt().toString();
   }
 }
+

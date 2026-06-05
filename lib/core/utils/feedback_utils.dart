@@ -29,6 +29,7 @@ class AppFeedback {
     BuildContext context, {
     required String message,
     required VoidCallback onUndo,
+    String undoLabel = 'UNDO',
   }) {
     HapticFeedback.lightImpact();
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -53,10 +54,10 @@ class AppFeedback {
         backgroundColor: Colors.grey.shade800,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.only(bottom: 110, left: 16, right: 16),
+        margin: const EdgeInsetsDirectional.only(bottom: 110, start: 16, end: 16),
         duration: const Duration(seconds: 4),
         action: SnackBarAction(
-          label: 'UNDO',
+          label: undoLabel,
           textColor: Colors.amber,
           onPressed: onUndo,
         ),
@@ -93,7 +94,7 @@ class AppFeedback {
         backgroundColor: bg,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.only(bottom: 110, left: 16, right: 16),
+        margin: const EdgeInsetsDirectional.only(bottom: 110, start: 16, end: 16),
         duration: Duration(seconds: type == _SnackType.error ? 4 : 2),
       ),
     );
@@ -122,7 +123,7 @@ class AppFeedback {
             ? Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: (confirmColor ?? theme.colorScheme.primary).withOpacity(0.1),
+                  color: (confirmColor ?? theme.colorScheme.primary).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: confirmColor ?? theme.colorScheme.primary, size: 28),
@@ -173,3 +174,4 @@ class AppFeedback {
 }
 
 enum _SnackType { success, error, info }
+

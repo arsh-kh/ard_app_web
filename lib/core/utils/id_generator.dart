@@ -19,3 +19,4 @@ class IdGenerator {
     return '$prefix-$yearMonth-$seq';
   }
 }
+

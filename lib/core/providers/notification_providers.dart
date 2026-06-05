@@ -3,8 +3,10 @@ import '../services/notification_service.dart';
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:drift/drift.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/product_entity.dart';
+import '../../data/models/customer_entity.dart';
+import 'inventory_providers.dart';
+import 'customer_providers.dart';
 
 class AppNotification {
   final String id;
@@ -61,11 +63,11 @@ class AppNotification {
 }
 
 class NotificationNotifier extends StateNotifier<List<AppNotification>> {
-  final AppDatabase db;
+  final Ref ref;
   final NotificationService _notificationService = NotificationService();
   static const _prefsKey = 'app_notifications';
 
-  NotificationNotifier(this.db) : super([]) {
+  NotificationNotifier(this.ref) : super([]) {
     _loadFromPrefs().then((_) {
       _checkSystemAlerts();
     });
@@ -73,13 +75,11 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
 
   Future<void> _checkSystemAlerts() async {
     // 1. Check Low Stock
-    final lowStockItems = await (db.select(db.products)
-          ..where((t) => t.isDeleted.equals(false))
-          ..where((t) => t.stockQuantity.isSmallerThanValue(50.0)))
-        .get();
+    final inventoryRepo = ref.read(inventoryRepositoryProvider);
+    final products = await inventoryRepo.getAllProducts();
+    final lowStockItems = products.where((t) => t.stockQuantity < 50.0).toList();
 
     if (lowStockItems.isNotEmpty) {
-      // Create a notification for low stock, but only if we haven't alerted recently
       final title = 'Low Stock Alert';
       final message = '${lowStockItems.length} items are running low on stock (below 50 units).';
       
@@ -94,11 +94,9 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
     }
 
     // 2. Check Overdue Debt (simplistic approach: customers with balance > 0)
-    final debtCustomers = await (db.select(db.customers)
-          ..where((t) => t.isDeleted.equals(false))
-          ..where((t) => t.id.isNotValue('walk-in'))
-          ..where((t) => t.debtBalance.isBiggerThanValue(0.0)))
-        .get();
+    final customerRepo = ref.read(customerRepositoryProvider);
+    final customers = await customerRepo.getAllCustomers();
+    final debtCustomers = customers.where((t) => t.id != 'walk-in' && t.debtBalance > 0.0).toList();
 
     if (debtCustomers.isNotEmpty) {
       final title = 'Debt Collection Reminder';
@@ -175,11 +173,11 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
 }
 
 final notificationProvider = StateNotifierProvider<NotificationNotifier, List<AppNotification>>((ref) {
-  final db = ref.watch(databaseProvider);
-  return NotificationNotifier(db);
+  return NotificationNotifier(ref);
 });
 
 final unreadNotificationsCountProvider = Provider<int>((ref) {
   final notifications = ref.watch(notificationProvider);
   return notifications.where((n) => !n.isRead).length;
 });
+

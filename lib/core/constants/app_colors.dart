@@ -47,26 +47,26 @@ class AppColors {
   // ── Gradient Presets ──────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF000000), Color(0xFF374151)], // Black to Dark Grey
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: AlignmentDirectional.topStart,
+    end: AlignmentDirectional.bottomEnd,
   );
 
   static const LinearGradient successGradient = LinearGradient(
     colors: [Color(0xFF000000), Color(0xFF111827)], // Black to near Black
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: AlignmentDirectional.topStart,
+    end: AlignmentDirectional.bottomEnd,
   );
 
   static const LinearGradient warningGradient = LinearGradient(
     colors: [Color(0xFF4B5563), Color(0xFF6B7280)], // Greys
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: AlignmentDirectional.topStart,
+    end: AlignmentDirectional.bottomEnd,
   );
 
   static const LinearGradient dangerGradient = LinearGradient(
     colors: [Color(0xFF6B7280), Color(0xFF9CA3AF)], // Lighter Greys
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: AlignmentDirectional.topStart,
+    end: AlignmentDirectional.bottomEnd,
   );
 
   static const LinearGradient darkOverlay = LinearGradient(
@@ -75,3 +75,4 @@ class AppColors {
     end: Alignment.topCenter,
   );
 }
+

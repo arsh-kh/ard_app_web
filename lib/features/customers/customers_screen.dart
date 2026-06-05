@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,7 @@ import '../../core/providers/locale_provider.dart';
 import '../../core/routing/routes.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/widgets/initials_avatar.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/customer_entity.dart';
 import '../../l10n/app_localizations.dart';
 
 class CustomersScreen extends ConsumerStatefulWidget {
@@ -52,28 +51,35 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
     final noAddress = isKurdish ? 'ناونیشان نییە' : isArabic ? 'لا يوجد عنوان' : 'No address registered';
     final debtLabel = isKurdish ? 'قەرزی ماوە' : isArabic ? 'الديون المستحقة' : 'Outstanding Debt';
 
-    return Scaffold(
-      appBar: widget.isEmbedded ? null : AppBar(
-        title: Text(title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add_alt_1_outlined, size: 28),
-            onPressed: () {
-              context.push(Routes.customerForm);
-            },
+    return StreamBuilder<List<CustomerEntity>>(
+      stream: customersStream,
+      builder: (context, snapshot) {
+        final customers = snapshot.data ?? [];
+        final hasCustomers = customers.isNotEmpty;
+
+        return Scaffold(
+          appBar: widget.isEmbedded ? null : AppBar(
+            title: Text(title),
+            actions: [
+              if (hasCustomers)
+                IconButton(
+                  icon: const Icon(Icons.person_add_alt_1_outlined, size: 28),
+                  onPressed: () {
+                    context.push(Routes.customerForm);
+                  },
+                ),
+              const SizedBox(width: 8),
+            ],
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      floatingActionButton: widget.isEmbedded ? Padding(
-        padding: const EdgeInsets.only(bottom: 96.0),
-        child: FloatingActionButton.extended(
-          heroTag: 'customers_fab',
-          onPressed: () => context.push(Routes.customerForm),
-          icon: const Icon(Icons.person_add),
-          label: Text(newClient),
-        ),
-      ) : null,
+          floatingActionButton: widget.isEmbedded && hasCustomers ? Padding(
+            padding: const EdgeInsets.only(bottom: 96.0),
+            child: FloatingActionButton.extended(
+              heroTag: 'customers_fab',
+              onPressed: () => context.push(Routes.customerForm),
+              icon: const Icon(Icons.person_add),
+              label: Text(newClient),
+            ),
+          ) : null,
       body: Column(
         children: [
           Padding(
@@ -138,9 +144,8 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<CustomerEntity>>(
-              stream: customersStream,
-              builder: (context, snapshot) {
+            child: Builder(
+              builder: (context) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -149,7 +154,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
-                final customers = snapshot.data ?? [];
+                // Use outer customers list
 
                 final filtered = customers.where((c) {
                   final matchesSearch = c.businessName.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -264,5 +269,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
         ],
       ),
     );
+  });
   }
 }
+

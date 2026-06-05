@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
-import 'package:drift/drift.dart' as drift;
 
 import '../../core/providers/inventory_providers.dart';
 import '../../core/providers/cart_providers.dart';
@@ -13,9 +12,13 @@ import '../../core/providers/order_providers.dart';
 import '../../core/providers/customer_providers.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
+import '../../core/providers/payment_providers.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/feedback_utils.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/order_entity.dart';
+import '../../data/models/order_item_entity.dart';
+import '../../data/models/customer_entity.dart';
+import '../../data/models/product_entity.dart';
 import '../../domain/enums.dart';
 import '../../core/constants/app_constants.dart';
 import '../../l10n/app_localizations.dart';
@@ -622,43 +625,41 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
       final walkInExists = allCustomers.any((c) => c.id == 'walk-in');
       if (!walkInExists) {
         await customerRepo.addCustomer(
-          CustomersCompanion(
-            id: drift.Value('walk-in'),
-            businessName: drift.Value('Walk-In Customer'),
-            phone: drift.Value('N/A'),
-            debtBalance: drift.Value(0),
+          CustomerEntity(
+            id: 'walk-in',
+            businessName: 'Walk-In Customer',
+            phone: 'N/A',
+            debtBalance: 0,
           ),
         );
       }
     }
 
     final orderId = const Uuid().v4();
-    final order = OrdersCompanion(
-      id: drift.Value(orderId),
-      customerId: drift.Value(finalCustomerId),
-      status: drift.Value(OrderStatus.delivered.value),
-      totalAmount: drift.Value(totalAmount),
+    final order = OrderEntity(
+      id: orderId,
+      customerId: finalCustomerId,
+      status: OrderStatus.delivered.value,
+      totalAmount: totalAmount,
+      orderDate: DateTime.now(),
     );
 
-    final items = cartItems.map((item) => OrderItemsCompanion(
-      id: drift.Value(const Uuid().v4()),
-      orderId: drift.Value(orderId),
-      productId: drift.Value(item.product.id),
-      quantity: drift.Value(item.quantity),
-      unitPrice: drift.Value(item.customPrice), // Use custom price
+    final items = cartItems.map((item) => OrderItemEntity(
+      id: const Uuid().v4(),
+      orderId: orderId,
+      productId: item.product.id,
+      quantity: item.quantity,
+      unitPrice: item.customPrice, // Use custom price
     )).toList();
 
     await orderRepo.createOrder(order, items);
     
     // If walk-in, pay immediately
     if (isQuickSell) {
-      await customerRepo.addPayment(
-        PaymentsCompanion(
-          id: drift.Value(const Uuid().v4()),
-          customerId: drift.Value(finalCustomerId),
-          amount: drift.Value(totalAmount),
-          paymentDate: drift.Value(DateTime.now()),
-        )
+      final paymentRepo = ref.read(paymentRepositoryProvider);
+      await paymentRepo.recordPayment(
+        customerId: finalCustomerId,
+        amount: totalAmount,
       );
     }
 
@@ -676,6 +677,8 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
   }
 
   void _editPrice(BuildContext context, CartItem item, WidgetRef ref) {
+    final isKurdish = ref.watch(localeProvider).languageCode == 'ku';
+    final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final controller = TextEditingController(text: item.customPrice.toInt().toString());
     final focusNode = FocusNode();
     focusNode.addListener(() {
@@ -686,17 +689,17 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Price'),
+        title: Text(isKurdish ? 'گۆڕینی نرخ' : isArabic ? 'تعديل السعر' : 'Edit Price'),
         content: TextField(
           controller: controller,
           focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
           autofocus: true,
-          decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Price per unit'),
+          decoration: InputDecoration(border: const OutlineInputBorder(), labelText: isKurdish ? 'نرخی یەک دانە' : isArabic ? 'السعر للوحدة' : 'Price per unit'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(isKurdish ? 'پاشگەزبوونەوە' : isArabic ? 'إلغاء' : 'Cancel')),
           ElevatedButton(
             onPressed: () {
               final newPrice = double.tryParse(controller.text.replaceAll(',', ''));
@@ -705,7 +708,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                 Navigator.pop(ctx);
               }
             },
-            child: const Text('Save'),
+            child: Text(isKurdish ? 'پاشەکەوتکردن' : isArabic ? 'حفظ' : 'Save'),
           ),
         ],
       ),
@@ -802,7 +805,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                       customersAsync.when(
                         data: (customers) {
                           return DropdownButtonFormField<String>(
-                            value: _selectedCustomerId,
+                            initialValue: _selectedCustomerId,
                             decoration: InputDecoration(
                               labelText: assignCustomerStr,
                               prefixIcon: const Icon(Icons.person_outline),
@@ -911,4 +914,5 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     );
   }
 }
+
 

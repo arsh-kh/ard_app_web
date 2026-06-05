@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:drift/drift.dart' show OrderingTerm;
 
 import '../../core/providers/analytics_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/order_entity.dart';
 import '../../core/providers/customer_providers.dart';
+import '../../core/providers/order_providers.dart';
 
 class _LocalTranslations {
   static const _data = {
@@ -32,6 +32,7 @@ class _LocalTranslations {
       'noOverdueClients': 'No overdue clients. Debt collection is healthy.',
       'lastOrder': 'Last Order: {days} days ago',
       'neverOrdered': 'Never ordered (or manual debt balance)',
+      'total': 'Total',
     },
     'ku': {
       'analyticsTitle': 'شیکردنەوەی کار',
@@ -54,6 +55,7 @@ class _LocalTranslations {
       'noOverdueClients': 'هیچ کڕیارێکی دواکەوتوو نییە. کۆکردنەوەی قەرز تەندروستە.',
       'lastOrder': 'دوایین داواکاری: {days} ڕۆژ پێش ئێستا',
       'neverOrdered': 'هیچ داواکارییەکی نییە (یان قەرزی دەستی)',
+      'total': 'کۆی گشتی',
     },
     'ar': {
       'analyticsTitle': 'تحليلات العمل',
@@ -76,6 +78,7 @@ class _LocalTranslations {
       'noOverdueClients': 'لا يوجد عملاء متأخرون. تحصيل الديون سليم.',
       'lastOrder': 'آخر طلب: منذ {days} يوم',
       'neverOrdered': 'لم يطلب أبداً (أو رصيد ديون يدوي)',
+      'total': 'المجموع',
     }
   };
 
@@ -141,7 +144,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                 boxShadow: [
                   if (!isDark)
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 5,
                       offset: const Offset(0, 2),
                     ),
@@ -195,19 +198,19 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                 gradient: LinearGradient(
                   colors: isDark 
                       ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
-                      : [theme.colorScheme.primary.withOpacity(0.05), theme.colorScheme.primary.withOpacity(0.12)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                      : [theme.colorScheme.primary.withValues(alpha: 0.05), theme.colorScheme.primary.withValues(alpha: 0.12)],
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isDark ? Colors.white.withOpacity(0.05) : theme.colorScheme.primary.withOpacity(0.15),
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : theme.colorScheme.primary.withValues(alpha: 0.15),
                 ),
               ),
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.15),
+                    backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.15),
                     radius: 24,
                     child: Icon(Icons.analytics, color: theme.colorScheme.primary, size: 24),
                   ),
@@ -256,7 +259,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
-                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                     ),
                   ),
                   child: Padding(
@@ -278,7 +281,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: Colors.teal.withOpacity(0.12),
+                                        color: Colors.teal.withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
@@ -390,7 +393,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
-                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                 ),
               ),
               child: Padding(
@@ -485,10 +488,10 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B).withOpacity(0.5) : Colors.white,
+                    color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.5) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                     ),
                   ),
                   child: Column(
@@ -572,13 +575,13 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                   ...debtCustomers.map((customer) {
                     return FutureBuilder<OrderEntity?>(
                       // Find their last order to calculate exact days overdue
-                      future: (ref.read(databaseProvider).select(ref.read(databaseProvider).orders)
-                            ..where((t) => t.customerId.equals(customer.id))
-                            ..where((t) => t.status.equals('delivered'))
-                            ..where((t) => t.isDeleted.equals(false))
-                            ..orderBy([(t) => OrderingTerm.desc(t.orderDate)])
-                            ..limit(1))
-                          .getSingleOrNull(),
+                      future: () async {
+                        final orderRepo = ref.read(orderRepositoryProvider);
+                        final cOrders = await orderRepo.getOrdersByCustomer(customer.id);
+                        final delivered = cOrders.where((o) => o.status == 'delivered').toList();
+                        delivered.sort((a, b) => b.orderDate.compareTo(a.orderDate));
+                        return delivered.isNotEmpty ? delivered.first : null;
+                      }(),
                       builder: (context, orderSnapshot) {
                         final lastOrder = orderSnapshot.data;
                         Color riskColor = Colors.green;
@@ -605,7 +608,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
-                              color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                             ),
                           ),
                           child: ListTile(
@@ -672,3 +675,4 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
     );
   }
 }
+

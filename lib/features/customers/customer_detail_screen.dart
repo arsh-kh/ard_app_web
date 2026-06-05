@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,13 +12,14 @@ import '../../core/utils/order_status_utils.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/initials_avatar.dart';
-import '../../data/local_database/database.dart';
-import '../../data/local_database/tables.dart';
+import '../../data/models/customer_entity.dart';
+import '../../data/models/order_entity.dart';
+import '../../data/models/payment_entity.dart';
 import '../../core/providers/customer_providers.dart';
+import '../../core/providers/payment_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/payment_providers.dart';
-import 'package:drift/drift.dart' as drift;
 
 class CustomerDetailScreen extends ConsumerWidget {
   final CustomerEntity customer;
@@ -47,7 +47,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                   gradient: LinearGradient(
                     colors: [
                       theme.colorScheme.primary,
-                      theme.colorScheme.primary.withOpacity(0.7),
+                      theme.colorScheme.primary.withValues(alpha: 0.7),
                       isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
                     ],
                     begin: Alignment.topCenter,
@@ -83,12 +83,12 @@ class CustomerDetailScreen extends ConsumerWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.location_on, size: 14, color: theme.colorScheme.onPrimary.withOpacity(0.7)),
+                              Icon(Icons.location_on, size: 14, color: theme.colorScheme.onPrimary.withValues(alpha: 0.7)),
                               const SizedBox(width: 4),
                               Text(
                                 customer.address!,
                                 style: TextStyle(
-                                  color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                                  color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
                                   fontSize: 12,
                                 ),
                               ),
@@ -149,7 +149,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                       icon: Icons.phone_outlined,
                       label: langCode == 'ku' ? 'پەیوەندیکردن' : langCode == 'ar' ? 'اتصال' : 'Call',
                       color: Colors.green,
-                      onTap: () => _callCustomer(context),
+                      onTap: () => _callCustomer(context, ref),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -178,14 +178,14 @@ class CustomerDetailScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: customer.debtBalance > 0
-                        ? Colors.amber.withOpacity(0.3)
+                        ? Colors.amber.withValues(alpha: 0.3)
                         : isDark
-                            ? Colors.white.withOpacity(0.05)
+                            ? Colors.white.withValues(alpha: 0.05)
                             : Colors.grey.shade200,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -199,8 +199,8 @@ class CustomerDetailScreen extends ConsumerWidget {
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: customer.debtBalance > 0
-                                ? Colors.amber.withOpacity(0.1)
-                                : Colors.green.withOpacity(0.1),
+                                ? Colors.amber.withValues(alpha: 0.1)
+                                : Colors.green.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -239,9 +239,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.amber.withOpacity(0.1),
+                              color: Colors.amber.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                              border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                             ),
                             child: Text(
                               langCode == 'ku' ? 'نەدراوە' : langCode == 'ar' ? 'غير مدفوع' : 'UNPAID',
@@ -256,9 +256,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.green.withOpacity(0.3)),
+                              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                             ),
                             child: Text(
                               langCode == 'ku' ? 'پاکە' : langCode == 'ar' ? 'مسدد' : 'CLEAR',
@@ -302,7 +302,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                   color: isDark ? const Color(0xFF1E293B) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                   ),
                 ),
                 child: Column(
@@ -347,7 +347,7 @@ class CustomerDetailScreen extends ConsumerWidget {
           FutureBuilder<List<Object>>(
             future: Future.wait([
               orderRepo.getOrdersByCustomer(customer.id),
-              ref.read(customerRepositoryProvider).getPaymentsForCustomer(customer.id),
+              ref.read(paymentRepositoryProvider).getPaymentsByCustomer(customer.id),
             ]).then((results) {
               final List<Object> history = [];
               history.addAll(results[0] as List<OrderEntity>);
@@ -406,7 +406,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                             color: isDark ? const Color(0xFF1E293B) : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                             ),
                           ),
                           child: Row(
@@ -414,7 +414,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: OrderStatusUtils.getStatusColor(item.status).withOpacity(0.1),
+                                  color: OrderStatusUtils.getStatusColor(item.status).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
@@ -464,7 +464,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                             color: isDark ? const Color(0xFF1E293B) : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.green.withOpacity(0.3),
+                              color: Colors.green.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
@@ -472,7 +472,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.1),
+                                  color: Colors.green.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
@@ -534,9 +534,9 @@ class CustomerDetailScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -654,10 +654,10 @@ class CustomerDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _callCustomer(BuildContext context) async {
+  void _callCustomer(BuildContext context, WidgetRef ref) async {
     if (customer.phone == null || customer.phone!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No phone number registered for this customer')),
+        SnackBar(content: Text(ref.read(localeProvider).languageCode == 'ku' ? 'هیچ ژمارەیەکی تەلەفۆن تۆمار نەکراوە بۆ ئەم کڕیارە' : ref.read(localeProvider).languageCode == 'ar' ? 'لا يوجد رقم هاتف مسجل لهذا العميل' : 'No phone number registered for this customer')),
       );
       return;
     }
@@ -669,3 +669,4 @@ class CustomerDetailScreen extends ConsumerWidget {
 
   // Status helpers now live in OrderStatusUtils (core/utils/order_status_utils.dart)
 }
+

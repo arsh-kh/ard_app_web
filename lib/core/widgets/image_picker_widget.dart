@@ -132,3 +132,4 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     );
   }
 }
+

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,9 +9,12 @@ import '../../core/providers/cart_providers.dart';
 import '../../core/providers/order_providers.dart';
 import '../../core/providers/customer_providers.dart';
 import '../../core/providers/notification_providers.dart';
+import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/feedback_utils.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/order_entity.dart';
+import '../../data/models/order_item_entity.dart';
+import '../../data/models/customer_entity.dart';
 import '../../domain/enums.dart';
 import '../../core/constants/app_constants.dart';
 
@@ -44,7 +46,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Review Shopping Cart'),
+        title: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'پێداچوونەوەی سەبەتە' : ref.watch(localeProvider).languageCode == 'ar' ? 'مراجعة سلة التسوق' : 'Review Shopping Cart'),
       ),
       body: cartItems.isEmpty
           ? Center(
@@ -58,7 +60,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Your cart is empty',
+                    ref.watch(localeProvider).languageCode == 'ku' ? 'سەبەتەکەت خاڵییە' : ref.watch(localeProvider).languageCode == 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey.shade500,
@@ -68,7 +70,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.pop(),
-                    child: const Text('Browse Products'),
+                    child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'گەڕان بەدوای کاڵاکان' : ref.watch(localeProvider).languageCode == 'ar' ? 'تصفح المنتجات' : 'Browse Products'),
                   ),
                 ],
               ),
@@ -93,8 +95,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               color: Colors.red.shade600,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 20),
+                            alignment: AlignmentDirectional.centerEnd,
+                            padding: const EdgeInsetsDirectional.only(end: 20),
                             child: const Icon(Icons.delete_outline, color: Colors.white, size: 24),
                           ),
                           onDismissed: (_) {
@@ -102,7 +104,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             cartNotifier.removeProduct(item.product.id);
                             AppFeedback.showUndo(
                               context,
-                              message: '${removedItem.product.name} removed',
+                              message: ref.read(localeProvider).languageCode == 'ku' ? 'کاڵا سڕایەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'تم حذف العنصر' : 'Item removed',
+                              undoLabel: ref.read(localeProvider).languageCode == 'ku' ? 'پاشگەزبوونەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'تراجع' : 'UNDO',
                               onUndo: () {
                                 cartNotifier.addProduct(removedItem.product, removedItem.quantity);
                               },
@@ -114,13 +117,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
-                              color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                             ),
                           ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(12),
                             leading: CircleAvatar(
-                              backgroundColor: theme.colorScheme.primary.withOpacity(0.08),
+                              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.08),
                               child: Icon(Icons.bakery_dining, color: theme.colorScheme.primary),
                             ),
                             title: Text(
@@ -160,14 +163,14 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 15,
                           offset: const Offset(0, -5),
                         )
                       ],
                       border: Border(
                         top: BorderSide(
-                          color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                           width: 1,
                         ),
                       ),
@@ -181,9 +184,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                           customersAsync.when(
                             data: (customers) {
                               return DropdownButtonFormField<String>(
-                                value: _selectedCustomerId,
-                                decoration: const InputDecoration(
-                                  labelText: 'Assign Customer',
+                                initialValue: _selectedCustomerId,
+                                decoration: InputDecoration(
+                                  labelText: ref.watch(localeProvider).languageCode == 'ku' ? 'دیاریکردنی کڕیار' : ref.watch(localeProvider).languageCode == 'ar' ? 'تعيين عميل' : 'Assign Customer',
                                   prefixIcon: Icon(Icons.person_outline),
                                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                 ),
@@ -217,9 +220,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.amber.withOpacity(0.08),
+                                color: Colors.amber.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
@@ -248,7 +251,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               color: isDark ? const Color(0xFF0F172A) : Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
+                                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                               ),
                             ),
                             child: Column(
@@ -327,19 +330,20 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
                                   final orderId = const Uuid().v4();
                                   
-                                                                  final order = OrdersCompanion(
-                                    id: drift.Value(orderId),
-                                    customerId: drift.Value(_selectedCustomerId!),
-                                    status: drift.Value(OrderStatus.delivered.value),
-                                    totalAmount: drift.Value(cartNotifier.totalCartPrice),
+                                  final order = OrderEntity(
+                                    id: orderId,
+                                    customerId: _selectedCustomerId!,
+                                    status: OrderStatus.delivered.value,
+                                    totalAmount: cartNotifier.totalCartPrice,
+                                    orderDate: DateTime.now(),
                                   );
 
-                                  final items = cartItems.map((item) => OrderItemsCompanion(
-                                    id: drift.Value(const Uuid().v4()),
-                                    orderId: drift.Value(orderId),
-                                    productId: drift.Value(item.product.id),
-                                    quantity: drift.Value(item.quantity),
-                                    unitPrice: drift.Value(item.product.sellPrice),
+                                  final items = cartItems.map((item) => OrderItemEntity(
+                                    id: const Uuid().v4(),
+                                    orderId: orderId,
+                                    productId: item.product.id,
+                                    quantity: item.quantity,
+                                    unitPrice: item.product.sellPrice,
                                   )).toList();
 
                                   // Save order
@@ -360,7 +364,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   }
                                 }
                               },
-                              child: const Text('Place Order'),
+                              child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'ناردنی داواکاری' : ref.watch(localeProvider).languageCode == 'ar' ? 'إرسال الطلب' : 'Place Order'),
                             ),
                           ),
                         ],
@@ -373,3 +377,4 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     );
   }
 }
+

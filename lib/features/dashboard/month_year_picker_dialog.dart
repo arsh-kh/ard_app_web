@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 import '../../core/providers/dashboard_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../data/local_database/database.dart';
+import 'package:printing/printing.dart';
+import '../../core/services/pdf_report_service.dart';
 
 class ReportPickerModal extends ConsumerStatefulWidget {
   final bool isMonth;
@@ -28,7 +29,6 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
 
   Future<void> _fetchData() async {
     setState(() { isLoading = true; reportData = null; });
-    final db = ref.read(databaseProvider);
     DateTime start;
     DateTime end;
 
@@ -41,7 +41,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     }
 
     try {
-      final data = await fetchReportData(db, start, end);
+      final data = await fetchReportData(ref, start, end);
       setState(() { reportData = data; isLoading = false; });
     } catch (e) {
       setState(() { isLoading = false; });
@@ -68,6 +68,22 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
       }
     });
     _fetchData();
+  }
+
+  Future<void> _exportPdf(String dateLabel, bool isMonth) async {
+    if (reportData == null) return;
+    try {
+      final bytes = await PdfReportService.generateReport(
+        reportData: reportData!,
+        periodName: dateLabel,
+        isMonth: isMonth,
+      );
+      await Printing.sharePdf(bytes: bytes, filename: 'Report_$dateLabel.pdf');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error generating PDF: $e')));
+      }
+    }
   }
 
   @override
@@ -122,9 +138,21 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
               const SizedBox(height: 16),
               _buildStatRow('Total Revenue', CurrencyFormatter.format(reportData!.revenue), isKurdish, isArabic, Icons.trending_up, Colors.green),
               const SizedBox(height: 16),
-              _buildStatRow('Total COGS', CurrencyFormatter.format(reportData!.cogs), isKurdish, isArabic, Icons.inventory, Colors.orange),
+              _buildStatRow('Total Purchases', CurrencyFormatter.format(reportData!.cogs), isKurdish, isArabic, Icons.inventory, Colors.orange),
               const Divider(height: 32, thickness: 2),
               _buildStatRow('Net Profit', CurrencyFormatter.format(reportData!.profit), isKurdish, isArabic, Icons.account_balance_wallet, Colors.purple, isTotal: true),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => _exportPdf(dateLabel, widget.isMonth),
+                icon: const Icon(Icons.picture_as_pdf),
+                label: Text(isKurdish ? 'هەناردەکردنی PDF' : isArabic ? 'تصدير PDF' : 'Export PDF'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
             ],
             const SizedBox(height: 8),
           ],
@@ -137,7 +165,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     String title = enTitle;
     if (enTitle == 'Total Orders') title = isKurdish ? 'کۆی داواکارییەکان' : isArabic ? 'إجمالي الطلبات' : 'Total Orders';
     if (enTitle == 'Total Revenue') title = isKurdish ? 'کۆی داهات' : isArabic ? 'إجمالي الإيرادات' : 'Total Revenue';
-    if (enTitle == 'Total COGS') title = isKurdish ? 'تێچووی کاڵاکان (COGS)' : isArabic ? 'تكلفة البضائع المباعة' : 'Cost of Goods';
+    if (enTitle == 'Total Purchases') title = isKurdish ? 'کۆی کڕینەکان' : isArabic ? 'إجمالي المشتريات' : 'Total Purchases';
     if (enTitle == 'Net Profit') title = isKurdish ? 'پوختەی قازانج' : isArabic ? 'صافي الربح' : 'Net Profit';
 
     return Row(
@@ -154,3 +182,4 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     );
   }
 }
+

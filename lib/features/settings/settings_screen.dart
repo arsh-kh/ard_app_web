@@ -49,12 +49,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           SliverAppBar(
             expandedHeight: 120,
             pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.8),
+            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
             flexibleSpace: ClipRRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: FlexibleSpaceBar(
-                  titlePadding: const EdgeInsets.only(left: 24, bottom: 16, right: 24),
+                  titlePadding: const EdgeInsetsDirectional.only(start: 24, bottom: 16, end: 24),
                   title: Text(
                     localizations.settings,
                     style: TextStyle(
@@ -96,7 +96,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2), width: 2),
+                                    border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2), width: 2),
                                   ),
                                   child: ImagePickerWidget(
                                     initialImagePath: user?.imageUrl,
@@ -126,14 +126,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       user?.email ?? '',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
                             ],
                           ),
                         ),
@@ -162,7 +162,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           theme: theme,
                           trailing: Switch.adaptive(
                             value: themeMode == ThemeMode.dark || (themeMode == ThemeMode.system && isDark),
-                            activeColor: theme.colorScheme.primary,
+                            activeTrackColor: theme.colorScheme.primary,
                             onChanged: (val) {
                               ref.read(themeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
                             },
@@ -179,11 +179,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           onTap: () => _showLanguagePicker(context, ref, currentLocale.languageCode),
                         ),
                         _buildDivider(theme),
+                        if (user?.role == 'admin') ...[
+                          _buildSettingsRow(
+                            icon: Icons.history_rounded,
+                            iconBg: Colors.teal,
+                            iconFg: Colors.white,
+                            title: langCode == 'ku' ? 'تۆماری چالاکییەکان' : langCode == 'ar' ? 'سجل النشاط' : 'Audit Logs',
+                            subtitle: '',
+                            theme: theme,
+                            onTap: () => context.push(Routes.auditLogs),
+                          ),
+                          _buildDivider(theme),
+                        ],
                         _buildSettingsRow(
                           icon: Icons.notifications_rounded,
                           iconBg: Colors.redAccent,
                           iconFg: Colors.white,
-                          title: 'Notifications',
+                          title: langCode == 'ku' ? 'ئاگادارییەکان' : langCode == 'ar' ? 'الإشعارات' : 'Notifications',
                           subtitle: '',
                           theme: theme,
                           onTap: () => context.push(Routes.notifications),
@@ -229,7 +241,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: Text(
                       '${t('appName')} v1.0.0',
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.3),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -246,13 +258,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildSectionLabel(String text) {
     return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 4),
+      padding: const EdgeInsetsDirectional.only(start: 12, end: 12, bottom: 4),
       child: Text(
         text,
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           letterSpacing: 1.2,
         ),
       ),
@@ -303,7 +315,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         subtitle,
                         style: TextStyle(
                           fontSize: 15,
-                          color: theme.colorScheme.onSurface.withOpacity(0.4),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -314,7 +326,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                 ),
               ),
-              trailing ?? Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+              trailing ?? Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
             ],
           ),
         ),
@@ -324,11 +336,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildDivider(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(left: 68.0),
+      padding: const EdgeInsetsDirectional.only(start: 68.0),
       child: Divider(
         height: 1,
         thickness: 0.5,
-        color: theme.colorScheme.onSurface.withOpacity(0.1),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
       ),
     );
   }
@@ -357,14 +369,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       width: 40,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.onSurface.withOpacity(0.2),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    'Select Language',
+                    currentLangCode == 'ku' ? 'هەڵبژاردنی زمان' : currentLangCode == 'ar' ? 'اختر اللغة' : 'Select Language',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -400,7 +412,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : theme.scaffoldBackgroundColor,
+          color: isSelected ? theme.colorScheme.primary.withValues(alpha: 0.1) : theme.scaffoldBackgroundColor,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -421,3 +433,4 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
+

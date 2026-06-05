@@ -82,12 +82,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           SliverAppBar(
             expandedHeight: 120,
             pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.8),
+            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
             flexibleSpace: ClipRRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: FlexibleSpaceBar(
-                  titlePadding: const EdgeInsets.only(left: 60, bottom: 16, right: 60),
+                  titlePadding: const EdgeInsetsDirectional.only(start: 60, bottom: 16, end: 60),
                   title: Text(
                     title,
                     style: TextStyle(
@@ -116,7 +116,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: theme.colorScheme.primary.withOpacity(0.5), width: 3),
+                            border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.5), width: 3),
                           ),
                           child: Container(
                             decoration: BoxDecoration(
@@ -141,13 +141,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     const SizedBox(height: 48),
                     
                     Padding(
-                      padding: const EdgeInsets.only(left: 12, bottom: 8),
+                      padding: const EdgeInsetsDirectional.only(start: 12, bottom: 8),
                       child: Text(
-                        'PERSONAL INFO',
+                        isKurdish ? 'زانیارییە تایبەتییەکان' : isArabic ? 'المعلومات الشخصية' : 'PERSONAL INFO',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           letterSpacing: 1.2,
                         ),
                       ),
@@ -168,8 +168,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             validator: (value) => value == null || value.trim().isEmpty ? reqError : null,
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 56.0),
-                            child: Divider(height: 1, thickness: 0.5, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+                            padding: const EdgeInsetsDirectional.only(start: 56.0),
+                            child: Divider(height: 1, thickness: 0.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
                           ),
                           _buildInputField(
                             controller: _emailController,
@@ -180,8 +180,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             validator: (value) => value == null || value.trim().isEmpty ? reqError : null,
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 56.0),
-                            child: Divider(height: 1, thickness: 0.5, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+                            padding: const EdgeInsetsDirectional.only(start: 56.0),
+                            child: Divider(height: 1, thickness: 0.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
                           ),
                           _buildInputField(
                             controller: _phoneController,
@@ -192,8 +192,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             validator: (value) => value == null || value.trim().isEmpty ? reqError : null,
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 56.0),
-                            child: Divider(height: 1, thickness: 0.5, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+                            padding: const EdgeInsetsDirectional.only(start: 56.0),
+                            child: Divider(height: 1, thickness: 0.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
                           ),
                           _buildInputField(
                             controller: _roleController,
@@ -248,10 +248,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: theme.colorScheme.onSurface.withOpacity(0.5),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
           fontWeight: FontWeight.w500,
         ),
-        prefixIcon: Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+        prefixIcon: Icon(icon, color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -263,3 +263,4 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
   }
 }
+

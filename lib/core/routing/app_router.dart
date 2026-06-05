@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../widgets/app_splash_screen.dart';
 import '../../features/inventory/inventory_screen.dart';
 import '../../features/inventory/product_form_screen.dart';
-import '../../features/customers/customers_screen.dart';
 import '../../features/customers/customer_form_screen.dart';
 import '../../features/customers/customer_detail_screen.dart';
 import '../../features/customers/clients_orders_screen.dart';
@@ -16,7 +15,9 @@ import '../../features/settings/edit_profile_screen.dart';
 import '../../features/settings/notifications_screen.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
-import '../../data/local_database/database.dart';
+import '../../features/dashboard/audit_log_screen.dart';
+import '../../data/models/product_entity.dart';
+import '../../data/models/customer_entity.dart';
 import '../../core/providers/auth_provider.dart';
 import 'routes.dart';
 
@@ -46,9 +47,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.splash,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        builder: (context, state) => const AppSplashScreen(),
       ),
       GoRoute(
         path: Routes.login,
@@ -110,6 +109,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.analytics,
         builder: (context, state) => const AnalyticsScreen(),
+      ),
+      GoRoute(
+        path: Routes.auditLogs,
+        builder: (context, state) => const AuditLogScreen(),
       ),
 
       GoRoute(
@@ -210,3 +213,4 @@ class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> {
     );
   }
 }
+

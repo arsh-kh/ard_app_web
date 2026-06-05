@@ -1,8 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:drift/drift.dart' as drift;
-import '../../data/local_database/database.dart';
+import '../../data/models/product_entity.dart';
+import '../../data/models/customer_entity.dart';
+import '../../data/models/order_entity.dart';
+import '../../data/models/payment_entity.dart';
+import 'order_providers.dart';
+import 'payment_providers.dart';
+import 'inventory_providers.dart';
+import 'customer_providers.dart';
 
 class DashboardMetrics {
   final int thisWeekOrders;
@@ -42,35 +48,47 @@ class RecentActivityItem {
   });
 }
 
+class ProductPerformance {
+  final String productName;
+  final double quantitySold;
+  final double revenue;
+  final double profit;
+  ProductPerformance(this.productName, this.quantitySold, this.revenue, this.profit);
+}
+
+class CustomerPerformance {
+  final String customerName;
+  final int orderCount;
+  final double totalSpent;
+  CustomerPerformance(this.customerName, this.orderCount, this.totalSpent);
+}
+
 class ReportData {
   final double revenue;
   final double cogs;
   final double profit;
   final int ordersCount;
+  final List<ProductPerformance> topProducts;
+  final List<CustomerPerformance> topCustomers;
 
   ReportData({
     required this.revenue,
     required this.cogs,
     required this.profit,
     required this.ordersCount,
+    required this.topProducts,
+    required this.topCustomers,
   });
 }
 
 final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
-  final db = ref.watch(databaseProvider);
-  
-  final ordersStream = db.select(db.orders).watch();
+  final orderRepo = ref.watch(orderRepositoryProvider);
+  final ordersStream = orderRepo.watchAllOrders();
 
   await for (final orders in ordersStream) {
-    // We need to calculate profit. For accurate COGS, we should ideally have stored it. 
-    // Since we didn't, we will use the CURRENT buyPrice from the Products table.
-    final products = await db.select(db.products).get();
-    final Map<String, double> productCosts = { for (var p in products) p.id : p.buyPrice };
-
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
     
-    // Week definitions: This week = last 7 days. Last week = 7-14 days ago.
     final thisWeekStart = todayStart.subtract(const Duration(days: 6));
     final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
 
@@ -82,24 +100,15 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
     List<double> dailyRevenues = List.filled(7, 0.0);
 
     for (final o in orders) {
-      if (o.status == 'cancelled' || o.isDeleted) continue;
+      if (o.status == 'cancelled') continue;
       
       final isThisWeek = o.orderDate.isAfter(thisWeekStart) || o.orderDate.isAtSameMomentAs(thisWeekStart);
       final isLastWeek = o.orderDate.isAfter(lastWeekStart) && o.orderDate.isBefore(thisWeekStart);
 
       if (isThisWeek || isLastWeek) {
-        // Calculate Profit for this order
-        final items = await (db.select(db.orderItems)..where((t) => t.orderId.equals(o.id))).get();
-        double orderCogs = 0;
-        for (var item in items) {
-          final cost = productCosts[item.productId] ?? 0.0;
-          orderCogs += item.quantity * cost;
-        }
-        final orderProfit = o.totalAmount - orderCogs;
-
         if (isThisWeek) {
           thisWeekOrd++;
-          thisWeekProf += orderProfit;
+          thisWeekProf += o.totalAmount;
           
           final daysAgo = todayStart.difference(DateTime(o.orderDate.year, o.orderDate.month, o.orderDate.day)).inDays;
           if (daysAgo >= 0 && daysAgo < 7) {
@@ -107,7 +116,7 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
           }
         } else if (isLastWeek) {
           lastWeekOrd++;
-          lastWeekProf += orderProfit;
+          lastWeekProf += o.totalAmount;
         }
       }
     }
@@ -122,7 +131,7 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
     yield DashboardMetrics(
       thisWeekOrders: thisWeekOrd,
       lastWeekOrders: lastWeekOrd,
-      thisWeekProfit: thisWeekProf,
+      thisWeekProfit: thisWeekProf, // Note: For a proper profit calculation, purchases should also be tracked
       lastWeekProfit: lastWeekProf,
       weeklyRevenueChart: spots,
       maxWeeklyRevenue: maxRev,
@@ -131,34 +140,27 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
 });
 
 final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
-  final db = ref.watch(databaseProvider);
+  final orderRepo = ref.watch(orderRepositoryProvider);
+  final paymentRepo = ref.watch(paymentRepositoryProvider);
+  final customerRepo = ref.watch(customerRepositoryProvider);
   
-  final ordersStream = (db.select(db.orders).join([
-    drift.leftOuterJoin(db.customers, db.customers.id.equalsExp(db.orders.customerId)),
-  ])
-    ..where(db.orders.isDeleted.equals(false))
-    ..orderBy([drift.OrderingTerm.desc(db.orders.orderDate)])
-    ..limit(5)).watch();
+  final ordersStream = orderRepo.watchAllOrders();
+  final paymentsStream = paymentRepo.watchAllPayments();
+  final customersStream = customerRepo.watchAllCustomers();
 
-  final paymentsStream = (db.select(db.payments).join([
-    drift.leftOuterJoin(db.customers, db.customers.id.equalsExp(db.payments.customerId)),
-  ])
-    ..where(db.payments.isDeleted.equals(false))
-    ..orderBy([drift.OrderingTerm.desc(db.payments.paymentDate)])
-    ..limit(5)).watch();
-
-  return CombineLatestStream.combine2(
+  return CombineLatestStream.combine3(
     ordersStream,
     paymentsStream,
-    (List<drift.TypedResult> orderRows, List<drift.TypedResult> paymentRows) {
+    customersStream,
+    (List<OrderEntity> orders, List<PaymentEntity> payments, List<CustomerEntity> customers) {
       final List<RecentActivityItem> combined = [];
+      final customerMap = {for (var c in customers) c.id: c.businessName};
       
-      for (final row in orderRows) {
-        final order = row.readTable(db.orders);
-        final customer = row.readTableOrNull(db.customers);
+      for (final order in orders) {
+
         combined.add(RecentActivityItem(
           orderId: order.id,
-          customerName: customer?.businessName ?? 'Unknown Client',
+          customerName: customerMap[order.customerId] ?? 'Unknown Client',
           totalAmount: order.totalAmount,
           date: order.orderDate,
           isPayment: false,
@@ -167,12 +169,11 @@ final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
         ));
       }
 
-      for (final row in paymentRows) {
-        final payment = row.readTable(db.payments);
-        final customer = row.readTableOrNull(db.customers);
+      for (final payment in payments) {
+
         combined.add(RecentActivityItem(
           orderId: payment.id,
-          customerName: customer?.businessName ?? 'Unknown Client',
+          customerName: customerMap[payment.customerId] ?? 'Unknown Client',
           totalAmount: payment.amount,
           date: payment.paymentDate,
           isPayment: true,
@@ -187,53 +188,97 @@ final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
 });
 
 final topDebtorsProvider = StreamProvider<List<CustomerEntity>>((ref) {
-  final db = ref.watch(databaseProvider);
-  return (db.select(db.customers)
-        ..where((t) => t.isDeleted.equals(false))
-        ..where((t) => t.id.isNotValue('walk-in'))
-        ..where((t) => t.debtBalance.isBiggerThanValue(0.0))
-        ..orderBy([(t) => drift.OrderingTerm.desc(t.debtBalance)])
-        ..limit(3))
-      .watch();
+  final customerRepo = ref.watch(customerRepositoryProvider);
+  return customerRepo.watchAllCustomers().map((customers) {
+    final debtors = customers.where((c) => c.id != 'walk-in' && c.debtBalance > 0).toList();
+    debtors.sort((a, b) => b.debtBalance.compareTo(a.debtBalance));
+    return debtors.take(3).toList();
+  });
 });
 
 final lowStockProvider = StreamProvider<List<ProductEntity>>((ref) {
-  final db = ref.watch(databaseProvider);
-  return (db.select(db.products)
-        ..where((t) => t.isDeleted.equals(false))
-        ..where((t) => t.stockQuantity.isSmallerThanValue(50.0))
-        ..orderBy([(t) => drift.OrderingTerm.asc(t.stockQuantity)])
-        ..limit(5))
-      .watch();
+  final inventoryRepo = ref.watch(inventoryRepositoryProvider);
+  return inventoryRepo.watchAllProducts().map((products) {
+    final lowStock = products.where((p) => p.stockQuantity < 50.0).toList();
+    lowStock.sort((a, b) => a.stockQuantity.compareTo(b.stockQuantity));
+    return lowStock.take(5).toList();
+  });
 });
 
-// Used for fetching accurate report data on demand
-Future<ReportData> fetchReportData(AppDatabase db, DateTime start, DateTime end) async {
-  final products = await db.select(db.products).get();
-  final Map<String, double> productCosts = { for (var p in products) p.id : p.buyPrice };
-
-  final orders = await (db.select(db.orders)
-        ..where((t) => t.isDeleted.equals(false))
-        ..where((t) => t.status.isNotValue('cancelled'))
-        ..where((t) => t.orderDate.isBetweenValues(start, end)))
-      .get();
-
+Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end) async {
+  final orderRepo = ref.read(orderRepositoryProvider);
+  final inventoryRepo = ref.read(inventoryRepositoryProvider);
+  final customerRepo = ref.read(customerRepositoryProvider);
+  
+  final allOrders = await orderRepo.getAllOrders();
+  final allProducts = await inventoryRepo.getAllProducts();
+  final allCustomers = await customerRepo.getAllCustomers();
+  
+  final orders = allOrders.where((o) => 
+    o.status != 'cancelled' && 
+    o.orderDate.isAfter(start) && 
+    o.orderDate.isBefore(end)
+  ).toList();
+  
   double revenue = 0;
   double cogs = 0;
-
+  int ordersCount = orders.length;
+  
+  Map<String, double> productQty = {};
+  Map<String, double> productRev = {};
+  Map<String, double> productProf = {};
+  
+  Map<String, int> customerOrderCount = {};
+  Map<String, double> customerSpent = {};
+  
   for (final o in orders) {
     revenue += o.totalAmount;
-    final items = await (db.select(db.orderItems)..where((t) => t.orderId.equals(o.id))).get();
-    for (var item in items) {
-      final cost = productCosts[item.productId] ?? 0.0;
-      cogs += item.quantity * cost;
+    
+    customerOrderCount[o.customerId] = (customerOrderCount[o.customerId] ?? 0) + 1;
+    customerSpent[o.customerId] = (customerSpent[o.customerId] ?? 0) + o.totalAmount;
+    
+    final items = await orderRepo.getOrderItems(o.id);
+    for (final item in items) {
+      final p = allProducts.firstWhere((prod) => prod.id == item.productId, orElse: () => ProductEntity(
+        id: '', name: 'Unknown', categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''
+      ));
+      
+      final cost = p.buyPrice * item.quantity;
+      final rev = item.unitPrice * item.quantity;
+      final prof = rev - cost;
+      
+      cogs += cost;
+      
+      productQty[item.productId] = (productQty[item.productId] ?? 0) + item.quantity;
+      productRev[item.productId] = (productRev[item.productId] ?? 0) + rev;
+      productProf[item.productId] = (productProf[item.productId] ?? 0) + prof;
     }
   }
-
+  
+  final profit = revenue - cogs;
+  
+  final topProducts = productQty.keys.map((pId) {
+    final p = allProducts.firstWhere((prod) => prod.id == pId, orElse: () => ProductEntity(
+        id: '', name: 'Unknown', categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''
+    ));
+    return ProductPerformance(p.name, productQty[pId]!, productRev[pId]!, productProf[pId]!);
+  }).toList();
+  topProducts.sort((a, b) => b.profit.compareTo(a.profit));
+  
+  final topCustomers = customerSpent.keys.map((cId) {
+    final c = allCustomers.firstWhere((cust) => cust.id == cId, orElse: () => CustomerEntity(
+      id: '', businessName: 'Unknown', debtBalance: 0, createdAt: DateTime.now()
+    ));
+    return CustomerPerformance(c.businessName, customerOrderCount[cId]!, customerSpent[cId]!);
+  }).toList();
+  topCustomers.sort((a, b) => b.totalSpent.compareTo(a.totalSpent));
+  
   return ReportData(
     revenue: revenue,
     cogs: cogs,
-    profit: revenue - cogs,
-    ordersCount: orders.length,
+    profit: profit,
+    ordersCount: ordersCount,
+    topProducts: topProducts.take(5).toList(),
+    topCustomers: topCustomers.take(5).toList(),
   );
 }

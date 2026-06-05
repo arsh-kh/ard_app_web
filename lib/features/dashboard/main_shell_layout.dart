@@ -50,8 +50,8 @@ class MainShellLayout extends ConsumerWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      theme.scaffoldBackgroundColor.withOpacity(0.0),
-                      theme.scaffoldBackgroundColor.withOpacity(0.9), // Increased capacity at the bottom
+                      theme.scaffoldBackgroundColor.withValues(alpha: 0.0),
+                      theme.scaffoldBackgroundColor.withValues(alpha: 0.9), // Increased capacity at the bottom
                     ],
                     stops: const [0.0, 1.0],
                   ),
@@ -71,7 +71,7 @@ class MainShellLayout extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(40),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
+                    color: Colors.black.withValues(alpha: 0.12),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -82,7 +82,7 @@ class MainShellLayout extends ConsumerWidget {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
                   child: Container(
-                    color: isDark ? Colors.black.withOpacity(0.5) : Colors.white.withOpacity(0.65),
+                    color: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.65),
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,7 +99,7 @@ class MainShellLayout extends ConsumerWidget {
                           index: 1,
                           icon: Icons.shopping_bag_outlined,
                           activeIcon: Icons.shopping_bag,
-                          label: 'POS',
+                          label: currentLocale.languageCode == 'ku' ? 'خاڵی فرۆشتن' : currentLocale.languageCode == 'ar' ? 'نقطة البيع' : 'POS',
                           badgeCount: cartItems.length,
                         ),
                         _buildNavItem(
@@ -153,7 +153,7 @@ class MainShellLayout extends ConsumerWidget {
     
     // Active colors: Pure black text/icon, and "black liquid glass" for the pill
     final activeColor = isDark ? Colors.white : Colors.black;
-    final activeBgColor = isDark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.06); // Extremely subtle smooth tint
+    final activeBgColor = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.06); // Extremely subtle smooth tint
 
     return Expanded(
       child: GestureDetector(
@@ -170,7 +170,7 @@ class MainShellLayout extends ConsumerWidget {
             boxShadow: isSelected && !isDark
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     )
@@ -256,3 +256,4 @@ class MainShellLayout extends ConsumerWidget {
     );
   }
 }
+

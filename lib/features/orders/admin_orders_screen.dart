@@ -14,9 +14,11 @@ import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/order_status_utils.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/constants/app_constants.dart';
-import '../../data/local_database/database.dart';
-import '../../domain/enums.dart' hide SyncStatus;
-
+import '../../data/models/order_entity.dart';
+import '../../data/models/order_item_entity.dart';
+import '../../data/models/customer_entity.dart';
+import '../../data/models/product_entity.dart';
+import '../../domain/enums.dart';
 class _LocalTranslations {
   static const _data = {
     'en': {
@@ -221,7 +223,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
         final order = orders[index];
 
         return FutureBuilder<CustomerEntity?>(
-          future: customerRepo.getCustomer(order.customerId),
+          future: customerRepo.getCustomerById(order.customerId),
           builder: (context, customerSnapshot) {
             final customer = customerSnapshot.data;
             final customerName = customer?.businessName ?? t('loadingClient');
@@ -233,13 +235,13 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.05)
+                      ? Colors.white.withValues(alpha: 0.05)
                       : Colors.grey.shade200,
                 ),
               ),
               child: ExpansionTile(
                 leading: CircleAvatar(
-                  backgroundColor: OrderStatusUtils.getStatusColor(order.status).withOpacity(0.1),
+                  backgroundColor: OrderStatusUtils.getStatusColor(order.status).withValues(alpha: 0.1),
                   child: Icon(OrderStatusUtils.getStatusIcon(order.status), color: OrderStatusUtils.getStatusColor(order.status), size: 20),
                 ),
                 title: Text(
@@ -302,7 +304,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                             return Column(
                               children: items.map((item) {
                                 return FutureBuilder<ProductEntity?>(
-                                  future: inventoryRepo.getProduct(item.productId),
+                                  future: inventoryRepo.getProductById(item.productId),
                                   builder: (context, prodSnapshot) {
                                     final prodName = prodSnapshot.data?.name ?? t('unknownProduct');
                                     return Padding(
@@ -412,9 +414,9 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                                   onPressed: () async {
                                     final confirmed = await AppFeedback.showConfirmDialog(
                                       context,
-                                      title: 'Delete Order',
-                                      message: 'Are you sure you want to completely delete this order?',
-                                      confirmLabel: 'Delete',
+                                      title: ref.read(localeProvider).languageCode == 'ku' ? 'سڕینەوەی داواکاری' : ref.read(localeProvider).languageCode == 'ar' ? 'حذف الطلب' : 'Delete Order',
+                                      message: ref.read(localeProvider).languageCode == 'ku' ? 'دڵنیایت دەتەوێت ئەم داواکارییە بسڕیتەوە؟' : ref.read(localeProvider).languageCode == 'ar' ? 'هل أنت متأكد أنك تريد حذف هذا الطلب تمامًا؟' : 'Are you sure you want to completely delete this order?',
+                                      confirmLabel: ref.read(localeProvider).languageCode == 'ku' ? 'سڕینەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'حذف' : 'Delete',
                                       confirmColor: Colors.red,
                                       icon: Icons.warning,
                                     );
@@ -422,7 +424,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                                       await orderRepo.deleteOrder(order.id);
                                     }
                                   },
-                                  label: const Text('Delete'),
+                                  label: Text(ref.read(localeProvider).languageCode == 'ku' ? 'سڕینەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'حذف' : 'Delete'),
                                 ),
                               ),
                             ],
@@ -454,7 +456,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
       final inventoryRepo = ref.read(inventoryRepositoryProvider);
       final orderRepo = ref.read(orderRepositoryProvider);
 
-      final customer = await customerRepo.getCustomer(order.customerId);
+      final customer = await customerRepo.getCustomerById(order.customerId);
       final items = await orderRepo.getOrderItems(order.id);
       final products = await inventoryRepo.getAllProducts();
 
@@ -490,3 +492,4 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
 
   // Status helpers now live in OrderStatusUtils (core/utils/order_status_utils.dart)
 }
+

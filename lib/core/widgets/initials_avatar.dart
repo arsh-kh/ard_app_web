@@ -38,3 +38,4 @@ class InitialsAvatar extends StatelessWidget {
     );
   }
 }
+

@@ -187,3 +187,4 @@ class DashboardTranslations {
     return langMap[key] ?? key;
   }
 }
+

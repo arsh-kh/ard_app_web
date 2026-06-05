@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/local_database/database.dart';
+import '../../data/models/product_entity.dart';
+import '../../data/models/customer_entity.dart';
 
 class CartItem {
   final ProductEntity product;
@@ -74,3 +75,4 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
 final cartProvider = StateNotifierProvider<CartNotifier, List<CartItem>>((ref) {
   return CartNotifier();
 });
+
