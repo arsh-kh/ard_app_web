@@ -10,13 +10,46 @@ class OrderRepository {
 
   OrderRepository(this._auditService);
 
+  Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
+    final sanitized = Map<String, dynamic>.from(data);
+    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity'];
+    final intFields = ['orderNumber'];
+    final dateFields = ['createdAt', 'updatedAt', 'date', 'timestamp', 'orderDate', 'paymentDate'];
+
+    sanitized.forEach((key, value) {
+      if (value is Timestamp) {
+        sanitized[key] = value.toDate().toIso8601String();
+      } else if (value is int) {
+        if (dateFields.contains(key)) {
+          sanitized[key] = DateTime.fromMillisecondsSinceEpoch(value).toIso8601String();
+        } else if (doubleFields.contains(key)) {
+          sanitized[key] = value.toDouble();
+        } else if (!intFields.contains(key)) {
+          sanitized[key] = value.toString();
+        }
+      } else if (value is double) {
+        if (intFields.contains(key)) {
+          sanitized[key] = value.toInt();
+        } else if (!doubleFields.contains(key)) {
+           sanitized[key] = value.toString();
+        }
+      } else if (value is String && dateFields.contains(key)) {
+        final parsedInt = int.tryParse(value);
+        if (parsedInt != null) {
+          sanitized[key] = DateTime.fromMillisecondsSinceEpoch(parsedInt).toIso8601String();
+        }
+      }
+    });
+    return sanitized;
+  }
+
   Stream<List<OrderEntity>> watchAllOrders() {
     return _firestore
         .collection('orders')
         .orderBy('orderDate', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => OrderEntity.fromJson({'id': doc.id, ...doc.data()}))
+            .map((doc) => OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()})))
             .toList());
   }
 
@@ -27,7 +60,7 @@ class OrderRepository {
         .orderBy('orderDate', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => OrderEntity.fromJson({'id': doc.id, ...doc.data()}))
+            .map((doc) => OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()})))
             .toList());
   }
 
@@ -38,21 +71,21 @@ class OrderRepository {
         .orderBy('orderDate', descending: true)
         .get();
     return snapshot.docs
-        .map((doc) => OrderEntity.fromJson({'id': doc.id, ...doc.data()}))
+        .map((doc) => OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()})))
         .toList();
   }
 
   Stream<OrderEntity?> watchOrder(String id) {
     return _firestore.collection('orders').doc(id).snapshots().map((doc) {
       if (!doc.exists) return null;
-      return OrderEntity.fromJson({'id': doc.id, ...doc.data()!});
+      return OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()!}));
     });
   }
 
   Future<OrderEntity?> getOrder(String id) async {
     final doc = await _firestore.collection('orders').doc(id).get();
     if (!doc.exists) return null;
-    return OrderEntity.fromJson({'id': doc.id, ...doc.data()!});
+    return OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()!}));
   }
 
   Stream<List<OrderItemEntity>> watchOrderItems(String orderId) {
@@ -61,7 +94,7 @@ class OrderRepository {
         .where('orderId', isEqualTo: orderId)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => OrderItemEntity.fromJson({'id': doc.id, ...doc.data()}))
+            .map((doc) => OrderItemEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()})))
             .toList());
   }
 
@@ -71,17 +104,16 @@ class OrderRepository {
         .where('orderId', isEqualTo: orderId)
         .get();
     return snapshot.docs
-        .map((doc) => OrderItemEntity.fromJson({'id': doc.id, ...doc.data()}))
+        .map((doc) => OrderItemEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()})))
         .toList();
   }
 
   Future<void> createOrder(OrderEntity order, List<OrderItemEntity> items) async {
     final batch = _firestore.batch();
     
-    // Auto-increment order number is tricky in NoSQL. 
-    // Using a counter document or timestamp as fallback.
-    // For simplicity, we just use timestamp seconds if we don't have a transaction counter.
-    final orderNum = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    // Use document count + 1 for auto-incrementing order number
+    final countSnapshot = await _firestore.collection('orders').count().get();
+    final orderNum = (countSnapshot.count ?? 0) + 1;
     final finalOrder = order.copyWith(orderNumber: orderNum);
 
     final orderRef = _firestore.collection('orders').doc(finalOrder.id);
@@ -99,7 +131,7 @@ class OrderRepository {
       }
     }
 
-    if (finalOrder.status == 'delivered') {
+    if (finalOrder.status == 'delivered' && finalOrder.customerId != 'walk-in' && finalOrder.customerId != 'walk-in-customer-id') {
       final custRef = _firestore.collection('customers').doc(finalOrder.customerId);
       batch.update(custRef, {'debtBalance': FieldValue.increment(finalOrder.totalAmount)});
     }
@@ -129,8 +161,10 @@ class OrderRepository {
       batch.update(prodRef, {'stockQuantity': FieldValue.increment(-item.quantity)});
     }
 
-    final custRef = _firestore.collection('customers').doc(order.customerId);
-    batch.update(custRef, {'debtBalance': FieldValue.increment(order.totalAmount)});
+    if (order.customerId != 'walk-in' && order.customerId != 'walk-in-customer-id') {
+      final custRef = _firestore.collection('customers').doc(order.customerId);
+      batch.update(custRef, {'debtBalance': FieldValue.increment(order.totalAmount)});
+    }
 
     await batch.commit();
 
@@ -178,8 +212,10 @@ class OrderRepository {
         batch.update(prodRef, {'stockQuantity': FieldValue.increment(item.quantity)});
       }
 
-      final custRef = _firestore.collection('customers').doc(order.customerId);
-      batch.update(custRef, {'debtBalance': FieldValue.increment(-order.totalAmount)});
+      if (order.customerId != 'walk-in' && order.customerId != 'walk-in-customer-id') {
+        final custRef = _firestore.collection('customers').doc(order.customerId);
+        batch.update(custRef, {'debtBalance': FieldValue.increment(-order.totalAmount)});
+      }
     }
 
     await batch.commit();
@@ -193,6 +229,6 @@ class OrderRepository {
   }
   Future<List<OrderEntity>> getAllOrders() async {
     final snapshot = await _firestore.collection('orders').orderBy('orderDate', descending: true).get();
-    return snapshot.docs.map((doc) => OrderEntity.fromJson({'id': doc.id, ...doc.data()})).toList();
+    return snapshot.docs.map((doc) => OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()}))).toList();
   }
 }

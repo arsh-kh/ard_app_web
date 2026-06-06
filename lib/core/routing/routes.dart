@@ -14,5 +14,7 @@ class Routes {
   static const String analytics = '/analytics';
   static const customerDetail = '/customer-detail';
   static const auditLogs = '/audit-logs';
+  static const adminUsers = '/admin-users';
+  static const pendingApproval = '/pending-approval';
 }
 

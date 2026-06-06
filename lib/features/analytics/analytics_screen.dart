@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -35,50 +36,50 @@ class _LocalTranslations {
       'total': 'Total',
     },
     'ku': {
-      'analyticsTitle': 'شیکردنەوەی کار',
-      'margins': 'ڕێژەی قازانج',
-      'topCustomers': 'کڕیارە سەرەکییەکان',
-      'debtAging': 'مەترسی قەرز',
-      'cogs': 'نرخی کڕین (COGS)',
-      'sellPrice': 'نرخی فرۆشتن',
-      'profitAmount': 'قازانجی تاک',
-      'margin': 'ڕێژە',
-      'avgMargin': 'تێکڕای قازانجی کۆگا',
-      'topMargin': 'بەرزترین قازانج',
-      'salesVolume': 'بڕی فرۆشتن',
-      'ordersCount': 'ژمارەی داواکارییەکان',
-      'debtRiskLevel': 'شیکردنەوەی مەترسی قەرز',
-      'recent': 'ئەم دواییانە (٠-١٥ ڕۆژ)',
-      'due': 'شایستە (١٦-٣٠ ڕۆژ)',
-      'overdue': 'دواکەوتوو (٣١+ ڕۆژ)',
-      'requireActionList': 'کڕیارانی پێویست بۆ پەیوەندیکردن (دواکەوتوو)',
-      'noOverdueClients': 'هیچ کڕیارێکی دواکەوتوو نییە. کۆکردنەوەی قەرز تەندروستە.',
-      'lastOrder': 'دوایین داواکاری: {days} ڕۆژ پێش ئێستا',
-      'neverOrdered': 'هیچ داواکارییەکی نییە (یان قەرزی دەستی)',
-      'total': 'کۆی گشتی',
+      'analyticsTitle': 'Ø´ÛŒÚ©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ú©Ø§Ø±',
+      'margins': 'Ú•ÛŽÚ˜Û•ÛŒ Ù‚Ø§Ø²Ø§Ù†Ø¬',
+      'topCustomers': 'Ú©Ú•ÛŒØ§Ø±Û• Ø³Û•Ø±Û•Ú©ÛŒÛŒÛ•Ú©Ø§Ù†',
+      'debtAging': 'Ù…Û•ØªØ±Ø³ÛŒ Ù‚Û•Ø±Ø²',
+      'cogs': 'Ù†Ø±Ø®ÛŒ Ú©Ú•ÛŒÙ† (COGS)',
+      'sellPrice': 'Ù†Ø±Ø®ÛŒ ÙØ±Û†Ø´ØªÙ†',
+      'profitAmount': 'Ù‚Ø§Ø²Ø§Ù†Ø¬ÛŒ ØªØ§Ú©',
+      'margin': 'Ú•ÛŽÚ˜Û•',
+      'avgMargin': 'ØªÛŽÚ©Ú•Ø§ÛŒ Ù‚Ø§Ø²Ø§Ù†Ø¬ÛŒ Ú©Û†Ú¯Ø§',
+      'topMargin': 'Ø¨Û•Ø±Ø²ØªØ±ÛŒÙ† Ù‚Ø§Ø²Ø§Ù†Ø¬',
+      'salesVolume': 'Ø¨Ú•ÛŒ ÙØ±Û†Ø´ØªÙ†',
+      'ordersCount': 'Ú˜Ù…Ø§Ø±Û•ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ•Ú©Ø§Ù†',
+      'debtRiskLevel': 'Ø´ÛŒÚ©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ù…Û•ØªØ±Ø³ÛŒ Ù‚Û•Ø±Ø²',
+      'recent': 'Ø¦Û•Ù… Ø¯ÙˆØ§ÛŒÛŒØ§Ù†Û• (Ù -Ù¡Ù¥ Ú•Û†Ú˜)',
+      'due': 'Ø´Ø§ÛŒØ³ØªÛ• (Ù¡Ù¦-Ù£Ù  Ú•Û†Ú˜)',
+      'overdue': 'Ø¯ÙˆØ§Ú©Û•ÙˆØªÙˆÙˆ (Ù£Ù¡+ Ú•Û†Ú˜)',
+      'requireActionList': 'Ú©Ú•ÛŒØ§Ø±Ø§Ù†ÛŒ Ù¾ÛŽÙˆÛŒØ³Øª Ø¨Û† Ù¾Û•ÛŒÙˆÛ•Ù†Ø¯ÛŒÚ©Ø±Ø¯Ù† (Ø¯ÙˆØ§Ú©Û•ÙˆØªÙˆÙˆ)',
+      'noOverdueClients': 'Ù‡ÛŒÚ† Ú©Ú•ÛŒØ§Ø±ÛŽÚ©ÛŒ Ø¯ÙˆØ§Ú©Û•ÙˆØªÙˆÙˆ Ù†ÛŒÛŒÛ•. Ú©Û†Ú©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ù‚Û•Ø±Ø² ØªÛ•Ù†Ø¯Ø±ÙˆØ³ØªÛ•.',
+      'lastOrder': 'Ø¯ÙˆØ§ÛŒÛŒÙ† Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ: {days} Ú•Û†Ú˜ Ù¾ÛŽØ´ Ø¦ÛŽØ³ØªØ§',
+      'neverOrdered': 'Ù‡ÛŒÚ† Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ•Ú©ÛŒ Ù†ÛŒÛŒÛ• (ÛŒØ§Ù† Ù‚Û•Ø±Ø²ÛŒ Ø¯Û•Ø³ØªÛŒ)',
+      'total': 'Ú©Û†ÛŒ Ú¯Ø´ØªÛŒ',
     },
     'ar': {
-      'analyticsTitle': 'تحليلات العمل',
-      'margins': 'هامش الربح',
-      'topCustomers': 'أفضل العملاء',
-      'debtAging': 'مخاطر الديون',
-      'cogs': 'سعر التكلفة (COGS)',
-      'sellPrice': 'سعر البيع',
-      'profitAmount': 'الربح لكل وحدة',
-      'margin': 'الهامش',
-      'avgMargin': 'متوسط هامش الجملة',
-      'topMargin': 'أعلى هامش',
-      'salesVolume': 'حجم المبيعات',
-      'ordersCount': 'عدد الطلبات',
-      'debtRiskLevel': 'تحليل مخاطر الديون',
-      'recent': 'حديثاً (0-15 يوم)',
-      'due': 'مستحق (16-30 يوم)',
-      'overdue': 'متأخر (31+ يوم)',
-      'requireActionList': 'العملاء الذين يتطلبون اتخاذ إجراء (متأخر)',
-      'noOverdueClients': 'لا يوجد عملاء متأخرون. تحصيل الديون سليم.',
-      'lastOrder': 'آخر طلب: منذ {days} يوم',
-      'neverOrdered': 'لم يطلب أبداً (أو رصيد ديون يدوي)',
-      'total': 'المجموع',
+      'analyticsTitle': 'ØªØ­Ù„ÙŠÙ„Ø§Øª Ø§Ù„Ø¹Ù…Ù„',
+      'margins': 'Ù‡Ø§Ù…Ø´ Ø§Ù„Ø±Ø¨Ø­',
+      'topCustomers': 'Ø£ÙØ¶Ù„ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡',
+      'debtAging': 'Ù…Ø®Ø§Ø·Ø± Ø§Ù„Ø¯ÙŠÙˆÙ†',
+      'cogs': 'Ø³Ø¹Ø± Ø§Ù„ØªÙƒÙ„ÙØ© (COGS)',
+      'sellPrice': 'Ø³Ø¹Ø± Ø§Ù„Ø¨ÙŠØ¹',
+      'profitAmount': 'Ø§Ù„Ø±Ø¨Ø­ Ù„ÙƒÙ„ ÙˆØ­Ø¯Ø©',
+      'margin': 'Ø§Ù„Ù‡Ø§Ù…Ø´',
+      'avgMargin': 'Ù…ØªÙˆØ³Ø· Ù‡Ø§Ù…Ø´ Ø§Ù„Ø¬Ù…Ù„Ø©',
+      'topMargin': 'Ø£Ø¹Ù„Ù‰ Ù‡Ø§Ù…Ø´',
+      'salesVolume': 'Ø­Ø¬Ù… Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª',
+      'ordersCount': 'Ø¹Ø¯Ø¯ Ø§Ù„Ø·Ù„Ø¨Ø§Øª',
+      'debtRiskLevel': 'ØªØ­Ù„ÙŠÙ„ Ù…Ø®Ø§Ø·Ø± Ø§Ù„Ø¯ÙŠÙˆÙ†',
+      'recent': 'Ø­Ø¯ÙŠØ«Ø§Ù‹ (0-15 ÙŠÙˆÙ…)',
+      'due': 'Ù…Ø³ØªØ­Ù‚ (16-30 ÙŠÙˆÙ…)',
+      'overdue': 'Ù…ØªØ£Ø®Ø± (31+ ÙŠÙˆÙ…)',
+      'requireActionList': 'Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ Ø§Ù„Ø°ÙŠÙ† ÙŠØªØ·Ù„Ø¨ÙˆÙ† Ø§ØªØ®Ø§Ø° Ø¥Ø¬Ø±Ø§Ø¡ (Ù…ØªØ£Ø®Ø±)',
+      'noOverdueClients': 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù…Ù„Ø§Ø¡ Ù…ØªØ£Ø®Ø±ÙˆÙ†. ØªØ­ØµÙŠÙ„ Ø§Ù„Ø¯ÙŠÙˆÙ† Ø³Ù„ÙŠÙ….',
+      'lastOrder': 'Ø¢Ø®Ø± Ø·Ù„Ø¨: Ù…Ù†Ø° {days} ÙŠÙˆÙ…',
+      'neverOrdered': 'Ù„Ù… ÙŠØ·Ù„Ø¨ Ø£Ø¨Ø¯Ø§Ù‹ (Ø£Ùˆ Ø±ØµÙŠØ¯ Ø¯ÙŠÙˆÙ† ÙŠØ¯ÙˆÙŠ)',
+      'total': 'Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹',
     }
   };
 
@@ -178,7 +179,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
     final marginsAsync = ref.watch(productMarginsProvider);
 
     return marginsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CustomLoader()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (margins) {
         if (margins.isEmpty) {
@@ -370,7 +371,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
     final topCustomersAsync = ref.watch(topCustomersProvider);
 
     return topCustomersAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CustomLoader()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (customers) {
         if (customers.isEmpty) {
@@ -464,7 +465,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
     final customersAsync = ref.watch(dashboardCustomersProvider);
 
     return agingAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CustomLoader()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (aging) {
         final totalDebt = aging.totalDebt;
@@ -474,7 +475,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
         final percentOverdue = totalDebt > 0 ? (aging.overdueDebt / totalDebt) : 0.0;
 
         return customersAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CustomLoader()),
           error: (err, stack) => Center(child: Text('Error: $err')),
           data: (customersList) {
             // Find customers with active debt balance > 0
@@ -675,4 +676,5 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> with SingleTi
     );
   }
 }
+
 

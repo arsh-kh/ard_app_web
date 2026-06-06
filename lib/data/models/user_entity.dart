@@ -11,6 +11,7 @@ class UserEntity with _$UserEntity {
     String? phone,
     String? passwordHash,
     required String role,
+    String? status,
     required String name,
     String? imageUrl,
     String? createdBy,

@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/dashboard_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
-import 'package:printing/printing.dart';
 import '../../core/services/pdf_report_service.dart';
 import '../../core/widgets/pdf_preview_screen.dart';
 
@@ -73,14 +73,17 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
 
   Future<void> _exportPdf(String dateLabel, bool isMonth) async {
     if (reportData == null) return;
+    final currentLocale = ref.read(localeProvider);
     try {
       final bytes = await PdfReportService.generateReport(
         reportData: reportData!,
         periodName: dateLabel,
         isMonth: isMonth,
+        isKurdish: currentLocale.languageCode == 'ku',
+        isArabic: currentLocale.languageCode == 'ar',
       );
       if (mounted) {
-        Navigator.of(context).push(
+        Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (_) => PdfPreviewScreen(
               title: 'Report_$dateLabel',
@@ -109,8 +112,8 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
       : DateFormat.y().format(selectedDate);
 
     final title = widget.isMonth 
-      ? (isKurdish ? 'ڕاپۆرتی مانگانە' : isArabic ? 'تقرير شهري' : 'Monthly Report')
-      : (isKurdish ? 'ڕاپۆرتی ساڵانە' : isArabic ? 'تقرير سنوي' : 'Yearly Report');
+      ? (isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ù…Ø§Ù†Ú¯Ø§Ù†Û•' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø´Ù‡Ø±ÙŠ' : 'Monthly Report')
+      : (isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ø³Ø§ÚµØ§Ù†Û•' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø³Ù†ÙˆÙŠ' : 'Yearly Report');
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -142,7 +145,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
             const SizedBox(height: 24),
 
             if (isLoading)
-              const Center(child: Padding(padding: EdgeInsets.all(32.0), child: CircularProgressIndicator()))
+              const Center(child: Padding(padding: EdgeInsets.all(32.0), child: CustomLoader()))
             else if (reportData != null) ...[
               _buildStatRow('Total Orders', reportData!.ordersCount.toString(), isKurdish, isArabic, Icons.shopping_bag, Colors.blue),
               const SizedBox(height: 16),
@@ -155,7 +158,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
               ElevatedButton.icon(
                 onPressed: () => _exportPdf(dateLabel, widget.isMonth),
                 icon: const Icon(Icons.picture_as_pdf),
-                label: Text(isKurdish ? 'هەناردەکردنی PDF' : isArabic ? 'تصدير PDF' : 'Export PDF'),
+                label: Text(isKurdish ? 'Ù‡Û•Ù†Ø§Ø±Ø¯Û•Ú©Ø±Ø¯Ù†ÛŒ PDF' : isArabic ? 'ØªØµØ¯ÙŠØ± PDF' : 'Export PDF'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
@@ -173,10 +176,10 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
 
   Widget _buildStatRow(String enTitle, String value, bool isKurdish, bool isArabic, IconData icon, MaterialColor color, {bool isTotal = false}) {
     String title = enTitle;
-    if (enTitle == 'Total Orders') title = isKurdish ? 'کۆی داواکارییەکان' : isArabic ? 'إجمالي الطلبات' : 'Total Orders';
-    if (enTitle == 'Total Revenue') title = isKurdish ? 'کۆی داهات' : isArabic ? 'إجمالي الإيرادات' : 'Total Revenue';
-    if (enTitle == 'Total Purchases') title = isKurdish ? 'کۆی کڕینەکان' : isArabic ? 'إجمالي المشتريات' : 'Total Purchases';
-    if (enTitle == 'Net Profit') title = isKurdish ? 'پوختەی قازانج' : isArabic ? 'صافي الربح' : 'Net Profit';
+    if (enTitle == 'Total Orders') title = isKurdish ? 'Ú©Û†ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ•Ú©Ø§Ù†' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø·Ù„Ø¨Ø§Øª' : 'Total Orders';
+    if (enTitle == 'Total Revenue') title = isKurdish ? 'Ú©Û†ÛŒ Ø¯Ø§Ù‡Ø§Øª' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª' : 'Total Revenue';
+    if (enTitle == 'Total Purchases') title = isKurdish ? 'Ú©Û†ÛŒ Ú©Ú•ÛŒÙ†Û•Ú©Ø§Ù†' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª' : 'Total Purchases';
+    if (enTitle == 'Net Profit') title = isKurdish ? 'Ù¾ÙˆØ®ØªÛ•ÛŒ Ù‚Ø§Ø²Ø§Ù†Ø¬' : isArabic ? 'ØµØ§ÙÙŠ Ø§Ù„Ø±Ø¨Ø­' : 'Net Profit';
 
     return Row(
       children: [
@@ -192,4 +195,5 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     );
   }
 }
+
 

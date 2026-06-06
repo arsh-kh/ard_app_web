@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'modern_splash_loader.dart';
+import 'custom_loader.dart';
 
 class AppSplashScreen extends StatelessWidget {
   const AppSplashScreen({super.key});
@@ -10,7 +10,7 @@ class AppSplashScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
-        child: const ModernSplashLoader()
+        child: const CustomLoader(size: 80, color: Colors.black)
             .animate()
             .fadeIn(duration: 800.ms, curve: Curves.easeOut)
             .slideY(begin: 0.05, end: 0, duration: 800.ms, curve: Curves.easeOut),

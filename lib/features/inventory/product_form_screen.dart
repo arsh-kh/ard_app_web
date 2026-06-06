@@ -131,6 +131,38 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        actions: [
+          if (!isNew)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(isKurdish ? 'سڕینەوەی کاڵا' : isArabic ? 'حذف المنتج' : 'Delete Product'),
+                    content: Text(isKurdish ? 'دڵنیای لە سڕینەوەی ئەم کاڵایە؟' : isArabic ? 'هل أنت متأكد من حذف هذا المنتج؟' : 'Are you sure you want to delete this product?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(isKurdish ? 'نەخێر' : isArabic ? 'لا' : 'Cancel'),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(isKurdish ? 'سڕینەوە' : isArabic ? 'حذف' : 'Delete', style: const TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true && context.mounted) {
+                  await ref.read(inventoryRepositoryProvider).deleteProduct(widget.productToEdit!.id);
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                }
+              },
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

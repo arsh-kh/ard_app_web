@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -46,7 +47,7 @@ class AuditService {
       await _firestore.collection('audit_logs').doc(id).set(log.toJson());
     } catch (e) {
       // Intentionally not failing the main operation if audit fails
-      print('Failed to write audit log: $e');
+      debugPrint('Error logging audit action: $e');
     }
   }
 }

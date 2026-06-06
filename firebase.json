@@ -1,1 +1,37 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"ard-bazar","appId":"1:13420289918:android:72692759ab111419539d2f","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"ard-bazar","configurations":{"android":"1:13420289918:android:72692759ab111419539d2f","ios":"1:13420289918:ios:c60e8aab8f52d5a4539d2f","web":"1:13420289918:web:57c6ce3e0168d87f539d2f"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "ard-bazar",
+          "appId": "1:13420289918:android:72692759ab111419539d2f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "ard-bazar",
+          "configurations": {
+            "android": "1:13420289918:android:72692759ab111419539d2f",
+            "ios": "1:13420289918:ios:c60e8aab8f52d5a4539d2f",
+            "web": "1:13420289918:web:57c6ce3e0168d87f539d2f"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

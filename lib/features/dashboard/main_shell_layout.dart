@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:ui';
 
 import '../../core/providers/cart_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
 
-class MainShellLayout extends ConsumerWidget {
+class MainShellLayout extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainShellLayout({
@@ -17,7 +16,14 @@ class MainShellLayout extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainShellLayout> createState() => _MainShellLayoutState();
+}
+
+class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
+  int _lastTapTime = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -34,31 +40,9 @@ class MainShellLayout extends ConsumerWidget {
           MediaQuery.removePadding(
             context: context,
             removeBottom: true, // Forces inner SafeAreas to ignore the bottom home indicator gap
-            child: navigationShell,
+            child: widget.navigationShell,
           ),
 
-          // 2. The Smooth Fading Background (hides content gracefully without hard rectangular artifacts)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 150, // Increased height to start even higher up
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      theme.scaffoldBackgroundColor.withValues(alpha: 0.0),
-                      theme.scaffoldBackgroundColor.withValues(alpha: 0.9), // Increased capacity at the bottom
-                    ],
-                    stops: const [0.0, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ),
 
           // 3. The True Floating Pill Navigation Bar
           Positioned(
@@ -79,11 +63,9 @@ class MainShellLayout extends ConsumerWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(40),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                  child: Container(
-                    color: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.65),
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -99,7 +81,7 @@ class MainShellLayout extends ConsumerWidget {
                           index: 1,
                           icon: Icons.shopping_bag_outlined,
                           activeIcon: Icons.shopping_bag,
-                          label: currentLocale.languageCode == 'ku' ? 'خاڵی فرۆشتن' : currentLocale.languageCode == 'ar' ? 'نقطة البيع' : 'POS',
+                          label: currentLocale.languageCode == 'ku' ? 'فرۆشتن' : currentLocale.languageCode == 'ar' ? 'المبيعات' : 'POS',
                           badgeCount: cartItems.length,
                         ),
                         _buildNavItem(
@@ -129,7 +111,6 @@ class MainShellLayout extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -144,7 +125,7 @@ class MainShellLayout extends ConsumerWidget {
     int badgeCount = 0,
     Color? badgeColor,
   }) {
-    final isSelected = navigationShell.currentIndex == index;
+    final isSelected = widget.navigationShell.currentIndex == index;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
@@ -250,9 +231,13 @@ class MainShellLayout extends ConsumerWidget {
   }
 
   void _onTabSelected(int index) {
-    navigationShell.goBranch(
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastTapTime < 300) return; // Debounce fast taps
+    _lastTapTime = now;
+
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 }

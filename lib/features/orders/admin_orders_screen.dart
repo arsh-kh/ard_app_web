@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:printing/printing.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/providers/order_providers.dart';
@@ -20,6 +20,9 @@ import '../../data/models/order_item_entity.dart';
 import '../../data/models/customer_entity.dart';
 import '../../data/models/product_entity.dart';
 import '../../domain/enums.dart';
+import '../../core/widgets/heavy_ios_button.dart';
+import 'order_report_dialog.dart';
+
 class _LocalTranslations {
   static const _data = {
     'en': {
@@ -36,7 +39,7 @@ class _LocalTranslations {
       'reject': 'Reject',
       'approve': 'Approve',
       'markDelivered': 'Mark Delivered',
-      'printInvoice': 'Print Invoice',
+      'printInvoice': 'Export PDF',
       'rejectOrderTitle': 'Reject Order?',
       'rejectOrderMsg': 'This will cancel order #{orderId} for {client}. This action cannot be undone.',
       'orderRejectedTitle': 'Order Rejected',
@@ -55,68 +58,68 @@ class _LocalTranslations {
       'errorGeneratingInvoice': 'Error generating invoice: {error}',
     },
     'ku': {
-      'incomingOrders': 'داواکارییە هاتووەکان',
-      'pendingTab': 'چاوەڕێکراو',
-      'pastOrdersTab': 'داواکارییەکانی پێشوو',
-      'noActiveOrders': 'هیچ داواکارییەکی چاوەڕێکراو نییە.',
-      'noOrderHistory': 'هیچ مێژوویەکی داواکاری نەدۆزرایەوە.',
-      'loadingClient': 'بارکردنی کڕیار...',
-      'orderNo': 'داواکاری #',
-      'noAddress': 'هیچ ناونیشانێک تۆمارنەکراوە',
-      'orderedProducts': 'بەرهەمە داواکراوەکان:',
-      'unknownProduct': 'کاڵای نەناسراو',
-      'reject': 'ڕەتکردنەوە',
-      'approve': 'پەسەندکردن',
-      'markDelivered': 'گەیەنرا',
-      'printInvoice': 'چاپکردنی پسووڵە',
-      'rejectOrderTitle': 'ڕەتکردنەوەی داواکاری؟',
-      'rejectOrderMsg': 'ئەمە داواکاری #{orderId} بۆ {client} هەڵدەوەشێنێتەوە. ئەمە ناتوانرێت بگەڕێندرێتەوە.',
-      'orderRejectedTitle': 'داواکاری ڕەتکرایەوە',
-      'orderRejectedMsg': 'داواکاری #{orderId} بۆ {client} ڕەتکرایەوە.',
-      'orderRejectedInfo': 'داواکاری ڕەتکرایەوە',
-      'approveOrderTitle': 'پەسەندکردنی داواکاری؟',
-      'approveOrderMsg': 'داواکاری #{orderId} بۆ {client} پەسەند دەکەیت؟\n\nکاڵا لە کۆگا کەم دەکرێتەوە.',
-      'orderApprovedTitle': 'داواکاری پەسەندکرا',
-      'orderApprovedMsg': 'داواکاری #{orderId} بۆ {client} پەسەندکرا. کاڵا کەمکرایەوە.',
-      'orderApprovedSuccess': 'داواکاری پەسەندکرا!',
-      'markDeliveredTitle': 'وەک گەیەنراو دیاری بکە؟',
-      'markDeliveredMsg': 'ئەمە داواکاری #{orderId} وەک گەیەنراو دیاری دەکات و بڕی {amount} دەخاتە سەر قەرزی {client}.',
-      'orderDeliveredTitle': 'داواکاری گەیەنرا',
-      'orderDeliveredMsg': 'داواکاری #{orderId} گەیەنرا. قەرزی کڕیار نوێکرایەوە.',
-      'orderDeliveredSuccess': 'داواکاری وەک گەیەنراو دیاریکرا!',
-      'errorGeneratingInvoice': 'هەڵە لە دروستکردنی پسووڵە: {error}',
+      'incomingOrders': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ• Ù‡Ø§ØªÙˆÙˆÛ•Ú©Ø§Ù†',
+      'pendingTab': 'Ú†Ø§ÙˆÛ•Ú•ÛŽÚ©Ø±Ø§Ùˆ',
+      'pastOrdersTab': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ•Ú©Ø§Ù†ÛŒ Ù¾ÛŽØ´ÙˆÙˆ',
+      'noActiveOrders': 'Ù‡ÛŒÚ† Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ•Ú©ÛŒ Ú†Ø§ÙˆÛ•Ú•ÛŽÚ©Ø±Ø§Ùˆ Ù†ÛŒÛŒÛ•.',
+      'noOrderHistory': 'Ù‡ÛŒÚ† Ù…ÛŽÚ˜ÙˆÙˆÛŒÛ•Ú©ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ù†Û•Ø¯Û†Ø²Ø±Ø§ÛŒÛ•ÙˆÛ•.',
+      'loadingClient': 'Ø¨Ø§Ø±Ú©Ø±Ø¯Ù†ÛŒ Ú©Ú•ÛŒØ§Ø±...',
+      'orderNo': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #',
+      'noAddress': 'Ù‡ÛŒÚ† Ù†Ø§ÙˆÙ†ÛŒØ´Ø§Ù†ÛŽÚ© ØªÛ†Ù…Ø§Ø±Ù†Û•Ú©Ø±Ø§ÙˆÛ•',
+      'orderedProducts': 'Ø¨Û•Ø±Ù‡Û•Ù…Û• Ø¯Ø§ÙˆØ§Ú©Ø±Ø§ÙˆÛ•Ú©Ø§Ù†:',
+      'unknownProduct': 'Ú©Ø§ÚµØ§ÛŒ Ù†Û•Ù†Ø§Ø³Ø±Ø§Ùˆ',
+      'reject': 'Ú•Û•ØªÚ©Ø±Ø¯Ù†Û•ÙˆÛ•',
+      'approve': 'Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø¯Ù†',
+      'markDelivered': 'Ú¯Û•ÛŒÛ•Ù†Ø±Ø§',
+      'printInvoice': 'Ù‡Û•Ù†Ø§Ø±Ø¯Û•Ú©Ø±Ø¯Ù†ÛŒ PDF',
+      'rejectOrderTitle': 'Ú•Û•ØªÚ©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒØŸ',
+      'rejectOrderMsg': 'Ø¦Û•Ù…Û• Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #{orderId} Ø¨Û† {client} Ù‡Û•ÚµØ¯Û•ÙˆÛ•Ø´ÛŽÙ†ÛŽØªÛ•ÙˆÛ•. Ø¦Û•Ù…Û• Ù†Ø§ØªÙˆØ§Ù†Ø±ÛŽØª Ø¨Ú¯Û•Ú•ÛŽÙ†Ø¯Ø±ÛŽØªÛ•ÙˆÛ•.',
+      'orderRejectedTitle': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ú•Û•ØªÚ©Ø±Ø§ÛŒÛ•ÙˆÛ•',
+      'orderRejectedMsg': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #{orderId} Ø¨Û† {client} Ú•Û•ØªÚ©Ø±Ø§ÛŒÛ•ÙˆÛ•.',
+      'orderRejectedInfo': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ú•Û•ØªÚ©Ø±Ø§ÛŒÛ•ÙˆÛ•',
+      'approveOrderTitle': 'Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø¯Ù†ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒØŸ',
+      'approveOrderMsg': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #{orderId} Ø¨Û† {client} Ù¾Û•Ø³Û•Ù†Ø¯ Ø¯Û•Ú©Û•ÛŒØªØŸ\n\nÚ©Ø§ÚµØ§ Ù„Û• Ú©Û†Ú¯Ø§ Ú©Û•Ù… Ø¯Û•Ú©Ø±ÛŽØªÛ•ÙˆÛ•.',
+      'orderApprovedTitle': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø§',
+      'orderApprovedMsg': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #{orderId} Ø¨Û† {client} Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø§. Ú©Ø§ÚµØ§ Ú©Û•Ù…Ú©Ø±Ø§ÛŒÛ•ÙˆÛ•.',
+      'orderApprovedSuccess': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø§!',
+      'markDeliveredTitle': 'ÙˆÛ•Ú© Ú¯Û•ÛŒÛ•Ù†Ø±Ø§Ùˆ Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•ØŸ',
+      'markDeliveredMsg': 'Ø¦Û•Ù…Û• Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #{orderId} ÙˆÛ•Ú© Ú¯Û•ÛŒÛ•Ù†Ø±Ø§Ùˆ Ø¯ÛŒØ§Ø±ÛŒ Ø¯Û•Ú©Ø§Øª Ùˆ Ø¨Ú•ÛŒ {amount} Ø¯Û•Ø®Ø§ØªÛ• Ø³Û•Ø± Ù‚Û•Ø±Ø²ÛŒ {client}.',
+      'orderDeliveredTitle': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ú¯Û•ÛŒÛ•Ù†Ø±Ø§',
+      'orderDeliveredMsg': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ #{orderId} Ú¯Û•ÛŒÛ•Ù†Ø±Ø§. Ù‚Û•Ø±Ø²ÛŒ Ú©Ú•ÛŒØ§Ø± Ù†ÙˆÛŽÚ©Ø±Ø§ÛŒÛ•ÙˆÛ•.',
+      'orderDeliveredSuccess': 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ ÙˆÛ•Ú© Ú¯Û•ÛŒÛ•Ù†Ø±Ø§Ùˆ Ø¯ÛŒØ§Ø±ÛŒÚ©Ø±Ø§!',
+      'errorGeneratingInvoice': 'Ù‡Û•ÚµÛ• Ù„Û• Ø¯Ø±ÙˆØ³ØªÚ©Ø±Ø¯Ù†ÛŒ Ù¾Ø³ÙˆÙˆÚµÛ•: {error}',
     },
     'ar': {
-      'incomingOrders': 'الطلبات الواردة',
-      'pendingTab': 'قيد الانتظار',
-      'pastOrdersTab': 'الطلبات السابقة',
-      'noActiveOrders': 'لا توجد طلبات قيد الانتظار.',
-      'noOrderHistory': 'لم يتم العثور على سجل طلبات.',
-      'loadingClient': 'جاري تحميل العميل...',
-      'orderNo': 'طلب #',
-      'noAddress': 'لا يوجد عنوان مسجل',
-      'orderedProducts': 'المنتجات المطلوبة:',
-      'unknownProduct': 'منتج غير معروف',
-      'reject': 'رفض',
-      'approve': 'موافقة',
-      'markDelivered': 'تم التوصيل',
-      'printInvoice': 'طباعة الفاتورة',
-      'rejectOrderTitle': 'رفض الطلب؟',
-      'rejectOrderMsg': 'سيؤدي هذا إلى إلغاء الطلب #{orderId} لـ {client}. لا يمكن التراجع عن هذا الإجراء.',
-      'orderRejectedTitle': 'تم رفض الطلب',
-      'orderRejectedMsg': 'تم رفض الطلب #{orderId} للعميل {client}.',
-      'orderRejectedInfo': 'تم رفض الطلب',
-      'approveOrderTitle': 'الموافقة على الطلب؟',
-      'approveOrderMsg': 'هل توافق على الطلب #{orderId} لـ {client}؟\n\nسيتم خصم المخزون من المستودع.',
-      'orderApprovedTitle': 'تمت الموافقة على الطلب',
-      'orderApprovedMsg': 'تمت الموافقة على الطلب #{orderId} لـ {client}. تم خصم المخزون.',
-      'orderApprovedSuccess': 'تمت الموافقة على الطلب!',
-      'markDeliveredTitle': 'تحديد كمسلم؟',
-      'markDeliveredMsg': 'سيؤدي هذا إلى تحديد الطلب #{orderId} كمسلم وإضافة {amount} إلى سجل ديون {client}.',
-      'orderDeliveredTitle': 'تم توصيل الطلب',
-      'orderDeliveredMsg': 'تم توصيل الطلب #{orderId}. تم تحديث سجل ديون العميل.',
-      'orderDeliveredSuccess': 'تم تحديد الطلب كمسلم!',
-      'errorGeneratingInvoice': 'خطأ في إنشاء الفاتورة: {error}',
+      'incomingOrders': 'Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„ÙˆØ§Ø±Ø¯Ø©',
+      'pendingTab': 'Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±',
+      'pastOrdersTab': 'Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø³Ø§Ø¨Ù‚Ø©',
+      'noActiveOrders': 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±.',
+      'noOrderHistory': 'Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø³Ø¬Ù„ Ø·Ù„Ø¨Ø§Øª.',
+      'loadingClient': 'Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¹Ù…ÙŠÙ„...',
+      'orderNo': 'Ø·Ù„Ø¨ #',
+      'noAddress': 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù†ÙˆØ§Ù† Ù…Ø³Ø¬Ù„',
+      'orderedProducts': 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©:',
+      'unknownProduct': 'Ù…Ù†ØªØ¬ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ',
+      'reject': 'Ø±ÙØ¶',
+      'approve': 'Ù…ÙˆØ§ÙÙ‚Ø©',
+      'markDelivered': 'ØªÙ… Ø§Ù„ØªÙˆØµÙŠÙ„',
+      'printInvoice': 'ØªØµØ¯ÙŠØ± PDF',
+      'rejectOrderTitle': 'Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨ØŸ',
+      'rejectOrderMsg': 'Ø³ÙŠØ¤Ø¯ÙŠ Ù‡Ø°Ø§ Ø¥Ù„Ù‰ Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø·Ù„Ø¨ #{orderId} Ù„Ù€ {client}. Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡.',
+      'orderRejectedTitle': 'ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨',
+      'orderRejectedMsg': 'ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨ #{orderId} Ù„Ù„Ø¹Ù…ÙŠÙ„ {client}.',
+      'orderRejectedInfo': 'ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨',
+      'approveOrderTitle': 'Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨ØŸ',
+      'approveOrderMsg': 'Ù‡Ù„ ØªÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨ #{orderId} Ù„Ù€ {client}ØŸ\n\nØ³ÙŠØªÙ… Ø®ØµÙ… Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ù…Ù† Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹.',
+      'orderApprovedTitle': 'ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨',
+      'orderApprovedMsg': 'ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨ #{orderId} Ù„Ù€ {client}. ØªÙ… Ø®ØµÙ… Ø§Ù„Ù…Ø®Ø²ÙˆÙ†.',
+      'orderApprovedSuccess': 'ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨!',
+      'markDeliveredTitle': 'ØªØ­Ø¯ÙŠØ¯ ÙƒÙ…Ø³Ù„Ù…ØŸ',
+      'markDeliveredMsg': 'Ø³ÙŠØ¤Ø¯ÙŠ Ù‡Ø°Ø§ Ø¥Ù„Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨ #{orderId} ÙƒÙ…Ø³Ù„Ù… ÙˆØ¥Ø¶Ø§ÙØ© {amount} Ø¥Ù„Ù‰ Ø³Ø¬Ù„ Ø¯ÙŠÙˆÙ† {client}.',
+      'orderDeliveredTitle': 'ØªÙ… ØªÙˆØµÙŠÙ„ Ø§Ù„Ø·Ù„Ø¨',
+      'orderDeliveredMsg': 'ØªÙ… ØªÙˆØµÙŠÙ„ Ø§Ù„Ø·Ù„Ø¨ #{orderId}. ØªÙ… ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„ Ø¯ÙŠÙˆÙ† Ø§Ù„Ø¹Ù…ÙŠÙ„.',
+      'orderDeliveredSuccess': 'ØªÙ… ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨ ÙƒÙ…Ø³Ù„Ù…!',
+      'errorGeneratingInvoice': 'Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ÙØ§ØªÙˆØ±Ø©: {error}',
     }
   };
 
@@ -147,7 +150,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
       stream: ordersStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CustomLoader());
         }
 
         if (snapshot.hasError) {
@@ -158,22 +161,39 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
         final pastOrders = allOrders.where((o) => o.status == OrderStatus.delivered.value || o.status == OrderStatus.cancelled.value).toList();
 
         if (widget.isEmbedded) {
-          return _buildOrdersList(context, ref, pastOrders, t('noOrderHistory'), t);
+          return _buildOrdersList(context, ref, pastOrders, t('noOrderHistory'), t, isPastOrdersTab: true);
         }
 
         final pendingOrders = allOrders.where((o) => o.status == OrderStatus.pending.value).toList();
 
         return TabBarView(
           children: [
-            _buildOrdersList(context, ref, pendingOrders, t('noActiveOrders'), t),
-            _buildOrdersList(context, ref, pastOrders, t('noOrderHistory'), t),
+            _buildOrdersList(context, ref, pendingOrders, t('noActiveOrders'), t, isPastOrdersTab: false),
+            _buildOrdersList(context, ref, pastOrders, t('noOrderHistory'), t, isPastOrdersTab: true),
           ],
         );
       },
     );
 
     if (widget.isEmbedded) {
-      return body;
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: body,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 96.0),
+          child: FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => const OrderReportDialog(),
+              );
+            },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            tooltip: t('printInvoice'),
+            child: const Icon(Icons.picture_as_pdf_rounded, color: Colors.white),
+          ),
+        ),
+      );
     }
 
     return DefaultTabController(
@@ -189,6 +209,17 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
           ),
         ),
         body: body,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => const OrderReportDialog(),
+            );
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          tooltip: t('printInvoice'),
+          child: const Icon(Icons.picture_as_pdf_rounded, color: Colors.white),
+        ),
       ),
     );
   }
@@ -198,18 +229,46 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
     WidgetRef ref,
     List<OrderEntity> orders,
     String emptyMessage,
-    String Function(String) t,
-  ) {
+    String Function(String) t, {
+    required bool isPastOrdersTab,
+  }) {
+    final langCode = ref.watch(localeProvider).languageCode;
+    final isKurdish = langCode == 'ku';
+    final isArabic = langCode == 'ar';
+
+    final reportButton = isPastOrdersTab
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: HeavyIOSButton(
+              label: isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ù¾Ø³ÙˆÙˆÚµÛ•Ú©Ø§Ù†' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„ÙÙˆØ§ØªÙŠØ±' : 'Invoices Report',
+              icon: Icons.picture_as_pdf_rounded,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const OrderReportDialog(),
+                );
+              },
+            ),
+          )
+        : const SizedBox.shrink();
+
     if (orders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey.shade400),
-            const SizedBox(height: 12),
-            Text(emptyMessage, style: TextStyle(color: Colors.grey.shade500)),
-          ],
-        ),
+      return Column(
+        children: [
+          reportButton,
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 12),
+                  Text(emptyMessage, style: TextStyle(color: Colors.grey.shade500)),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -219,7 +278,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
 
     return ListView.builder(
       itemCount: orders.length,
-      padding: EdgeInsets.only(top: 12, bottom: widget.isEmbedded ? 120 : 24),
+      padding: EdgeInsets.only(top: 4, bottom: widget.isEmbedded ? 120 : 100),
       itemBuilder: (context, index) {
         final order = orders[index];
 
@@ -250,7 +309,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 subtitle: Text(
-                  '${t('orderNo')}${order.orderNumber ?? "..."} • ${DateFormat('dd/MM/yyyy HH:mm').format(order.orderDate)}',
+                  '${t('orderNo')}${order.orderNumber ?? "..."} â€¢ ${DateFormat('dd/MM/yyyy HH:mm').format(order.orderDate)}',
                   style: const TextStyle(fontSize: 12),
                 ),
                 trailing: Column(
@@ -299,7 +358,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                           future: orderRepo.getOrderItems(order.id),
                           builder: (context, itemsSnapshot) {
                             if (itemsSnapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: LinearProgressIndicator());
+                              return const Center(child: CustomLoader());
                             }
                             final items = itemsSnapshot.data ?? [];
                             return Column(
@@ -314,7 +373,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            '$prodName x ${item.quantity.toInt()} ${prodSnapshot.data?.unitType ?? ""}',
+                                            '$prodName x ${item.quantity.toInt()} ${langCode == 'ku' ? ((prodSnapshot.data?.unitType ?? "") == 'bag' ? 'ÙÛ•Ø±Ø¯Û•' : (prodSnapshot.data?.unitType ?? "") == 'kg' ? 'Ú©ÛŒÙ„Û†Ú¯Ø±Ø§Ù…' : (prodSnapshot.data?.unitType ?? "") == 'ton' ? 'ØªÛ†Ù†' : (prodSnapshot.data?.unitType ?? "") == 'box' ? 'Ú©Ø§Ø±ØªÛ†Ù†' : (prodSnapshot.data?.unitType ?? "")) : langCode == 'ar' ? ((prodSnapshot.data?.unitType ?? "") == 'bag' ? 'ÙƒÙŠØ³' : (prodSnapshot.data?.unitType ?? "") == 'kg' ? 'ÙƒÙŠÙ„ÙˆØºØ±Ø§Ù…' : (prodSnapshot.data?.unitType ?? "") == 'ton' ? 'Ø·Ù†' : (prodSnapshot.data?.unitType ?? "") == 'box' ? 'ØµÙ†Ø¯ÙˆÙ‚' : (prodSnapshot.data?.unitType ?? "")) : (prodSnapshot.data?.unitType ?? "")}',
                                             style: const TextStyle(fontSize: 13),
                                           ),
                                           Text(
@@ -402,7 +461,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                             children: [
                               Expanded(
                                 child: OutlinedButton.icon(
-                                  icon: const Icon(Icons.print),
+                                  icon: const Icon(Icons.picture_as_pdf),
                                   onPressed: () => _printInvoice(context, ref, order, t),
                                   label: Text(t('printInvoice')),
                                 ),
@@ -415,9 +474,9 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                                   onPressed: () async {
                                     final confirmed = await AppFeedback.showConfirmDialog(
                                       context,
-                                      title: ref.read(localeProvider).languageCode == 'ku' ? 'سڕینەوەی داواکاری' : ref.read(localeProvider).languageCode == 'ar' ? 'حذف الطلب' : 'Delete Order',
-                                      message: ref.read(localeProvider).languageCode == 'ku' ? 'دڵنیایت دەتەوێت ئەم داواکارییە بسڕیتەوە؟' : ref.read(localeProvider).languageCode == 'ar' ? 'هل أنت متأكد أنك تريد حذف هذا الطلب تمامًا؟' : 'Are you sure you want to completely delete this order?',
-                                      confirmLabel: ref.read(localeProvider).languageCode == 'ku' ? 'سڕینەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'حذف' : 'Delete',
+                                      title: ref.read(localeProvider).languageCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ' : ref.read(localeProvider).languageCode == 'ar' ? 'Ø­Ø°Ù Ø§Ù„Ø·Ù„Ø¨' : 'Delete Order',
+                                      message: ref.read(localeProvider).languageCode == 'ku' ? 'Ø¯ÚµÙ†ÛŒØ§ÛŒØª Ø¯Û•ØªÛ•ÙˆÛŽØª Ø¦Û•Ù… Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ• Ø¨Ø³Ú•ÛŒØªÛ•ÙˆÛ•ØŸ' : ref.read(localeProvider).languageCode == 'ar' ? 'Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ø£Ù†Ùƒ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ø·Ù„Ø¨ ØªÙ…Ø§Ù…Ù‹Ø§ØŸ' : 'Are you sure you want to completely delete this order?',
+                                      confirmLabel: ref.read(localeProvider).languageCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•' : ref.read(localeProvider).languageCode == 'ar' ? 'Ø­Ø°Ù' : 'Delete',
                                       confirmColor: Colors.red,
                                       icon: Icons.warning,
                                     );
@@ -425,7 +484,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
                                       await orderRepo.deleteOrder(order.id);
                                     }
                                   },
-                                  label: Text(ref.read(localeProvider).languageCode == 'ku' ? 'سڕینەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'حذف' : 'Delete'),
+                                  label: Text(ref.read(localeProvider).languageCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•' : ref.read(localeProvider).languageCode == 'ar' ? 'Ø­Ø°Ù' : 'Delete'),
                                 ),
                               ),
                             ],
@@ -449,7 +508,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CustomLoader()),
     );
     
     try {
@@ -469,15 +528,18 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
       
       if (customer == null) throw Exception('Customer not found');
 
+      final currentLocale = ref.read(localeProvider);
       final pdfBytes = await PdfInvoiceService.generateInvoice(
         order: order,
         customer: customer,
         items: items,
         products: products,
+        isKurdish: currentLocale.languageCode == 'ku',
+        isArabic: currentLocale.languageCode == 'ar',
       );
 
       if (context.mounted) {
-        Navigator.of(context).push(
+        Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (_) => PdfPreviewScreen(
               title: 'Invoice_${order.id.substring(0, 8)}',
@@ -499,4 +561,5 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> {
 
   // Status helpers now live in OrderStatusUtils (core/utils/order_status_utils.dart)
 }
+
 

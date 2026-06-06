@@ -12,7 +12,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appName => 'ئارد';
 
   @override
-  String get appTagline => 'إدارة توزيع الطحين';
+  String get appTagline => 'نظام إدارة مبيعات وتوزيع الطحين';
 
   @override
   String get login => 'تسجيل الدخول';
@@ -33,10 +33,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get forgotPassword => 'نسيت كلمة المرور؟';
 
   @override
-  String get dashboard => 'لوحة التحكم';
+  String get dashboard => 'الرئيسية';
 
   @override
-  String get inventory => 'المخزون';
+  String get inventory => 'المخزن';
 
   @override
   String get sales => 'المبيعات';
@@ -45,10 +45,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get purchases => 'المشتريات';
 
   @override
-  String get customers => 'العملاء';
+  String get customers => 'الزبائن';
 
   @override
-  String get invoices => 'الفواتير';
+  String get invoices => 'الوصولات';
 
   @override
   String get reports => 'التقارير';
@@ -57,58 +57,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settings => 'الإعدادات';
 
   @override
-  String get totalInventory => 'إجمالي المخزون';
+  String get totalInventory => 'إجمالي المخزن';
 
   @override
   String get todaySales => 'مبيعات اليوم';
 
   @override
-  String get monthlyProfit => 'الربح الشهري';
+  String get monthlyProfit => 'أرباح الشهر';
 
   @override
-  String get pendingDebts => 'الديون المعلّقة';
+  String get pendingDebts => 'إجمالي الديون';
 
   @override
-  String get lowStockAlerts => 'تنبيهات انخفاض المخزون';
+  String get lowStockAlerts => 'نواقص المخزن';
 
   @override
-  String get recentTransactions => 'المعاملات الأخيرة';
+  String get recentTransactions => 'آخر الحركات';
 
   @override
   String get bestSellingFlour => 'الطحين الأكثر مبيعاً';
 
   @override
-  String get addProduct => 'إضافة منتج';
+  String get addProduct => 'إضافة مادة';
 
   @override
-  String get editProduct => 'تعديل المنتج';
+  String get editProduct => 'تعديل المادة';
 
   @override
-  String get deleteProduct => 'حذف المنتج';
+  String get deleteProduct => 'حذف المادة';
 
   @override
-  String get productName => 'اسم المنتج';
+  String get productName => 'اسم المادة';
 
   @override
   String get flourType => 'نوع الطحين';
 
   @override
-  String get brand => 'العلامة التجارية';
+  String get brand => 'الماركة';
 
   @override
-  String get stockQuantity => 'الكمية المتوفرة';
+  String get stockQuantity => 'المتوفر في المخزن';
 
   @override
-  String get unitType => 'نوع الوحدة';
+  String get unitType => 'الوحدة';
 
   @override
-  String get buyPrice => 'سعر الشراء';
+  String get buyPrice => 'سعر الشراء (الكلفة)';
 
   @override
   String get sellPrice => 'سعر البيع';
 
   @override
-  String get minimumStock => 'الحد الأدنى للمخزون';
+  String get minimumStock => 'حد التنبيه للنواقص';
 
   @override
   String get barcode => 'الباركود';
@@ -126,109 +126,109 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pieces => 'قطعة';
 
   @override
-  String get searchInventory => 'البحث في المخزون';
+  String get searchInventory => 'البحث في المخزن...';
 
   @override
-  String get filterBy => 'تصفية حسب';
+  String get filterBy => 'تصفية';
 
   @override
-  String get sortBy => 'ترتيب حسب';
+  String get sortBy => 'ترتيب';
 
   @override
-  String get lowStock => 'مخزون منخفض';
+  String get lowStock => 'كمية قليلة';
 
   @override
   String get inStock => 'متوفر';
 
   @override
-  String get outOfStock => 'غير متوفر';
+  String get outOfStock => 'نفد من المخزن';
 
   @override
-  String get addCustomer => 'إضافة عميل';
+  String get addCustomer => 'زبون جديد';
 
   @override
-  String get editCustomer => 'تعديل العميل';
+  String get editCustomer => 'تعديل بيانات الزبون';
 
   @override
-  String get customerName => 'اسم العميل';
+  String get customerName => 'اسم الزبون';
 
   @override
-  String get bakeryName => 'اسم المخبز';
+  String get bakeryName => 'اسم المخبز / الفرن';
 
   @override
-  String get phone => 'الهاتف';
+  String get phone => 'رقم الهاتف';
 
   @override
   String get address => 'العنوان';
 
   @override
-  String get currentDebt => 'الدين الحالي';
+  String get currentDebt => 'مجموع الديون';
 
   @override
-  String get paymentHistory => 'سجل المدفوعات';
+  String get paymentHistory => 'سجل الدفعات (الواصل)';
 
   @override
-  String get purchaseHistory => 'سجل المشتريات';
+  String get purchaseHistory => 'سجل مشتريات الزبون';
 
   @override
-  String get customerNotes => 'ملاحظات العميل';
+  String get customerNotes => 'ملاحظات';
 
   @override
-  String get createSale => 'إنشاء عملية بيع';
+  String get createSale => 'تسجيل مبيعات';
 
   @override
   String get salesHistory => 'سجل المبيعات';
 
   @override
-  String get saleDetails => 'تفاصيل البيع';
+  String get saleDetails => 'تفاصيل الوصل';
 
   @override
-  String get selectCustomer => 'اختر العميل';
+  String get selectCustomer => 'اختر الزبون...';
 
   @override
-  String get selectProduct => 'اختر المنتج';
+  String get selectProduct => 'اختر المادة...';
 
   @override
   String get quantity => 'الكمية';
 
   @override
-  String get unitPrice => 'سعر الوحدة';
+  String get unitPrice => 'سعر المفرد';
 
   @override
-  String get totalPrice => 'السعر الإجمالي';
+  String get totalPrice => 'المجموع';
 
   @override
-  String get subtotal => 'المجموع الفرعي';
+  String get subtotal => 'المجموع قبل الخصم';
 
   @override
-  String get discount => 'الخصم';
+  String get discount => 'الخصم (الخصميات)';
 
   @override
-  String get totalAmount => 'المبلغ الإجمالي';
+  String get totalAmount => 'المبلغ النهائي';
 
   @override
-  String get paidAmount => 'المبلغ المدفوع';
+  String get paidAmount => 'المبلغ المدفوع (الواصل)';
 
   @override
-  String get remainingDebt => 'الدين المتبقي';
+  String get remainingDebt => 'المتبقي (الديون)';
 
   @override
-  String get paymentStatus => 'حالة الدفع';
+  String get paymentStatus => 'حالة الوصل';
 
   @override
-  String get paid => 'مدفوع';
+  String get paid => 'مسدد (صافي)';
 
   @override
-  String get partial => 'مدفوع جزئياً';
+  String get partial => 'مسدد جزئياً';
 
   @override
-  String get unpaid => 'غير مدفوع';
+  String get unpaid => 'آجل (دين)';
 
   @override
-  String get addPayment => 'إضافة دفعة';
+  String get addPayment => 'استلام مبلغ (واصل)';
 
   @override
-  String get recordPayment => 'تسجيل دفعة';
+  String get recordPayment => 'تسجيل الدفعة';
 
   @override
   String get paymentMethod => 'طريقة الدفع';
@@ -237,46 +237,46 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cash => 'نقداً';
 
   @override
-  String get transfer => 'حوالة مصرفية';
+  String get transfer => 'حوالة';
 
   @override
   String get check => 'صك';
 
   @override
-  String get createPurchase => 'إنشاء عملية شراء';
+  String get createPurchase => 'شراء جديد';
 
   @override
-  String get supplierName => 'اسم المورّد';
+  String get supplierName => 'اسم الشركة (المورّد)';
 
   @override
-  String get transportCost => 'تكلفة النقل';
+  String get transportCost => 'أجور النقل';
 
   @override
   String get purchaseDate => 'تاريخ الشراء';
 
   @override
-  String get invoiceNumber => 'رقم الفاتورة';
+  String get invoiceNumber => 'رقم الوصل';
 
   @override
-  String get generateInvoice => 'إنشاء فاتورة';
+  String get generateInvoice => 'إصدار الوصل';
 
   @override
-  String get printInvoice => 'طباعة الفاتورة';
+  String get printInvoice => 'طباعة الوصل';
 
   @override
-  String get shareInvoice => 'مشاركة الفاتورة';
+  String get shareInvoice => 'إرسال الوصل';
 
   @override
   String get downloadPdf => 'تحميل PDF';
 
   @override
-  String get businessName => 'اسم المؤسسة';
+  String get businessName => 'اسم العمل';
 
   @override
-  String get businessAddress => 'عنوان المؤسسة';
+  String get businessAddress => 'عنوان العمل';
 
   @override
-  String get businessPhone => 'هاتف المؤسسة';
+  String get businessPhone => 'رقم هاتف العمل';
 
   @override
   String get dailyReport => 'التقرير اليومي';
@@ -291,7 +291,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profitLoss => 'الأرباح والخسائر';
 
   @override
-  String get inventoryReport => 'تقرير المخزون';
+  String get inventoryReport => 'تقرير المخزن';
 
   @override
   String get salesReport => 'تقرير المبيعات';
@@ -300,31 +300,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get debtReport => 'تقرير الديون';
 
   @override
-  String get exportPdf => 'تصدير PDF';
+  String get exportPdf => 'تصدير كـ PDF';
 
   @override
-  String get exportExcel => 'تصدير Excel';
+  String get exportExcel => 'تصدير كـ Excel';
 
   @override
   String get syncStatus => 'حالة المزامنة';
 
   @override
-  String get synced => 'تمت المزامنة';
+  String get synced => 'متزامن (مرفوع للسحابة)';
 
   @override
-  String get pendingSyncLabel => 'بانتظار المزامنة';
+  String get pendingSyncLabel => 'بانتظار الإنترنت...';
 
   @override
-  String get syncing => 'جارٍ المزامنة...';
+  String get syncing => 'جاري الرفع...';
 
   @override
-  String get syncFailed => 'فشلت المزامنة';
+  String get syncFailed => 'فشل الرفع';
 
   @override
-  String get online => 'متصل';
+  String get online => 'متصل بالإنترنت';
 
   @override
-  String get offline => 'غير متصل';
+  String get offline => 'لا يوجد إنترنت';
 
   @override
   String get lastSynced => 'آخر مزامنة';
@@ -333,10 +333,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncNow => 'مزامنة الآن';
 
   @override
-  String get lightMode => 'الوضع الفاتح';
+  String get lightMode => 'الوضع النهاري';
 
   @override
-  String get darkMode => 'الوضع الداكن';
+  String get darkMode => 'الوضع الليلي';
 
   @override
   String get language => 'اللغة';
@@ -345,7 +345,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get currency => 'العملة';
 
   @override
-  String get employees => 'الموظفون';
+  String get employees => 'الموظفين';
 
   @override
   String get addEmployee => 'إضافة موظف';
@@ -354,10 +354,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editEmployee => 'تعديل الموظف';
 
   @override
-  String get role => 'الصلاحية';
+  String get role => 'المنصب';
 
   @override
-  String get admin => 'مدير';
+  String get admin => 'المدير';
 
   @override
   String get employee => 'موظف';
@@ -366,16 +366,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get activityLog => 'سجل النشاطات';
 
   @override
-  String get backup => 'نسخ احتياطي';
+  String get backup => 'نسخة احتياطية';
 
   @override
-  String get restore => 'استعادة';
+  String get restore => 'استعادة البيانات';
 
   @override
-  String get confirm => 'تأكيد';
+  String get confirm => 'نعم';
 
   @override
-  String get cancel => 'إلغاء';
+  String get cancel => 'تراجع';
 
   @override
   String get save => 'حفظ';
@@ -390,7 +390,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get add => 'إضافة';
 
   @override
-  String get search => 'بحث';
+  String get search => 'بحث...';
 
   @override
   String get filter => 'تصفية';
@@ -402,13 +402,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noData => 'لا توجد بيانات';
 
   @override
-  String get loading => 'جارٍ التحميل...';
+  String get loading => 'يرجى الانتظار...';
 
   @override
-  String get error => 'حدث خطأ';
+  String get error => 'حدثت مشكلة';
 
   @override
-  String get retry => 'إعادة المحاولة';
+  String get retry => 'حاول مرة أخرى';
 
   @override
   String get success => 'تمت العملية بنجاح';
@@ -417,22 +417,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get areYouSure => 'هل أنت متأكد؟';
 
   @override
-  String get deleteConfirmation => 'سيتم حذف هذا العنصر نهائياً.';
+  String get deleteConfirmation =>
+      'سيتم حذف هذه البيانات نهائياً ولا يمكن استرجاعها.';
 
   @override
-  String get cannotUndo => 'لا يمكن التراجع عن هذا الإجراء.';
+  String get cannotUndo => 'لا يمكن التراجع عن هذه الخطوة.';
 
   @override
-  String get notes => 'ملاحظات';
+  String get notes => 'ملاحظة';
 
   @override
   String get date => 'التاريخ';
 
   @override
-  String get createdAt => 'تاريخ الإنشاء';
+  String get createdAt => 'تاريخ التسجيل';
 
   @override
-  String get updatedAt => 'تاريخ التحديث';
+  String get updatedAt => 'آخر تحديث';
 
   @override
   String get total => 'الإجمالي';
@@ -462,10 +463,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get thisYear => 'هذه السنة';
 
   @override
-  String get custom => 'مخصص';
+  String get custom => 'تاريخ مخصص';
 
   @override
-  String get dateRange => 'النطاق الزمني';
+  String get dateRange => 'الفترة الزمنية';
 
   @override
   String get all => 'الكل';
@@ -474,52 +475,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get active => 'نشط';
 
   @override
-  String get inactive => 'غير نشط';
+  String get inactive => 'متوقف';
 
   @override
-  String get welcome => 'مرحباً';
+  String get welcome => 'أهلاً بك';
 
   @override
-  String get welcomeBack => 'مرحباً بعودتك';
+  String get welcomeBack => 'أهلاً بك مجدداً';
 
   @override
   String lowStockWarning(String productName, int quantity) {
-    return '$productName على وشك النفاد ($quantity متبقي)';
+    return '$productName قارب على النفاد ($quantity متبقي)';
   }
 
   @override
   String debtReminder(String customerName, String amount) {
-    return '$customerName لديه دين مستحق بقيمة $amount';
+    return 'إجمالي ديون $customerName هو $amount';
   }
 
   @override
   String saleCreated(String invoiceNumber) {
-    return 'تم إنشاء عملية البيع رقم #$invoiceNumber بنجاح';
+    return 'تم إنشاء الوصل رقم #$invoiceNumber بنجاح';
   }
 
   @override
   String paymentRecorded(String amount) {
-    return 'تم تسجيل دفعة بقيمة $amount';
+    return 'تم استلام مبلغ $amount';
   }
 
   @override
   String productAdded(String productName) {
-    return 'تمت إضافة $productName إلى المخزون';
+    return 'تمت إضافة $productName إلى المخزن';
   }
 
   @override
-  String get syncComplete => 'تمت مزامنة جميع البيانات بنجاح';
+  String get syncComplete => 'تم رفع جميع البيانات للسحابة بنجاح';
 
   @override
   String syncPending(int count) {
-    return '$count عناصر بانتظار المزامنة';
+    return '$count حركات بانتظار توفر الإنترنت';
   }
 
   @override
-  String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
+  String get noInternetConnection => 'أنت غير متصل بالإنترنت';
 
   @override
-  String get currencySymbol => 'د.ع';
+  String get currencySymbol => 'دينار';
 
   @override
   String get iraqiDinar => 'الدينار العراقي';

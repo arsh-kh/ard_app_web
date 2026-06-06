@@ -190,6 +190,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onTap: () => context.push(Routes.auditLogs),
                           ),
                           _buildDivider(theme),
+                          _buildSettingsRow(
+                            icon: Icons.group_rounded,
+                            iconBg: Colors.deepPurple,
+                            iconFg: Colors.white,
+                            title: langCode == 'ku' ? 'بەڕێوەبردنی بەکارهێنەران' : langCode == 'ar' ? 'إدارة المستخدمين' : 'Manage Users',
+                            subtitle: '',
+                            theme: theme,
+                            onTap: () => context.push(Routes.adminUsers),
+                          ),
+                          _buildDivider(theme),
                         ],
                         _buildSettingsRow(
                           icon: Icons.notifications_rounded,

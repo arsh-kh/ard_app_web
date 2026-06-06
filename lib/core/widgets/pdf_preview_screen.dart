@@ -26,7 +26,10 @@ class PdfPreviewScreen extends StatelessWidget {
         canChangeOrientation: false,
         canChangePageFormat: false,
         initialPageFormat: PdfPageFormat.a4,
-        pdfFileName: '$title.pdf',
+        // Extremely critical: We must use strict ASCII characters for the filename.
+        // Android/iOS file systems often crash when the printing package tries to save
+        // a file containing Arabic/Kurdish characters like 'ڕاپۆرتی مانگانە.pdf'.
+        pdfFileName: 'ard_document_${DateTime.now().millisecondsSinceEpoch}.pdf',
       ),
     );
   }

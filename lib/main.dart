@@ -12,11 +12,18 @@ import 'l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'core/providers/theme_provider.dart';
-import 'core/providers/customer_providers.dart';
-import 'core/constants/app_constants.dart';
 import 'firebase_options.dart';
 
 // Removed Background Worker as app is now fully online via Firebase Firestore natively
+
+class AppScrollBehavior extends ScrollBehavior {
+  const AppScrollBehavior();
+  
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,8 +73,8 @@ class _ArdAppState extends ConsumerState<ArdApp> {
       // Drift queries are sequential — flooding the queue at startup blocks auth.
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
-          ref.read(customerRepositoryProvider).ensureWalkInCustomerExists();
-          ref.read(customerRepositoryProvider).ensureWalkInCustomerExists();
+          FirebaseFirestore.instance.collection('customers').doc('walk-in').delete();
+          FirebaseFirestore.instance.collection('customers').doc('walk-in-customer-id').delete();
         }
       });
     });
@@ -97,6 +104,7 @@ class _ArdAppState extends ConsumerState<ArdApp> {
         ...AppLocalizations.localizationsDelegates,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      scrollBehavior: const AppScrollBehavior(),
       routerConfig: router,
     );
   }

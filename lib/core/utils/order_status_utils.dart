@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/app_constants.dart';
 
 /// Shared utility for order status colors, icons, and badges.
 /// Eliminates duplication across admin_orders_screen and customer_detail_screen.
@@ -37,6 +38,23 @@ class OrderStatusUtils {
 
   static Widget buildStatusBadge(String status) {
     final color = getStatusColor(status);
+    
+    bool isArabic = AppConstants.currencySymbol == 'د.ع';
+    bool isKurdish = AppConstants.currencySymbol == 'دینار';
+    
+    String displayStatus = status.toUpperCase();
+    if (isKurdish) {
+      if (status == 'pending') { displayStatus = 'چاوەڕێکراو'; }
+      else if (status == 'approved') { displayStatus = 'پەسەندکراو'; }
+      else if (status == 'delivered') { displayStatus = 'گەیەنراو'; }
+      else if (status == 'cancelled') { displayStatus = 'هەڵوەشاوە'; }
+    } else if (isArabic) {
+      if (status == 'pending') { displayStatus = 'قيد الانتظار'; }
+      else if (status == 'approved') { displayStatus = 'موافق عليه'; }
+      else if (status == 'delivered') { displayStatus = 'تم التوصيل'; }
+      else if (status == 'cancelled') { displayStatus = 'ملغى'; }
+    }
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -45,8 +63,8 @@ class OrderStatusUtils {
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
-        status.toUpperCase(),
-        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
+        displayStatus,
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }

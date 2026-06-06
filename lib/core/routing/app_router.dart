@@ -13,9 +13,12 @@ import '../../features/dashboard/main_shell_layout.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/settings/edit_profile_screen.dart';
 import '../../features/settings/notifications_screen.dart';
+
 import '../../features/auth/login_screen.dart';
+import '../../features/auth/pending_approval_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
 import '../../features/dashboard/audit_log_screen.dart';
+import '../../features/settings/admin_users_screen.dart';
 import '../../data/models/product_entity.dart';
 import '../../data/models/customer_entity.dart';
 import '../../core/providers/auth_provider.dart';
@@ -31,17 +34,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: authListenable,
     redirect: (context, state) {
       final auth = authListenable.value;
-      // Still loading — show splash
       if (auth.isLoading) return Routes.splash;
       
       final isOnLogin = state.matchedLocation == Routes.login;
       final isOnSplash = state.matchedLocation == Routes.splash;
+      final isOnPending = state.matchedLocation == Routes.pendingApproval;
       
       if (!auth.isLoggedIn && !isOnLogin) return Routes.login;
       
-      // If logged in and currently on the login or splash screen, go to dashboard
-      if (auth.isLoggedIn && (isOnLogin || isOnSplash)) return Routes.adminDashboard;
-      
+      if (auth.isLoggedIn) {
+        if (auth.user?.status == 'pending') {
+          if (!isOnPending) return Routes.pendingApproval;
+          return null;
+        }
+
+        if (auth.user?.status == 'banned') {
+          Future.microtask(() => ref.read(authProvider.notifier).logout());
+          return Routes.login;
+        }
+
+        if (isOnLogin || isOnSplash || isOnPending) {
+          return Routes.adminDashboard;
+        }
+      }
       return null;
     },
     routes: [
@@ -52,6 +67,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.pendingApproval,
+        builder: (context, state) => const PendingApprovalScreen(),
       ),
       StatefulShellRoute(
         branches: [
@@ -113,6 +132,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.auditLogs,
         builder: (context, state) => const AuditLogScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminUsers,
+        builder: (context, state) => const AdminUsersScreen(),
       ),
 
       GoRoute(
@@ -177,19 +200,22 @@ class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> {
   void didUpdateWidget(covariant AnimatedBranchContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.navigationShell.currentIndex != widget.navigationShell.currentIndex) {
-      // Sync PageController with BottomNav taps
-      _isNavigatingFromBottomBar = true;
-      _pageController.animateToPage(
-        widget.navigationShell.currentIndex,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-      ).then((_) {
-        if (mounted) {
-          setState(() {
-            _isNavigatingFromBottomBar = false;
-          });
-        }
-      });
+      // Only animate if the PageController is not already on that page (avoids snapping during swipes)
+      if (_pageController.page?.round() != widget.navigationShell.currentIndex) {
+        // Sync PageController with BottomNav taps
+        _isNavigatingFromBottomBar = true;
+        _pageController.animateToPage(
+          widget.navigationShell.currentIndex,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutExpo,
+        ).then((_) {
+          if (mounted) {
+            setState(() {
+              _isNavigatingFromBottomBar = false;
+            });
+          }
+        });
+      }
     }
   }
 

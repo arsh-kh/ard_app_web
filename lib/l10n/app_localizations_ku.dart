@@ -12,7 +12,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get appName => 'ئارد';
 
   @override
-  String get appTagline => 'بەڕێوەبردنی فرۆشتن و دابەشکردنی ئارد';
+  String get appTagline => 'سیستەمی بەڕێوەبردنی ئارد';
 
   @override
   String get login => 'چوونەژوورەوە';
@@ -45,10 +45,10 @@ class AppLocalizationsKu extends AppLocalizations {
   String get purchases => 'کڕین';
 
   @override
-  String get customers => 'کڕیارەکان';
+  String get customers => 'موشتەرییەکان';
 
   @override
-  String get invoices => 'پسووڵەکان';
+  String get invoices => 'وەسڵەکان';
 
   @override
   String get reports => 'ڕاپۆرتەکان';
@@ -66,49 +66,49 @@ class AppLocalizationsKu extends AppLocalizations {
   String get monthlyProfit => 'قازانجی مانگانە';
 
   @override
-  String get pendingDebts => 'قەرزە ماوەکان';
+  String get pendingDebts => 'کۆی قەرزەکان';
 
   @override
-  String get lowStockAlerts => 'ئاگاداریی کەمبوونەوەی کاڵاکان';
+  String get lowStockAlerts => 'کاڵا کەمبووەکان';
 
   @override
-  String get recentTransactions => 'دوایین مامەڵەکان';
+  String get recentTransactions => 'جوڵەکانی ئەم دواییە';
 
   @override
-  String get bestSellingFlour => 'پڕفرۆشترین جۆری ئارد';
+  String get bestSellingFlour => 'باشترین جۆری ئارد';
 
   @override
-  String get addProduct => 'زیادکردنی بەرهەم';
+  String get addProduct => 'زیادکردنی کاڵا';
 
   @override
-  String get editProduct => 'دەستکاریکردنی بەرهەم';
+  String get editProduct => 'دەستکاریکردنی کاڵا';
 
   @override
-  String get deleteProduct => 'سڕینەوەی بەرهەم';
+  String get deleteProduct => 'سڕینەوەی کاڵا';
 
   @override
-  String get productName => 'ناوی بەرهەم';
+  String get productName => 'ناوی کاڵا';
 
   @override
   String get flourType => 'جۆری ئارد';
 
   @override
-  String get brand => 'براند';
+  String get brand => 'مارکە';
 
   @override
-  String get stockQuantity => 'بڕی بەردەست لە کۆگا';
+  String get stockQuantity => 'ماوە لە کۆگا';
 
   @override
-  String get unitType => 'جۆری یەکە';
+  String get unitType => 'یەکە';
 
   @override
-  String get buyPrice => 'نرخی کڕین';
+  String get buyPrice => 'نرخی کڕین (تێچوو)';
 
   @override
   String get sellPrice => 'نرخی فرۆشتن';
 
   @override
-  String get minimumStock => 'کەمترین بڕی پێویست';
+  String get minimumStock => 'کەمترین بڕی ئاگادارکردنەوە';
 
   @override
   String get barcode => 'بارکۆد';
@@ -126,34 +126,34 @@ class AppLocalizationsKu extends AppLocalizations {
   String get pieces => 'دانە';
 
   @override
-  String get searchInventory => 'گەڕان لە کۆگا';
+  String get searchInventory => 'گەڕان لە کۆگا...';
 
   @override
-  String get filterBy => 'فلتەرکردن بەپێی';
+  String get filterBy => 'فلتەر';
 
   @override
-  String get sortBy => 'ڕیزکردن بەپێی';
+  String get sortBy => 'ڕیزکردن';
 
   @override
-  String get lowStock => 'کۆگا کەمە';
+  String get lowStock => 'بڕی کەم ماوە';
 
   @override
   String get inStock => 'بەردەستە';
 
   @override
-  String get outOfStock => 'لە کۆگا نەماوە';
+  String get outOfStock => 'تەواو بووە';
 
   @override
-  String get addCustomer => 'زیادکردنی کڕیار';
+  String get addCustomer => 'موشتەری نوێ';
 
   @override
-  String get editCustomer => 'دەستکاریکردنی کڕیار';
+  String get editCustomer => 'دەستکاریکردنی موشتەری';
 
   @override
-  String get customerName => 'ناوی کڕیار';
+  String get customerName => 'ناوی موشتەری';
 
   @override
-  String get bakeryName => 'ناوی نانەواخانە';
+  String get bakeryName => 'ناوی فڕن';
 
   @override
   String get phone => 'ژمارەی مۆبایل';
@@ -162,31 +162,31 @@ class AppLocalizationsKu extends AppLocalizations {
   String get address => 'ناونیشان';
 
   @override
-  String get currentDebt => 'قەرزی ئێستا';
+  String get currentDebt => 'کۆی قەرز';
 
   @override
   String get paymentHistory => 'مێژووی پارەدان';
 
   @override
-  String get purchaseHistory => 'مێژووی کڕین';
+  String get purchaseHistory => 'مێژووی کڕینەکانی موشتەری';
 
   @override
-  String get customerNotes => 'تێبینییەکانی کڕیار';
+  String get customerNotes => 'تێبینییەکان';
 
   @override
   String get createSale => 'تۆمارکردنی فرۆشتن';
 
   @override
-  String get salesHistory => 'مێژووی فرۆشتن';
+  String get salesHistory => 'مێژووی فرۆشتنەکان';
 
   @override
-  String get saleDetails => 'وردەکاری فرۆشتن';
+  String get saleDetails => 'وردەکاری وەسڵ';
 
   @override
-  String get selectCustomer => 'کڕیار هەڵبژێرە';
+  String get selectCustomer => 'موشتەری هەڵبژێرە...';
 
   @override
-  String get selectProduct => 'بەرهەم هەڵبژێرە';
+  String get selectProduct => 'کاڵا هەڵبژێرە...';
 
   @override
   String get quantity => 'بڕ';
@@ -195,19 +195,19 @@ class AppLocalizationsKu extends AppLocalizations {
   String get unitPrice => 'نرخی تاک';
 
   @override
-  String get totalPrice => 'نرخی کۆی گشتی';
+  String get totalPrice => 'کۆی گشتی';
 
   @override
   String get subtotal => 'کۆی پێش داشکاندن';
 
   @override
-  String get discount => 'داشکاندن';
+  String get discount => 'داشکاندن (بەخشش)';
 
   @override
-  String get totalAmount => 'کۆی گشتی';
+  String get totalAmount => 'کۆی کۆتایی';
 
   @override
-  String get paidAmount => 'بڕی دراو';
+  String get paidAmount => 'بڕی دراو (واصل)';
 
   @override
   String get remainingDebt => 'قەرزی ماوە';
@@ -216,16 +216,16 @@ class AppLocalizationsKu extends AppLocalizations {
   String get paymentStatus => 'دۆخی پارەدان';
 
   @override
-  String get paid => 'دراوە';
+  String get paid => 'پاکتاوکراو';
 
   @override
   String get partial => 'بەشێکی دراوە';
 
   @override
-  String get unpaid => 'نەدراوە';
+  String get unpaid => 'قەرز';
 
   @override
-  String get addPayment => 'تۆمارکردنی پارەدان';
+  String get addPayment => 'وەرگرتنی پارە (واصل)';
 
   @override
   String get recordPayment => 'تۆمارکردنی پارەدان';
@@ -237,16 +237,16 @@ class AppLocalizationsKu extends AppLocalizations {
   String get cash => 'کاش';
 
   @override
-  String get transfer => 'گواستنەوەی بانکی';
+  String get transfer => 'حەواڵە';
 
   @override
   String get check => 'چەک';
 
   @override
-  String get createPurchase => 'تۆمارکردنی کڕین';
+  String get createPurchase => 'کڕینی نوێ';
 
   @override
-  String get supplierName => 'ناوی دابینکەر';
+  String get supplierName => 'ناوی کۆمپانیا (دابینکەر)';
 
   @override
   String get transportCost => 'کرێی گواستنەوە';
@@ -255,28 +255,28 @@ class AppLocalizationsKu extends AppLocalizations {
   String get purchaseDate => 'بەرواری کڕین';
 
   @override
-  String get invoiceNumber => 'ژمارەی پسووڵە';
+  String get invoiceNumber => 'ژمارەی وەسڵ';
 
   @override
-  String get generateInvoice => 'دەرکردنی پسووڵە';
+  String get generateInvoice => 'دەرکردنی وەسڵ';
 
   @override
-  String get printInvoice => 'چاپکردنی پسووڵە';
+  String get printInvoice => 'چاپکردنی وەسڵ';
 
   @override
-  String get shareInvoice => 'هاوبەشکردنی پسووڵە';
+  String get shareInvoice => 'ناردنی وەسڵ';
 
   @override
-  String get downloadPdf => 'داگرتنی PDF';
+  String get downloadPdf => 'داگرتن بە PDF';
 
   @override
-  String get businessName => 'ناوی بازرگانی';
+  String get businessName => 'ناوی کار';
 
   @override
-  String get businessAddress => 'ناونیشانی بازرگانی';
+  String get businessAddress => 'ناونیشانی کار';
 
   @override
-  String get businessPhone => 'ژمارەی تەلەفۆن';
+  String get businessPhone => 'ژمارەی کار';
 
   @override
   String get dailyReport => 'ڕاپۆرتی ڕۆژانە';
@@ -294,31 +294,31 @@ class AppLocalizationsKu extends AppLocalizations {
   String get inventoryReport => 'ڕاپۆرتی کۆگا';
 
   @override
-  String get salesReport => 'ڕاپۆرتی فرۆشتن';
+  String get salesReport => 'ڕاپۆرتی فرۆشتنەکان';
 
   @override
-  String get debtReport => 'ڕاپۆرتی قەرز';
+  String get debtReport => 'ڕاپۆرتی قەرزەکان';
 
   @override
-  String get exportPdf => 'هەناردەکردنی PDF';
+  String get exportPdf => 'دەرکردن بە PDF';
 
   @override
-  String get exportExcel => 'هەناردەکردنی Excel';
+  String get exportExcel => 'دەرکردن بە Excel';
 
   @override
   String get syncStatus => 'دۆخی هاوکاتکردن';
 
   @override
-  String get synced => 'هاوکات کراوە';
+  String get synced => 'تەواو بووە';
 
   @override
-  String get pendingSyncLabel => 'چاوەڕوانی هاوکاتکردن';
+  String get pendingSyncLabel => 'چاوەڕێی ئینتەرنێت...';
 
   @override
-  String get syncing => 'لە هاوکاتکردندایە...';
+  String get syncing => 'لە ناردندایە...';
 
   @override
-  String get syncFailed => 'هاوکاتکردن سەرنەکەوت';
+  String get syncFailed => 'سەرنەکەوت';
 
   @override
   String get online => 'سەرهێڵ';
@@ -327,10 +327,10 @@ class AppLocalizationsKu extends AppLocalizations {
   String get offline => 'دەرهێڵ';
 
   @override
-  String get lastSynced => 'دوایین هاوکاتکردن';
+  String get lastSynced => 'دوایین ناردن';
 
   @override
-  String get syncNow => 'هاوکاتکردنی ئێستا';
+  String get syncNow => 'ناردنی ئێستا';
 
   @override
   String get lightMode => 'دۆخی ڕووناک';
@@ -354,7 +354,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get editEmployee => 'دەستکاریکردنی کارمەند';
 
   @override
-  String get role => 'ڕۆڵ';
+  String get role => 'پلە';
 
   @override
   String get admin => 'بەڕێوەبەر';
@@ -372,10 +372,10 @@ class AppLocalizationsKu extends AppLocalizations {
   String get restore => 'گەڕاندنەوە';
 
   @override
-  String get confirm => 'دڵنیاکردنەوە';
+  String get confirm => 'بەڵێ';
 
   @override
-  String get cancel => 'هەڵوەشاندنەوە';
+  String get cancel => 'پاشگەزبوونەوە';
 
   @override
   String get save => 'پاشەکەوتکردن';
@@ -390,7 +390,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get add => 'زیادکردن';
 
   @override
-  String get search => 'گەڕان';
+  String get search => 'گەڕان...';
 
   @override
   String get filter => 'فلتەر';
@@ -399,13 +399,13 @@ class AppLocalizationsKu extends AppLocalizations {
   String get clear => 'پاککردنەوە';
 
   @override
-  String get noData => 'هیچ داتایەک نییە';
+  String get noData => 'هیچ زانیارییەک نییە';
 
   @override
   String get loading => 'چاوەڕوان بە...';
 
   @override
-  String get error => 'هەڵەیەک ڕوویدا';
+  String get error => 'کێشەیەک هەیە';
 
   @override
   String get retry => 'هەوڵبدەرەوە';
@@ -417,22 +417,23 @@ class AppLocalizationsKu extends AppLocalizations {
   String get areYouSure => 'دڵنیایت؟';
 
   @override
-  String get deleteConfirmation => 'ئەم بڕگەیە بە تەواوی دەسڕدرێتەوە.';
+  String get deleteConfirmation =>
+      'ئەم زانیارییە بە تەواوی دەسڕدرێتەوە و ناگەڕێتەوە.';
 
   @override
-  String get cannotUndo => 'ناتوانرێت ئەم کارە بگەڕێنرێتەوە.';
+  String get cannotUndo => 'ناتوانیت پاشگەز ببیتەوە لەم کارە.';
 
   @override
-  String get notes => 'تێبینییەکان';
+  String get notes => 'تێبینی';
 
   @override
   String get date => 'بەروار';
 
   @override
-  String get createdAt => 'دروستکراوە لە';
+  String get createdAt => 'بەرواری تۆمارکردن';
 
   @override
-  String get updatedAt => 'نوێکراوەتەوە لە';
+  String get updatedAt => 'دوایین گۆڕانکاری';
 
   @override
   String get total => 'کۆی گشتی';
@@ -441,7 +442,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get average => 'تێکڕا';
 
   @override
-  String get count => 'ژمارە';
+  String get count => 'دانە';
 
   @override
   String get minimum => 'کەمترین';
@@ -462,64 +463,64 @@ class AppLocalizationsKu extends AppLocalizations {
   String get thisYear => 'ئەمساڵ';
 
   @override
-  String get custom => 'دڵخواز';
+  String get custom => 'بەرواری دیاریکراو';
 
   @override
-  String get dateRange => 'مەودای بەروار';
+  String get dateRange => 'ماوەی بەروار';
 
   @override
-  String get all => 'هەموو';
+  String get all => 'هەمووی';
 
   @override
   String get active => 'چالاک';
 
   @override
-  String get inactive => 'ناچالاک';
+  String get inactive => 'ڕاگیراو';
 
   @override
   String get welcome => 'بەخێربێیت';
 
   @override
-  String get welcomeBack => 'بەخێربێیتەوە';
+  String get welcomeBack => 'سڵاو، بەخێربێیتەوە';
 
   @override
   String lowStockWarning(String productName, int quantity) {
-    return '$productName نزیکی تەواوبوونە ($quantity ماوە)';
+    return '$productName خەریکە تەواو دەبێت ($quantity ماوە)';
   }
 
   @override
   String debtReminder(String customerName, String amount) {
-    return '$customerName قەرزی ماوە بە بڕی $amount';
+    return 'کۆی قەرزی $customerName بریتییە لە $amount';
   }
 
   @override
   String saleCreated(String invoiceNumber) {
-    return 'فرۆشتنی ژمارە #$invoiceNumber بە سەرکەوتوویی دروستکرا';
+    return 'وەسڵی ژمارە #$invoiceNumber بە سەرکەوتوویی دروستکرا';
   }
 
   @override
   String paymentRecorded(String amount) {
-    return 'پارەدانی $amount تۆمارکرا';
+    return 'بڕی $amount پارە وەرگیرا';
   }
 
   @override
   String productAdded(String productName) {
-    return '$productName زیادکرا بۆ کۆگا';
+    return '$productName بۆ کۆگا زیادکرا';
   }
 
   @override
-  String get syncComplete => 'هەموو داتاکان بە سەرکەوتوویی هاوکات کران';
+  String get syncComplete => 'هەموو زانیارییەکان خەزنکران لە ئینتەرنێت';
 
   @override
   String syncPending(int count) {
-    return '$count بڕگە چاوەڕوانی هاوکاتکردنن';
+    return '$count گۆڕانکاری چاوەڕێی ئینتەرنێتە';
   }
 
   @override
-  String get noInternetConnection => 'پەیوەندی ئینتەرنێت نییە';
+  String get noInternetConnection => 'هێڵی ئینتەرنێتت نییە';
 
   @override
-  String get currencySymbol => 'د.ع';
+  String get currencySymbol => 'دینار';
 
   @override
   String get iraqiDinar => 'دیناری عێراقی';

@@ -9,9 +9,42 @@ class InventoryRepository {
 
   InventoryRepository(this._auditService);
 
+  Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
+    final sanitized = Map<String, dynamic>.from(data);
+    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity'];
+    final intFields = ['orderNumber'];
+    final dateFields = ['createdAt', 'updatedAt', 'date', 'timestamp', 'orderDate', 'paymentDate'];
+
+    sanitized.forEach((key, value) {
+      if (value is Timestamp) {
+        sanitized[key] = value.toDate().toIso8601String();
+      } else if (value is int) {
+        if (dateFields.contains(key)) {
+          sanitized[key] = DateTime.fromMillisecondsSinceEpoch(value).toIso8601String();
+        } else if (doubleFields.contains(key)) {
+          sanitized[key] = value.toDouble();
+        } else if (!intFields.contains(key)) {
+          sanitized[key] = value.toString();
+        }
+      } else if (value is double) {
+        if (intFields.contains(key)) {
+          sanitized[key] = value.toInt();
+        } else if (!doubleFields.contains(key)) {
+           sanitized[key] = value.toString();
+        }
+      } else if (value is String && dateFields.contains(key)) {
+        final parsedInt = int.tryParse(value);
+        if (parsedInt != null) {
+          sanitized[key] = DateTime.fromMillisecondsSinceEpoch(parsedInt).toIso8601String();
+        }
+      }
+    });
+    return sanitized;
+  }
+
   Stream<List<ProductEntity>> watchProducts() {
     return _firestore.collection('products').snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => ProductEntity.fromJson({'id': doc.id, ...doc.data()})).toList());
+        snapshot.docs.map((doc) => ProductEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()}))).toList());
   }
 
   Future<void> addProduct(ProductEntity product) async {
@@ -55,7 +88,7 @@ class InventoryRepository {
 
   Stream<List<CategoryEntity>> watchCategories() {
     return _firestore.collection('categories').snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => CategoryEntity.fromJson({'id': doc.id, ...doc.data()})).toList());
+        snapshot.docs.map((doc) => CategoryEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()}))).toList());
   }
 
   Future<void> addCategory(CategoryEntity category) async {
@@ -67,13 +100,13 @@ class InventoryRepository {
 
   Future<List<ProductEntity>> getAllProducts() async {
     final snapshot = await _firestore.collection('products').get();
-    return snapshot.docs.map((doc) => ProductEntity.fromJson({'id': doc.id, ...doc.data()})).toList();
+    return snapshot.docs.map((doc) => ProductEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()}))).toList();
   }
 
   Future<ProductEntity?> getProductById(String id) async {
     final doc = await _firestore.collection('products').doc(id).get();
     if (!doc.exists) return null;
-    return ProductEntity.fromJson({'id': doc.id, ...doc.data()!});
+    return ProductEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()!}));
   }
 
   Future<void> restockProduct(String id, double quantity) async {

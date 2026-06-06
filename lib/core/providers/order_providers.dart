@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import '../services/audit_service.dart';
 import '../../data/repositories/order_repository.dart';
-import '../../data/repositories/inventory_repository.dart';
 import '../../domain/enums.dart';
 import 'inventory_providers.dart';
 
@@ -29,7 +28,6 @@ final dashboardProfitProvider = StreamProvider<double>((ref) {
     inventoryRepo.watchProducts(),
     (orders, products) {
       double totalProfit = 0.0;
-      final deliveredOrders = orders.where((o) => o.status == OrderStatus.delivered.value).toList();
       
       // We don't have orderItems in the same stream easily. 
       // To keep it simple for the migration, we will use a Future inside to fetch items.

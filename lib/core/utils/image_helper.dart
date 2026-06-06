@@ -1,12 +1,11 @@
-import 'dart:io';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 class ImageHelper {
   static final ImagePicker _picker = ImagePicker();
-
-  /// Picks an image from gallery or camera and saves it to the app's document directory.
   /// Returns the absolute path to the saved image, or null if cancelled.
   static Future<String?> pickAndSaveImage({bool fromCamera = false}) async {
     try {
@@ -32,9 +31,8 @@ class ImageHelper {
       
       return savedFile.path;
     } catch (e) {
-      print('Error picking image: $e');
+      debugPrint('Error picking image: $e');
       return null;
     }
   }
 }
-

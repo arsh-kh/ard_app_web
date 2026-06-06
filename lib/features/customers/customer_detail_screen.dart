@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -19,7 +20,6 @@ import '../../core/providers/customer_providers.dart';
 import '../../core/providers/payment_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/notification_providers.dart';
-import '../../core/providers/payment_providers.dart';
 
 class CustomerDetailScreen extends ConsumerWidget {
   final CustomerEntity customer;
@@ -113,17 +113,17 @@ class CustomerDetailScreen extends ConsumerWidget {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text(langCode == 'ku' ? 'سڕینەوەی کڕیار' : langCode == 'ar' ? 'حذف العميل' : 'Delete Customer'),
-                      content: Text(langCode == 'ku' ? 'دڵنیای لە سڕینەوەی ئەم کڕیارە؟' : langCode == 'ar' ? 'هل أنت متأكد من حذف هذا العميل؟' : 'Are you sure you want to delete this customer?'),
+                      title: Text(langCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ú©Ú•ÛŒØ§Ø±' : langCode == 'ar' ? 'Ø­Ø°Ù Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Delete Customer'),
+                      content: Text(langCode == 'ku' ? 'Ø¯ÚµÙ†ÛŒØ§ÛŒ Ù„Û• Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ø¦Û•Ù… Ú©Ú•ÛŒØ§Ø±Û•ØŸ' : langCode == 'ar' ? 'Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„ØŸ' : 'Are you sure you want to delete this customer?'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text(langCode == 'ku' ? 'نەخێر' : langCode == 'ar' ? 'لا' : 'Cancel'),
+                          child: Text(langCode == 'ku' ? 'Ù†Û•Ø®ÛŽØ±' : langCode == 'ar' ? 'Ù„Ø§' : 'Cancel'),
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                           onPressed: () => Navigator.pop(context, true),
-                          child: Text(langCode == 'ku' ? 'سڕینەوە' : langCode == 'ar' ? 'حذف' : 'Delete', style: const TextStyle(color: Colors.white)),
+                          child: Text(langCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•' : langCode == 'ar' ? 'Ø­Ø°Ù' : 'Delete', style: const TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
@@ -147,7 +147,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     child: _buildActionButton(
                       context,
                       icon: Icons.phone_outlined,
-                      label: langCode == 'ku' ? 'پەیوەندیکردن' : langCode == 'ar' ? 'اتصال' : 'Call',
+                      label: langCode == 'ku' ? 'Ù¾Û•ÛŒÙˆÛ•Ù†Ø¯ÛŒÚ©Ø±Ø¯Ù†' : langCode == 'ar' ? 'Ø§ØªØµØ§Ù„' : 'Call',
                       color: Colors.green,
                       onTap: () => _callCustomer(context, ref),
                     ),
@@ -157,7 +157,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     child: _buildActionButton(
                       context,
                       icon: Icons.edit_note,
-                      label: langCode == 'ku' ? 'گۆڕینی پڕۆفایل' : langCode == 'ar' ? 'تعديل الملف' : 'Edit Profile',
+                      label: langCode == 'ku' ? 'Ú¯Û†Ú•ÛŒÙ†ÛŒ Ù¾Ú•Û†ÙØ§ÛŒÙ„' : langCode == 'ar' ? 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù„Ù' : 'Edit Profile',
                       color: theme.colorScheme.primary,
                       onTap: () => context.push(Routes.customerForm, extra: customer),
                     ),
@@ -217,7 +217,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                langCode == 'ku' ? 'قەرزی ماوە' : langCode == 'ar' ? 'الديون المتبقية' : 'Outstanding Debt',
+                                langCode == 'ku' ? 'Ù‚Û•Ø±Ø²ÛŒ Ù…Ø§ÙˆÛ•' : langCode == 'ar' ? 'Ø§Ù„Ø¯ÙŠÙˆÙ† Ø§Ù„Ù…ØªØ¨Ù‚ÙŠØ©' : 'Outstanding Debt',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -244,7 +244,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                               border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                             ),
                             child: Text(
-                              langCode == 'ku' ? 'نەدراوە' : langCode == 'ar' ? 'غير مدفوع' : 'UNPAID',
+                              langCode == 'ku' ? 'Ù†Û•Ø¯Ø±Ø§ÙˆÛ•' : langCode == 'ar' ? 'ØºÙŠØ± Ù…Ø¯ÙÙˆØ¹' : 'UNPAID',
                               style: TextStyle(
                                 color: Colors.amber.shade800,
                                 fontSize: 10,
@@ -261,7 +261,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                               border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                             ),
                             child: Text(
-                              langCode == 'ku' ? 'پاکە' : langCode == 'ar' ? 'مسدد' : 'CLEAR',
+                              langCode == 'ku' ? 'Ù¾Ø§Ú©Û•' : langCode == 'ar' ? 'Ù…Ø³Ø¯Ø¯' : 'CLEAR',
                               style: const TextStyle(
                                 color: Colors.green,
                                 fontSize: 10,
@@ -278,7 +278,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _showSettleDebtDialog(context, ref, customer, langCode),
                           icon: const Icon(Icons.payment),
-                          label: Text(langCode == 'ku' ? 'پارەدان' : langCode == 'ar' ? 'تسديد الدفعة' : 'Settle Payment'),
+                          label: Text(langCode == 'ku' ? 'Ù¾Ø§Ø±Û•Ø¯Ø§Ù†' : langCode == 'ar' ? 'ØªØ³Ø¯ÙŠØ¯ Ø§Ù„Ø¯ÙØ¹Ø©' : 'Settle Payment'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green.shade600,
                             foregroundColor: Colors.white,
@@ -359,7 +359,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 return const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.all(32),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: Center(child: CustomLoader()),
                   ),
                 );
               }
@@ -375,7 +375,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                         Icon(Icons.history_toggle_off, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
                         Text(
-                          langCode == 'ku' ? 'هیچ زانیارییەک نییە' : langCode == 'ar' ? 'لا يوجد تاريخ' : 'No history yet for this customer',
+                          langCode == 'ku' ? 'Ù‡ÛŒÚ† Ø²Ø§Ù†ÛŒØ§Ø±ÛŒÛŒÛ•Ú© Ù†ÛŒÛŒÛ•' : langCode == 'ar' ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ ØªØ§Ø±ÙŠØ®' : 'No history yet for this customer',
                           style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                         ),
                       ],
@@ -434,7 +434,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      DateFormat('dd/MM/yyyy • HH:mm').format(item.orderDate),
+                                      DateFormat('dd/MM/yyyy â€¢ HH:mm').format(item.orderDate),
                                       style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                                     ),
                                   ],
@@ -492,7 +492,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      DateFormat('dd/MM/yyyy • HH:mm').format(item.paymentDate),
+                                      DateFormat('dd/MM/yyyy â€¢ HH:mm').format(item.paymentDate),
                                       style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                                     ),
                                   ],
@@ -566,11 +566,11 @@ class CustomerDetailScreen extends ConsumerWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(langCode == 'ku' ? 'پارەدان بۆ ${customer.businessName}' : langCode == 'ar' ? 'تسديد الدفعة لـ ${customer.businessName}' : 'Settle Debt for ${customer.businessName}'),
+          title: Text(langCode == 'ku' ? 'Ù¾Ø§Ø±Û•Ø¯Ø§Ù† Ø¨Û† ${customer.businessName}' : langCode == 'ar' ? 'ØªØ³Ø¯ÙŠØ¯ Ø§Ù„Ø¯ÙØ¹Ø© Ù„Ù€ ${customer.businessName}' : 'Settle Debt for ${customer.businessName}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text((langCode == 'ku' ? 'قەرزی ئێستا: ' : langCode == 'ar' ? 'الدين الحالي: ' : 'Current Debt: ') + CurrencyFormatter.format(customer.debtBalance)),
+              Text((langCode == 'ku' ? 'Ù‚Û•Ø±Ø²ÛŒ Ø¦ÛŽØ³ØªØ§: ' : langCode == 'ar' ? 'Ø§Ù„Ø¯ÙŠÙ† Ø§Ù„Ø­Ø§Ù„ÙŠ: ' : 'Current Debt: ') + CurrencyFormatter.format(customer.debtBalance)),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
@@ -579,7 +579,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: langCode == 'ku' ? 'بڕی پارە' : langCode == 'ar' ? 'المبلغ المدفوع' : 'Amount Paid',
+                  labelText: langCode == 'ku' ? 'Ø¨Ú•ÛŒ Ù¾Ø§Ø±Û•' : langCode == 'ar' ? 'Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ù…Ø¯ÙÙˆØ¹' : 'Amount Paid',
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.payments),
                 ),
@@ -589,7 +589,7 @@ class CustomerDetailScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(langCode == 'ku' ? 'پاشگەزبوونەوە' : langCode == 'ar' ? 'إلغاء' : 'Cancel'),
+              child: Text(langCode == 'ku' ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : langCode == 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -609,13 +609,13 @@ class CustomerDetailScreen extends ConsumerWidget {
 
                   if (context.mounted) {
                     Navigator.pop(context);
-                    AppFeedback.showSuccess(context, langCode == 'ku' ? 'بە سەرکەوتووی درا' : langCode == 'ar' ? 'تم الدفع بنجاح' : 'Payment applied successfully');
+                    AppFeedback.showSuccess(context, langCode == 'ku' ? 'Ø¨Û• Ø³Û•Ø±Ú©Û•ÙˆØªÙˆÙˆÛŒ Ø¯Ø±Ø§' : langCode == 'ar' ? 'ØªÙ… Ø§Ù„Ø¯ÙØ¹ Ø¨Ù†Ø¬Ø§Ø­' : 'Payment applied successfully');
                   }
                 } else {
-                  AppFeedback.showError(context, langCode == 'ku' ? 'بڕێکی دروست بنووسە' : langCode == 'ar' ? 'أدخل مبلغ صحيح' : 'Please enter a valid amount');
+                  AppFeedback.showError(context, langCode == 'ku' ? 'Ø¨Ú•ÛŽÚ©ÛŒ Ø¯Ø±ÙˆØ³Øª Ø¨Ù†ÙˆÙˆØ³Û•' : langCode == 'ar' ? 'Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„Øº ØµØ­ÙŠØ­' : 'Please enter a valid amount');
                 }
               },
-              child: Text(langCode == 'ku' ? 'پەسەندکردن' : langCode == 'ar' ? 'تأكيد' : 'Confirm Payment'),
+              child: Text(langCode == 'ku' ? 'Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø¯Ù†' : langCode == 'ar' ? 'ØªØ£ÙƒÙŠØ¯' : 'Confirm Payment'),
             ),
           ],
         );
@@ -657,7 +657,7 @@ class CustomerDetailScreen extends ConsumerWidget {
   void _callCustomer(BuildContext context, WidgetRef ref) async {
     if (customer.phone == null || customer.phone!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ref.read(localeProvider).languageCode == 'ku' ? 'هیچ ژمارەیەکی تەلەفۆن تۆمار نەکراوە بۆ ئەم کڕیارە' : ref.read(localeProvider).languageCode == 'ar' ? 'لا يوجد رقم هاتف مسجل لهذا العميل' : 'No phone number registered for this customer')),
+        SnackBar(content: Text(ref.read(localeProvider).languageCode == 'ku' ? 'Ù‡ÛŒÚ† Ú˜Ù…Ø§Ø±Û•ÛŒÛ•Ú©ÛŒ ØªÛ•Ù„Û•ÙÛ†Ù† ØªÛ†Ù…Ø§Ø± Ù†Û•Ú©Ø±Ø§ÙˆÛ• Ø¨Û† Ø¦Û•Ù… Ú©Ú•ÛŒØ§Ø±Û•' : ref.read(localeProvider).languageCode == 'ar' ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø±Ù‚Ù… Ù‡Ø§ØªÙ Ù…Ø³Ø¬Ù„ Ù„Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'No phone number registered for this customer')),
       );
       return;
     }
@@ -669,4 +669,5 @@ class CustomerDetailScreen extends ConsumerWidget {
 
   // Status helpers now live in OrderStatusUtils (core/utils/order_status_utils.dart)
 }
+
 

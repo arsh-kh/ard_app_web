@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -60,8 +61,6 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
   Widget build(BuildContext context) {
     final inventoryRepo = ref.watch(inventoryRepositoryProvider);
     final productsStream = inventoryRepo.watchAllProducts();
-    final cartItems = ref.watch(cartProvider);
-    final cartNotifier = ref.read(cartProvider.notifier);
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -72,9 +71,9 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
-    final title = isKurdish ? 'فرۆشتن' : isArabic ? 'نقطة البيع' : 'POS';
-    final searchHint = isKurdish ? 'گەڕان بۆ بەرهەم...' : isArabic ? 'البحث عن منتجات...' : 'Search products...';
-    final allProducts = isKurdish ? 'هەموو بەرهەمەکان' : isArabic ? 'كل المنتجات' : 'All Products';
+    final title = isKurdish ? 'ÙØ±Û†Ø´ØªÙ†' : isArabic ? 'Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª' : 'POS';
+    final searchHint = isKurdish ? 'Ú¯Û•Ú•Ø§Ù† Ø¨Û† Ø¨Û•Ø±Ù‡Û•Ù…...' : isArabic ? 'Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ù…Ù†ØªØ¬Ø§Øª...' : 'Search products...';
+    final allProducts = isKurdish ? 'Ù‡Û•Ù…ÙˆÙˆ Ø¨Û•Ø±Ù‡Û•Ù…Û•Ú©Ø§Ù†' : isArabic ? 'ÙƒÙ„ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª' : 'All Products';
     final bag = localizations.bag;
     final kg = localizations.kg;
     final ton = localizations.ton;
@@ -85,38 +84,43 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
       appBar: AppBar(
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart, size: 26),
-                onPressed: () {
-                  if (cartItems.isNotEmpty) {
-                    _showCheckoutSheet(context, ref);
-                  } else {
-                    AppFeedback.showError(context, 'Cart is empty!');
-                  }
-                },
-              ),
-              if (cartItems.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                    child: Text(
-                      '${cartItems.length}',
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                  ).animate().shake(duration: 400.ms),
-                )
-            ],
+          Consumer(
+            builder: (context, ref, child) {
+              final cartItems = ref.watch(cartProvider);
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart, size: 26),
+                    onPressed: () {
+                      if (cartItems.isNotEmpty) {
+                        _showCheckoutSheet(context, ref);
+                      } else {
+                        AppFeedback.showError(context, 'Cart is empty!');
+                      }
+                    },
+                  ),
+                  if (cartItems.isNotEmpty)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Text(
+                          '${cartItems.length}',
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ).animate().shake(duration: 400.ms),
+                    )
+                ],
+              );
+            }
           ),
           const SizedBox(width: 8),
         ],
@@ -168,7 +172,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                     const SizedBox(width: 8),
                     _buildCategoryChip(ton, 'ton'),
                     const SizedBox(width: 8),
-                    _buildCategoryChip(isKurdish ? 'کارتۆن' : isArabic ? 'صندوق' : 'Box', 'box'),
+                    _buildCategoryChip(isKurdish ? 'Ú©Ø§Ø±ØªÛ†Ù†' : isArabic ? 'ØµÙ†Ø¯ÙˆÙ‚' : 'Box', 'box'),
                   ],
                 ),
               ),
@@ -179,7 +183,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                   stream: productsStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CustomLoader());
                     }
 
                     if (snapshot.hasError) {
@@ -213,27 +217,43 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                     }
 
                     return GridView.builder(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, cartItems.isNotEmpty ? 200 : 100),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 200),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.72,
+                        childAspectRatio: 0.58,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final product = filtered[index];
-                        final cartItem = cartItems.firstWhereOrNull((item) => item.product.id == product.id);
-                        final quantityInCart = cartItem?.quantity ?? 0.0;
 
-                        final stockRatio = product.stockQuantity / 100.0; 
-                        final clampedRatio = stockRatio.clamp(0.0, 1.0);
-                        Color stockColor = Colors.green;
-                        if (product.stockQuantity < 10.0) {
-                          stockColor = Colors.red;
-                        } else if (product.stockQuantity < 40.0) {
-                          stockColor = Colors.amber;
-                        }
+                        return Consumer(
+                          builder: (context, ref, child) {
+                            final cartItems = ref.watch(cartProvider);
+                            final cartNotifier = ref.read(cartProvider.notifier);
+                            final cartItem = cartItems.firstWhereOrNull((item) => item.product.id == product.id);
+                            final quantityInCart = cartItem?.quantity ?? 0.0;
+
+                            Color stockColor = Colors.green;
+                            if (product.stockQuantity < 10.0) {
+                              stockColor = Colors.red;
+                            } else if (product.stockQuantity < 40.0) {
+                              stockColor = Colors.amber;
+                            }
+
+                            String displayUnit = product.unitType;
+                            if (isKurdish) {
+                              if (displayUnit == 'bag') displayUnit = 'ÙÛ•Ø±Ø¯Û•';
+                              if (displayUnit == 'kg') displayUnit = 'Ú©ÛŒÙ„Û†Ú¯Ø±Ø§Ù…';
+                              if (displayUnit == 'ton') displayUnit = 'ØªÛ†Ù†';
+                              if (displayUnit == 'box') displayUnit = 'Ú©Ø§Ø±ØªÛ†Ù†';
+                            } else if (isArabic) {
+                              if (displayUnit == 'bag') displayUnit = 'ÙƒÙŠØ³';
+                              if (displayUnit == 'kg') displayUnit = 'ÙƒÙŠÙ„ÙˆØºØ±Ø§Ù…';
+                              if (displayUnit == 'ton') displayUnit = 'Ø·Ù†';
+                              if (displayUnit == 'box') displayUnit = 'ØµÙ†Ø¯ÙˆÙ‚';
+                            }
 
                         return Card(
                           elevation: 0,
@@ -248,152 +268,173 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                               width: quantityInCart > 0 ? 2 : 1,
                             ),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary.withValues(alpha: 0.08),
-                                        borderRadius: BorderRadius.circular(6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Full-width Cover Image Area
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      // Image Background
+                                      Container(
+                                        color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+                                        child: product.imageUrl != null
+                                            ? Image.file(
+                                                File(product.imageUrl!),
+                                                fit: BoxFit.cover,
+                                                color: quantityInCart == 0 ? Colors.black.withValues(alpha: 0.05) : null,
+                                                colorBlendMode: quantityInCart == 0 ? BlendMode.darken : null,
+                                              ).animate(target: quantityInCart > 0 ? 1 : 0).scale(
+                                                begin: const Offset(1, 1),
+                                                end: const Offset(1.1, 1.1),
+                                                duration: 200.ms,
+                                              )
+                                            : Icon(
+                                                Icons.bakery_dining_outlined,
+                                                size: 48,
+                                                color: quantityInCart > 0
+                                                    ? theme.colorScheme.primary
+                                                    : Colors.grey.shade400,
+                                              ),
                                       ),
-                                      child: Text(
-                                        product.unitType.toUpperCase(),
-                                        style: TextStyle(
-                                          color: theme.colorScheme.primary,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    if (product.stockQuantity <= 0)
-                                      Text(
-                                        outOfStock.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Expanded(
-                                  child: Center(
-                                    child: product.imageUrl != null
-                                        ? ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: Image.file(
-                                              File(product.imageUrl!),
-                                              width: double.infinity,
-                                              fit: BoxFit.contain,
-                                              color: quantityInCart == 0 ? Colors.grey.withValues(alpha: 0.8) : null,
-                                              colorBlendMode: quantityInCart == 0 ? BlendMode.saturation : null,
-                                            ),
-                                          ).animate(target: quantityInCart > 0 ? 1 : 0).scale(
-                                            begin: const Offset(1, 1),
-                                            end: const Offset(1.15, 1.15),
-                                            duration: 200.ms,
-                                          )
-                                        : Icon(
-                                            Icons.bakery_dining_outlined,
-                                            size: 48,
-                                            color: quantityInCart > 0
-                                                ? theme.colorScheme.primary
-                                                : Colors.grey.shade400,
-                                          ).animate(target: quantityInCart > 0 ? 1 : 0).scale(
-                                              begin: const Offset(1, 1),
-                                              end: const Offset(1.15, 1.15),
-                                              duration: 200.ms,
-                                            ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  product.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: LinearProgressIndicator(
-                                          value: clampedRatio,
-                                          backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-                                          color: stockColor,
-                                          minHeight: 4,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '${product.stockQuantity.toInt()}',
-                                      style: TextStyle(fontSize: 10, color: stockColor, fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  CurrencyFormatter.format(product.sellPrice),
-                                  style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
-                                const SizedBox(height: 8),
-                                SizedBox(
-                                  height: 36,
-                                  width: double.infinity,
-                                  child: quantityInCart > 0
-                                      ? Row(
+                                      
+                                      // Top Badges Overlay
+                                      Positioned(
+                                        top: 8,
+                                        left: 8,
+                                        right: 8,
+                                        child: Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            _buildQuantityButton(
-                                              icon: Icons.remove,
-                                              onPressed: () => cartNotifier.addProduct(product, -1.0),
-                                            ),
-                                            InkWell(
-                                              onTap: () {
-                                                _showQuantityInputDialog(context, product, quantityInCart, cartNotifier);
-                                              },
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                                                  borderRadius: BorderRadius.circular(8),
+                                            // Unit Badge
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: theme.colorScheme.primary.withValues(alpha: 0.9),
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                displayUnit.toUpperCase(),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                child: Text('${quantityInCart.toInt()}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                                               ),
                                             ),
-                                            _buildQuantityButton(
-                                              icon: Icons.add,
-                                              onPressed: () {
-                                                if (quantityInCart < product.stockQuantity) {
-                                                  cartNotifier.addProduct(product, 1.0);
-                                                }
-                                              },
-                                            ),
+                                            // Out of stock Badge
+                                            if (product.stockQuantity <= 0)
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red.withValues(alpha: 0.9),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  outOfStock.toUpperCase(),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              )
                                           ],
-                                        )
-                                      : ElevatedButton(
-                                          onPressed: product.stockQuantity <= 0 ? null : () => cartNotifier.addProduct(product, 1.0),
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(vertical: 0),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                          ),
-                                          child: Text(addToCartStr, style: const TextStyle(fontSize: 12)),
                                         ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              
+                              // Bottom Details Area
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product.name,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: CustomLoader(),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '${product.stockQuantity.toInt()}',
+                                          style: TextStyle(fontSize: 10, color: stockColor, fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      CurrencyFormatter.format(product.sellPrice),
+                                      style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      height: 36,
+                                      width: double.infinity,
+                                      child: quantityInCart > 0
+                                          ? Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                _buildQuantityButton(
+                                                  icon: Icons.remove,
+                                                  onPressed: () => cartNotifier.addProduct(product, -1.0),
+                                                ),
+                                                InkWell(
+                                                  onTap: () {
+                                                    _showQuantityInputDialog(context, product, quantityInCart, cartNotifier);
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: Text('${quantityInCart.toInt()}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                                                  ),
+                                                ),
+                                                _buildQuantityButton(
+                                                  icon: Icons.add,
+                                                  onPressed: () {
+                                                    if (quantityInCart < product.stockQuantity) {
+                                                      cartNotifier.addProduct(product, 1.0);
+                                                    }
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          : ElevatedButton(
+                                              onPressed: product.stockQuantity <= 0 ? null : () => cartNotifier.addProduct(product, 1.0),
+                                              style: ElevatedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(vertical: 0),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                              child: Text(addToCartStr, style: const TextStyle(fontSize: 12)),
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ).animate().fade(duration: 200.ms).slideY(begin: 0.05, end: 0);
+                        });
                       },
                     );
                   },
@@ -403,51 +444,55 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
           ),
 
           // Sticky Bottom Cart Panel
-          if (cartItems.isNotEmpty)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 130,
-              child: GestureDetector(
-                onTap: () => _showCheckoutSheet(context, ref),
-                child: Container(
-                  height: 64,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '${cartItems.length}',
-                              style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                localizations.totalAmount,
-                                style: TextStyle(color: theme.colorScheme.onPrimary.withValues(alpha: 0.8), fontSize: 12),
+          Consumer(
+            builder: (context, ref, child) {
+              final cartItems = ref.watch(cartProvider);
+              final cartNotifier = ref.read(cartProvider.notifier);
+              if (cartItems.isEmpty) return const SizedBox.shrink();
+              return Positioned(
+                left: 16,
+                right: 16,
+                bottom: 130,
+                child: GestureDetector(
+                  onTap: () => _showCheckoutSheet(context, ref),
+                  child: Container(
+                    height: 64,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
                               ),
-                              Text(
-                                CurrencyFormatter.format(cartNotifier.totalCartPrice),
-                                style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold),
+                              child: Text(
+                                '${cartItems.length}',
+                                style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  localizations.totalAmount,
+                                  style: TextStyle(color: theme.colorScheme.onPrimary.withValues(alpha: 0.8), fontSize: 12),
+                                ),
+                                Text(
+                                  CurrencyFormatter.format(cartNotifier.totalCartPrice),
+                                  style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -456,7 +501,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                       Row(
                         children: [
                           Text(
-                            isKurdish ? 'پارەدان' : isArabic ? 'الدفع' : 'Checkout',
+                            isKurdish ? 'Ù¾Ø§Ø±Û•Ø¯Ø§Ù†' : isArabic ? 'Ø§Ù„Ø¯ÙØ¹' : 'Checkout',
                             style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
@@ -467,7 +512,9 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                   ),
                 ).animate().slideY(begin: 1, end: 0, duration: 300.ms, curve: Curves.easeOutCubic),
               ),
-            ),
+            );
+          },
+        ),
         ],
       ),
     );
@@ -522,11 +569,11 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
-    final title = isKurdish ? 'بڕی ${product.name} دیاری بکە' : isArabic ? 'أدخل كمية ${product.name}' : 'Enter Quantity for ${product.name}';
-    final hint = isKurdish ? 'بڕ' : isArabic ? 'الكمية' : 'Quantity';
-    final cancelText = isKurdish ? 'پاشگەزبوونەوە' : isArabic ? 'إلغاء' : 'Cancel';
-    final updateText = isKurdish ? 'نوێکردنەوە' : isArabic ? 'تحديث' : 'Update';
-    final errorText = isKurdish ? 'بڕەکە هەڵەیە یان کۆگا بەش ناکات' : isArabic ? 'كمية غير صالحة أو لا يوجد مخزون كافٍ' : 'Invalid quantity or not enough stock';
+    final title = isKurdish ? 'Ø¨Ú•ÛŒ ${product.name} Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•' : isArabic ? 'Ø£Ø¯Ø®Ù„ ÙƒÙ…ÙŠØ© ${product.name}' : 'Enter Quantity for ${product.name}';
+    final hint = isKurdish ? 'Ø¨Ú•' : isArabic ? 'Ø§Ù„ÙƒÙ…ÙŠØ©' : 'Quantity';
+    final cancelText = isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel';
+    final updateText = isKurdish ? 'Ù†ÙˆÛŽÚ©Ø±Ø¯Ù†Û•ÙˆÛ•' : isArabic ? 'ØªØ­Ø¯ÙŠØ«' : 'Update';
+    final errorText = isKurdish ? 'Ø¨Ú•Û•Ú©Û• Ù‡Û•ÚµÛ•ÛŒÛ• ÛŒØ§Ù† Ú©Û†Ú¯Ø§ Ø¨Û•Ø´ Ù†Ø§Ú©Ø§Øª' : isArabic ? 'ÙƒÙ…ÙŠØ© ØºÙŠØ± ØµØ§Ù„Ø­Ø© Ø£Ùˆ Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø®Ø²ÙˆÙ† ÙƒØ§ÙÙ' : 'Invalid quantity or not enough stock';
 
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
@@ -593,15 +640,15 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
-    final walkInStr = isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer';
+    final walkInStr = isKurdish ? 'Ú©Ú•ÛŒØ§Ø±ÛŒ Ú©Ø§ØªÛŒ' : isArabic ? 'Ø¹Ù…ÙŠÙ„ Ø¹Ø§Ø¨Ø±' : 'Walk-In Customer';
     final customerName = isQuickSell ? walkInStr : (_selectedCustomer?.businessName ?? 'Client');
 
-    final confirmOrderStr = isKurdish ? 'داواکاری بسەلمێنە' : isArabic ? 'تأكيد الطلب' : 'Confirm Order';
+    final confirmOrderStr = isKurdish ? 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ø¨Ø³Û•Ù„Ù…ÛŽÙ†Û•' : isArabic ? 'ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨' : 'Confirm Order';
 
     final confirmBody = isKurdish 
-      ? 'دەتەوێت داواکاری بە بڕی ${CurrencyFormatter.format(totalAmount)} بۆ $customerName تۆمار بکەیت؟\n\nئەمە لە کۆگا کەم دەکرێتەوە.' 
+      ? 'Ø¯Û•ØªÛ•ÙˆÛŽØª Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ø¨Û• Ø¨Ú•ÛŒ ${CurrencyFormatter.format(totalAmount)} Ø¨Û† $customerName ØªÛ†Ù…Ø§Ø± Ø¨Ú©Û•ÛŒØªØŸ\n\nØ¦Û•Ù…Û• Ù„Û• Ú©Û†Ú¯Ø§ Ú©Û•Ù… Ø¯Û•Ú©Ø±ÛŽØªÛ•ÙˆÛ•.' 
       : isArabic 
-        ? 'هل تريد تقديم طلب بقيمة ${CurrencyFormatter.format(totalAmount)} لـ $customerName؟\n\nهذا سيخصم من المخزون.' 
+        ? 'Ù‡Ù„ ØªØ±ÙŠØ¯ ØªÙ‚Ø¯ÙŠÙ… Ø·Ù„Ø¨ Ø¨Ù‚ÙŠÙ…Ø© ${CurrencyFormatter.format(totalAmount)} Ù„Ù€ $customerNameØŸ\n\nÙ‡Ø°Ø§ Ø³ÙŠØ®ØµÙ… Ù…Ù† Ø§Ù„Ù…Ø®Ø²ÙˆÙ†.' 
         : 'Place order of ${CurrencyFormatter.format(totalAmount)} for $customerName?\n\nThis will deduct stock.';
         
     final confirmed = await AppFeedback.showConfirmDialog(
@@ -616,23 +663,10 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     if (!confirmed) return;
     
     String finalCustomerId = _selectedCustomerId ?? 'walk-in';
-    final customerRepo = ref.read(customerRepositoryProvider);
     final orderRepo = ref.read(orderRepositoryProvider);
 
     if (isQuickSell) {
-      // Check if walk-in exists, if not create it silently
-      final allCustomers = await customerRepo.watchAllCustomers().first;
-      final walkInExists = allCustomers.any((c) => c.id == 'walk-in');
-      if (!walkInExists) {
-        await customerRepo.addCustomer(
-          CustomerEntity(
-            id: 'walk-in',
-            businessName: 'Walk-In Customer',
-            phone: 'N/A',
-            debtBalance: 0,
-          ),
-        );
-      }
+      // Walk-in orders are purely logged. No customer is created in the DB.
     }
 
     final orderId = const Uuid().v4();
@@ -670,7 +704,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     );
 
     ref.read(cartProvider.notifier).clearCart();
-    if (context.mounted) {
+    if (mounted) {
       AppFeedback.showSuccess(context, localizations.success);
       context.pop(); // Close sheet
     }
@@ -689,17 +723,17 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(isKurdish ? 'گۆڕینی نرخ' : isArabic ? 'تعديل السعر' : 'Edit Price'),
+        title: Text(isKurdish ? 'Ú¯Û†Ú•ÛŒÙ†ÛŒ Ù†Ø±Ø®' : isArabic ? 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø³Ø¹Ø±' : 'Edit Price'),
         content: TextField(
           controller: controller,
           focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
           autofocus: true,
-          decoration: InputDecoration(border: const OutlineInputBorder(), labelText: isKurdish ? 'نرخی یەک دانە' : isArabic ? 'السعر للوحدة' : 'Price per unit'),
+          decoration: InputDecoration(border: const OutlineInputBorder(), labelText: isKurdish ? 'Ù†Ø±Ø®ÛŒ ÛŒÛ•Ú© Ø¯Ø§Ù†Û•' : isArabic ? 'Ø§Ù„Ø³Ø¹Ø± Ù„Ù„ÙˆØ­Ø¯Ø©' : 'Price per unit'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(isKurdish ? 'پاشگەزبوونەوە' : isArabic ? 'إلغاء' : 'Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel')),
           ElevatedButton(
             onPressed: () {
               final newPrice = double.tryParse(controller.text.replaceAll(',', ''));
@@ -708,7 +742,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                 Navigator.pop(ctx);
               }
             },
-            child: Text(isKurdish ? 'پاشەکەوتکردن' : isArabic ? 'حفظ' : 'Save'),
+            child: Text(isKurdish ? 'Ù¾Ø§Ø´Û•Ú©Û•ÙˆØªÚ©Ø±Ø¯Ù†' : isArabic ? 'Ø­ÙØ¸' : 'Save'),
           ),
         ],
       ),
@@ -728,7 +762,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
 
-    final assignCustomerStr = isKurdish ? 'کڕیار دیاری بکە' : isArabic ? 'تحديد العميل' : 'Assign Customer';
+    final assignCustomerStr = isKurdish ? 'Ú©Ú•ÛŒØ§Ø± Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•' : isArabic ? 'ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Assign Customer';
     final totalStr = localizations.totalAmount;
 
     return Container(
@@ -759,7 +793,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        isKurdish ? 'سەبەتە' : isArabic ? 'عربة التسوق' : 'Cart Review',
+                        isKurdish ? 'Ø³Û•Ø¨Û•ØªÛ•' : isArabic ? 'Ø¹Ø±Ø¨Ø© Ø§Ù„ØªØ³ÙˆÙ‚' : 'Cart Review',
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
@@ -812,11 +846,11 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            hint: Text(isKurdish ? 'کڕیارێکی تۆمارکراو هەڵبژێرە' : isArabic ? 'اختر عميلاً مسجلاً' : 'Select a registered customer'),
+                            hint: Text(isKurdish ? 'Ú©Ú•ÛŒØ§Ø±ÛŽÚ©ÛŒ ØªÛ†Ù…Ø§Ø±Ú©Ø±Ø§Ùˆ Ù‡Û•ÚµØ¨Ú˜ÛŽØ±Û•' : isArabic ? 'Ø§Ø®ØªØ± Ø¹Ù…ÙŠÙ„Ø§Ù‹ Ù…Ø³Ø¬Ù„Ø§Ù‹' : 'Select a registered customer'),
                             items: customers.map((c) {
                               return DropdownMenuItem(
                                 value: c.id,
-                                child: Text('${c.businessName} (Debt: ${CurrencyFormatter.format(c.debtBalance)})', style: const TextStyle(fontSize: 13)),
+                                child: Text('${c.businessName} (${isKurdish ? 'Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¯ÙŠÙ†' : 'Debt'}: ${CurrencyFormatter.format(c.debtBalance)})', style: const TextStyle(fontSize: 13)),
                               );
                             }).toList(),
                             onChanged: (val) {
@@ -825,10 +859,10 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                                 _selectedCustomer = customers.firstWhereOrNull((c) => c.id == val);
                               });
                             },
-                            validator: (value) => value == null ? (isKurdish ? 'تکایە کڕیارێک دیاری بکە' : isArabic ? 'يرجى تحديد عميل' : 'Please assign a customer') : null,
+                            validator: (value) => value == null ? (isKurdish ? 'ØªÚ©Ø§ÛŒÛ• Ú©Ú•ÛŒØ§Ø±ÛŽÚ© Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•' : isArabic ? 'ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø¹Ù…ÙŠÙ„' : 'Please assign a customer') : null,
                           );
                         },
-                        loading: () => const Center(child: CircularProgressIndicator()),
+                        loading: () => const Center(child: CustomLoader()),
                         error: (err, _) => Text('Error: $err', style: const TextStyle(color: Colors.red)),
                       ),
                       const SizedBox(height: 12),
@@ -845,7 +879,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                             children: [
                               const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
                               const SizedBox(width: 8),
-                              Expanded(child: Text('Debt: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}', style: const TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold))),
+                              Expanded(child: Text('${isKurdish ? 'Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¯ÙŠÙ†' : 'Debt'}: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}', style: const TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold))),
                             ],
                           ),
                         ),
@@ -875,7 +909,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                             child: ElevatedButton.icon(
                               onPressed: () => _processCheckout(ref, cartItems, cartNotifier.totalCartPrice, true),
                               icon: const Icon(Icons.bolt, color: Colors.white),
-                              label: Text(isKurdish ? 'فرۆشتنی خێرا' : isArabic ? 'بيع سريع' : 'Quick Sell (Cash)', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                              label: Text(isKurdish ? 'ÙØ±Û†Ø´ØªÙ†ÛŒ Ø®ÛŽØ±Ø§' : isArabic ? 'Ø¨ÙŠØ¹ Ø³Ø±ÙŠØ¹' : 'Quick Sell (Cash)', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange.shade500,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -892,7 +926,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                                 }
                               },
                               icon: Icon(Icons.check, color: theme.colorScheme.onPrimary),
-                              label: Text(isKurdish ? 'سەلماندن' : isArabic ? 'تأكيد للعميل' : 'Checkout to Client', style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 13, fontWeight: FontWeight.bold)),
+                              label: Text(isKurdish ? 'Ø³Û•Ù„Ù…Ø§Ù†Ø¯Ù†' : isArabic ? 'ØªØ£ÙƒÙŠØ¯ Ù„Ù„Ø¹Ù…ÙŠÙ„' : 'Checkout to Client', style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 13, fontWeight: FontWeight.bold)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -914,5 +948,6 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     );
   }
 }
+
 
 

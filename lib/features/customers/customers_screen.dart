@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/providers/customer_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/routing/routes.dart';
@@ -41,15 +44,15 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
     final isArabic = currentLocale.languageCode == 'ar';
     final localizations = AppLocalizations.of(context)!;
 
-    final title = isKurdish ? 'کڕیارەکان و قەرزەکان' : isArabic ? 'العملاء والديون' : 'Customers & Debts';
-    final searchHint = isKurdish ? 'گەڕان بۆ کڕیار...' : isArabic ? 'البحث عن عميل...' : 'Search customers...';
+    final title = isKurdish ? 'Ù…ÙˆØ´ØªÛ•Ø±ÛŒ Ùˆ Ù‚Û•Ø±Ø²Û•Ú©Ø§Ù†' : isArabic ? 'Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ ÙˆØ§Ù„Ø¯ÙŠÙˆÙ†' : 'Customers & Debts';
+    final searchHint = isKurdish ? 'Ú¯Û•Ú•Ø§Ù† Ø¨Û† Ù…ÙˆØ´ØªÛ•Ø±ÛŒ...' : isArabic ? 'Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø¹Ù…ÙŠÙ„...' : 'Search customers...';
     final allCustomers = localizations.all;
-    final outstandingDebt = isKurdish ? 'قەرزی ماوە' : isArabic ? 'الديون المستحقة' : 'Outstanding Debt';
+    final outstandingDebt = isKurdish ? 'Ú©Û†ÛŒ Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯ÙŠÙˆÙ†' : 'Outstanding Debt';
     final noData = localizations.noData;
-    final registerFirst = isKurdish ? 'یەکەم کڕیار تۆمار بکە' : isArabic ? 'سجل عميلك الأول' : 'Add Your First Customer';
-    final newClient = isKurdish ? 'کڕیاری نوێ' : isArabic ? 'عميل جديد' : 'New Client';
-    final noAddress = isKurdish ? 'ناونیشان نییە' : isArabic ? 'لا يوجد عنوان' : 'No address registered';
-    final debtLabel = isKurdish ? 'قەرزی ماوە' : isArabic ? 'الديون المستحقة' : 'Outstanding Debt';
+    final registerFirst = isKurdish ? 'ÛŒÛ•Ú©Û•Ù… Ù…ÙˆØ´ØªÛ•Ø±ÛŒ ØªÛ†Ù…Ø§Ø± Ø¨Ú©Û•' : isArabic ? 'Ø³Ø¬Ù„ Ø¹Ù…ÙŠÙ„Ùƒ Ø§Ù„Ø£ÙˆÙ„' : 'Add Your First Customer';
+    final newClient = isKurdish ? 'Ù…ÙˆØ´ØªÛ•Ø±ÛŒ Ù†ÙˆÛŽ' : isArabic ? 'Ø¹Ù…ÙŠÙ„ Ø¬Ø¯ÙŠØ¯' : 'New Client';
+    final noAddress = isKurdish ? 'Ù†Ø§ÙˆÙ†ÛŒØ´Ø§Ù† Ù†ÛŒÛŒÛ•' : isArabic ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù†ÙˆØ§Ù†' : 'No address registered';
+    final debtLabel = isKurdish ? 'Ú©Û†ÛŒ Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯ÙŠÙˆÙ†' : 'Outstanding Debt';
 
     return StreamBuilder<List<CustomerEntity>>(
       stream: customersStream,
@@ -60,24 +63,13 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
         return Scaffold(
           appBar: widget.isEmbedded ? null : AppBar(
             title: Text(title),
-            actions: [
-              if (hasCustomers)
-                IconButton(
-                  icon: const Icon(Icons.person_add_alt_1_outlined, size: 28),
-                  onPressed: () {
-                    context.push(Routes.customerForm);
-                  },
-                ),
-              const SizedBox(width: 8),
-            ],
           ),
           floatingActionButton: widget.isEmbedded && hasCustomers ? Padding(
             padding: const EdgeInsets.only(bottom: 96.0),
-            child: FloatingActionButton.extended(
-              heroTag: 'customers_fab',
-              onPressed: () => context.push(Routes.customerForm),
-              icon: const Icon(Icons.person_add),
-              label: Text(newClient),
+            child: HeavyIOSButton(
+              onTap: () => context.push(Routes.customerForm),
+              label: newClient,
+              icon: Icons.person_add,
             ),
           ) : null,
       body: Column(
@@ -147,7 +139,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
             child: Builder(
               builder: (context) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CustomLoader());
                 }
 
                 if (snapshot.hasError) {
@@ -198,7 +190,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
                           color: hasDebt
-                              ? Colors.amber.withValues(alpha: 0.4)
+                              ? (isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5))
                               : isDark
                                   ? Colors.white.withValues(alpha: 0.05)
                                   : Colors.grey.shade200,
@@ -272,4 +264,5 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
   });
   }
 }
+
 

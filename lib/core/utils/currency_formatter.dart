@@ -56,12 +56,19 @@ class CurrencyFormatter {
   /// Formats a compact number for dashboard stats.
   /// Example: 1500000 → "1.5M"
   static String formatCompact(double amount) {
+    bool isArabic = AppConstants.currencySymbol == 'د.ع';
+    bool isKurdish = AppConstants.currencySymbol == 'دینار';
+    
+    String mStr = isArabic ? ' مليون' : isKurdish ? ' ملیۆن' : 'M';
+    String bStr = isArabic ? ' مليار' : isKurdish ? ' ملیار' : 'B';
+    String kStr = isArabic ? ' ألف' : isKurdish ? ' هەزار' : 'K';
+
     if (amount >= 1000000000) {
-      return '${(amount / 1000000000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}B';
+      return '${(amount / 1000000000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}$bStr';
     } else if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}M';
+      return '${(amount / 1000000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}$mStr';
     } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}K';
+      return '${(amount / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}$kStr';
     }
     return amount.toInt().toString();
   }

@@ -3,8 +3,6 @@ import '../services/notification_service.dart';
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../data/models/product_entity.dart';
-import '../../data/models/customer_entity.dart';
 import 'inventory_providers.dart';
 import 'customer_providers.dart';
 

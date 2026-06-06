@@ -26,6 +26,7 @@ mixin _$UserEntity {
   String? get phone => throw _privateConstructorUsedError;
   String? get passwordHash => throw _privateConstructorUsedError;
   String get role => throw _privateConstructorUsedError;
+  String? get status => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
@@ -56,6 +57,7 @@ abstract class $UserEntityCopyWith<$Res> {
     String? phone,
     String? passwordHash,
     String role,
+    String? status,
     String name,
     String? imageUrl,
     String? createdBy,
@@ -85,6 +87,7 @@ class _$UserEntityCopyWithImpl<$Res, $Val extends UserEntity>
     Object? phone = freezed,
     Object? passwordHash = freezed,
     Object? role = null,
+    Object? status = freezed,
     Object? name = null,
     Object? imageUrl = freezed,
     Object? createdBy = freezed,
@@ -114,6 +117,10 @@ class _$UserEntityCopyWithImpl<$Res, $Val extends UserEntity>
                 ? _value.role
                 : role // ignore: cast_nullable_to_non_nullable
                       as String,
+            status: freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String?,
             name: null == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
@@ -159,6 +166,7 @@ abstract class _$$UserEntityImplCopyWith<$Res>
     String? phone,
     String? passwordHash,
     String role,
+    String? status,
     String name,
     String? imageUrl,
     String? createdBy,
@@ -187,6 +195,7 @@ class __$$UserEntityImplCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? passwordHash = freezed,
     Object? role = null,
+    Object? status = freezed,
     Object? name = null,
     Object? imageUrl = freezed,
     Object? createdBy = freezed,
@@ -216,6 +225,10 @@ class __$$UserEntityImplCopyWithImpl<$Res>
             ? _value.role
             : role // ignore: cast_nullable_to_non_nullable
                   as String,
+        status: freezed == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String?,
         name: null == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
@@ -254,6 +267,7 @@ class _$UserEntityImpl implements _UserEntity {
     this.phone,
     this.passwordHash,
     required this.role,
+    this.status,
     required this.name,
     this.imageUrl,
     this.createdBy,
@@ -276,6 +290,8 @@ class _$UserEntityImpl implements _UserEntity {
   @override
   final String role;
   @override
+  final String? status;
+  @override
   final String name;
   @override
   final String? imageUrl;
@@ -290,7 +306,7 @@ class _$UserEntityImpl implements _UserEntity {
 
   @override
   String toString() {
-    return 'UserEntity(id: $id, email: $email, phone: $phone, passwordHash: $passwordHash, role: $role, name: $name, imageUrl: $imageUrl, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserEntity(id: $id, email: $email, phone: $phone, passwordHash: $passwordHash, role: $role, status: $status, name: $name, imageUrl: $imageUrl, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -304,6 +320,7 @@ class _$UserEntityImpl implements _UserEntity {
             (identical(other.passwordHash, passwordHash) ||
                 other.passwordHash == passwordHash) &&
             (identical(other.role, role) || other.role == role) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
@@ -326,6 +343,7 @@ class _$UserEntityImpl implements _UserEntity {
     phone,
     passwordHash,
     role,
+    status,
     name,
     imageUrl,
     createdBy,
@@ -355,6 +373,7 @@ abstract class _UserEntity implements UserEntity {
     final String? phone,
     final String? passwordHash,
     required final String role,
+    final String? status,
     required final String name,
     final String? imageUrl,
     final String? createdBy,
@@ -376,6 +395,8 @@ abstract class _UserEntity implements UserEntity {
   String? get passwordHash;
   @override
   String get role;
+  @override
+  String? get status;
   @override
   String get name;
   @override

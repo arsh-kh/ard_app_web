@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/product_entity.dart';
-import '../../data/models/customer_entity.dart';
 
 class CartItem {
   final ProductEntity product;

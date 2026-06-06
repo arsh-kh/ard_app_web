@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -43,10 +44,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final currentLocale = ref.watch(localeProvider);
+    final isKurdish = currentLocale.languageCode == 'ku';
+    final isArabic = currentLocale.languageCode == 'ar';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'پێداچوونەوەی سەبەتە' : ref.watch(localeProvider).languageCode == 'ar' ? 'مراجعة سلة التسوق' : 'Review Shopping Cart'),
+        title: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'Ù¾ÛŽØ¯Ø§Ú†ÙˆÙˆÙ†Û•ÙˆÛ•ÛŒ Ø³Û•Ø¨Û•ØªÛ•' : ref.watch(localeProvider).languageCode == 'ar' ? 'Ù…Ø±Ø§Ø¬Ø¹Ø© Ø³Ù„Ø© Ø§Ù„ØªØ³ÙˆÙ‚' : 'Review Shopping Cart'),
       ),
       body: cartItems.isEmpty
           ? Center(
@@ -60,7 +64,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    ref.watch(localeProvider).languageCode == 'ku' ? 'سەبەتەکەت خاڵییە' : ref.watch(localeProvider).languageCode == 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty',
+                    ref.watch(localeProvider).languageCode == 'ku' ? 'Ø³Û•Ø¨Û•ØªÛ•Ú©Û•Øª Ø®Ø§ÚµÛŒÛŒÛ•' : ref.watch(localeProvider).languageCode == 'ar' ? 'Ø³Ù„Ø© Ø§Ù„ØªØ³ÙˆÙ‚ ÙØ§Ø±ØºØ©' : 'Your cart is empty',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey.shade500,
@@ -70,7 +74,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.pop(),
-                    child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'گەڕان بەدوای کاڵاکان' : ref.watch(localeProvider).languageCode == 'ar' ? 'تصفح المنتجات' : 'Browse Products'),
+                    child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'Ú¯Û•Ú•Ø§Ù† Ø¨Û•Ø¯ÙˆØ§ÛŒ Ú©Ø§ÚµØ§Ú©Ø§Ù†' : ref.watch(localeProvider).languageCode == 'ar' ? 'ØªØµÙØ­ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª' : 'Browse Products'),
                   ),
                 ],
               ),
@@ -104,8 +108,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             cartNotifier.removeProduct(item.product.id);
                             AppFeedback.showUndo(
                               context,
-                              message: ref.read(localeProvider).languageCode == 'ku' ? 'کاڵا سڕایەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'تم حذف العنصر' : 'Item removed',
-                              undoLabel: ref.read(localeProvider).languageCode == 'ku' ? 'پاشگەزبوونەوە' : ref.read(localeProvider).languageCode == 'ar' ? 'تراجع' : 'UNDO',
+                              message: ref.read(localeProvider).languageCode == 'ku' ? 'Ú©Ø§ÚµØ§ Ø³Ú•Ø§ÛŒÛ•ÙˆÛ•' : ref.read(localeProvider).languageCode == 'ar' ? 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¹Ù†ØµØ±' : 'Item removed',
+                              undoLabel: ref.read(localeProvider).languageCode == 'ku' ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : ref.read(localeProvider).languageCode == 'ar' ? 'ØªØ±Ø§Ø¬Ø¹' : 'UNDO',
                               onUndo: () {
                                 cartNotifier.addProduct(removedItem.product, removedItem.quantity);
                               },
@@ -133,7 +137,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             subtitle: Padding(
                               padding: const EdgeInsets.only(top: 4.0),
                               child: Text(
-                                '${item.quantity.toInt()} ${item.product.unitType} x ${CurrencyFormatter.format(item.product.sellPrice)}',
+                                '${item.quantity.toInt()} ${isKurdish ? (item.product.unitType == 'bag' ? 'ÙÛ•Ø±Ø¯Û•' : item.product.unitType == 'kg' ? 'Ú©ÛŒÙ„Û†Ú¯Ø±Ø§Ù…' : item.product.unitType == 'ton' ? 'ØªÛ†Ù†' : item.product.unitType == 'box' ? 'Ú©Ø§Ø±ØªÛ†Ù†' : item.product.unitType) : isArabic ? (item.product.unitType == 'bag' ? 'ÙƒÙŠØ³' : item.product.unitType == 'kg' ? 'ÙƒÙŠÙ„ÙˆØºØ±Ø§Ù…' : item.product.unitType == 'ton' ? 'Ø·Ù†' : item.product.unitType == 'box' ? 'ØµÙ†Ø¯ÙˆÙ‚' : item.product.unitType) : item.product.unitType} x ${CurrencyFormatter.format(item.product.sellPrice)}',
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                               ),
                             ),
@@ -186,16 +190,16 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               return DropdownButtonFormField<String>(
                                 initialValue: _selectedCustomerId,
                                 decoration: InputDecoration(
-                                  labelText: ref.watch(localeProvider).languageCode == 'ku' ? 'دیاریکردنی کڕیار' : ref.watch(localeProvider).languageCode == 'ar' ? 'تعيين عميل' : 'Assign Customer',
+                                  labelText: ref.watch(localeProvider).languageCode == 'ku' ? 'Ø¯ÛŒØ§Ø±ÛŒÚ©Ø±Ø¯Ù†ÛŒ Ú©Ú•ÛŒØ§Ø±' : ref.watch(localeProvider).languageCode == 'ar' ? 'ØªØ¹ÙŠÙŠÙ† Ø¹Ù…ÙŠÙ„' : 'Assign Customer',
                                   prefixIcon: Icon(Icons.person_outline),
                                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                 ),
-                                hint: const Text('Select customer...'),
+                                hint: Text(isKurdish ? 'Ù…ÙˆØ´ØªÛ•Ø±ÛŒ Ù‡Û•ÚµØ¨Ú˜ÛŽØ±Û•...' : isArabic ? 'Ø§Ø®ØªØ± Ø§Ù„Ø²Ø¨ÙˆÙ†...' : 'Select customer...'),
                                 items: customers.map((c) {
                                   return DropdownMenuItem(
                                     value: c.id,
                                     child: Text(
-                                      '${c.businessName} (Debt: ${CurrencyFormatter.format(c.debtBalance)})',
+                                      '${c.businessName} (${isKurdish ? 'Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¯ÙŠÙ†' : 'Debt'}: ${CurrencyFormatter.format(c.debtBalance)})',
                                       style: const TextStyle(fontSize: 13),
                                     ),
                                   );
@@ -209,7 +213,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 validator: (value) => value == null ? 'Please assign a customer' : null,
                                               );
                             },
-                            loading: () => const Center(child: CircularProgressIndicator()),
+                            loading: () => const Center(child: CustomLoader()),
                             error: (err, _) => Text('Error loading customers: $err', style: const TextStyle(color: Colors.red)),
                           ),
 
@@ -230,7 +234,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      'Customer has outstanding debt: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}',
+                                      isKurdish ? 'Ú©Û†ÛŒ Ù‚Û•Ø±Ø²ÛŒ Ù…Ø§ÙˆÛ•: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}' : isArabic ? 'Ø§Ù„Ø¯ÙŠÙˆÙ† Ø§Ù„Ù…ØªØ¨Ù‚ÙŠØ©: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}' : 'Customer has outstanding debt: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}',
                                       style: const TextStyle(
                                         color: Colors.amber,
                                         fontSize: 11,
@@ -260,7 +264,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Items Count:', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                    Text(isKurdish ? 'Ø¯Ø§Ù†Û•:' : isArabic ? 'Ø§Ù„Ø¹Ø¯Ø¯:' : 'Items Count:', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                                     Text('${cartItems.length}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                   ],
                                 ),
@@ -268,7 +272,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Subtotal:', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                    Text(isKurdish ? 'Ú©Û†ÛŒ Ù¾ÛŽØ´ Ø¯Ø§Ø´Ú©Ø§Ù†Ø¯Ù†:' : isArabic ? 'Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹:' : 'Subtotal:', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                                     Text(CurrencyFormatter.format(cartNotifier.totalCartPrice), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                   ],
                                 ),
@@ -289,9 +293,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'Order Total:',
-                                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                    Text(
+                                      isKurdish ? 'Ú©Û†ÛŒ Ú¯Ø´ØªÛŒ:' : isArabic ? 'Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ:' : 'Order Total:',
+                                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                                     ),
                                     Text(
                                       CurrencyFormatter.format(cartNotifier.totalCartPrice),
@@ -364,7 +368,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   }
                                 }
                               },
-                              child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'ناردنی داواکاری' : ref.watch(localeProvider).languageCode == 'ar' ? 'إرسال الطلب' : 'Place Order'),
+                              child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'Ù†Ø§Ø±Ø¯Ù†ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ' : ref.watch(localeProvider).languageCode == 'ar' ? 'Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø·Ù„Ø¨' : 'Place Order'),
                             ),
                           ),
                         ],
@@ -377,4 +381,5 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     );
   }
 }
+
 

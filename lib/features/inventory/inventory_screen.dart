@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/providers/inventory_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/routing/routes.dart';
@@ -38,11 +41,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
-    final title = isKurdish ? 'زیادکردنی کۆگا' : isArabic ? 'إضافة مخزون' : 'Add Stock';
-    final qtyLbl = isKurdish ? 'بڕ' : isArabic ? 'الكمية' : 'Quantity';
-    final costLbl = isKurdish ? 'تێچووی گشتی' : isArabic ? 'التكلفة الإجمالية' : 'Total Cost';
-    final cancelLbl = isKurdish ? 'پاشگەزبوونەوە' : isArabic ? 'إلغاء' : 'Cancel';
-    final addLbl = isKurdish ? 'زیادکردن' : isArabic ? 'إضافة' : 'Add';
+    final title = isKurdish ? 'Ø²ÛŒØ§Ø¯Ú©Ø±Ø¯Ù†ÛŒ Ú©Û†Ú¯Ø§' : isArabic ? 'Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²ÙˆÙ†' : 'Add Stock';
+    final qtyLbl = isKurdish ? 'Ø¨Ú•' : isArabic ? 'Ø§Ù„ÙƒÙ…ÙŠØ©' : 'Quantity';
+    final costLbl = isKurdish ? 'ØªÛŽÚ†ÙˆÙˆÛŒ Ú¯Ø´ØªÛŒ' : isArabic ? 'Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ©' : 'Total Cost';
+    final cancelLbl = isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel';
+    final addLbl = isKurdish ? 'Ø²ÛŒØ§Ø¯Ú©Ø±Ø¯Ù†' : isArabic ? 'Ø¥Ø¶Ø§ÙØ©' : 'Add';
 
     await showDialog(
       context: context,
@@ -89,7 +92,6 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             ElevatedButton(
               onPressed: () {
                 final q = double.tryParse(qtyCtrl.text) ?? 0;
-                final c = CurrencyFormatter.parse(costCtrl.text);
                 if (q > 0) {
                   ref.read(inventoryRepositoryProvider).restockProduct(
                     product.id,
@@ -99,7 +101,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(isKurdish ? 'سەرکەوتوو بوو' : isArabic ? 'نجاح' : 'Stock Added Successfully'),
+                      content: Text(isKurdish ? 'Ø³Û•Ø±Ú©Û•ÙˆØªÙˆÙˆ Ø¨ÙˆÙˆ' : isArabic ? 'Ù†Ø¬Ø§Ø­' : 'Stock Added Successfully'),
                       backgroundColor: Colors.green,
                     )
                   );
@@ -130,8 +132,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final allProducts = localizations.all;
     final lowStockWarnings = localizations.lowStock;
     final noData = localizations.noData;
-    final stockLabel = isKurdish ? 'کۆگا' : isArabic ? 'المخزون' : 'Stock';
-    final lowLabel = isKurdish ? 'کەمە' : isArabic ? 'منخفض' : 'LOW';
+    final lowLabel = isKurdish ? 'کەم ماوە' : isArabic ? 'كمية قليلة' : 'LOW';
     final registerFirst = isKurdish ? 'یەکەم بەرهەم تۆمار بکە' : isArabic ? 'سجل منتجك الأول' : 'Register Your First Product';
     final newProductLabel = isKurdish ? 'بەرهەمی نوێ' : isArabic ? 'منتج جديد' : 'New Product';
 
@@ -144,25 +145,14 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(title),
-            actions: [
-              if (hasProducts)
-                IconButton(
-                  icon: const Icon(Icons.add_circle_outline, size: 28),
-                  onPressed: () {
-                    context.push(Routes.productForm);
-                  },
-                ),
-              const SizedBox(width: 8),
-            ],
           ),
           floatingActionButton: hasProducts
               ? Padding(
                   padding: const EdgeInsets.only(bottom: 96.0),
-                  child: FloatingActionButton.extended(
-                    heroTag: 'inventory_fab',
-                    onPressed: () => context.push(Routes.productForm),
-                    icon: const Icon(Icons.add_box),
-                    label: Text(newProductLabel),
+                  child: HeavyIOSButton(
+                    onTap: () => context.push(Routes.productForm),
+                    label: newProductLabel,
+                    icon: Icons.add_box,
                   ),
                 )
               : null,
@@ -233,7 +223,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             child: Builder(
               builder: (context) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CustomLoader());
                 }
 
                 if (snapshot.hasError) {
@@ -284,7 +274,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
                           color: isLowStock
-                              ? Colors.red.withValues(alpha: 0.3)
+                              ? (isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5))
                               : isDark
                                   ? Colors.white.withValues(alpha: 0.05)
                                   : Colors.grey.shade200,
@@ -322,7 +312,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                           child: Row(
                             children: [
                               Text(
-                                '${CurrencyFormatter.formatQuantity(product.stockQuantity, product.unitType)} $stockLabel',
+                                CurrencyFormatter.formatQuantity(product.stockQuantity, isKurdish ? (product.unitType == 'bag' ? 'فەردە' : product.unitType == 'kg' ? 'کیلۆگرام' : product.unitType == 'ton' ? 'تۆن' : product.unitType == 'box' ? 'کارتۆن' : product.unitType) : isArabic ? (product.unitType == 'bag' ? 'كيس' : product.unitType == 'kg' ? 'كيلوغرام' : product.unitType == 'ton' ? 'طن' : product.unitType == 'box' ? 'صندوق' : product.unitType) : product.unitType),
                                 style: TextStyle(
                                   color: isLowStock ? Colors.red : Colors.grey.shade600,
                                   fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal,
@@ -386,35 +376,12 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                             IconButton(
                               icon: Icon(Icons.add_shopping_cart, color: theme.colorScheme.primary),
                               onPressed: () => _showRestockDialog(product),
-                              tooltip: isKurdish ? 'زیادکردنی کۆگا' : isArabic ? 'إضافة مخزون' : 'Add Stock',
+                              tooltip: isKurdish ? 'Ø²ÛŒØ§Ø¯Ú©Ø±Ø¯Ù†ÛŒ Ú©Û†Ú¯Ø§' : isArabic ? 'Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²ÙˆÙ†' : 'Add Stock',
                             ),
                           ],
                         ),
                         onTap: () {
                           context.push(Routes.productForm, extra: product);
-                        },
-                        onLongPress: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text(isKurdish ? 'سڕینەوەی کاڵا' : isArabic ? 'حذف المنتج' : 'Delete Product'),
-                              content: Text(isKurdish ? 'دڵنیای لە سڕینەوەی ئەم کاڵایە؟' : isArabic ? 'هل أنت متأكد من حذف هذا المنتج؟' : 'Are you sure you want to delete this product?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text(isKurdish ? 'نەخێر' : isArabic ? 'لا' : 'Cancel'),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: Text(isKurdish ? 'سڕینەوە' : isArabic ? 'حذف' : 'Delete', style: const TextStyle(color: Colors.white)),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (confirm == true && context.mounted) {
-                            await ref.read(inventoryRepositoryProvider).deleteProduct(product.id);
-                          }
                         },
                       ),
                     ).animate().slideY(begin: 0.1, end: 0, duration: 200.ms, delay: (index * 20).ms);
@@ -429,4 +396,5 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   });
   }
 }
+
 

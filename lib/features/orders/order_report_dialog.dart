@@ -1,0 +1,349 @@
+﻿import 'package:flutter/material.dart';
+import '../../core/widgets/custom_loader.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/providers/locale_provider.dart';
+import '../../core/providers/order_providers.dart';
+import '../../core/providers/customer_providers.dart';
+import '../../core/services/pdf_invoice_ledger_service.dart';
+import '../../core/widgets/pdf_preview_screen.dart';
+import '../../core/widgets/heavy_ios_button.dart';
+import '../../domain/enums.dart';
+
+class OrderReportDialog extends ConsumerStatefulWidget {
+  const OrderReportDialog({super.key});
+
+  @override
+  ConsumerState<OrderReportDialog> createState() => _OrderReportDialogState();
+}
+
+class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
+  String _selectedRange = 'week';
+  DateTime? _customStart;
+  DateTime? _customEnd;
+  bool _isLoading = false;
+
+  void _generateReport() async {
+    if (_selectedRange == 'custom' && (_customStart == null || _customEnd == null)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select start and end dates')));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final now = DateTime.now();
+      DateTime start;
+      DateTime end;
+      String periodName;
+
+      final currentLocale = ref.read(localeProvider);
+      final isKurdish = currentLocale.languageCode == 'ku';
+      final isArabic = currentLocale.languageCode == 'ar';
+
+      switch (_selectedRange) {
+        case 'week':
+          start = now.subtract(Duration(days: now.weekday - 1)); // Start of week (Monday)
+          start = DateTime(start.year, start.month, start.day);
+          end = start.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+          periodName = isKurdish ? 'Ø¦Û•Ù… Ù‡Û•ÙØªÛ•ÛŒÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹' : 'This Week';
+          break;
+        case 'month':
+          start = DateTime(now.year, now.month, 1);
+          end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+          periodName = isKurdish ? 'Ø¦Û•Ù… Ù…Ø§Ù†Ú¯Û•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±' : 'This Month';
+          break;
+        case 'year':
+          start = DateTime(now.year, 1, 1);
+          end = DateTime(now.year, 12, 31, 23, 59, 59);
+          periodName = isKurdish ? 'Ø¦Û•Ù… Ø³Ø§ÚµÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø¹Ø§Ù…' : 'This Year';
+          break;
+        case 'custom':
+        default:
+          start = DateTime(_customStart!.year, _customStart!.month, _customStart!.day);
+          end = DateTime(_customEnd!.year, _customEnd!.month, _customEnd!.day, 23, 59, 59);
+          final df = DateFormat('dd/MM/yyyy');
+          periodName = '${df.format(start)} - ${df.format(end)}';
+          break;
+      }
+
+      final orderRepo = ref.read(orderRepositoryProvider);
+      final customerRepo = ref.read(customerRepositoryProvider);
+      
+      final allOrders = await orderRepo.getAllOrders();
+      final filteredOrders = allOrders.where((o) => 
+        o.status == OrderStatus.delivered.value &&
+        o.orderDate.isAfter(start.subtract(const Duration(seconds: 1))) && 
+        o.orderDate.isBefore(end.add(const Duration(seconds: 1)))
+      ).toList();
+
+      filteredOrders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
+
+      final customers = await customerRepo.getAllCustomers();
+
+      final pdfBytes = await PdfInvoiceLedgerService.generateLedger(
+        orders: filteredOrders,
+        customers: customers,
+        periodName: periodName,
+        isKurdish: isKurdish,
+        isArabic: isArabic,
+      );
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.of(context).pop(); 
+        Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(
+            builder: (_) => PdfPreviewScreen(
+              title: 'Invoices_Ledger_$periodName',
+              pdfBytes: pdfBytes,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      initialDateRange: _customStart != null && _customEnd != null 
+        ? DateTimeRange(start: _customStart!, end: _customEnd!) 
+        : null,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary,
+              onPrimary: Colors.white,
+              surface: Theme.of(context).cardColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _customStart = picked.start;
+        _customEnd = picked.end;
+        _selectedRange = 'custom';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentLocale = ref.watch(localeProvider);
+    final isKurdish = currentLocale.languageCode == 'ku';
+    final isArabic = currentLocale.languageCode == 'ar';
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final tTitle = isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ù¾Ø³ÙˆÙˆÚµÛ•Ú©Ø§Ù†' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„ÙÙˆØ§ØªÙŠØ±' : 'Invoices Report';
+    final tDesc = isKurdish ? 'Ù…Ø§ÙˆÛ•ÛŒÛ•Ú© Ù‡Û•ÚµØ¨Ú˜ÛŽØ±Û• Ø¨Û† Ø¯Ø±ÙˆØ³ØªÚ©Ø±Ø¯Ù†ÛŒ Ú•Ø§Ù¾Û†Ø±Øª' : isArabic ? 'Ø­Ø¯Ø¯ ÙØªØ±Ø© Ù„Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØªÙ‚Ø±ÙŠØ±' : 'Select a period to generate ledger';
+    final tWeek = isKurdish ? 'Ø¦Û•Ù… Ù‡Û•ÙØªÛ•ÛŒÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹' : 'This Week';
+    final tMonth = isKurdish ? 'Ø¦Û•Ù… Ù…Ø§Ù†Ú¯Û•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±' : 'This Month';
+    final tYear = isKurdish ? 'Ø¦Û•Ù… Ø³Ø§ÚµÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø¹Ø§Ù…' : 'This Year';
+    final tCustom = isKurdish ? 'Ù…Û•ÙˆØ¯Ø§ÛŒ ØªØ§ÛŒØ¨Û•Øª' : isArabic ? 'Ù†Ø·Ø§Ù‚ Ù…Ø®ØµØµ' : 'Custom Range';
+    final tGenerate = isKurdish ? 'Ø¯Ø±ÙˆØ³ØªÚ©Ø±Ø¯Ù†ÛŒ Ú•Ø§Ù¾Û†Ø±Øª' : isArabic ? 'Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØªÙ‚Ø±ÙŠØ±' : 'Generate Report';
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(24.0),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
+          ]
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.description_rounded, color: theme.colorScheme.primary, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Text(tDesc, style: TextStyle(fontSize: 13, color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 28),
+            
+            // Grid Options
+            Row(
+              children: [
+                Expanded(child: _buildPremiumCard('week', tWeek, Icons.view_week_rounded)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildPremiumCard('month', tMonth, Icons.calendar_month_rounded)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _buildPremiumCard('year', tYear, Icons.insert_invitation_rounded)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildCustomCard(tCustom)
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Action Button
+            _isLoading 
+              ? const Center(child: Padding(padding: EdgeInsets.all(16.0), child: CustomLoader()))
+              : HeavyIOSButton(
+                  label: tGenerate,
+                  icon: Icons.picture_as_pdf_rounded,
+                  onTap: _generateReport,
+                ).animate().scale(duration: 200.ms, curve: Curves.easeOutCubic),
+            
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(foregroundColor: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                child: Text(isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'),
+              ),
+            )
+          ],
+        ),
+      ),
+    ).animate().fade(duration: 250.ms).scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutQuad);
+  }
+
+  Widget _buildPremiumCard(String value, String label, IconData icon) {
+    final isSelected = _selectedRange == value;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedRange = value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected 
+            ? theme.colorScheme.primary 
+            : (isDark ? const Color(0xFF0F172A) : Colors.grey.shade100),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            width: 2,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            )
+          ] : [],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: isSelected ? Colors.white : (isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+            const SizedBox(height: 8),
+            Text(
+              label, 
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 13,
+                color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87)
+              )
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomCard(String label) {
+    final isSelected = _selectedRange == 'custom';
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final hasDate = _customStart != null && _customEnd != null;
+    final displayLabel = hasDate 
+      ? '${DateFormat('MMM d').format(_customStart!)} - ${DateFormat('MMM d').format(_customEnd!)}'
+      : label;
+
+    return GestureDetector(
+      onTap: _pickDateRange,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected 
+            ? theme.colorScheme.primary 
+            : (isDark ? const Color(0xFF0F172A) : Colors.grey.shade100),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            width: 2,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            )
+          ] : [],
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.date_range_rounded, size: 32, color: isSelected ? Colors.white : (isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+            const SizedBox(height: 8),
+            Text(
+              displayLabel, 
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 12,
+                color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87)
+              )
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+

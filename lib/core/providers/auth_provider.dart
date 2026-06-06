@@ -64,6 +64,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> refreshSession() async {
+    state = state.copyWith(isLoading: true);
+    await _doRestoreSession();
+    state = state.copyWith(isLoading: false);
+  }
+
   Future<void> _doRestoreSession() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -148,7 +154,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         name: name.trim(),
         email: emailLower,
         passwordHash: hashed,
-        role: 'admin',
+        role: 'user',
+        status: 'pending',
         createdAt: DateTime.now(),
       );
 

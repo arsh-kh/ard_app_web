@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/locale_provider.dart';
@@ -182,6 +181,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final passLbl   = lang == 'ku' ? 'وشەی نهێنی' : lang == 'ar' ? 'كلمة المرور' : 'Password';
     final nameLbl   = lang == 'ku' ? 'ناوی تەواو' : lang == 'ar' ? 'الاسم الكامل' : 'Full name';
     final req       = lang == 'ku' ? 'پێویستە' : lang == 'ar' ? 'مطلوب' : 'Required';
+    final forgotLbl = lang == 'ku' ? 'وشەی نهێنیت بیرچووە؟' : lang == 'ar' ? 'هل نسيت كلمة المرور؟' : 'Forgot Password?';
 
     final theme  = Theme.of(context);
     final bg     = theme.scaffoldBackgroundColor;
@@ -377,7 +377,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
                           child: _isLogin
-                              ? _buildLoginForm(emailLbl, passLbl, req, signIn, fg, border, isDark, isLoading)
+                              ? _buildLoginForm(emailLbl, passLbl, req, submitLbl: signIn, fg: fg, border: border, isDark: isDark, isLoading: isLoading, forgotLbl: forgotLbl)
                               : _buildRegisterForm(nameLbl, emailLbl, passLbl, req, register, fg, border, isDark, isLoading),
                         ),
                       ),
@@ -417,8 +417,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildLoginForm(String emailLbl, String passLbl, String req, String submitLbl,
-      Color fg, Color border, bool isDark, bool isLoading) {
+  Widget _buildLoginForm(String emailLbl, String passLbl, String req, {required String submitLbl,
+      required Color fg, required Color border, required bool isDark, required bool isLoading, required String forgotLbl}) {
     return Form(
       key: _loginFormKey,
       child: Column(
@@ -437,7 +437,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 onPressed: () => setState(() => _obscurePass = !_obscurePass),
               ),
               validator: (v) => (v == null || v.isEmpty) ? req : null),
-          const SizedBox(height: 20),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
+                    title: Text(forgotLbl),
+                    content: const Text('Please contact your system administrator to reset your password.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text('OK', style: TextStyle(color: fg)),
+                      )
+                    ],
+                  ),
+                );
+              },
+              child: Text(forgotLbl, style: TextStyle(color: fg, fontSize: 13)),
+            ),
+          ),
+          const SizedBox(height: 12),
           _submitBtn(label: submitLbl, isDark: isDark, fg: fg, isLoading: isLoading),
         ],
       ),
