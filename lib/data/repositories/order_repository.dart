@@ -12,7 +12,7 @@ class OrderRepository {
 
   Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
     final sanitized = Map<String, dynamic>.from(data);
-    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity'];
+    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity', 'discount', 'totalReturnedAmount', 'returnedQuantity', 'totalRefund', 'returnedQty', 'actualDeduction', 'debtBefore', 'debtAfter'];
     final intFields = ['orderNumber'];
     final dateFields = ['createdAt', 'updatedAt', 'date', 'timestamp', 'orderDate', 'paymentDate'];
 
@@ -108,6 +108,22 @@ class OrderRepository {
         .toList();
   }
 
+  Future<List<OrderItemEntity>> getOrderItemsForOrders(List<String> orderIds) async {
+    final List<OrderItemEntity> allItems = [];
+    for (var i = 0; i < orderIds.length; i += 30) {
+      final chunk = orderIds.sublist(i, i + 30 > orderIds.length ? orderIds.length : i + 30);
+      if (chunk.isEmpty) continue;
+      final snapshot = await _firestore
+          .collection('order_items')
+          .where('orderId', whereIn: chunk)
+          .get();
+      allItems.addAll(snapshot.docs
+          .map((doc) => OrderItemEntity.fromJson(_sanitizeData({'id': doc.id, ...doc.data()})))
+          .toList());
+    }
+    return allItems;
+  }
+
   Future<void> createOrder(OrderEntity order, List<OrderItemEntity> items) async {
     final batch = _firestore.batch();
     
@@ -138,11 +154,19 @@ class OrderRepository {
 
     await batch.commit();
 
+    String customerName = 'Walk-In';
+    if (finalOrder.customerId != 'walk-in' && finalOrder.customerId != 'walk-in-customer-id') {
+      final custDoc = await _firestore.collection('customers').doc(finalOrder.customerId).get();
+      if (custDoc.exists) {
+        customerName = custDoc.data()?['businessName'] ?? 'Unknown Client';
+      }
+    }
+
     await _auditService.logAction(
       action: 'CREATED',
       entityType: 'Order',
       entityId: finalOrder.id,
-      details: 'Created order #${finalOrder.orderNumber} for ${finalOrder.totalAmount}',
+      details: 'Sold ${items.length} product(s) to $customerName for ${finalOrder.totalAmount} IQD. (Order #${finalOrder.orderNumber})',
     );
   }
 
@@ -172,7 +196,7 @@ class OrderRepository {
       action: 'DELIVERED',
       entityType: 'Order',
       entityId: orderId,
-      details: 'Marked order #${order.orderNumber} as delivered',
+      details: 'Marked Order #${order.orderNumber} as Delivered. Stock deducted and debt updated.',
     );
   }
 
@@ -186,7 +210,7 @@ class OrderRepository {
       action: 'STATUS_UPDATED',
       entityType: 'Order',
       entityId: orderId,
-      details: 'Changed status to $newStatus',
+      details: 'Changed Order status to $newStatus',
     );
   }
 
@@ -194,27 +218,52 @@ class OrderRepository {
     final order = await getOrder(orderId);
     if (order == null) return;
 
+    final itemsSnapshot = await _firestore
+        .collection('order_items')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+
     final batch = _firestore.batch();
 
-    // Instead of isDeleted, we might actually delete from Firestore, or soft delete.
-    // For now, let's delete to keep it clean.
     batch.delete(_firestore.collection('orders').doc(orderId));
-
-    final itemsSnapshot = await _firestore.collection('order_items').where('orderId', isEqualTo: orderId).get();
     for (final doc in itemsSnapshot.docs) {
       batch.delete(doc.reference);
     }
 
+    // If the order was delivered, restore stock and reduce debt.
     if (order.status == 'delivered') {
-      final items = itemsSnapshot.docs.map((doc) => OrderItemEntity.fromJson({'id': doc.id, ...doc.data()})).toList();
+      // ── Parse items safely through _sanitizeData ─────────────────────────
+      final items = itemsSnapshot.docs.map((doc) {
+        try {
+          return OrderItemEntity.fromJson(
+              _sanitizeData({'id': doc.id, ...doc.data()}));
+        } catch (_) {
+          return null;
+        }
+      }).whereType<OrderItemEntity>().toList();
+
       for (final item in items) {
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        batch.update(prodRef, {'stockQuantity': FieldValue.increment(item.quantity)});
+        try {
+          // Guard: only update if the product document still exists.
+          final prodDoc = await _firestore
+              .collection('products')
+              .doc(item.productId)
+              .get();
+          if (prodDoc.exists) {
+            batch.update(prodDoc.reference,
+                {'stockQuantity': FieldValue.increment(item.quantity)});
+          }
+        } catch (_) {
+          // Product was deleted — skip silently.
+        }
       }
 
-      if (order.customerId != 'walk-in' && order.customerId != 'walk-in-customer-id') {
-        final custRef = _firestore.collection('customers').doc(order.customerId);
-        batch.update(custRef, {'debtBalance': FieldValue.increment(-order.totalAmount)});
+      if (order.customerId != 'walk-in' &&
+          order.customerId != 'walk-in-customer-id') {
+        final custRef =
+            _firestore.collection('customers').doc(order.customerId);
+        batch.update(
+            custRef, {'debtBalance': FieldValue.increment(-order.totalAmount)});
       }
     }
 
@@ -224,7 +273,8 @@ class OrderRepository {
       action: 'DELETED',
       entityType: 'Order',
       entityId: orderId,
-      details: 'Deleted order #${order.orderNumber}',
+      details:
+          'Deleted Order #${order.orderNumber}. Stock and Debt reverted if it was delivered.',
     );
   }
   Future<List<OrderEntity>> getAllOrders() async {

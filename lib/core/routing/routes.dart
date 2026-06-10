@@ -16,5 +16,6 @@ class Routes {
   static const auditLogs = '/audit-logs';
   static const adminUsers = '/admin-users';
   static const pendingApproval = '/pending-approval';
+  static const customerSelection = '/customer-selection';
 }
 

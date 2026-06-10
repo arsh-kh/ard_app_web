@@ -11,7 +11,7 @@ class InventoryRepository {
 
   Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
     final sanitized = Map<String, dynamic>.from(data);
-    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity'];
+    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity', 'discount', 'totalReturnedAmount', 'returnedQuantity', 'totalRefund', 'returnedQty', 'actualDeduction', 'debtBefore', 'debtAfter'];
     final intFields = ['orderNumber'];
     final dateFields = ['createdAt', 'updatedAt', 'date', 'timestamp', 'orderDate', 'paymentDate'];
 
@@ -56,7 +56,7 @@ class InventoryRepository {
       action: 'ADDED',
       entityType: 'Product',
       entityId: product.id,
-      details: 'Added product ${product.name}',
+      details: 'Added new product \'${product.name}\' with starting stock ${product.stockQuantity}',
     );
   }
 
@@ -69,7 +69,7 @@ class InventoryRepository {
       action: 'UPDATED',
       entityType: 'Product',
       entityId: product.id,
-      details: 'Updated product ${product.name}',
+      details: 'Modified product \'${product.name}\' (Price: ${product.sellPrice}, Stock: ${product.stockQuantity})',
     );
   }
 
@@ -82,7 +82,7 @@ class InventoryRepository {
       action: 'DELETED',
       entityType: 'Product',
       entityId: id,
-      details: 'Deleted product $name',
+      details: 'Deleted product \'$name\' from inventory',
     );
   }
 

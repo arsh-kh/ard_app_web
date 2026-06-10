@@ -13,6 +13,7 @@ import '../../features/dashboard/main_shell_layout.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/settings/edit_profile_screen.dart';
 import '../../features/settings/notifications_screen.dart';
+import '../../features/customers/customers_screen.dart';
 
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/pending_approval_screen.dart';
@@ -23,6 +24,22 @@ import '../../data/models/product_entity.dart';
 import '../../data/models/customer_entity.dart';
 import '../../core/providers/auth_provider.dart';
 import 'routes.dart';
+
+Page _buildSlideTransition(BuildContext context, GoRouterState state, Widget child) {
+  return CustomTransitionPage(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final isRtl = Directionality.of(context) == TextDirection.rtl;
+      final begin = isRtl ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0);
+      final tween = Tween(begin: begin, end: Offset.zero).chain(CurveTween(curve: Curves.easeOutCubic));
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
+}
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authListenable = ValueNotifier<AuthState>(ref.read(authProvider));
@@ -127,45 +144,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.analytics,
-        builder: (context, state) => const AnalyticsScreen(),
+        pageBuilder: (context, state) => _buildSlideTransition(context, state, const AnalyticsScreen()),
       ),
       GoRoute(
         path: Routes.auditLogs,
-        builder: (context, state) => const AuditLogScreen(),
+        pageBuilder: (context, state) => _buildSlideTransition(context, state, const AuditLogScreen()),
       ),
       GoRoute(
         path: Routes.adminUsers,
-        builder: (context, state) => const AdminUsersScreen(),
+        pageBuilder: (context, state) => _buildSlideTransition(context, state, const AdminUsersScreen()),
       ),
 
       GoRoute(
         path: Routes.productForm,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final productToEdit = state.extra as ProductEntity?;
-          return ProductFormScreen(productToEdit: productToEdit);
+          return _buildSlideTransition(context, state, ProductFormScreen(productToEdit: productToEdit));
         },
       ),
       GoRoute(
         path: Routes.customerForm,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final customerToEdit = state.extra as CustomerEntity?;
-          return CustomerFormScreen(customerToEdit: customerToEdit);
+          return _buildSlideTransition(context, state, CustomerFormScreen(customerToEdit: customerToEdit));
         },
       ),
       GoRoute(
+        path: Routes.customerSelection,
+        pageBuilder: (context, state) => _buildSlideTransition(context, state, const CustomersScreen(isSelectionMode: true, isEmbedded: false)),
+      ),
+      GoRoute(
         path: Routes.customerDetail,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final customer = state.extra as CustomerEntity;
-          return CustomerDetailScreen(customer: customer);
+          return _buildSlideTransition(context, state, CustomerDetailScreen(customer: customer));
         },
       ),
       GoRoute(
         path: Routes.editProfile,
-        builder: (context, state) => const EditProfileScreen(),
+        pageBuilder: (context, state) => _buildSlideTransition(context, state, const EditProfileScreen()),
       ),
       GoRoute(
         path: Routes.notifications,
-        builder: (context, state) => const NotificationsScreen(),
+        pageBuilder: (context, state) => _buildSlideTransition(context, state, const NotificationsScreen()),
       ),
     ],
   );
@@ -206,8 +227,8 @@ class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> {
         _isNavigatingFromBottomBar = true;
         _pageController.animateToPage(
           widget.navigationShell.currentIndex,
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutExpo,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
         ).then((_) {
           if (mounted) {
             setState(() {

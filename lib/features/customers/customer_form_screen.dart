@@ -1,3 +1,5 @@
+import 'dart:convert';
+import '../../core/utils/app_translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +13,8 @@ import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/customer_entity.dart';
 import '../../core/widgets/image_picker_widget.dart';
+import '../../core/widgets/custom_loader.dart';
+import '../../core/services/cloud_storage_service.dart';
 
 class CustomerFormScreen extends ConsumerStatefulWidget {
   final CustomerEntity? customerToEdit;
@@ -51,11 +55,25 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
 
   void _saveCustomer() async {
     if (_formKey.currentState!.validate()) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CustomLoader()),
+      );
+
       final currentLocale = ref.read(localeProvider);
-      final isKurdish = currentLocale.languageCode == 'ku';
-      final isArabic = currentLocale.languageCode == 'ar';
+      final langCode = currentLocale.languageCode;
 
       final repo = ref.read(customerRepositoryProvider);
+
+      String? finalImageUrl = _imagePath;
+      if (_imagePath != null && !_imagePath!.startsWith('http')) {
+        final storage = ref.read(cloudStorageServiceProvider);
+        final uploadedUrl = await storage.uploadImage(_imagePath!, 'customers');
+        if (uploadedUrl != null) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
 
       final customer = CustomerEntity(
         id: widget.customerToEdit?.id ?? const Uuid().v4(),
@@ -63,7 +81,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
         address: _addressController.text,
         debtBalance: double.tryParse(_debtController.text.replaceAll(',', '')) ?? 0.0,
-        imageUrl: _imagePath,
+        imageUrl: finalImageUrl,
       );
 
       final isAdd = widget.customerToEdit == null;
@@ -71,8 +89,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       if (isAdd) {
         await repo.addCustomer(customer);
         await ref.read(notificationProvider.notifier).addNotification(
-          title: '${AppConstants.appName} - New Customer Created',
-          message: '${_nameController.text} added to customer directory.',
+          title: 'new_customer',
+          message: jsonEncode({'name': _nameController.text}),
           type: 'sync',
         );
       } else {
@@ -80,9 +98,10 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       }
 
       if (mounted) {
+        Navigator.pop(context); // dismiss loader
         AppFeedback.showSuccess(context, isAdd 
-          ? (isKurdish ? 'کڕیارەکە بە سەرکەوتوویی تۆمارکرا!' : isArabic ? 'تم تسجيل العميل بنجاح!' : 'Customer registered successfully!')
-          : (isKurdish ? 'پڕۆفایلی کڕیارەکە نوێکرایەوە!' : isArabic ? 'تم تحديث ملف العميل!' : 'Customer profile updated!')
+          ? (Tr.t('auto_Customerregiste', langCode))
+          : (Tr.t('auto_Customerprofile', langCode))
         );
         context.pop();
       }
@@ -92,30 +111,31 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   @override
   Widget build(BuildContext context) {
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final langCode = currentLocale.languageCode;
+    final isKurdish = langCode == 'ku';
+    final isArabic = langCode == 'ar';
     final isNew = widget.customerToEdit == null;
 
     final title = isNew 
-      ? (isKurdish ? 'تۆمارکردنی کڕیاری نوێ' : isArabic ? 'تسجيل عميل جديد' : 'Register New Customer')
-      : (isKurdish ? 'گۆڕینی پرۆفایلی کڕیار' : isArabic ? 'تعديل ملف العميل' : 'Modify Customer Profile');
+      ? (Tr.t('auto_RegisterNewCust', langCode))
+      : (Tr.t('auto_ModifyCustomerP', langCode));
 
-    final nameLabel = isKurdish ? 'ناوی کار / کڕیار' : isArabic ? 'اسم العمل / العميل' : 'Business / Customer Name';
-    final nameHint = isKurdish ? 'بۆ نموونە: گرووپی نانەواخانەی سلێمانی' : isArabic ? 'مثل: مجموعة مخابز السليمانية' : 'e.g. Sulaymaniyah Bakery Group';
-    final nameReq = isKurdish ? 'ناوی کار داواکراوە' : isArabic ? 'اسم العمل مطلوب' : 'Business name is required';
+    final nameLabel = Tr.t('auto_BusinessCustome', langCode);
+    final nameHint = Tr.t('auto_egSulaymaniyahB', langCode);
+    final nameReq = Tr.t('auto_Businessnameisr', langCode);
 
-    final phoneLabel = isKurdish ? 'ژمارەی تەلەفۆن' : isArabic ? 'رقم الهاتف' : 'Phone Number';
-    final addressLabel = isKurdish ? 'ناونیشانی کار' : isArabic ? 'عنوان العمل' : 'Business Address';
-    final addressHint = isKurdish ? 'بۆ نموونە: شەقامی سەالم، سلێمانی، عێراق' : isArabic ? 'مثل: شارع سالم، السليمانية، العراق' : 'e.g. Salim Street, Sulaymaniyah, Iraq';
+    final phoneLabel = Tr.t('auto_PhoneNumber', langCode);
+    final addressLabel = Tr.t('auto_BusinessAddress', langCode);
+    final addressHint = Tr.t('auto_egSalimStreetSu', langCode);
 
-    final debtLabel = isKurdish ? 'قەرزی سەرەتا' : isArabic ? 'الرصيد الافتتاحي للديون' : 'Initial Debt Balance';
-    final debtReq = isKurdish ? 'قەرز داواکراوە' : isArabic ? 'الرصيد مطلوب' : 'Debt balance is required';
-    final numReqLabel = isKurdish ? 'دەبێت ژمارە بێت' : isArabic ? 'يجب أن يكون رقماً' : 'Must be a valid decimal';
-    final negLabel = isKurdish ? 'نابێت نەرێنی بێت' : isArabic ? 'لا يمكن أن يكون سالباً' : 'Debt balance cannot be negative';
+    final debtLabel = Tr.t('auto_InitialDebtBala', langCode);
+    final debtReq = Tr.t('auto_Debtbalanceisre', langCode);
+    final numReqLabel = Tr.t('auto_Mustbeavaliddec', langCode);
+    final negLabel = Tr.t('auto_Debtbalancecann', langCode);
 
     final saveBtn = isNew 
-      ? (isKurdish ? 'تۆمارکردنی کڕیار' : isArabic ? 'تسجيل العميل' : 'Register Customer')
-      : (isKurdish ? 'پاشەکەوتکردنی گۆڕانکارییەکان' : isArabic ? 'حفظ تحديثات الملف' : 'Save Profile updates');
+      ? (Tr.t('auto_RegisterCustome', langCode))
+      : (Tr.t('auto_SaveProfileupda', langCode));
 
     return Scaffold(
       appBar: AppBar(

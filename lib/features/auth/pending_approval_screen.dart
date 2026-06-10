@@ -76,7 +76,7 @@ class PendingApprovalScreen extends ConsumerWidget {
                       
                       // Title
                       Text(
-                        lang == 'ku' ? 'Ú†Ø§ÙˆÛ•Ú•ÛŽÛŒ Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø¯Ù†' : lang == 'ar' ? 'ÙÙŠ Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©' : 'Pending Approval',
+                        lang == 'ku' ? 'چاوەڕێی پەسەندکردن' : lang == 'ar' ? 'في انتظار الموافقة' : 'Pending Approval',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 28,
@@ -91,9 +91,9 @@ class PendingApprovalScreen extends ConsumerWidget {
                       // Description
                       Text(
                         lang == 'ku' 
-                          ? 'Ù‡Û•Ú˜Ù…Ø§Ø±Û•Ú©Û•Øª Ø³Û•Ø±Ú©Û•ÙˆØªÙˆÙˆØ§Ù†Û• Ø¯Ø±ÙˆØ³ØªÚ©Ø±Ø§. ØªÚ©Ø§ÛŒÛ• Ú†Ø§ÙˆÛ•Ú•ÛŽ Ø¨Ú©Û• ØªØ§ Ø¨Û•Ú•ÛŽÙˆÛ•Ø¨Û•Ø±ÛŽÚ© Ù¾Û•Ø³Û•Ù†Ø¯ÛŒ Ø¯Û•Ú©Ø§Øª Ø¨Û† Ø¦Û•ÙˆÛ•ÛŒ Ø¨ØªÙˆØ§Ù†ÛŒØª Ø¨Ú†ÛŒØªÛ• Ú˜ÙˆÙˆØ±Û•ÙˆÛ•.' 
+                          ? 'هەژمارەکەت سەرکەوتووانە دروستکرا. تکایە چاوەڕێ بکە تا بەڕێوەبەرێک پەسەندی دەکات بۆ ئەوەی بتوانیت بچیتە ژوورەوە.' 
                           : lang == 'ar' 
-                            ? 'ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨Ùƒ Ø¨Ù†Ø¬Ø§Ø­. ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø± Ø­ØªÙ‰ ÙŠÙˆØ§ÙÙ‚ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ Ù„ØªØªÙ…ÙƒÙ† Ù…Ù† ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„.' 
+                            ? 'تم إنشاء حسابك بنجاح. يرجى الانتظار حتى يوافق المسؤول لتتمكن من تسجيل الدخول.' 
                             : 'Your account has been created successfully. Please wait for an administrator to approve your access before you can log in.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -128,7 +128,7 @@ class PendingApprovalScreen extends ConsumerWidget {
                                   const Icon(Icons.refresh_rounded),
                                   const SizedBox(width: 8),
                                   Text(
-                                    lang == 'ku' ? 'Ù†ÙˆÛŽÚ©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ø¯Û†Ø®' : lang == 'ar' ? 'ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©' : 'Refresh Status',
+                                    lang == 'ku' ? 'نوێکردنەوەی دۆخ' : lang == 'ar' ? 'تحديث الحالة' : 'Refresh Status',
                                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -151,7 +151,7 @@ class PendingApprovalScreen extends ConsumerWidget {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
                           child: Text(
-                            lang == 'ku' ? 'Ú†ÙˆÙˆÙ†Û• Ø¯Û•Ø±Û•ÙˆÛ•' : lang == 'ar' ? 'ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬' : 'Log Out',
+                            lang == 'ku' ? 'چوونە دەرەوە' : lang == 'ar' ? 'تسجيل الخروج' : 'Log Out',
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),

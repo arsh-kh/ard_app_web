@@ -9,6 +9,8 @@ import '../../core/providers/dashboard_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/utils/app_translations.dart';
+import '../../core/widgets/animated_counter.dart';
 import '../../data/models/user_entity.dart';
 import '../../core/widgets/initials_avatar.dart';
 import '../../core/routing/routes.dart';
@@ -25,9 +27,8 @@ class AdminDashboardScreen extends ConsumerWidget {
     final unreadNotifsCount = ref.watch(unreadNotificationsCountProvider);
     final authState = ref.watch(authProvider);
     final user = authState.user;
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
-    
+    final lang = currentLocale.languageCode;
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -44,7 +45,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           },
           child: metricsAsync.when(
             loading: () => const Center(child: CustomLoader()),
-            error: (err, stack) => Center(child: Text(isKurdish ? 'هەڵە: $err' : isArabic ? 'خطأ: $err' : 'Error: $err')),
+            error: (err, stack) => Center(child: Text('${Tr.t('errorPrefix', lang)}$err')),
             data: (metrics) {
               return SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -52,25 +53,22 @@ class AdminDashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildHeader(context, isKurdish, isArabic, isDark, unreadNotifsCount, user).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
+                    _buildHeader(context, lang, isDark, unreadNotifsCount, user).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
                     const SizedBox(height: 24),
-                    
-                    _buildHeroCard(metrics, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
-                    const SizedBox(height: 32),
-                    
-                    _buildRecentActivity(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1),
+
+                    _buildHeroCard(metrics, lang, isDark, theme).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
                     const SizedBox(height: 32),
 
-                    _buildTopDebtors(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1),
-                    const SizedBox(height: 32),
-                    
-                    _buildLowStockAlerts(ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 250.ms).slideX(begin: 0.1),
+                    _buildRecentActivity(ref, lang, isDark, theme).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1),
                     const SizedBox(height: 32),
 
-                    _buildSectionHeader(isKurdish ? 'شیکارییەکان' : isArabic ? 'التحليلات' : 'Analytics', '', isDark, theme).animate().fadeIn(delay: 300.ms),
+                    _buildTopDebtors(ref, lang, isDark, theme).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1),
+                    const SizedBox(height: 32),
+
+                    _buildSectionHeader(Tr.t('analytics', lang), '', isDark, theme).animate().fadeIn(delay: 300.ms),
                     const SizedBox(height: 16),
-                    
-                    _buildReportButtons(context, ref, isKurdish, isArabic, isDark, theme).animate().fadeIn(delay: 350.ms).slideY(begin: 0.1),
+
+                    _buildReportButtons(context, ref, lang, isDark, theme).animate().fadeIn(delay: 350.ms).slideY(begin: 0.1),
                     const SizedBox(height: 48),
                   ],
                 ),
@@ -82,7 +80,7 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isKurdish, bool isArabic, bool isDark, int unreadNotifsCount, UserEntity? user) {
+  Widget _buildHeader(BuildContext context, String lang, bool isDark, int unreadNotifsCount, UserEntity? user) {
     final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,7 +97,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isKurdish ? 'بەخێربێیتەوە،' : isArabic ? 'مرحباً بعودتك،' : 'Welcome back,',
+                  Tr.t('welcomeBack', lang),
                   style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 13),
                 ),
                 Text(
@@ -116,7 +114,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
               ),
               child: IconButton(
                 icon: Icon(Icons.notifications_outlined, size: 22, color: isDark ? Colors.white : Colors.black87),
@@ -142,17 +140,17 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeroCard(DashboardMetrics metrics, bool isKurdish, bool isArabic, bool isDark, ThemeData theme) {
-    final textColor = Colors.white;
-    final mutedTextColor = Colors.white70;
-    
+  Widget _buildHeroCard(DashboardMetrics metrics, String lang, bool isDark, ThemeData theme) {
+    const textColor = Colors.white;
+    const mutedTextColor = Colors.white70;
+
     return Container(
-      clipBehavior: Clip.antiAlias, // Ensures the watermark icon doesn't bleed out
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDark 
-            ? [const Color(0xFF181A20), const Color(0xFF0D0E12)] // Sleek dark blue-grey tint to stand out from black background
-            : [const Color(0xFF222222), const Color(0xFF000000)], // True black for Light Mode
+          colors: isDark
+              ? [const Color(0xFF181A20), const Color(0xFF0D0E12)]
+              : [const Color(0xFF222222), const Color(0xFF000000)],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
@@ -171,7 +169,6 @@ class AdminDashboardScreen extends ConsumerWidget {
       ),
       child: Stack(
         children: [
-          // Background Watermark Icon for premium depth
           Positioned(
             right: -20,
             bottom: -20,
@@ -184,15 +181,14 @@ class AdminDashboardScreen extends ConsumerWidget {
               ),
             ),
           ),
-          // Content
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isKurdish ? 'پوختەی هەفتە' : isArabic ? 'ملخص الأسبوع' : 'Weekly Summary',
-                  style: TextStyle(color: mutedTextColor, fontSize: 13, letterSpacing: 0.5),
+                  Tr.t('weeklyS', lang),
+                  style: const TextStyle(color: mutedTextColor, fontSize: 13, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -202,19 +198,17 @@ class AdminDashboardScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            isKurdish ? 'قازانج' : isArabic ? 'الأرباح' : 'Profit',
-                            style: TextStyle(color: mutedTextColor, fontSize: 13),
-                          ),
+                          Text(Tr.t('profit', lang), style: const TextStyle(color: mutedTextColor, fontSize: 13)),
                           const SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               alignment: AlignmentDirectional.centerStart,
-                              child: Text(
-                                CurrencyFormatter.format(metrics.thisWeekProfit),
-                                style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
+                              child: AnimatedCounter(
+                                value: metrics.thisWeekProfit,
+                                isCurrency: true,
+                                style: const TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -222,26 +216,24 @@ class AdminDashboardScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Container(width: 1, height: 40, color: Colors.white24),
+                    Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08)),
                     const SizedBox(width: 16),
                     Expanded(
                       flex: 3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            isKurdish ? 'داواکارییەکان' : isArabic ? 'الطلبات' : 'Orders',
-                            style: TextStyle(color: mutedTextColor, fontSize: 13),
-                          ),
+                          Text(Tr.t('ordersLabel', lang), style: const TextStyle(color: mutedTextColor, fontSize: 13)),
                           const SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               alignment: AlignmentDirectional.centerStart,
-                              child: Text(
-                                metrics.thisWeekOrders.toString(),
-                                style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
+                              child: AnimatedCounter(
+                                value: metrics.thisWeekOrders.toDouble(),
+                                isCurrency: false,
+                                style: const TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -274,13 +266,13 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildReportButtons(BuildContext context, WidgetRef ref, bool isKurdish, bool isArabic, bool isDark, ThemeData theme) {
+  Widget _buildReportButtons(BuildContext context, WidgetRef ref, String lang, bool isDark, ThemeData theme) {
     return Row(
       children: [
         Expanded(
           child: _buildReportCard(
             context, ref,
-            title: isKurdish ? 'ڕاپۆرتی مانگانە' : isArabic ? 'تقرير شهري' : 'Monthly Report',
+            title: Tr.t('monthlyReport', lang),
             icon: Icons.bar_chart_rounded,
             isMonth: true,
             theme: theme,
@@ -290,7 +282,7 @@ class AdminDashboardScreen extends ConsumerWidget {
         Expanded(
           child: _buildReportCard(
             context, ref,
-            title: isKurdish ? 'ڕاپۆرتی ساڵانە' : isArabic ? 'تقرير سنوي' : 'Yearly Report',
+            title: Tr.t('yearlyReport', lang),
             icon: Icons.pie_chart_rounded,
             isMonth: false,
             theme: theme,
@@ -308,7 +300,7 @@ class AdminDashboardScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: theme.cardTheme.color,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: theme.brightness == Brightness.dark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
+          border: Border.all(color: theme.brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -346,30 +338,30 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopDebtors(WidgetRef ref, bool isKurdish, bool isArabic, bool isDark, ThemeData theme) {
+  Widget _buildTopDebtors(WidgetRef ref, String lang, bool isDark, ThemeData theme) {
     final debtorsAsync = ref.watch(topDebtorsProvider);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(isKurdish ? 'قەرزدارە سەرەکییەکان' : isArabic ? 'أكبر المدينين' : 'Top Debtors', '', isDark, theme),
+        _buildSectionHeader(Tr.t('topDebtors', lang), '', isDark, theme),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
+            border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05)),
           ),
           child: debtorsAsync.when(
             loading: () => const Center(child: CustomLoader()),
-            error: (err, _) => Text(isKurdish ? 'هەڵە لە هێنانی قەرزدارەکان' : isArabic ? 'خطأ في تحميل المدينين' : 'Error loading debtors'),
+            error: (err, _) => Text(Tr.t('errorLoadingDebtors', lang)),
             data: (customers) {
               if (customers.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text(isKurdish ? 'هیچ قەرزێک نییە' : isArabic ? 'لا توجد ديون' : 'No outstanding debts!', style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                    child: Text(Tr.t('noDebts', lang), style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                   ),
                 );
               }
@@ -388,11 +380,11 @@ class AdminDashboardScreen extends ConsumerWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              customers[i].businessName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : customers[i].businessName, 
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14), 
-                              maxLines: 1, 
-                              overflow: TextOverflow.ellipsis
-                            )
+                              Tr.localiseCustomerName(customers[i].businessName, lang),
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           Text(CurrencyFormatter.format(customers[i].debtBalance), style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14)),
                         ],
@@ -407,90 +399,30 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLowStockAlerts(WidgetRef ref, bool isKurdish, bool isArabic, bool isDark, ThemeData theme) {
-    final lowStockAsync = ref.watch(lowStockProvider);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader(isKurdish ? 'ئاگاداری کەمبوونەوە' : isArabic ? 'تنبيهات نقص المخزون' : 'Low Stock Alerts', '', isDark, theme),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: theme.cardTheme.color,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
-          ),
-          child: lowStockAsync.when(
-            loading: () => const Center(child: CustomLoader()),
-            error: (err, _) => Text(isKurdish ? 'هەڵە لە هێنانی ئاگادارییەکان' : isArabic ? 'خطأ في تحميل التنبيهات' : 'Error loading alerts'),
-            data: (products) {
-              if (products.isEmpty) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        Icon(Icons.check_circle_outline, color: theme.colorScheme.primary, size: 40),
-                        const SizedBox(height: 8),
-                        Text(isKurdish ? 'هیچ کێشەیەک نییە' : isArabic ? 'المخزون جيد' : 'Stock Levels Good', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return Column(
-                children: [
-                  for (var i = 0; i < products.length; i++)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: i == products.length - 1 ? 0 : 16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05), shape: BoxShape.circle),
-                            child: Icon(Icons.warning_amber_rounded, color: theme.colorScheme.primary, size: 20),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(child: Text(products[i].name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                          Text(isKurdish ? '${CurrencyFormatter.formatQuantity(products[i].stockQuantity, '')} ماوە' : isArabic ? 'متبقي ${CurrencyFormatter.formatQuantity(products[i].stockQuantity, '')}' : '${CurrencyFormatter.formatQuantity(products[i].stockQuantity, '')} left', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentActivity(WidgetRef ref, bool isKurdish, bool isArabic, bool isDark, ThemeData theme) {
+  Widget _buildRecentActivity(WidgetRef ref, String lang, bool isDark, ThemeData theme) {
     final recentAsync = ref.watch(recentActivityProvider);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(isKurdish ? 'چالاکی دوایی' : isArabic ? 'النشاط الأخير' : 'Recent Activity', '', isDark, theme),
+        _buildSectionHeader(Tr.t('recentActivity', lang), '', isDark, theme),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
+            border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05)),
           ),
           child: recentAsync.when(
             loading: () => const Center(child: CustomLoader()),
-            error: (err, _) => Text(isKurdish ? 'هەڵە لە هێنانی چالاکییەکان' : isArabic ? 'خطأ في تحميل النشاط' : 'Error loading activity'),
+            error: (err, _) => Text(Tr.t('errorLoadingActivity', lang)),
             data: (activities) {
               if (activities.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Text(isKurdish ? 'هیچ داواکارییەک نییە' : isArabic ? 'لا توجد طلبات' : 'No recent activity', style: const TextStyle(color: Colors.grey)),
+                    child: Text(Tr.t('noRecentActivity', lang), style: const TextStyle(color: Colors.grey)),
                   ),
                 );
               }
@@ -504,21 +436,21 @@ class AdminDashboardScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
-                              shape: BoxShape.circle
+                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                              shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              activities[i].isPayment 
-                                ? Icons.payments_outlined 
-                                : (activities[i].status == 'out_for_delivery' 
-                                    ? Icons.local_shipping_outlined 
-                                    : (activities[i].status == 'delivered' 
-                                        ? Icons.check_circle_outline 
-                                        : (activities[i].status == 'preparing' 
-                                            ? Icons.inventory_2_outlined 
-                                            : Icons.shopping_bag_outlined))), 
-                              color: isDark ? Colors.white : Colors.black87, 
-                              size: 20
+                              activities[i].isPayment
+                                  ? Icons.payments_outlined
+                                  : (activities[i].status == 'out_for_delivery'
+                                      ? Icons.local_shipping_outlined
+                                      : (activities[i].status == 'delivered'
+                                          ? Icons.check_circle_outline
+                                          : (activities[i].status == 'preparing'
+                                              ? Icons.inventory_2_outlined
+                                              : Icons.shopping_bag_outlined))),
+                              color: isDark ? Colors.white : Colors.black87,
+                              size: 20,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -527,22 +459,22 @@ class AdminDashboardScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  activities[i].isPayment 
-                                    ? (activities[i].customerName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : activities[i].customerName)
-                                    : '${activities[i].customerName == 'Walk-In Customer' ? (isKurdish ? 'کڕیاری کاتی' : isArabic ? 'عميل عابر' : 'Walk-In Customer') : activities[i].customerName}${activities[i].orderNumber != null ? ' (#${activities[i].orderNumber})' : ''}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)
+                                  activities[i].isPayment
+                                      ? Tr.localiseCustomerName(activities[i].customerName, lang)
+                                      : '${Tr.localiseCustomerName(activities[i].customerName, lang)}${activities[i].orderNumber != null ? ' (#${activities[i].orderNumber})' : ''}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                 ),
                                 const SizedBox(height: 2),
                                 Row(
                                   children: [
                                     Text(
                                       activities[i].isPayment
-                                          ? (isKurdish ? 'پارەدان' : isArabic ? 'دفع' : 'Payment')
+                                          ? Tr.t('payment', lang)
                                           : (activities[i].status == 'delivered'
-                                              ? (isKurdish ? 'گەیەنرا' : isArabic ? 'تم التوصيل' : 'Delivered')
+                                              ? Tr.t('delivered', lang)
                                               : activities[i].status == 'out_for_delivery'
-                                                  ? (isKurdish ? 'لە ڕێگایە' : isArabic ? 'في الطريق' : 'Out for delivery')
-                                                  : (isKurdish ? 'داواکاری' : isArabic ? 'طلب' : 'Order')),
+                                                  ? Tr.t('outForDelivery', lang)
+                                                  : Tr.t('orderLabel', lang)),
                                       style: TextStyle(
                                         color: isDark ? Colors.white70 : Colors.black54,
                                         fontSize: 10,
@@ -559,12 +491,12 @@ class AdminDashboardScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            CurrencyFormatter.format(activities[i].totalAmount), 
+                            CurrencyFormatter.format(activities[i].totalAmount),
                             style: TextStyle(
-                              fontWeight: FontWeight.w900, 
-                              fontSize: 15, 
-                              color: isDark ? Colors.white : Colors.black87
-                            )
+                              fontWeight: FontWeight.w900,
+                              fontSize: 15,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
                           ),
                         ],
                       ),
@@ -578,4 +510,3 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 }
-

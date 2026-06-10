@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../customers/customers_screen.dart';
@@ -11,17 +12,12 @@ class ClientsOrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLocale = ref.watch(localeProvider);
-    final isArabic = currentLocale.languageCode == 'ar';
-    final isKurdish = currentLocale.languageCode == 'ku';
+    final langCode = currentLocale.languageCode;
     
-    final title = isKurdish 
-        ? 'کڕیارەکان و داواکارییەکان' 
-        : isArabic 
-            ? 'العملاء والطلبات' 
-            : 'Clients & Orders';
+    final title = Tr.t('auto_ClientsOrders', langCode);
 
-    final clientsTab = isKurdish ? 'کڕیارەکان' : isArabic ? 'العملاء' : 'Clients';
-    final ordersTab = isKurdish ? 'مێژووی داواکاری' : isArabic ? 'سجل الطلبات' : 'Order History';
+    final clientsTab = Tr.t('auto_Clients', langCode);
+    final ordersTab = Tr.t('auto_OrderHistory', langCode);
 
     return DefaultTabController(
       length: 2,

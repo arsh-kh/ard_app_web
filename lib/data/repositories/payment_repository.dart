@@ -10,7 +10,7 @@ class PaymentRepository {
 
   Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
     final sanitized = Map<String, dynamic>.from(data);
-    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity'];
+    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity', 'discount', 'totalReturnedAmount', 'returnedQuantity', 'totalRefund', 'returnedQty', 'actualDeduction', 'debtBefore', 'debtAfter'];
     final intFields = ['orderNumber'];
     final dateFields = ['createdAt', 'updatedAt', 'date', 'timestamp', 'orderDate', 'paymentDate'];
 
@@ -76,11 +76,19 @@ class PaymentRepository {
 
     await batch.commit();
 
+    String customerName = 'Walk-In';
+    if (payment.customerId != 'walk-in' && payment.customerId != 'walk-in-customer-id') {
+      final custDoc = await _firestore.collection('customers').doc(payment.customerId).get();
+      if (custDoc.exists) {
+        customerName = custDoc.data()?['businessName'] ?? 'Unknown Client';
+      }
+    }
+
     await _auditService.logAction(
-      action: 'ADDED',
+      action: 'COLLECTED_DEBT',
       entityType: 'Payment',
       entityId: payment.id,
-      details: 'Added payment of ${payment.amount}',
+      details: 'Collected payment of ${payment.amount} IQD from $customerName',
     );
   }
 
@@ -100,11 +108,19 @@ class PaymentRepository {
 
     await batch.commit();
 
+    String customerName = 'Walk-In';
+    if (payment.customerId != 'walk-in' && payment.customerId != 'walk-in-customer-id') {
+      final custDoc = await _firestore.collection('customers').doc(payment.customerId).get();
+      if (custDoc.exists) {
+        customerName = custDoc.data()?['businessName'] ?? 'Unknown Client';
+      }
+    }
+
     await _auditService.logAction(
       action: 'DELETED',
       entityType: 'Payment',
       entityId: paymentId,
-      details: 'Deleted payment of ${payment.amount}',
+      details: 'Deleted payment of ${payment.amount} IQD from $customerName. Debt balance reverted.',
     );
   }
   Stream<List<PaymentEntity>> watchAllPayments() {

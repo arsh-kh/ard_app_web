@@ -7,6 +7,7 @@ import '../../data/repositories/user_repository.dart';
 import '../../data/models/user_entity.dart';
 import '../../core/widgets/custom_loader.dart';
 import '../../core/providers/auth_provider.dart';
+import '../../core/utils/app_translations.dart';
 
 class AdminUsersScreen extends ConsumerStatefulWidget {
   const AdminUsersScreen({super.key});
@@ -32,7 +33,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
     final locale = ref.watch(localeProvider);
     final lang = locale.languageCode;
     
-    final titleText = lang == 'ku' ? 'بەڕێوەبردنی بەکارهێنەران' : lang == 'ar' ? 'إدارة المستخدمين' : 'Manage Users';
+    final titleText = Tr.t('manageUsersTitle', lang);
 
     final userRepo = ref.watch(userRepositoryProvider);
     final currentUser = ref.watch(authProvider).user;
@@ -58,7 +59,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
               controller: _searchCtrl,
               onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
               decoration: InputDecoration(
-                hintText: lang == 'ku' ? 'گەڕان بۆ بەکارهێنەر...' : lang == 'ar' ? 'البحث عن مستخدم...' : 'Search users...',
+                hintText: Tr.t('searchUsers', lang),
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
@@ -92,7 +93,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                       children: [
                         Icon(Icons.group_off_rounded, size: 64, color: theme.colorScheme.onSurface.withValues(alpha: 0.2)),
                         const SizedBox(height: 16),
-                        Text(lang == 'ku' ? 'هیچ بەکارهێنەرێک نەدۆزرایەوە' : lang == 'ar' ? 'لم يتم العثور على مستخدمين' : 'No users found',
+                        Text(Tr.t('noUsersFound', lang),
                           style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w600)),
                       ],
                     ),
@@ -155,13 +156,13 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                                   color: isDark ? Colors.white : Colors.black, 
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: Text('Admin', style: TextStyle(color: isDark ? Colors.black : Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                child: Text(Tr.t('roleAdmin', lang), style: TextStyle(color: isDark ? Colors.black : Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                               )
                           ],
                         ),
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text(user.email ?? user.phone ?? "No contact details", style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13)),
+                          child: Text(user.email ?? user.phone ?? Tr.t('noContactDetails', lang), style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13)),
                         ),
                         trailing: isCurrentUser ? null : PopupMenuButton<String>(
                           icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
@@ -181,15 +182,15 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                           },
                           itemBuilder: (ctx) => [
                             if (isBanned || isPending || user.status == null)
-                              const PopupMenuItem(value: 'activate', child: Row(children: [Icon(Icons.check_circle_outline, size: 20), SizedBox(width: 8), Text('Activate')])),
+                              PopupMenuItem(value: 'activate', child: Row(children: [const Icon(Icons.check_circle_outline, size: 20), const SizedBox(width: 8), Text(Tr.t('activateUser', lang))])),
                             if (!isBanned)
-                              const PopupMenuItem(value: 'ban', child: Row(children: [Icon(Icons.block, size: 20), SizedBox(width: 8), Text('Ban User')])),
+                              PopupMenuItem(value: 'ban', child: Row(children: [const Icon(Icons.block, size: 20), const SizedBox(width: 8), Text(Tr.t('banUser', lang))])),
                             if (user.role != 'admin')
-                              const PopupMenuItem(value: 'make_admin', child: Row(children: [Icon(Icons.admin_panel_settings_outlined, size: 20), SizedBox(width: 8), Text('Make Admin')])),
+                              PopupMenuItem(value: 'make_admin', child: Row(children: [const Icon(Icons.admin_panel_settings_outlined, size: 20), const SizedBox(width: 8), Text(Tr.t('makeAdmin', lang))])),
                             if (user.role == 'admin')
-                              const PopupMenuItem(value: 'make_user', child: Row(children: [Icon(Icons.person_outline, size: 20), SizedBox(width: 8), Text('Remove Admin')])),
+                              PopupMenuItem(value: 'make_user', child: Row(children: [const Icon(Icons.person_outline, size: 20), const SizedBox(width: 8), Text(Tr.t('removeAdmin', lang))])),
                             const PopupMenuDivider(),
-                            const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 20), SizedBox(width: 8), Text('Delete Account')])),
+                            PopupMenuItem(value: 'delete', child: Row(children: [const Icon(Icons.delete_outline, size: 20), const SizedBox(width: 8), Text(Tr.t('deleteAccount', lang))])),
                           ],
                         ),
                       ),

@@ -39,8 +39,8 @@ class OrderStatusUtils {
   static Widget buildStatusBadge(String status) {
     final color = getStatusColor(status);
     
-    bool isArabic = AppConstants.currencySymbol == 'د.ع';
-    bool isKurdish = AppConstants.currencySymbol == 'دینار';
+    bool isArabic = AppConstants.languageCode == 'ar';
+    bool isKurdish = AppConstants.languageCode == 'ku';
     
     String displayStatus = status.toUpperCase();
     if (isKurdish) {

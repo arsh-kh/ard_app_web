@@ -103,6 +103,12 @@ final debtAgingProvider = FutureProvider<DebtAgingData>((ref) async {
 
   final allCustomers = await customerRepo.getAllCustomers();
   final customers = allCustomers.where((c) => c.debtBalance > 0).toList();
+  final allOrders = await orderRepo.getAllOrders();
+  final deliveredOrders = allOrders.where((o) => o.status == 'delivered').toList();
+  final Map<String, List<OrderEntity>> ordersByCustomer = {};
+  for (final o in deliveredOrders) {
+    ordersByCustomer.putIfAbsent(o.customerId, () => []).add(o);
+  }
       
   double recent = 0.0;
   double due = 0.0;
@@ -115,10 +121,9 @@ final debtAgingProvider = FutureProvider<DebtAgingData>((ref) async {
     total += customer.debtBalance;
     
     // Find last order date of this customer
-    final cOrders = await orderRepo.getOrdersByCustomer(customer.id);
-    final deliveredOrders = cOrders.where((o) => o.status == 'delivered').toList();
-    deliveredOrders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
-    final lastOrder = deliveredOrders.isNotEmpty ? deliveredOrders.first : null;
+    final cOrders = ordersByCustomer[customer.id] ?? [];
+    cOrders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
+    final lastOrder = cOrders.isNotEmpty ? cOrders.first : null;
         
     if (lastOrder != null) {
       final days = now.difference(lastOrder.orderDate).inDays;

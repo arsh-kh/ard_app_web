@@ -8,9 +8,10 @@ import '../../core/providers/locale_provider.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/routing/routes.dart';
-import '../../core/localization/dashboard_translations.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/utils/app_translations.dart';
 import '../../core/widgets/image_picker_widget.dart';
+import '../../core/widgets/global_reveal_manager.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -20,6 +21,8 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  final GlobalKey _themeSwitchKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     final currentLocale = ref.watch(localeProvider);
@@ -33,22 +36,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     
     final localizations = AppLocalizations.of(context)!;
 
-    String t(String key) => DashboardTranslations.get(key, langCode);
-    final profileLabel = langCode == 'ku' ? 'پڕۆفایل' : langCode == 'ar' ? 'الملف الشخصي' : 'ACCOUNT';
-    final preferencesLabel = langCode == 'ku' ? 'ڕێکخستنەکان' : langCode == 'ar' ? 'التفضيلات' : 'PREFERENCES';
-    final darkModeLabel = langCode == 'ku' ? 'دۆخی تاریک' : langCode == 'ar' ? 'الوضع الداكن' : 'Dark Mode';
-    final systemLabel = langCode == 'ku' ? 'سیستەم' : langCode == 'ar' ? 'النظام' : 'System';
-    final logoutLabel = langCode == 'ku' ? 'چوونە دەرەوە' : langCode == 'ar' ? 'تسجيل الخروج' : 'Log Out';
+    final profileLabel = Tr.t('profileLabel', langCode);
+    final preferencesLabel = Tr.t('preferencesLabel', langCode);
+    final darkModeLabel = Tr.t('darkModeLabel', langCode);
+    final systemLabel = Tr.t('systemLabel', langCode);
+    final logoutLabel = Tr.t('logoutLabel', langCode);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: [
-          // Glassmorphic App Bar
-          SliverAppBar(
-            expandedHeight: 120,
-            pinned: true,
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          slivers: [
+            // Glassmorphic App Bar
+            SliverAppBar(
+              expandedHeight: 120,
+              pinned: true,
             backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
             flexibleSpace: ClipRRect(
               child: BackdropFilter(
@@ -160,12 +162,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           title: darkModeLabel,
                           subtitle: themeMode == ThemeMode.system ? systemLabel : '',
                           theme: theme,
-                          trailing: Switch.adaptive(
-                            value: themeMode == ThemeMode.dark || (themeMode == ThemeMode.system && isDark),
-                            activeTrackColor: theme.colorScheme.primary,
-                            onChanged: (val) {
-                              ref.read(themeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
-                            },
+                          trailing: Container(
+                            key: _themeSwitchKey,
+                            child: Switch(
+                              value: themeMode == ThemeMode.dark || (themeMode == ThemeMode.system && isDark),
+                              trackColor: WidgetStateProperty.all(Colors.transparent),
+                              trackOutlineColor: WidgetStateProperty.all(isDark ? Colors.white : Colors.black),
+                              thumbColor: WidgetStateProperty.all(isDark ? Colors.white : Colors.black),
+                              onChanged: (val) {
+                                final renderBox = _themeSwitchKey.currentContext?.findRenderObject() as RenderBox?;
+                                if (renderBox != null) {
+                                  final offset = renderBox.localToGlobal(Offset.zero);
+                                  final center = offset + Offset(renderBox.size.width / 2, renderBox.size.height / 2);
+                                  GlobalRevealManager.animateChange(context, center, () {
+                                    ref.read(themeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                                  });
+                                } else {
+                                  ref.read(themeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                                }
+                              },
+                            ),
                           ),
                         ),
                         _buildDivider(theme),
@@ -184,7 +200,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             icon: Icons.history_rounded,
                             iconBg: Colors.teal,
                             iconFg: Colors.white,
-                            title: langCode == 'ku' ? 'تۆماری چالاکییەکان' : langCode == 'ar' ? 'سجل النشاط' : 'Audit Logs',
+                            title: Tr.t('auditLogs', langCode),
                             subtitle: '',
                             theme: theme,
                             onTap: () => context.push(Routes.auditLogs),
@@ -194,22 +210,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             icon: Icons.group_rounded,
                             iconBg: Colors.deepPurple,
                             iconFg: Colors.white,
-                            title: langCode == 'ku' ? 'بەڕێوەبردنی بەکارهێنەران' : langCode == 'ar' ? 'إدارة المستخدمين' : 'Manage Users',
+                            title: Tr.t('manageUsers', langCode),
                             subtitle: '',
                             theme: theme,
                             onTap: () => context.push(Routes.adminUsers),
                           ),
-                          _buildDivider(theme),
                         ],
-                        _buildSettingsRow(
-                          icon: Icons.notifications_rounded,
-                          iconBg: Colors.redAccent,
-                          iconFg: Colors.white,
-                          title: langCode == 'ku' ? 'ئاگادارییەکان' : langCode == 'ar' ? 'الإشعارات' : 'Notifications',
-                          subtitle: '',
-                          theme: theme,
-                          onTap: () => context.push(Routes.notifications),
-                        ),
                       ],
                     ),
                   ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
@@ -249,7 +255,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   // Footer
                   Center(
                     child: Text(
-                      '${t('appName')} v1.0.0',
+                      '${Tr.t('appName', langCode)} v1.0.0',
                       style: TextStyle(
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         fontSize: 13,
@@ -262,7 +268,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
         ],
-      ),
+      ), // CustomScrollView
     );
   }
 
@@ -386,7 +392,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    currentLangCode == 'ku' ? 'هەڵبژاردنی زمان' : currentLangCode == 'ar' ? 'اختر اللغة' : 'Select Language',
+                    Tr.t('selectLanguage', currentLangCode),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -414,8 +420,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final isSelected = code == current;
     return InkWell(
       onTap: () {
-        ref.read(localeProvider.notifier).setLocale(Locale(code));
         Navigator.pop(context);
+        ref.read(localeProvider.notifier).setLocale(Locale(code));
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -428,19 +434,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+                ),
               ),
-            ),
-            if (isSelected)
-              Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary),
-          ],
+              if (isSelected)
+                Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary),
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }
 

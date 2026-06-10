@@ -9,6 +9,10 @@ import 'order_providers.dart';
 import 'payment_providers.dart';
 import 'inventory_providers.dart';
 import 'customer_providers.dart';
+import 'return_providers.dart';
+import 'locale_provider.dart';
+import '../utils/app_translations.dart';
+import '../../data/models/order_item_entity.dart';
 
 class DashboardMetrics {
   final int thisWeekOrders;
@@ -68,6 +72,8 @@ class ReportData {
   final double cogs;
   final double profit;
   final int ordersCount;
+  final double totalReturns;
+  final int returnCount;
   final List<ProductPerformance> topProducts;
   final List<CustomerPerformance> topCustomers;
 
@@ -76,6 +82,8 @@ class ReportData {
     required this.cogs,
     required this.profit,
     required this.ordersCount,
+    required this.totalReturns,
+    required this.returnCount,
     required this.topProducts,
     required this.topCustomers,
   });
@@ -140,6 +148,7 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
 });
 
 final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
+  final langCode = ref.watch(localeProvider).languageCode;
   final orderRepo = ref.watch(orderRepositoryProvider);
   final paymentRepo = ref.watch(paymentRepositoryProvider);
   final customerRepo = ref.watch(customerRepositoryProvider);
@@ -160,7 +169,7 @@ final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
 
         combined.add(RecentActivityItem(
           orderId: order.id,
-          customerName: customerMap[order.customerId] ?? 'Unknown Client',
+          customerName: customerMap[order.customerId] ?? Tr.t('unknownCustomer', langCode),
           totalAmount: order.totalAmount,
           date: order.orderDate,
           isPayment: false,
@@ -173,7 +182,7 @@ final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
 
         combined.add(RecentActivityItem(
           orderId: payment.id,
-          customerName: customerMap[payment.customerId] ?? 'Unknown Client',
+          customerName: customerMap[payment.customerId] ?? Tr.t('unknownCustomer', langCode),
           totalAmount: payment.amount,
           date: payment.paymentDate,
           isPayment: true,
@@ -205,20 +214,32 @@ final lowStockProvider = StreamProvider<List<ProductEntity>>((ref) {
   });
 });
 
-Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end) async {
+Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end, String langCode) async {
   final orderRepo = ref.read(orderRepositoryProvider);
   final inventoryRepo = ref.read(inventoryRepositoryProvider);
   final customerRepo = ref.read(customerRepositoryProvider);
+  final returnRepo = ref.read(returnRepositoryProvider);
   
   final allOrders = await orderRepo.getAllOrders();
   final allProducts = await inventoryRepo.getAllProducts();
   final allCustomers = await customerRepo.getAllCustomers();
+  final allReturns = await returnRepo.getAllReturns();
   
   final orders = allOrders.where((o) => 
     o.status != 'cancelled' && 
     o.orderDate.isAfter(start) && 
     o.orderDate.isBefore(end)
   ).toList();
+  
+  final returnsInPeriod = allReturns.where((r) => 
+    r.returnDate.isAfter(start) && 
+    r.returnDate.isBefore(end)
+  ).toList();
+  
+  double totalReturns = 0;
+  for (final r in returnsInPeriod) {
+    totalReturns += r.totalRefund;
+  }
   
   double revenue = 0;
   double cogs = 0;
@@ -231,16 +252,23 @@ Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end) 
   Map<String, int> customerOrderCount = {};
   Map<String, double> customerSpent = {};
   
+  final orderIds = orders.map((o) => o.id).toList();
+  final items = await orderRepo.getOrderItemsForOrders(orderIds);
+  final Map<String, List<OrderItemEntity>> itemsByOrderId = {};
+  for (final item in items) {
+    itemsByOrderId.putIfAbsent(item.orderId, () => []).add(item);
+  }
+  
   for (final o in orders) {
     revenue += o.totalAmount;
     
     customerOrderCount[o.customerId] = (customerOrderCount[o.customerId] ?? 0) + 1;
     customerSpent[o.customerId] = (customerSpent[o.customerId] ?? 0) + o.totalAmount;
     
-    final items = await orderRepo.getOrderItems(o.id);
-    for (final item in items) {
+    final oItems = itemsByOrderId[o.id] ?? [];
+    for (final item in oItems) {
       final p = allProducts.firstWhere((prod) => prod.id == item.productId, orElse: () => ProductEntity(
-        id: '', name: 'Unknown', categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''
+        id: '', name: Tr.t('unknownProduct', langCode), categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''
       ));
       
       final cost = p.buyPrice * item.quantity;
@@ -255,11 +283,11 @@ Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end) 
     }
   }
   
-  final profit = revenue - cogs;
+  final profit = revenue - cogs - totalReturns;
   
   final topProducts = productQty.keys.map((pId) {
     final p = allProducts.firstWhere((prod) => prod.id == pId, orElse: () => ProductEntity(
-        id: '', name: 'Unknown', categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''
+        id: '', name: Tr.t('unknownProduct', langCode), categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''
     ));
     return ProductPerformance(p.name, productQty[pId]!, productRev[pId]!, productProf[pId]!);
   }).toList();
@@ -267,7 +295,7 @@ Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end) 
   
   final topCustomers = customerSpent.keys.map((cId) {
     final c = allCustomers.firstWhere((cust) => cust.id == cId, orElse: () => CustomerEntity(
-      id: '', businessName: 'Unknown', debtBalance: 0, createdAt: DateTime.now()
+      id: '', businessName: Tr.t('unknownCustomer', langCode), debtBalance: 0, createdAt: DateTime.now()
     ));
     return CustomerPerformance(c.businessName, customerOrderCount[cId]!, customerSpent[cId]!);
   }).toList();
@@ -278,6 +306,8 @@ Future<ReportData> fetchReportData(WidgetRef ref, DateTime start, DateTime end) 
     cogs: cogs,
     profit: profit,
     ordersCount: ordersCount,
+    totalReturns: totalReturns,
+    returnCount: returnsInPeriod.length,
     topProducts: topProducts.take(5).toList(),
     topCustomers: topCustomers.take(5).toList(),
   );

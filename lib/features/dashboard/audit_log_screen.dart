@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_translations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -25,24 +26,25 @@ class AuditLogScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logsAsync = ref.watch(auditLogsProvider);
-    final isKurdish = ref.watch(localeProvider).languageCode == 'ku';
+    final isKurdish = ref.read(localeProvider).languageCode == 'ku';
+    final langCode = ref.watch(localeProvider).languageCode;
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isKurdish ? 'تۆماری چالاکییەکان' : isArabic ? 'سجل النشاط' : 'Audit Logs'),
+        title: Text(Tr.t('auto_AuditLogs', langCode)),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
       body: logsAsync.when(
         loading: () => const Center(child: CustomLoader()),
-        error: (err, _) => Center(child: Text(isKurdish ? 'هەڵە لە هێنانی تۆمارەکان: $err' : isArabic ? 'خطأ في تحميل السجلات: $err' : 'Error loading logs: $err')),
+        error: (err, _) => Center(child: Text('${Tr.t('errorLoadingLogs', langCode)}: $err')),
         data: (logs) {
           if (logs.isEmpty) {
             return Center(
-              child: Text(isKurdish ? 'هیچ تۆمارێک نییە' : isArabic ? 'لا توجد سجلات' : 'No audit logs found'),
+              child: Text(Tr.t('auto_Noauditlogsfoun', langCode)),
             );
           }
 
@@ -61,61 +63,97 @@ class AuditLogScreen extends ConsumerWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 color: theme.cardTheme.color,
                 elevation: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(icon, color: color, size: 24),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(Tr.t('auto_Details', langCode)),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    log.userName,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  DateFormat('MMM d, HH:mm').format(log.timestamp),
-                                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$localizedAction - $localizedEntity',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white70 : Colors.black87,
-                                fontSize: 14,
-                              ),
-                            ),
+                            Text('${Tr.t('auto_User', langCode)}: ${log.userName}'),
+                            const SizedBox(height: 8),
+                            Text('${Tr.t('auto_Action', langCode)}: $localizedAction'),
+                            const SizedBox(height: 8),
+                            Text('${Tr.t('auto_Entity', langCode)}: $localizedEntity'),
+                            const SizedBox(height: 8),
+                            Text('${Tr.t('auto_Time', langCode)}: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(log.timestamp)}'),
                             if (log.details != null && log.details!.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                log.details!,
-                                style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 13),
-                              ),
+                              const SizedBox(height: 8),
+                              Text('${Tr.t('auto_MoreDetails', langCode)}: ${log.details}'),
                             ],
                           ],
                         ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(Tr.t('auto_Close', langCode)),
+                          ),
+                        ],
                       ),
-                    ],
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: color, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      log.userName,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('MMM d, HH:mm').format(log.timestamp),
+                                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '$localizedAction - $localizedEntity',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white70 : Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              if (log.details != null && log.details!.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  log.details!,
+                                  style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 13),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ).animate().fadeIn(delay: Duration(milliseconds: 50 * index.clamp(0, 10))).slideY(begin: 0.1);

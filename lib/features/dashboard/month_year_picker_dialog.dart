@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import '../../core/utils/app_translations.dart';
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +43,8 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     }
 
     try {
-      final data = await fetchReportData(ref, start, end);
+      final langCode = ref.read(localeProvider).languageCode;
+      final data = await fetchReportData(ref, start, end, langCode);
       setState(() { reportData = data; isLoading = false; });
     } catch (e) {
       setState(() { isLoading = false; });
@@ -101,9 +103,9 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
 
   @override
   Widget build(BuildContext context) {
-    final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final langCode = ref.watch(localeProvider).languageCode;
+    final isKurdish = langCode == 'ku';
+    final isArabic = langCode == 'ar';
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -112,12 +114,12 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
       : DateFormat.y().format(selectedDate);
 
     final title = widget.isMonth 
-      ? (isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ù…Ø§Ù†Ú¯Ø§Ù†Û•' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø´Ù‡Ø±ÙŠ' : 'Monthly Report')
-      : (isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ø³Ø§ÚµØ§Ù†Û•' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø³Ù†ÙˆÙŠ' : 'Yearly Report');
+      ? (Tr.t('auto_MonthlyReport', langCode))
+      : (Tr.t('auto_YearlyReport', langCode));
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      backgroundColor: isDark ? const Color(0xFF111111) : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -158,7 +160,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
               ElevatedButton.icon(
                 onPressed: () => _exportPdf(dateLabel, widget.isMonth),
                 icon: const Icon(Icons.picture_as_pdf),
-                label: Text(isKurdish ? 'Ù‡Û•Ù†Ø§Ø±Ø¯Û•Ú©Ø±Ø¯Ù†ÛŒ PDF' : isArabic ? 'ØªØµØ¯ÙŠØ± PDF' : 'Export PDF'),
+                label: Text(Tr.t('auto_ExportPDF', langCode)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
@@ -175,11 +177,12 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
   }
 
   Widget _buildStatRow(String enTitle, String value, bool isKurdish, bool isArabic, IconData icon, MaterialColor color, {bool isTotal = false}) {
+    final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
     String title = enTitle;
-    if (enTitle == 'Total Orders') title = isKurdish ? 'Ú©Û†ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒÛŒÛ•Ú©Ø§Ù†' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø·Ù„Ø¨Ø§Øª' : 'Total Orders';
-    if (enTitle == 'Total Revenue') title = isKurdish ? 'Ú©Û†ÛŒ Ø¯Ø§Ù‡Ø§Øª' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª' : 'Total Revenue';
-    if (enTitle == 'Total Purchases') title = isKurdish ? 'Ú©Û†ÛŒ Ú©Ú•ÛŒÙ†Û•Ú©Ø§Ù†' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª' : 'Total Purchases';
-    if (enTitle == 'Net Profit') title = isKurdish ? 'Ù¾ÙˆØ®ØªÛ•ÛŒ Ù‚Ø§Ø²Ø§Ù†Ø¬' : isArabic ? 'ØµØ§ÙÙŠ Ø§Ù„Ø±Ø¨Ø­' : 'Net Profit';
+    if (enTitle == 'Total Orders') title = Tr.t('auto_TotalOrders', langCode);
+    if (enTitle == 'Total Revenue') title = Tr.t('auto_TotalRevenue', langCode);
+    if (enTitle == 'Total Purchases') title = Tr.t('auto_TotalPurchases', langCode);
+    if (enTitle == 'Net Profit') title = Tr.t('auto_NetProfit_1', langCode);
 
     return Row(
       children: [

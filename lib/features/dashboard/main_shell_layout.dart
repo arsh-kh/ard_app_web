@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/cart_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/utils/app_translations.dart';
 
 class MainShellLayout extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -20,8 +21,6 @@ class MainShellLayout extends ConsumerStatefulWidget {
 }
 
 class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
-  int _lastTapTime = 0;
-
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
@@ -30,7 +29,8 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
     
     final localizations = AppLocalizations.of(context)!;
     final currentLocale = ref.watch(localeProvider);
-    final clientsLabel = currentLocale.languageCode == 'ku' ? 'کڕیارەکان' : currentLocale.languageCode == 'ar' ? 'العملاء' : 'Clients';
+    final lang = currentLocale.languageCode;
+    final clientsLabel = Tr.t('clientsLabel', lang);
 
     return Scaffold(
       extendBody: true,
@@ -42,12 +42,34 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
             removeBottom: true, // Forces inner SafeAreas to ignore the bottom home indicator gap
             child: widget.navigationShell,
           ),
-
-
+          // 2. Gradient Blur Background Overlay
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 200,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      theme.scaffoldBackgroundColor.withValues(alpha: 0.0),
+                      theme.scaffoldBackgroundColor.withValues(alpha: 0.0),
+                      theme.scaffoldBackgroundColor.withValues(alpha: 0.4),
+                      theme.scaffoldBackgroundColor.withValues(alpha: 0.85),
+                    ],
+                    stops: const [0.0, 0.4, 0.8, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
           // 3. The True Floating Pill Navigation Bar
           Positioned(
-            left: 16,
-            right: 16,
+            left: 8,
+            right: 8,
             bottom: 20, // Lowered vertically as requested
             child: Container(
               height: 75,
@@ -64,8 +86,8 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(40),
                 child: Container(
-                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  color: isDark ? const Color(0xFF111111) : Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -81,7 +103,7 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
                           index: 1,
                           icon: Icons.shopping_bag_outlined,
                           activeIcon: Icons.shopping_bag,
-                          label: currentLocale.languageCode == 'ku' ? 'فرۆشتن' : currentLocale.languageCode == 'ar' ? 'المبيعات' : 'POS',
+                          label: Tr.t('posLabel', lang),
                           badgeCount: cartItems.length,
                         ),
                         _buildNavItem(
@@ -136,27 +158,31 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
     final activeColor = isDark ? Colors.white : Colors.black;
     final activeBgColor = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.06); // Extremely subtle smooth tint
 
-    return Expanded(
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutQuart,
+      tween: Tween<double>(
+        begin: isSelected ? 1.0 : 0.0,
+        end: isSelected ? 1.0 : 0.0,
+      ),
+      builder: (context, value, child) {
+        return Expanded(
+          flex: (500 + (value * 100)).round(), // smoothly interpolates flex from 500 to 600!
+          child: child!,
+        );
+      },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _onTabSelected(index),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeOutCubic,
-          height: 60,
-          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+          height: 67,
+          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
           decoration: BoxDecoration(
             color: isSelected ? activeBgColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: isSelected && !isDark
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    )
-                  ]
-                : [],
+            borderRadius: BorderRadius.circular(100),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -231,9 +257,6 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
   }
 
   void _onTabSelected(int index) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastTapTime < 300) return; // Debounce fast taps
-    _lastTapTime = now;
 
     widget.navigationShell.goBranch(
       index,

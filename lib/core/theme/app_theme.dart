@@ -6,13 +6,14 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF000000); // True Black
   static const Color secondaryColor = Color(0xFF222222); // Dark Charcoal
   static const Color backgroundLight = Color(0xFFFFFFFF); // Pure White
-  static const Color backgroundDark = Color(0xFF0B0D12); // Deep midnight blue-black
+  static const Color backgroundDark = Color(0xFF000000); // Pure OLED Black
   static const Color surfaceLight = Color(0xFFF8F9FA); // Very light grey for cards
-  static const Color surfaceDark = Color(0xFF151821); // Elevated sleek dark blue-grey
+  static const Color surfaceDark = Color(0xFF111111); // Sleek subtle dark surface
+  static const Color borderDark = Color(0xFF222222); // Glass border
   static const Color textLight = Color(0xFF000000);
-  static const Color textDark = Color(0xFFFFFFFF);
+  static const Color textDark = Color(0xFFF3F4F6); // Soft white for less eye strain
   static const Color textMutedLight = Color(0xFF6B7280);
-  static const Color textMutedDark = Color(0xFF9CA3AF);
+  static const Color textMutedDark = Color(0xFFA0A0A0); // Elegant muted text
   static const Color errorColor = Color(0xFF4B5563); // Muted grey instead of red
   static const Color successColor = Color(0xFF000000); // Black instead of green
   
@@ -110,9 +111,14 @@ class AppTheme {
         bodyColor: textDark,
         displayColor: textDark,
       ),
-      snackBarTheme: const SnackBarThemeData(
+      snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+        backgroundColor: surfaceDark,
+        contentTextStyle: const TextStyle(color: textDark),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          side: BorderSide(color: borderDark),
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: backgroundDark,
@@ -142,6 +148,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: borderDark, width: 1.5), // Beautiful subtle glass edge
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -150,11 +157,11 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade800),
+          borderSide: BorderSide(color: borderDark),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade800),
+          borderSide: BorderSide(color: borderDark),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

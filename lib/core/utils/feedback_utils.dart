@@ -118,7 +118,7 @@ class AppFeedback {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        backgroundColor: isDark ? const Color(0xFF111111) : Colors.white,
         icon: icon != null
             ? Container(
                 padding: const EdgeInsets.all(12),

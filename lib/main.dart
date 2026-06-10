@@ -8,9 +8,10 @@ import 'core/services/notification_service.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/localization/kurdish_localizations.dart';
 import 'l10n/app_localizations.dart';
+import 'core/widgets/global_reveal_manager.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'core/providers/theme_provider.dart';
 import 'firebase_options.dart';
 
@@ -48,9 +49,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     // Enable native offline persistence for Firebase
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-    );
+    // This is currently handled automatically by default, or removed if not using raw Firestore.
   } catch (e) {
     debugPrint('Firebase not configured: $e');
   }
@@ -65,24 +64,6 @@ class ArdApp extends ConsumerStatefulWidget {
 }
 
 class _ArdAppState extends ConsumerState<ArdApp> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Delay sync by 3s so auth (_restoreSession) can finish its DB query first.
-      // Drift queries are sequential — flooding the queue at startup blocks auth.
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
-          FirebaseFirestore.instance.collection('customers').doc('walk-in').delete();
-          FirebaseFirestore.instance.collection('customers').doc('walk-in-customer-id').delete();
-        }
-      });
-    });
-  }
-  @override
-  void dispose() {
-    super.dispose();
-  }
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
@@ -106,6 +87,12 @@ class _ArdAppState extends ConsumerState<ArdApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       scrollBehavior: const AppScrollBehavior(),
       routerConfig: router,
+      builder: (context, child) {
+        return RepaintBoundary(
+          key: appBoundaryKey,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

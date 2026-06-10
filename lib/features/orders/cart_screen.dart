@@ -1,27 +1,25 @@
-﻿import 'package:flutter/material.dart';
-import '../../core/widgets/custom_loader.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 'package:collection/collection.dart';
 import '../../core/providers/cart_providers.dart';
 import '../../core/providers/order_providers.dart';
-import '../../core/providers/customer_providers.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/feedback_utils.dart';
+import '../../core/utils/formatters.dart';
+import '../../core/routing/routes.dart';
+import '../../core/utils/app_translations.dart';
 import '../../data/models/order_entity.dart';
 import '../../data/models/order_item_entity.dart';
 import '../../data/models/customer_entity.dart';
 import '../../domain/enums.dart';
-import '../../core/constants/app_constants.dart';
 
-final cartCustomersProvider = FutureProvider<List<CustomerEntity>>((ref) {
-  return ref.watch(customerRepositoryProvider).getAllCustomers();
-});
+
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
@@ -34,23 +32,29 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedCustomerId;
   CustomerEntity? _selectedCustomer;
+  double _discount = 0.0;
+  final _discountController = TextEditingController();
+
+  @override
+  void dispose() {
+    _discountController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
     final orderRepo = ref.watch(orderRepositoryProvider);
-    final customersAsync = ref.watch(cartCustomersProvider);
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final totalAmount = (cartNotifier.totalCartPrice - _discount).clamp(0.0, double.infinity);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'Ù¾ÛŽØ¯Ø§Ú†ÙˆÙˆÙ†Û•ÙˆÛ•ÛŒ Ø³Û•Ø¨Û•ØªÛ•' : ref.watch(localeProvider).languageCode == 'ar' ? 'Ù…Ø±Ø§Ø¬Ø¹Ø© Ø³Ù„Ø© Ø§Ù„ØªØ³ÙˆÙ‚' : 'Review Shopping Cart'),
+        title: Text(Tr.t('reviewCart', currentLocale.languageCode)),
       ),
       body: cartItems.isEmpty
           ? Center(
@@ -64,7 +68,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    ref.watch(localeProvider).languageCode == 'ku' ? 'Ø³Û•Ø¨Û•ØªÛ•Ú©Û•Øª Ø®Ø§ÚµÛŒÛŒÛ•' : ref.watch(localeProvider).languageCode == 'ar' ? 'Ø³Ù„Ø© Ø§Ù„ØªØ³ÙˆÙ‚ ÙØ§Ø±ØºØ©' : 'Your cart is empty',
+                    Tr.t('cartEmpty', currentLocale.languageCode),
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey.shade500,
@@ -74,7 +78,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.pop(),
-                    child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'Ú¯Û•Ú•Ø§Ù† Ø¨Û•Ø¯ÙˆØ§ÛŒ Ú©Ø§ÚµØ§Ú©Ø§Ù†' : ref.watch(localeProvider).languageCode == 'ar' ? 'ØªØµÙØ­ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª' : 'Browse Products'),
+                    child: Text(Tr.t('browseProducts', currentLocale.languageCode)),
                   ),
                 ],
               ),
@@ -108,8 +112,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             cartNotifier.removeProduct(item.product.id);
                             AppFeedback.showUndo(
                               context,
-                              message: ref.read(localeProvider).languageCode == 'ku' ? 'Ú©Ø§ÚµØ§ Ø³Ú•Ø§ÛŒÛ•ÙˆÛ•' : ref.read(localeProvider).languageCode == 'ar' ? 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¹Ù†ØµØ±' : 'Item removed',
-                              undoLabel: ref.read(localeProvider).languageCode == 'ku' ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : ref.read(localeProvider).languageCode == 'ar' ? 'ØªØ±Ø§Ø¬Ø¹' : 'UNDO',
+                              message: Tr.t('itemRemoved', currentLocale.languageCode),
+                              undoLabel: Tr.t('undoBtn', currentLocale.languageCode),
                               onUndo: () {
                                 cartNotifier.addProduct(removedItem.product, removedItem.quantity);
                               },
@@ -137,7 +141,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             subtitle: Padding(
                               padding: const EdgeInsets.only(top: 4.0),
                               child: Text(
-                                '${item.quantity.toInt()} ${isKurdish ? (item.product.unitType == 'bag' ? 'ÙÛ•Ø±Ø¯Û•' : item.product.unitType == 'kg' ? 'Ú©ÛŒÙ„Û†Ú¯Ø±Ø§Ù…' : item.product.unitType == 'ton' ? 'ØªÛ†Ù†' : item.product.unitType == 'box' ? 'Ú©Ø§Ø±ØªÛ†Ù†' : item.product.unitType) : isArabic ? (item.product.unitType == 'bag' ? 'ÙƒÙŠØ³' : item.product.unitType == 'kg' ? 'ÙƒÙŠÙ„ÙˆØºØ±Ø§Ù…' : item.product.unitType == 'ton' ? 'Ø·Ù†' : item.product.unitType == 'box' ? 'ØµÙ†Ø¯ÙˆÙ‚' : item.product.unitType) : item.product.unitType} x ${CurrencyFormatter.format(item.product.sellPrice)}',
+                                '${item.quantity.toInt()} ${Tr.t(item.product.unitType, currentLocale.languageCode)} x ${CurrencyFormatter.format(item.product.sellPrice)}',
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                               ),
                             ),
@@ -163,7 +167,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      color: isDark ? const Color(0xFF111111) : Colors.white,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                       boxShadow: [
                         BoxShadow(
@@ -184,37 +188,52 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Customer Dropdown Picker
-                          customersAsync.when(
-                            data: (customers) {
-                              return DropdownButtonFormField<String>(
-                                initialValue: _selectedCustomerId,
-                                decoration: InputDecoration(
-                                  labelText: ref.watch(localeProvider).languageCode == 'ku' ? 'Ø¯ÛŒØ§Ø±ÛŒÚ©Ø±Ø¯Ù†ÛŒ Ú©Ú•ÛŒØ§Ø±' : ref.watch(localeProvider).languageCode == 'ar' ? 'ØªØ¹ÙŠÙŠÙ† Ø¹Ù…ÙŠÙ„' : 'Assign Customer',
-                                  prefixIcon: Icon(Icons.person_outline),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                ),
-                                hint: Text(isKurdish ? 'Ù…ÙˆØ´ØªÛ•Ø±ÛŒ Ù‡Û•ÚµØ¨Ú˜ÛŽØ±Û•...' : isArabic ? 'Ø§Ø®ØªØ± Ø§Ù„Ø²Ø¨ÙˆÙ†...' : 'Select customer...'),
-                                items: customers.map((c) {
-                                  return DropdownMenuItem(
-                                    value: c.id,
-                                    child: Text(
-                                      '${c.businessName} (${isKurdish ? 'Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¯ÙŠÙ†' : 'Debt'}: ${CurrencyFormatter.format(c.debtBalance)})',
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _selectedCustomerId = val;
-                                    _selectedCustomer = customers.firstWhereOrNull((c) => c.id == val);
-                                  });
-                                },
-                                validator: (value) => value == null ? 'Please assign a customer' : null,
-                                              );
+                          // Customer Selection Button
+                          InkWell(
+                            onTap: () async {
+                              final selected = await context.push<CustomerEntity?>(Routes.customerSelection);
+                              if (selected != null) {
+                                setState(() {
+                                  _selectedCustomerId = selected.id;
+                                  _selectedCustomer = selected;
+                                });
+                              }
                             },
-                            loading: () => const Center(child: CustomLoader()),
-                            error: (err, _) => Text('Error loading customers: $err', style: const TextStyle(color: Colors.red)),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.person_outline, color: theme.colorScheme.primary),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          Tr.t('assignCustomer', currentLocale.languageCode),
+                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _selectedCustomer?.businessName ?? Tr.t('selectCustomerHint', currentLocale.languageCode),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: _selectedCustomer != null ? FontWeight.bold : FontWeight.normal,
+                                            color: _selectedCustomer != null ? theme.colorScheme.onSurface : Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                                ],
+                              ),
+                            ),
                           ),
 
                           const SizedBox(height: 12),
@@ -234,7 +253,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      isKurdish ? 'Ú©Û†ÛŒ Ù‚Û•Ø±Ø²ÛŒ Ù…Ø§ÙˆÛ•: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}' : isArabic ? 'Ø§Ù„Ø¯ÙŠÙˆÙ† Ø§Ù„Ù…ØªØ¨Ù‚ÙŠØ©: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}' : 'Customer has outstanding debt: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}',
+                                      '${Tr.t('outstandingDebtWarning', currentLocale.languageCode)}: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}',
                                       style: const TextStyle(
                                         color: Colors.amber,
                                         fontSize: 11,
@@ -252,7 +271,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF0F172A) : Colors.grey.shade50,
+                              color: isDark ? const Color(0xFF000000) : Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
@@ -264,7 +283,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(isKurdish ? 'Ø¯Ø§Ù†Û•:' : isArabic ? 'Ø§Ù„Ø¹Ø¯Ø¯:' : 'Items Count:', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                    Text(Tr.t('itemsCount', currentLocale.languageCode), style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                                     Text('${cartItems.length}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                   ],
                                 ),
@@ -272,8 +291,36 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(isKurdish ? 'Ú©Û†ÛŒ Ù¾ÛŽØ´ Ø¯Ø§Ø´Ú©Ø§Ù†Ø¯Ù†:' : isArabic ? 'Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹:' : 'Subtotal:', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                    Text(Tr.t('subtotal', currentLocale.languageCode), style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                                     Text(CurrencyFormatter.format(cartNotifier.totalCartPrice), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(Tr.t('discount', currentLocale.languageCode), style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                    SizedBox(
+                                      width: 120,
+                                      height: 36,
+                                      child: TextFormField(
+                                        controller: _discountController,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                        inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
+                                        decoration: InputDecoration(
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                                          hintText: '0',
+                                        ),
+                                        onChanged: (val) {
+                                          setState(() {
+                                            _discount = double.tryParse(val.replaceAll(',', '')) ?? 0.0;
+                                          });
+                                        },
+                                      ),
+                                    )
                                   ],
                                 ),
                                 const SizedBox(height: 8),
@@ -294,11 +341,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      isKurdish ? 'Ú©Û†ÛŒ Ú¯Ø´ØªÛŒ:' : isArabic ? 'Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ:' : 'Order Total:',
+                                      Tr.t('orderTotal', currentLocale.languageCode),
                                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                                     ),
                                     Text(
-                                      CurrencyFormatter.format(cartNotifier.totalCartPrice),
+                                      CurrencyFormatter.format(totalAmount),
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
@@ -318,14 +365,17 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
+                                if (_selectedCustomer == null) {
+                                  AppFeedback.showError(context, 'Please assign a customer');
+                                  return;
+                                }
                                   // Show confirmation dialog
                                   final customerName = _selectedCustomer?.businessName ?? 'Client';
                                   final confirmed = await AppFeedback.showConfirmDialog(
                                     context,
-                                    title: 'Confirm Order',
-                                    message: 'Place order of ${CurrencyFormatter.format(cartNotifier.totalCartPrice)} for $customerName?\n\nThis will deduct stock from inventory.',
-                                    confirmLabel: 'Place Order',
+                                    title: Tr.t('confirmOrder', currentLocale.languageCode),
+                                    message: '${Tr.t('placeOrderOf', currentLocale.languageCode)} ${CurrencyFormatter.format(totalAmount)} ${Tr.t('forClient', currentLocale.languageCode)} $customerName?\n\n${Tr.t('deductStockWarning', currentLocale.languageCode)}',
+                                    confirmLabel: Tr.t('placeOrderBtn', currentLocale.languageCode),
                                     confirmColor: Colors.green,
                                     icon: Icons.shopping_cart_checkout,
                                   );
@@ -338,7 +388,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                     id: orderId,
                                     customerId: _selectedCustomerId!,
                                     status: OrderStatus.delivered.value,
-                                    totalAmount: cartNotifier.totalCartPrice,
+                                    totalAmount: totalAmount,
+                                    discount: _discount,
                                     orderDate: DateTime.now(),
                                   );
 
@@ -353,22 +404,20 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   // Save order
                                   await orderRepo.createOrder(order, items);
                                   
-                                  // Log local in-app alert notification
                                   await ref.read(notificationProvider.notifier).addNotification(
-                                    title: '${AppConstants.appName} - Order Approved',
-                                    message: 'Order of ${CurrencyFormatter.format(cartNotifier.totalCartPrice)} for $customerName delivered.',
+                                    title: 'order_delivered',
+                                    message: jsonEncode({'amount': totalAmount, 'customer': customerName}),
                                     type: 'order',
                                   );
 
                                   cartNotifier.clearCart();
                                   
                                   if (context.mounted) {
-                                    AppFeedback.showSuccess(context, 'Order placed successfully!');
+                                    AppFeedback.showSuccess(context, Tr.t('orderPlacedSuccess', currentLocale.languageCode));
                                     context.pop();
                                   }
-                                }
                               },
-                              child: Text(ref.watch(localeProvider).languageCode == 'ku' ? 'Ù†Ø§Ø±Ø¯Ù†ÛŒ Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ' : ref.watch(localeProvider).languageCode == 'ar' ? 'Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø·Ù„Ø¨' : 'Place Order'),
+                              child: Text(Tr.t('placeOrderBtn', currentLocale.languageCode)),
                             ),
                           ),
                         ],

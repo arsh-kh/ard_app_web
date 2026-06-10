@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class InitialsAvatar extends StatelessWidget {
   final String text;
@@ -21,10 +23,21 @@ class InitialsAvatar extends StatelessWidget {
     final bgColor = isDark ? Colors.white : theme.colorScheme.primary;
     final textColor = isDark ? Colors.black : Colors.white;
 
+    ImageProvider? imageProvider;
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      if (imageUrl!.startsWith('http') || imageUrl!.startsWith('https')) {
+        imageProvider = CachedNetworkImageProvider(imageUrl!);
+      } else if (imageUrl!.startsWith('blob:') || kIsWeb) {
+        imageProvider = NetworkImage(imageUrl!);
+      } else {
+        imageProvider = FileImage(File(imageUrl!));
+      }
+    }
+
     return CircleAvatar(
       radius: radius,
       backgroundColor: bgColor,
-      backgroundImage: imageUrl != null ? FileImage(File(imageUrl!)) : null,
+      backgroundImage: imageProvider,
       child: imageUrl == null && text.isNotEmpty
           ? Text(
               text[0].toUpperCase(),

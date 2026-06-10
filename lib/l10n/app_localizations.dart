@@ -217,7 +217,7 @@ abstract class AppLocalizations {
   /// Dashboard card title showing total outstanding debts
   ///
   /// In en, this message translates to:
-  /// **'Pending Debts'**
+  /// **'Debtors'**
   String get pendingDebts;
 
   /// Dashboard section title for products below minimum stock
@@ -409,7 +409,7 @@ abstract class AppLocalizations {
   /// Label showing customer's current outstanding debt
   ///
   /// In en, this message translates to:
-  /// **'Current Debt'**
+  /// **'Debtors'**
   String get currentDebt;
 
   /// Section title for list of past payments
@@ -1099,13 +1099,13 @@ abstract class AppLocalizations {
   /// Iraqi Dinar currency symbol, same across all locales
   ///
   /// In en, this message translates to:
-  /// **'د.ع'**
+  /// **'IQD'**
   String get currencySymbol;
 
   /// Full name of the Iraqi Dinar currency
   ///
   /// In en, this message translates to:
-  /// **'Iraqi Dinar'**
+  /// **'IQD'**
   String get iraqiDinar;
 }
 

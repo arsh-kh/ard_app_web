@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,8 +10,11 @@ import '../../core/routing/routes.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/utils/app_translations.dart';
+import '../../core/widgets/shimmer_loading.dart';
+import '../../core/widgets/empty_state.dart';
 import '../../data/models/product_entity.dart';
-import '../../l10n/app_localizations.dart';
+import '../../core/widgets/universal_image.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
   const InventoryScreen({super.key});
@@ -38,14 +39,13 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final costCtrl = TextEditingController(text: CurrencyFormatter.formatNumber(product.buyPrice));
     
     final currentLocale = ref.read(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final langCode = currentLocale.languageCode;
     
-    final title = isKurdish ? 'Ø²ÛŒØ§Ø¯Ú©Ø±Ø¯Ù†ÛŒ Ú©Û†Ú¯Ø§' : isArabic ? 'Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²ÙˆÙ†' : 'Add Stock';
-    final qtyLbl = isKurdish ? 'Ø¨Ú•' : isArabic ? 'Ø§Ù„ÙƒÙ…ÙŠØ©' : 'Quantity';
-    final costLbl = isKurdish ? 'ØªÛŽÚ†ÙˆÙˆÛŒ Ú¯Ø´ØªÛŒ' : isArabic ? 'Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ©' : 'Total Cost';
-    final cancelLbl = isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel';
-    final addLbl = isKurdish ? 'Ø²ÛŒØ§Ø¯Ú©Ø±Ø¯Ù†' : isArabic ? 'Ø¥Ø¶Ø§ÙØ©' : 'Add';
+    final title = Tr.t('addStockTitle', langCode);
+    final qtyLbl = Tr.t('quantityLabel', langCode);
+    final costLbl = Tr.t('totalCostLabel', langCode);
+    final cancelLbl = Tr.t('cancelBtn', langCode);
+    final addLbl = Tr.t('add', langCode);
 
     await showDialog(
       context: context,
@@ -60,13 +60,20 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               TextField(
                 controller: qtyCtrl,
                 keyboardType: TextInputType.number,
+                inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                 decoration: InputDecoration(
                   labelText: qtyLbl,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.add_box),
                 ),
+                onTap: () {
+                  qtyCtrl.selection = TextSelection(
+                    baseOffset: 0,
+                    extentOffset: qtyCtrl.text.length,
+                  );
+                },
                 onChanged: (val) {
-                  final q = double.tryParse(val) ?? 0;
+                  final q = double.tryParse(val.replaceAll(',', '')) ?? 0;
                   costCtrl.text = CurrencyFormatter.formatNumber(q * product.buyPrice);
                 },
               ),
@@ -81,6 +88,12 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   prefixIcon: const Icon(Icons.payments_outlined),
                   suffixText: ' ${AppConstants.currencySymbol}',
                 ),
+                onTap: () {
+                  costCtrl.selection = TextSelection(
+                    baseOffset: 0,
+                    extentOffset: costCtrl.text.length,
+                  );
+                },
               ),
             ],
           ),
@@ -91,7 +104,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                final q = double.tryParse(qtyCtrl.text) ?? 0;
+                final q = double.tryParse(qtyCtrl.text.replaceAll(',', '')) ?? 0;
                 if (q > 0) {
                   ref.read(inventoryRepositoryProvider).restockProduct(
                     product.id,
@@ -101,7 +114,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(isKurdish ? 'Ø³Û•Ø±Ú©Û•ÙˆØªÙˆÙˆ Ø¨ÙˆÙˆ' : isArabic ? 'Ù†Ø¬Ø§Ø­' : 'Stock Added Successfully'),
+                      content: Text(Tr.t('addStockSuccess', langCode)),
                       backgroundColor: Colors.green,
                     )
                   );
@@ -122,19 +135,17 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
-    final localizations = AppLocalizations.of(context)!;
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final langCode = currentLocale.languageCode;
 
-    final title = localizations.inventory;
-    final searchHint = localizations.searchInventory;
-    final allProducts = localizations.all;
-    final lowStockWarnings = localizations.lowStock;
-    final noData = localizations.noData;
-    final lowLabel = isKurdish ? 'کەم ماوە' : isArabic ? 'كمية قليلة' : 'LOW';
-    final registerFirst = isKurdish ? 'یەکەم بەرهەم تۆمار بکە' : isArabic ? 'سجل منتجك الأول' : 'Register Your First Product';
-    final newProductLabel = isKurdish ? 'بەرهەمی نوێ' : isArabic ? 'منتج جديد' : 'New Product';
+    final title = Tr.t('inventory', langCode);
+    final searchHint = Tr.t('searchProducts', langCode);
+    final allProducts = Tr.t('allProducts', langCode);
+    final lowStockWarnings = Tr.t('lowStock', langCode);
+    final noData = Tr.t('noData', langCode);
+    final lowLabel = Tr.t('lowLabel', langCode);
+    final registerFirst = Tr.t('firstProduct', langCode);
+    final newProductLabel = Tr.t('newProduct', langCode);
 
     return StreamBuilder<List<ProductEntity>>(
       stream: productsStream,
@@ -223,14 +234,12 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             child: Builder(
               builder: (context) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CustomLoader());
+                  return const ListSkeleton();
                 }
 
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
-
-                // Use the products from the outer snapshot
 
                 final filtered = products.where((p) {
                   final matchesSearch = p.name.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -239,24 +248,21 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   return matchesSearch && matchesFilter;
                 }).toList();
 
+                if (!hasProducts) {
+                  return AnimatedEmptyState(
+                    title: noData,
+                    icon: Icons.inventory_2_outlined,
+                    subtitle: registerFirst,
+                    actionLabel: newProductLabel,
+                    onAction: () => context.push(Routes.productForm),
+                  );
+                }
+
                 if (filtered.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.hourglass_empty, size: 64, color: Colors.grey.shade400),
-                        const SizedBox(height: 12),
-                        Text(noData, style: TextStyle(color: Colors.grey.shade500)),
-                        if (products.isEmpty) ...[
-                          const SizedBox(height: 20),
-                          ElevatedButton.icon(
-                            onPressed: () => context.push(Routes.productForm),
-                            icon: const Icon(Icons.add_circle_outline, size: 18),
-                            label: Text(registerFirst),
-                          ),
-                        ],
-                      ],
-                    ),
+                  return AnimatedEmptyState(
+                    title: Tr.t('noResults', langCode),
+                    icon: Icons.search_off,
+                    subtitle: Tr.t('tryDifferentKeywords', langCode),
                   );
                 }
 
@@ -293,8 +299,8 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                           child: product.imageUrl != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.file(
-                                    File(product.imageUrl!),
+                                  child: UniversalImage(
+                                    product.imageUrl!,
                                     fit: BoxFit.cover,
                                   ),
                                 )
@@ -312,7 +318,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                           child: Row(
                             children: [
                               Text(
-                                CurrencyFormatter.formatQuantity(product.stockQuantity, isKurdish ? (product.unitType == 'bag' ? 'فەردە' : product.unitType == 'kg' ? 'کیلۆگرام' : product.unitType == 'ton' ? 'تۆن' : product.unitType == 'box' ? 'کارتۆن' : product.unitType) : isArabic ? (product.unitType == 'bag' ? 'كيس' : product.unitType == 'kg' ? 'كيلوغرام' : product.unitType == 'ton' ? 'طن' : product.unitType == 'box' ? 'صندوق' : product.unitType) : product.unitType),
+                                CurrencyFormatter.formatQuantity(product.stockQuantity, Tr.localiseUnit(product.unitType, langCode)),
                                 style: TextStyle(
                                   color: isLowStock ? Colors.red : Colors.grey.shade600,
                                   fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal,
@@ -376,7 +382,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                             IconButton(
                               icon: Icon(Icons.add_shopping_cart, color: theme.colorScheme.primary),
                               onPressed: () => _showRestockDialog(product),
-                              tooltip: isKurdish ? 'Ø²ÛŒØ§Ø¯Ú©Ø±Ø¯Ù†ÛŒ Ú©Û†Ú¯Ø§' : isArabic ? 'Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²ÙˆÙ†' : 'Add Stock',
+                              tooltip: Tr.t('addStockTooltip', langCode),
                             ),
                           ],
                         ),

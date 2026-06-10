@@ -25,6 +25,7 @@ mixin _$OrderItemEntity {
   String get orderId => throw _privateConstructorUsedError;
   String get productId => throw _privateConstructorUsedError;
   double get quantity => throw _privateConstructorUsedError;
+  double get returnedQuantity => throw _privateConstructorUsedError;
   double get unitPrice => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
   String? get updatedBy => throw _privateConstructorUsedError;
@@ -53,6 +54,7 @@ abstract class $OrderItemEntityCopyWith<$Res> {
     String orderId,
     String productId,
     double quantity,
+    double returnedQuantity,
     double unitPrice,
     String? createdBy,
     String? updatedBy,
@@ -80,6 +82,7 @@ class _$OrderItemEntityCopyWithImpl<$Res, $Val extends OrderItemEntity>
     Object? orderId = null,
     Object? productId = null,
     Object? quantity = null,
+    Object? returnedQuantity = null,
     Object? unitPrice = null,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
@@ -103,6 +106,10 @@ class _$OrderItemEntityCopyWithImpl<$Res, $Val extends OrderItemEntity>
             quantity: null == quantity
                 ? _value.quantity
                 : quantity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            returnedQuantity: null == returnedQuantity
+                ? _value.returnedQuantity
+                : returnedQuantity // ignore: cast_nullable_to_non_nullable
                       as double,
             unitPrice: null == unitPrice
                 ? _value.unitPrice
@@ -144,6 +151,7 @@ abstract class _$$OrderItemEntityImplCopyWith<$Res>
     String orderId,
     String productId,
     double quantity,
+    double returnedQuantity,
     double unitPrice,
     String? createdBy,
     String? updatedBy,
@@ -170,6 +178,7 @@ class __$$OrderItemEntityImplCopyWithImpl<$Res>
     Object? orderId = null,
     Object? productId = null,
     Object? quantity = null,
+    Object? returnedQuantity = null,
     Object? unitPrice = null,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
@@ -193,6 +202,10 @@ class __$$OrderItemEntityImplCopyWithImpl<$Res>
         quantity: null == quantity
             ? _value.quantity
             : quantity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        returnedQuantity: null == returnedQuantity
+            ? _value.returnedQuantity
+            : returnedQuantity // ignore: cast_nullable_to_non_nullable
                   as double,
         unitPrice: null == unitPrice
             ? _value.unitPrice
@@ -227,6 +240,7 @@ class _$OrderItemEntityImpl implements _OrderItemEntity {
     required this.orderId,
     required this.productId,
     required this.quantity,
+    this.returnedQuantity = 0.0,
     required this.unitPrice,
     this.createdBy,
     this.updatedBy,
@@ -246,6 +260,9 @@ class _$OrderItemEntityImpl implements _OrderItemEntity {
   @override
   final double quantity;
   @override
+  @JsonKey()
+  final double returnedQuantity;
+  @override
   final double unitPrice;
   @override
   final String? createdBy;
@@ -258,7 +275,7 @@ class _$OrderItemEntityImpl implements _OrderItemEntity {
 
   @override
   String toString() {
-    return 'OrderItemEntity(id: $id, orderId: $orderId, productId: $productId, quantity: $quantity, unitPrice: $unitPrice, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'OrderItemEntity(id: $id, orderId: $orderId, productId: $productId, quantity: $quantity, returnedQuantity: $returnedQuantity, unitPrice: $unitPrice, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -272,6 +289,8 @@ class _$OrderItemEntityImpl implements _OrderItemEntity {
                 other.productId == productId) &&
             (identical(other.quantity, quantity) ||
                 other.quantity == quantity) &&
+            (identical(other.returnedQuantity, returnedQuantity) ||
+                other.returnedQuantity == returnedQuantity) &&
             (identical(other.unitPrice, unitPrice) ||
                 other.unitPrice == unitPrice) &&
             (identical(other.createdBy, createdBy) ||
@@ -292,6 +311,7 @@ class _$OrderItemEntityImpl implements _OrderItemEntity {
     orderId,
     productId,
     quantity,
+    returnedQuantity,
     unitPrice,
     createdBy,
     updatedBy,
@@ -322,6 +342,7 @@ abstract class _OrderItemEntity implements OrderItemEntity {
     required final String orderId,
     required final String productId,
     required final double quantity,
+    final double returnedQuantity,
     required final double unitPrice,
     final String? createdBy,
     final String? updatedBy,
@@ -340,6 +361,8 @@ abstract class _OrderItemEntity implements OrderItemEntity {
   String get productId;
   @override
   double get quantity;
+  @override
+  double get returnedQuantity;
   @override
   double get unitPrice;
   @override

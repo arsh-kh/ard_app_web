@@ -23,7 +23,7 @@
   "totalInventory": "کۆی کۆگا",
   "todaySales": "فرۆشتنی ئەمڕۆ",
   "monthlyProfit": "قازانجی مانگانە",
-  "pendingDebts": "کۆی قەرزەکان",
+  "pendingDebts": "قەرزداران",
   "lowStockAlerts": "کاڵا کەمبووەکان",
 
   "recentTransactions": "جوڵەکانی ئەم دواییە",
@@ -62,7 +62,7 @@
   "phone": "ژمارەی مۆبایل",
   "address": "ناونیشان",
 
-  "currentDebt": "کۆی قەرز",
+  "currentDebt": "قەرزداران",
   "paymentHistory": "مێژووی پارەدان",
   "purchaseHistory": "مێژووی کڕینەکانی موشتەری",
   "customerNotes": "تێبینییەکان",
@@ -204,6 +204,6 @@
 
   "noInternetConnection": "هێڵی ئینتەرنێتت نییە",
 
-  "currencySymbol": "دینار",
-  "iraqiDinar": "دیناری عێراقی"
+  "currencySymbol": "د.ع",
+  "iraqiDinar": "د.ع"
 }

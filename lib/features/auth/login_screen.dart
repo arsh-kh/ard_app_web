@@ -8,6 +8,7 @@ import '../../core/providers/auth_provider.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/widgets/custom_loader.dart';
 import '../../core/widgets/flour_bag_painter.dart';
+import '../../core/utils/app_translations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -171,17 +172,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final lang = locale.languageCode;
 
     // ── Localized strings ─────────────────────────────────────────────────
-    final signIn    = lang == 'ku' ? 'چوونە ژوورەوە' : lang == 'ar' ? 'تسجيل الدخول' : 'Sign In';
-    final register  = lang == 'ku' ? 'تۆمارکردن' : lang == 'ar' ? 'إنشاء حساب' : 'Register';
-    final loginTitle= lang == 'ku' ? 'بەخێربێیت' : lang == 'ar' ? 'مرحباً بك' : 'Welcome back';
-    final loginSub  = lang == 'ku' ? 'زانیاریەکانت بنووسە بۆ چوونە ژوورەوە' : lang == 'ar' ? 'أدخل بياناتك للمتابعة' : 'Sign in to access your account';
-    final regTitle  = lang == 'ku' ? 'هەژمار دروست بکە' : lang == 'ar' ? 'إنشاء حساب جديد' : 'Create account';
-    final regSub    = lang == 'ku' ? 'بەخێربێیت، زانیارییەکانت تۆمار بکە' : lang == 'ar' ? 'مرحباً، أدخل بياناتك للتسجيل' : 'Register to get started';
-    final emailLbl  = lang == 'ku' ? 'ئیمەیڵ' : lang == 'ar' ? 'البريد الإلكتروني' : 'Email';
-    final passLbl   = lang == 'ku' ? 'وشەی نهێنی' : lang == 'ar' ? 'كلمة المرور' : 'Password';
-    final nameLbl   = lang == 'ku' ? 'ناوی تەواو' : lang == 'ar' ? 'الاسم الكامل' : 'Full name';
-    final req       = lang == 'ku' ? 'پێویستە' : lang == 'ar' ? 'مطلوب' : 'Required';
-    final forgotLbl = lang == 'ku' ? 'وشەی نهێنیت بیرچووە؟' : lang == 'ar' ? 'هل نسيت كلمة المرور؟' : 'Forgot Password?';
+    final signIn    = Tr.t('signIn', lang);
+    final register  = Tr.t('register', lang);
+    final loginTitle= Tr.t('loginTitle', lang);
+    final loginSub  = Tr.t('loginSub', lang);
+    final regTitle  = Tr.t('regTitle', lang);
+    final regSub    = Tr.t('regSub', lang);
+    final emailLbl  = Tr.t('emailLbl', lang);
+    final passLbl   = Tr.t('passLbl', lang);
+    final nameLbl   = Tr.t('nameLbl', lang);
+    final req       = Tr.t('reqField', lang);
+    final forgotLbl = Tr.t('forgotLbl', lang);
 
     final theme  = Theme.of(context);
     final bg     = theme.scaffoldBackgroundColor;
@@ -419,6 +420,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildLoginForm(String emailLbl, String passLbl, String req, {required String submitLbl,
       required Color fg, required Color border, required bool isDark, required bool isLoading, required String forgotLbl}) {
+    final lang = ref.watch(localeProvider).languageCode;
     return Form(
       key: _loginFormKey,
       child: Column(
@@ -447,11 +449,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   builder: (ctx) => AlertDialog(
                     backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
                     title: Text(forgotLbl),
-                    content: const Text('Please contact your system administrator to reset your password.'),
+                    content: Text(Tr.t('forgotPassBody', lang)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx),
-                        child: Text('OK', style: TextStyle(color: fg)),
+                        child: Text(Tr.t('okBtn', lang), style: TextStyle(color: fg)),
                       )
                     ],
                   ),

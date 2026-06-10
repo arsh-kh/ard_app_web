@@ -97,7 +97,7 @@
     "description": "Dashboard card title showing current month profit"
   },
 
-  "pendingDebts": "Pending Debts",
+  "pendingDebts": "Debtors",
   "@pendingDebts": {
     "description": "Dashboard card title showing total outstanding debts"
   },
@@ -257,7 +257,7 @@
     "description": "Input field label for physical address"
   },
 
-  "currentDebt": "Current Debt",
+  "currentDebt": "Debtors",
   "@currentDebt": {
     "description": "Label showing customer's current outstanding debt"
   },
@@ -876,12 +876,11 @@
     "description": "Error message when device has no network connectivity"
   },
 
-  "currencySymbol": "د.ع",
+  "currencySymbol": "IQD",
   "@currencySymbol": {
     "description": "Iraqi Dinar currency symbol, same across all locales"
   },
-
-  "iraqiDinar": "Iraqi Dinar",
+  "iraqiDinar": "IQD",
   "@iraqiDinar": {
     "description": "Full name of the Iraqi Dinar currency"
   }

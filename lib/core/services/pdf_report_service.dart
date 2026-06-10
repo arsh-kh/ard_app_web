@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../../core/utils/app_translations.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -34,22 +35,24 @@ class PdfReportService {
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
+          final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
           final tTitle = isMonth 
-            ? (isKurdish ? 'ڕاپۆرتی مانگانە' : isArabic ? 'تقرير شهري' : 'MONTHLY REPORT')
-            : (isKurdish ? 'ڕاپۆرتی ساڵانە' : isArabic ? 'تقرير سنوي' : 'YEARLY REPORT');
+            ? (Tr.t('auto_MONTHLYREPORT', langCode))
+            : (Tr.t('auto_YEARLYREPORT', langCode));
             
-          final tPeriod = isKurdish ? 'ماوە' : isArabic ? 'الفترة' : 'Period';
-          final tGenerated = isKurdish ? 'دەرچووە لە' : isArabic ? 'تاريخ الإصدار' : 'Generated';
-          final tDesc = isKurdish ? 'دابەشکردنی ئارد و کۆگا' : isArabic ? 'توزيع الطحين والمخزون' : 'Flour Distribution & Inventory';
-          final tSummary = isKurdish ? 'پوختەی دارایی' : isArabic ? 'ملخص مالي' : 'Financial Summary';
-          final tCompany = isKurdish ? 'ئارد - کۆفرۆشی' : isArabic ? 'آرد - جملة' : 'Ard - Wholesale';
-          final tTopProducts = isKurdish ? 'پڕفرۆشترین کاڵاکان' : isArabic ? 'المنتجات الأكثر مبيعاً' : 'Top Selling Products';
-          final tTopCustomers = isKurdish ? 'باشترین کڕیارەکان' : isArabic ? 'أفضل العملاء' : 'Top Customers';
-          final tFooter = isKurdish ? 'ئەم ڕاپۆرتە بەشێوەیەکی ئۆتۆماتیکی دروستکراوە.' : isArabic ? 'تم إنشاء هذا التقرير تلقائيًا.' : 'This is an automatically generated system report.';
-          final tNetProfit = isKurdish ? 'قازانجی ساف:' : isArabic ? 'صافي الربح:' : 'Net Profit:';
-          final tTotalOrders = isKurdish ? 'کۆی داواکارییەکان' : isArabic ? 'إجمالي الطلبات' : 'Total Orders Executed';
-          final tTotalRev = isKurdish ? 'کۆی داهات' : isArabic ? 'إجمالي الإيرادات' : 'Total Revenue (Gross)';
-          final tTotalExp = isKurdish ? 'تێچووی کڕین' : isArabic ? 'إجمالي المشتريات' : 'Total Purchases (Expenses)';
+          final tPeriod = Tr.t('auto_Period', langCode);
+          final tGenerated = Tr.t('auto_Generated', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tSummary = Tr.t('auto_FinancialSummar', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tTopProducts = Tr.t('auto_TopSellingProdu', langCode);
+          final tTopCustomers = Tr.t('auto_TopCustomers', langCode);
+          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
+          final tNetProfit = Tr.t('auto_NetProfit', langCode);
+          final tTotalOrders = Tr.t('auto_TotalOrdersExec', langCode);
+          final tTotalRev = Tr.t('auto_TotalRevenueGro', langCode);
+          final tTotalExp = Tr.t('auto_TotalPurchasesE', langCode);
+          final tTotalReturns = Tr.t('totalReturns', langCode);
 
           return [
               // Premium Header
@@ -137,6 +140,7 @@ class PdfReportService {
                     _buildTableRow(tTotalOrders, reportData.ordersCount.toString(), isRtl: isKurdish || isArabic),
                     _buildTableRow(tTotalRev, CurrencyFormatter.format(reportData.revenue), isRtl: isKurdish || isArabic, isGrey: true),
                     _buildTableRow(tTotalExp, CurrencyFormatter.format(reportData.cogs), isRtl: isKurdish || isArabic),
+                    _buildTableRow(tTotalReturns, CurrencyFormatter.format(reportData.totalReturns), isRtl: isKurdish || isArabic, isGrey: true),
                   ],
                 ),
               ),
@@ -250,7 +254,8 @@ class PdfReportService {
   }
 
   static pw.Widget _buildProductsTable(List<ProductPerformance> products, {required bool isKurdish, required bool isArabic, required PdfColor primaryColor}) {
-    final tEmpty = isKurdish ? 'هیچ فرۆشێک تۆمار نەکراوە.' : isArabic ? 'لم يتم تسجيل أي مبيعات.' : 'No product sales recorded.';
+    final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+    final tEmpty = Tr.t('auto_Noproductsalesr', langCode);
     
     if (products.isEmpty) {
       return pw.Directionality(
@@ -259,10 +264,10 @@ class PdfReportService {
       );
     }
 
-    final tName = isKurdish ? 'کاڵا' : isArabic ? 'المنتج' : 'Product Name';
-    final tQty = isKurdish ? 'بڕ' : isArabic ? 'الكمية' : 'Qty Sold';
-    final tRev = isKurdish ? 'داهات' : isArabic ? 'الإيرادات' : 'Revenue';
-    final tProf = isKurdish ? 'قازانج' : isArabic ? 'الربح' : 'Profit';
+    final tName = Tr.t('auto_ProductName', langCode);
+    final tQty = Tr.t('auto_QtySold', langCode);
+    final tRev = Tr.t('auto_Revenue', langCode);
+    final tProf = Tr.t('auto_Profit', langCode);
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -302,7 +307,8 @@ class PdfReportService {
   }
 
   static pw.Widget _buildCustomersTable(List<CustomerPerformance> customers, {required bool isKurdish, required bool isArabic, required PdfColor primaryColor}) {
-    final tEmpty = isKurdish ? 'هیچ کڕیارێک تۆمار نەکراوە.' : isArabic ? 'لم يتم تسجيل أي عميل.' : 'No customer activity recorded.';
+    final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+    final tEmpty = Tr.t('auto_Nocustomeractiv', langCode);
     if (customers.isEmpty) {
       return pw.Directionality(
         textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
@@ -310,9 +316,9 @@ class PdfReportService {
       );
     }
 
-    final tName = isKurdish ? 'کڕیار' : isArabic ? 'العميل' : 'Customer Name';
-    final tOrd = isKurdish ? 'داواکاری' : isArabic ? 'الطلبات' : 'Orders';
-    final tSpn = isKurdish ? 'پارەی خەرجکراو' : isArabic ? 'المبلغ المنفق' : 'Total Spent';
+    final tName = Tr.t('auto_CustomerName', langCode);
+    final tOrd = Tr.t('auto_Orders', langCode);
+    final tSpn = Tr.t('auto_TotalSpent', langCode);
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),

@@ -66,7 +66,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get monthlyProfit => 'قازانجی مانگانە';
 
   @override
-  String get pendingDebts => 'کۆی قەرزەکان';
+  String get pendingDebts => 'قەرزداران';
 
   @override
   String get lowStockAlerts => 'کاڵا کەمبووەکان';
@@ -162,7 +162,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get address => 'ناونیشان';
 
   @override
-  String get currentDebt => 'کۆی قەرز';
+  String get currentDebt => 'قەرزداران';
 
   @override
   String get paymentHistory => 'مێژووی پارەدان';
@@ -520,8 +520,8 @@ class AppLocalizationsKu extends AppLocalizations {
   String get noInternetConnection => 'هێڵی ئینتەرنێتت نییە';
 
   @override
-  String get currencySymbol => 'دینار';
+  String get currencySymbol => 'د.ع';
 
   @override
-  String get iraqiDinar => 'دیناری عێراقی';
+  String get iraqiDinar => 'د.ع';
 }

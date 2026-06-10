@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/notification_service.dart';
+import '../constants/app_constants.dart';
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'inventory_providers.dart';
-import 'customer_providers.dart';
+
 
 class AppNotification {
   final String id;
@@ -75,11 +76,11 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
     // 1. Check Low Stock
     final inventoryRepo = ref.read(inventoryRepositoryProvider);
     final products = await inventoryRepo.getAllProducts();
-    final lowStockItems = products.where((t) => t.stockQuantity < 50.0).toList();
+    final lowStockItems = products.where((t) => t.stockQuantity < AppConstants.defaultMinStockAlert).toList();
 
     if (lowStockItems.isNotEmpty) {
-      final title = 'Low Stock Alert';
-      final message = '${lowStockItems.length} items are running low on stock (below 50 units).';
+      final title = 'low_stock';
+      final message = jsonEncode({'count': lowStockItems.length, 'threshold': AppConstants.defaultMinStockAlert.toInt()});
       
       final hasRecentAlert = state.any((n) => 
         n.type == 'stock' && 
@@ -88,25 +89,6 @@ class NotificationNotifier extends StateNotifier<List<AppNotification>> {
 
       if (!hasRecentAlert) {
         await addNotification(title: title, message: message, type: 'stock');
-      }
-    }
-
-    // 2. Check Overdue Debt (simplistic approach: customers with balance > 0)
-    final customerRepo = ref.read(customerRepositoryProvider);
-    final customers = await customerRepo.getAllCustomers();
-    final debtCustomers = customers.where((t) => t.id != 'walk-in' && t.debtBalance > 0.0).toList();
-
-    if (debtCustomers.isNotEmpty) {
-      final title = 'Debt Collection Reminder';
-      final message = '${debtCustomers.length} clients have outstanding debt balances.';
-      
-      final hasRecentAlert = state.any((n) => 
-        n.type == 'debt' && 
-        DateTime.now().difference(n.timestamp).inHours < 48 // alert every 48 hours max
-      );
-
-      if (!hasRecentAlert) {
-        await addNotification(title: title, message: message, type: 'debt');
       }
     }
   }

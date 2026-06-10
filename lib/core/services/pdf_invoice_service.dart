@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../../core/utils/app_translations.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,6 +17,7 @@ class PdfInvoiceService {
     required List<ProductEntity> products, // Needed for product names
     required bool isKurdish,
     required bool isArabic,
+    String? adminPhone, // optional — pulled from admin profile
   }) async {
     final pdf = pw.Document();
 
@@ -37,16 +39,17 @@ class PdfInvoiceService {
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
-          final tInvoice = isKurdish ? 'وەسڵ' : isArabic ? 'فاتورة' : 'INVOICE';
-          final tInvoiceNum = isKurdish ? 'ژمارەی وەسڵ' : isArabic ? 'رقم الفاتورة' : 'Invoice #';
-          final tDate = isKurdish ? 'بەروار' : isArabic ? 'التاريخ' : 'Date';
-          final tDesc = isKurdish ? 'دابەشکردنی ئارد و کۆگا' : isArabic ? 'توزيع الطحين والمخزون' : 'Flour Distribution & Inventory';
-          final tContact = isKurdish ? 'پەیوەندی' : isArabic ? 'اتصال' : 'Contact';
-          final tBilledTo = isKurdish ? 'کڕیار' : isArabic ? 'فاتورة إلى' : 'Billed To:';
-          final tDebt = isKurdish ? 'قەرزی پێشوو' : isArabic ? 'الديون السابقة' : 'Current Debt Balance';
-          final tCompany = isKurdish ? 'ئارد - کۆفرۆشی' : isArabic ? 'آرد - جملة' : 'Ard - Wholesale';
-          final tThanks = isKurdish ? 'سوپاس بۆ مامەڵەکردن لەگەڵمان!' : isArabic ? 'شكراً لتعاملكم معنا!' : 'Thank you for your business!';
-          final tTotal = isKurdish ? 'کۆی گشتی:' : isArabic ? 'المبلغ الإجمالي:' : 'Total Amount:';
+          final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+          final tInvoice = Tr.t('auto_INVOICE', langCode);
+          final tInvoiceNum = Tr.t('auto_Invoice', langCode);
+          final tDate = Tr.t('auto_Date', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tContact = Tr.t('auto_Contact', langCode);
+          final tBilledTo = Tr.t('auto_BilledTo', langCode);
+          final tDebt = Tr.t('auto_CurrentDebtBala', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tThanks = Tr.t('auto_Thankyouforyour', langCode);
+          final tTotal = Tr.t('auto_TotalAmount', langCode);
           
           return [
             // Premium Header Banner
@@ -110,7 +113,7 @@ class PdfInvoiceService {
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
                             pw.Text('$tContact: ', style: pw.TextStyle(color: PdfColors.grey300, fontSize: 12)),
-                            pw.Text('+964 XXX XXXX', style: pw.TextStyle(color: PdfColors.white, fontSize: 12)),
+                            pw.Text(adminPhone?.isNotEmpty == true ? adminPhone! : '—', style: pw.TextStyle(color: PdfColors.white, fontSize: 12)),
                           ]
                         )
                       ),
@@ -233,10 +236,11 @@ class PdfInvoiceService {
   }
 
   static pw.Widget _buildItemsTable(List<OrderItemEntity> items, List<ProductEntity> products, {required bool isKurdish, required bool isArabic, required PdfColor primaryColor}) {
-    final tItem = isKurdish ? 'کاڵا' : isArabic ? 'المنتج' : 'Item';
-    final tQty = isKurdish ? 'بڕ' : isArabic ? 'الكمية' : 'Qty';
-    final tPrice = isKurdish ? 'نرخ' : isArabic ? 'السعر' : 'Unit Price';
-    final tTotal = isKurdish ? 'کۆی گشتی' : isArabic ? 'الإجمالي' : 'Total';
+    final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+    final tItem = Tr.t('auto_Item', langCode);
+    final tQty = Tr.t('auto_Qty', langCode);
+    final tPrice = Tr.t('auto_UnitPrice', langCode);
+    final tTotal = Tr.t('auto_Total', langCode);
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -275,7 +279,7 @@ class PdfInvoiceService {
             (p) => p.id == item.productId,
             orElse: () => ProductEntity(
               id: 'unknown', 
-              name: 'Unknown Product', 
+              name: Tr.t('unknownProduct', langCode), 
               categoryId: '', 
               buyPrice: 0, 
               sellPrice: 0, 

@@ -26,6 +26,9 @@ mixin _$OrderEntity {
   String get customerId => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   double get totalAmount => throw _privateConstructorUsedError;
+  double get discount => throw _privateConstructorUsedError;
+  bool get hasReturn => throw _privateConstructorUsedError;
+  double get totalReturnedAmount => throw _privateConstructorUsedError;
   DateTime get orderDate => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
   String? get updatedBy => throw _privateConstructorUsedError;
@@ -55,6 +58,9 @@ abstract class $OrderEntityCopyWith<$Res> {
     String customerId,
     String status,
     double totalAmount,
+    double discount,
+    bool hasReturn,
+    double totalReturnedAmount,
     DateTime orderDate,
     String? createdBy,
     String? updatedBy,
@@ -83,6 +89,9 @@ class _$OrderEntityCopyWithImpl<$Res, $Val extends OrderEntity>
     Object? customerId = null,
     Object? status = null,
     Object? totalAmount = null,
+    Object? discount = null,
+    Object? hasReturn = null,
+    Object? totalReturnedAmount = null,
     Object? orderDate = null,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
@@ -110,6 +119,18 @@ class _$OrderEntityCopyWithImpl<$Res, $Val extends OrderEntity>
             totalAmount: null == totalAmount
                 ? _value.totalAmount
                 : totalAmount // ignore: cast_nullable_to_non_nullable
+                      as double,
+            discount: null == discount
+                ? _value.discount
+                : discount // ignore: cast_nullable_to_non_nullable
+                      as double,
+            hasReturn: null == hasReturn
+                ? _value.hasReturn
+                : hasReturn // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            totalReturnedAmount: null == totalReturnedAmount
+                ? _value.totalReturnedAmount
+                : totalReturnedAmount // ignore: cast_nullable_to_non_nullable
                       as double,
             orderDate: null == orderDate
                 ? _value.orderDate
@@ -152,6 +173,9 @@ abstract class _$$OrderEntityImplCopyWith<$Res>
     String customerId,
     String status,
     double totalAmount,
+    double discount,
+    bool hasReturn,
+    double totalReturnedAmount,
     DateTime orderDate,
     String? createdBy,
     String? updatedBy,
@@ -179,6 +203,9 @@ class __$$OrderEntityImplCopyWithImpl<$Res>
     Object? customerId = null,
     Object? status = null,
     Object? totalAmount = null,
+    Object? discount = null,
+    Object? hasReturn = null,
+    Object? totalReturnedAmount = null,
     Object? orderDate = null,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
@@ -206,6 +233,18 @@ class __$$OrderEntityImplCopyWithImpl<$Res>
         totalAmount: null == totalAmount
             ? _value.totalAmount
             : totalAmount // ignore: cast_nullable_to_non_nullable
+                  as double,
+        discount: null == discount
+            ? _value.discount
+            : discount // ignore: cast_nullable_to_non_nullable
+                  as double,
+        hasReturn: null == hasReturn
+            ? _value.hasReturn
+            : hasReturn // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        totalReturnedAmount: null == totalReturnedAmount
+            ? _value.totalReturnedAmount
+            : totalReturnedAmount // ignore: cast_nullable_to_non_nullable
                   as double,
         orderDate: null == orderDate
             ? _value.orderDate
@@ -241,6 +280,9 @@ class _$OrderEntityImpl implements _OrderEntity {
     required this.customerId,
     required this.status,
     required this.totalAmount,
+    this.discount = 0.0,
+    this.hasReturn = false,
+    this.totalReturnedAmount = 0.0,
     required this.orderDate,
     this.createdBy,
     this.updatedBy,
@@ -262,6 +304,15 @@ class _$OrderEntityImpl implements _OrderEntity {
   @override
   final double totalAmount;
   @override
+  @JsonKey()
+  final double discount;
+  @override
+  @JsonKey()
+  final bool hasReturn;
+  @override
+  @JsonKey()
+  final double totalReturnedAmount;
+  @override
   final DateTime orderDate;
   @override
   final String? createdBy;
@@ -274,7 +325,7 @@ class _$OrderEntityImpl implements _OrderEntity {
 
   @override
   String toString() {
-    return 'OrderEntity(id: $id, orderNumber: $orderNumber, customerId: $customerId, status: $status, totalAmount: $totalAmount, orderDate: $orderDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'OrderEntity(id: $id, orderNumber: $orderNumber, customerId: $customerId, status: $status, totalAmount: $totalAmount, discount: $discount, hasReturn: $hasReturn, totalReturnedAmount: $totalReturnedAmount, orderDate: $orderDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -290,6 +341,12 @@ class _$OrderEntityImpl implements _OrderEntity {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.totalAmount, totalAmount) ||
                 other.totalAmount == totalAmount) &&
+            (identical(other.discount, discount) ||
+                other.discount == discount) &&
+            (identical(other.hasReturn, hasReturn) ||
+                other.hasReturn == hasReturn) &&
+            (identical(other.totalReturnedAmount, totalReturnedAmount) ||
+                other.totalReturnedAmount == totalReturnedAmount) &&
             (identical(other.orderDate, orderDate) ||
                 other.orderDate == orderDate) &&
             (identical(other.createdBy, createdBy) ||
@@ -311,6 +368,9 @@ class _$OrderEntityImpl implements _OrderEntity {
     customerId,
     status,
     totalAmount,
+    discount,
+    hasReturn,
+    totalReturnedAmount,
     orderDate,
     createdBy,
     updatedBy,
@@ -339,6 +399,9 @@ abstract class _OrderEntity implements OrderEntity {
     required final String customerId,
     required final String status,
     required final double totalAmount,
+    final double discount,
+    final bool hasReturn,
+    final double totalReturnedAmount,
     required final DateTime orderDate,
     final String? createdBy,
     final String? updatedBy,
@@ -359,6 +422,12 @@ abstract class _OrderEntity implements OrderEntity {
   String get status;
   @override
   double get totalAmount;
+  @override
+  double get discount;
+  @override
+  bool get hasReturn;
+  @override
+  double get totalReturnedAmount;
   @override
   DateTime get orderDate;
   @override

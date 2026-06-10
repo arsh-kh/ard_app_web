@@ -1,28 +1,44 @@
 import 'dart:ui';
+import '../../core/utils/app_translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import 'package:intl/intl.dart';
+import 'dart:convert';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
+import '../../core/utils/currency_formatter.dart';
 
-class NotificationsScreen extends ConsumerWidget {
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationProvider.notifier).markAllAsRead();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final notifications = ref.watch(notificationProvider);
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final langCode = currentLocale.languageCode;
     
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final title = isKurdish ? 'ئاگادارکردنەوەکان' : isArabic ? 'الإشعارات' : 'Notifications';
-    final noData = isKurdish ? 'هیچ ئاگادارکردنەوەیەک نییە' : isArabic ? 'لا توجد إشعارات' : 'No notifications yet';
-    final markAllRead = isKurdish ? 'هەمووی وەک خوێندراوە دیاری بکە' : isArabic ? 'تحديد الكل كمقروء' : 'Mark all as read';
-    final clearAll = isKurdish ? 'سڕینەوەی هەمووی' : isArabic ? 'مسح الكل' : 'Clear all';
+    final title = Tr.t('notifTitle', langCode);
+    final noData = Tr.t('noNotifs', langCode);
+    final clearAll = Tr.t('clearAll', langCode);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -40,23 +56,11 @@ class NotificationsScreen extends ConsumerWidget {
                   color: theme.colorScheme.surface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   onSelected: (value) {
-                    if (value == 'read') {
-                      ref.read(notificationProvider.notifier).markAllAsRead();
-                    } else if (value == 'clear') {
+                    if (value == 'clear') {
                       ref.read(notificationProvider.notifier).clearAll();
                     }
                   },
                   itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'read',
-                      child: Row(
-                        children: [
-                          Icon(Icons.mark_email_read_rounded, color: theme.colorScheme.primary, size: 20),
-                          const SizedBox(width: 12),
-                          Text(markAllRead, style: const TextStyle(fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                    ),
                     PopupMenuItem(
                       value: 'clear',
                       child: Row(
@@ -156,6 +160,47 @@ class NotificationsScreen extends ConsumerWidget {
                             if (!isRead) {
                               ref.read(notificationProvider.notifier).markAsRead(notification.id);
                             }
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                title: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: iconColor.withValues(alpha: 0.15),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(iconData, color: iconColor, size: 24),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(child: Text(_getTranslatedTitle(notification.title, langCode), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                                  ],
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat('yyyy-MM-dd • HH:mm').format(notification.timestamp),
+                                      style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      _getTranslatedMessage(notification.message, langCode),
+                                      style: const TextStyle(fontSize: 15, height: 1.5),
+                                    ),
+                                ],
+                              ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(Tr.t('closeBtn', langCode)),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                           borderRadius: BorderRadius.circular(20),
                           child: Padding(
@@ -185,7 +230,7 @@ class NotificationsScreen extends ConsumerWidget {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              _getTranslatedTitle(notification.title, isKurdish, isArabic),
+                                              _getTranslatedTitle(notification.title, langCode),
                                               style: TextStyle(
                                                 fontWeight: isRead ? FontWeight.w600 : FontWeight.w800,
                                                 fontSize: 15,
@@ -195,7 +240,7 @@ class NotificationsScreen extends ConsumerWidget {
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            _formatTime(notification.timestamp, isKurdish, isArabic),
+                                            _formatTime(notification.timestamp, langCode),
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: isRead ? FontWeight.w500 : FontWeight.w700,
@@ -206,7 +251,7 @@ class NotificationsScreen extends ConsumerWidget {
                                       ),
                                       const SizedBox(height: 6),
                                       Text(
-                                        _getTranslatedMessage(notification.message, isKurdish, isArabic),
+                                        _getTranslatedMessage(notification.message, langCode),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -233,83 +278,113 @@ class NotificationsScreen extends ConsumerWidget {
     );
   }
 
-  String _formatTime(DateTime time, bool isKurdish, bool isArabic) {
+  String _formatTime(DateTime time, String lang) {
     final now = DateTime.now();
     final diff = now.difference(time);
     
     if (diff.inDays > 0) {
-      return isKurdish ? '${diff.inDays} ڕۆژ' : isArabic ? 'يوم ${diff.inDays}' : '${diff.inDays}d';
+      return Tr.t('timeDays', lang, {'days': diff.inDays.toString()});
     }
     if (diff.inHours > 0) {
-      return isKurdish ? '${diff.inHours} کاتژمێر' : isArabic ? 'ساعة ${diff.inHours}' : '${diff.inHours}h';
+      return Tr.t('timeHours', lang, {'hours': diff.inHours.toString()});
     }
     if (diff.inMinutes > 0) {
-      return isKurdish ? '${diff.inMinutes} خولەک' : isArabic ? 'دقيقة ${diff.inMinutes}' : '${diff.inMinutes}m';
+      return Tr.t('timeMins', lang, {'mins': diff.inMinutes.toString()});
     }
-    return isKurdish ? 'ئێستا' : isArabic ? 'الآن' : 'now';
+    return Tr.t('timeNow', lang);
   }
 
-  String _getTranslatedTitle(String title, bool isKurdish, bool isArabic) {
-    if (title.contains('Low Stock Alert')) {
-      return isKurdish ? 'ئاگاداری کەمی کاڵا' : isArabic ? 'تنبيه نقص المخزون' : title;
+  String _getTranslatedTitle(String title, String lang) {
+    if (title == 'low_stock' || title.contains('Low Stock Alert')) {
+      return Tr.t('notifTitleLowStock', lang);
+    }
+    if (title == 'order_delivered' || title.contains('Order Approved') || title.contains('Order Delivered')) {
+      return Tr.t('notifTitleOrderApproved', lang);
+    }
+    if (title == 'order_rejected' || title.contains('Order Rejected')) {
+      return Tr.t('notifTitleOrderRejected', lang);
+    }
+    if (title == 'new_product' || title.contains('New Product Registered')) {
+      return Tr.t('notifTitleNewProduct', lang);
+    }
+    if (title == 'new_customer' || title.contains('New Customer Created')) {
+      return Tr.t('notifTitleNewCustomer', lang);
     }
     if (title.contains('Debt Collection Reminder')) {
-      return isKurdish ? 'بیرخستنەوەی قەرز' : isArabic ? 'تذكير بجمع الديون' : title;
+      return Tr.t('notifTitleDebtReminder', lang);
     }
     if (title.contains('Order Submitted')) {
-      return isKurdish ? 'داواکاری نێردرا' : isArabic ? 'تم تقديم الطلب' : title;
-    }
-    if (title.contains('Order Approved')) {
-      return isKurdish ? 'داواکاری پەسەندکرا' : isArabic ? 'تمت الموافقة على الطلب' : title;
-    }
-    if (title.contains('Order Rejected')) {
-      return isKurdish ? 'داواکاری ڕەتکرایەوە' : isArabic ? 'تم رفض الطلب' : title;
-    }
-    if (title.contains('New Product Registered')) {
-      return isKurdish ? 'کاڵای نوێ تۆمارکرا' : isArabic ? 'تم تسجيل منتج جديد' : title;
+      return Tr.t('notifTitleOrderSubmitted', lang);
     }
     if (title.contains('Payment Received')) {
-      return isKurdish ? 'پارە وەرگیرا' : isArabic ? 'تم استلام الدفعة' : title;
+      return Tr.t('notifTitlePaymentReceived', lang);
     }
     return title;
   }
 
-  String _getTranslatedMessage(String message, bool isKurdish, bool isArabic) {
+  String _getTranslatedMessage(String message, String lang) {
+    try {
+      if (message.startsWith('{')) {
+        final Map<String, dynamic> data = jsonDecode(message);
+        
+        if (data.containsKey('count') && data.containsKey('threshold')) {
+          final count = data['count'].toString();
+          final limit = data['threshold'].toString();
+          return Tr.t('notifMsgLowStockJson', lang, {'count': count, 'limit': limit});
+        }
+        if (data.containsKey('amount') && data.containsKey('customer')) {
+          final amt = CurrencyFormatter.format(data['amount']);
+          final cust = data['customer'];
+          return Tr.t('notifMsgOrderDeliveredJson', lang, {'amt': amt, 'cust': cust});
+        }
+        if (data.containsKey('id') && data.containsKey('customer')) {
+          final id = data['id'].toString();
+          final cust = data['customer'];
+          return Tr.t('notifMsgOrderProcessedJson', lang, {'id': id, 'cust': cust});
+        }
+        if (data.containsKey('name')) {
+          final name = data['name'];
+          return Tr.t('notifMsgAddedSystemJson', lang, {'name': name});
+        }
+      }
+    } catch (_) {}
+
+    // Fallback for old notifications
     if (message.contains('running low on stock')) {
       final number = message.split(' ').first;
-      return isKurdish ? '$number کاڵا لە کەمبوونەوەدایە (کەمتر لە 50 دانە).' : isArabic ? '$number عناصر على وشك النفاد (أقل من 50 وحدة).' : message;
+      return Tr.t('notifMsgLowStockTxt', lang, {'number': number});
     }
     if (message.contains('outstanding debt balances')) {
       final number = message.split(' ').first;
-      return isKurdish ? '$number کڕیار قەرزیان لەسەرە.' : isArabic ? '$number عملاء لديهم ديون مستحقة.' : message;
+      return Tr.t('notifMsgDebtTxt', lang, {'number': number});
     }
     if (message.contains('submitted successfully')) {
       final match = RegExp(r'Order for (.*?) submitted successfully').firstMatch(message);
       final customer = match != null ? match.group(1) : '';
-      return isKurdish ? 'داواکاری بۆ $customer بە سەرکەوتوویی نێردرا.' : isArabic ? 'تم إرسال طلب $customer بنجاح.' : message;
+      return Tr.t('notifMsgOrderSuccessTxt', lang, {'customer': customer ?? ''});
     }
     if (message.contains('delivered') && message.contains('Order of')) {
       final match = RegExp(r'Order of (.*?) for (.*?) delivered').firstMatch(message);
       if (match != null) {
-        return isKurdish ? 'داواکاری بە بڕی ${match.group(1)} بۆ ${match.group(2)} گەیەندرا.' : isArabic ? 'تم توصيل طلب بقيمة ${match.group(1)} لـ ${match.group(2)}.' : message;
+        return Tr.t('notifMsgOrderDeliveredTxt', lang, {'amt': match.group(1)!, 'cust': match.group(2)!});
       }
     }
     if (message.contains('was rejected')) {
       final match = RegExp(r'Order of (.*?) for (.*?) was rejected').firstMatch(message);
       if (match != null) {
-        return isKurdish ? 'داواکاری بە بڕی ${match.group(1)} بۆ ${match.group(2)} ڕەتکرایەوە.' : isArabic ? 'تم رفض طلب بقيمة ${match.group(1)} لـ ${match.group(2)}.' : message;
+        return Tr.t('notifMsgOrderRejectedTxt', lang, {'amt': match.group(1)!, 'cust': match.group(2)!});
       }
     }
     if (message.contains('added to inventory catalog')) {
       final match = RegExp(r'(.*?) added to inventory catalog').firstMatch(message);
       if (match != null) {
-        return isKurdish ? '${match.group(1)} زیادکرا بۆ لیستی کاڵاکان.' : isArabic ? 'تمت إضافة ${match.group(1)} إلى كتالوج المخزون.' : message;
+        return Tr.t('notifMsgProductAddedTxt', lang, {'product': match.group(1)!});
       }
     }
     if (message.contains('received from')) {
       final parts = message.replaceAll('.', '').split(' received from ');
       if (parts.length == 2) {
-        return isKurdish ? 'بڕی ${parts[0]} وەرگیرا لە ${parts[1]}.' : isArabic ? 'تم استلام ${parts[0]} من ${parts[1]}.' : message;
+        return Tr.t('notifMsgPaymentReceivedTxt', lang, {'amt': parts[0], 'cust': parts[1]});
       }
     }
     return message;

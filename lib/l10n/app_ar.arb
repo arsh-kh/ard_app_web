@@ -23,7 +23,7 @@
   "totalInventory": "إجمالي المخزن",
   "todaySales": "مبيعات اليوم",
   "monthlyProfit": "أرباح الشهر",
-  "pendingDebts": "إجمالي الديون",
+  "pendingDebts": "المدينون",
   "lowStockAlerts": "نواقص المخزن",
 
   "recentTransactions": "آخر الحركات",
@@ -62,7 +62,7 @@
   "phone": "رقم الهاتف",
   "address": "العنوان",
 
-  "currentDebt": "مجموع الديون",
+  "currentDebt": "المدينون",
   "paymentHistory": "سجل الدفعات (الواصل)",
   "purchaseHistory": "سجل مشتريات الزبون",
   "customerNotes": "ملاحظات",
@@ -204,6 +204,6 @@
 
   "noInternetConnection": "أنت غير متصل بالإنترنت",
 
-  "currencySymbol": "دينار",
-  "iraqiDinar": "الدينار العراقي"
+  "currencySymbol": "د.ع",
+  "iraqiDinar": "د.ع"
 }

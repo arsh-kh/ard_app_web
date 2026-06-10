@@ -16,12 +16,15 @@ class LocaleNotifier extends StateNotifier<Locale> {
     if (savedCode != null) {
       if (savedCode == 'ku') {
         state = const Locale('ku');
-        AppConstants.currencySymbol = 'دینار';
+        AppConstants.languageCode = 'ku';
+        AppConstants.currencySymbol = 'د.ع';
       } else if (savedCode == 'ar') {
         state = const Locale('ar');
+        AppConstants.languageCode = 'ar';
         AppConstants.currencySymbol = 'د.ع';
       } else {
         state = const Locale('en');
+        AppConstants.languageCode = 'en';
         AppConstants.currencySymbol = 'IQD';
       }
     }
@@ -32,10 +35,13 @@ class LocaleNotifier extends StateNotifier<Locale> {
       state = locale;
       
       if (locale.languageCode == 'ku') {
-        AppConstants.currencySymbol = 'دینار';
+        AppConstants.languageCode = 'ku';
+        AppConstants.currencySymbol = 'د.ع';
       } else if (locale.languageCode == 'ar') {
+        AppConstants.languageCode = 'ar';
         AppConstants.currencySymbol = 'د.ع';
       } else {
+        AppConstants.languageCode = 'en';
         AppConstants.currencySymbol = 'IQD';
       }
       

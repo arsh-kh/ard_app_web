@@ -10,7 +10,7 @@ class CurrencyFormatter {
   /// Formats a number as Iraqi Dinar currency.
   /// Example: 150000 → "IQD 150,000"
   static String format(double amount) {
-    return '${AppConstants.currencySymbol} ${_formatter.format(amount)}';
+    return '${_formatter.format(amount)} ${AppConstants.currencySymbol}';
   }
 
   /// Formats a number as currency without the symbol.
@@ -22,7 +22,7 @@ class CurrencyFormatter {
   /// Formats a number as currency with symbol prefix.
   /// Example: 150000 → "IQD 150,000"
   static String formatWithPrefix(double amount) {
-    return '${AppConstants.currencySymbol} ${_formatter.format(amount)}';
+    return '${_formatter.format(amount)} ${AppConstants.currencySymbol}';
   }
 
   /// Parses a formatted currency string back to double.
@@ -56,8 +56,8 @@ class CurrencyFormatter {
   /// Formats a compact number for dashboard stats.
   /// Example: 1500000 → "1.5M"
   static String formatCompact(double amount) {
-    bool isArabic = AppConstants.currencySymbol == 'د.ع';
-    bool isKurdish = AppConstants.currencySymbol == 'دینار';
+    bool isArabic = AppConstants.languageCode == 'ar';
+    bool isKurdish = AppConstants.languageCode == 'ku';
     
     String mStr = isArabic ? ' مليون' : isKurdish ? ' ملیۆن' : 'M';
     String bStr = isArabic ? ' مليار' : isKurdish ? ' ملیار' : 'B';

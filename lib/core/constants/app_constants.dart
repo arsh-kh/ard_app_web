@@ -7,7 +7,8 @@ class AppConstants {
   static const String appNameEn = 'ARD BAZAR';
   static const String appVersion = '1.0.0';
 
-  // Currency
+  // Currency & Locale
+  static String languageCode = 'en';
   static String currencySymbol = 'IQD';
   static const String currencyCode = 'IQD';
   static const String currencyName = 'Iraqi Dinar';

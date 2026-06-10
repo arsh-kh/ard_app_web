@@ -66,7 +66,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get monthlyProfit => 'أرباح الشهر';
 
   @override
-  String get pendingDebts => 'إجمالي الديون';
+  String get pendingDebts => 'المدينون';
 
   @override
   String get lowStockAlerts => 'نواقص المخزن';
@@ -162,7 +162,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get address => 'العنوان';
 
   @override
-  String get currentDebt => 'مجموع الديون';
+  String get currentDebt => 'المدينون';
 
   @override
   String get paymentHistory => 'سجل الدفعات (الواصل)';
@@ -520,8 +520,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noInternetConnection => 'أنت غير متصل بالإنترنت';
 
   @override
-  String get currencySymbol => 'دينار';
+  String get currencySymbol => 'د.ع';
 
   @override
-  String get iraqiDinar => 'الدينار العراقي';
+  String get iraqiDinar => 'د.ع';
 }

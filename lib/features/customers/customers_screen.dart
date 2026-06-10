@@ -1,5 +1,4 @@
-﻿import 'package:flutter/material.dart';
-import '../../core/widgets/custom_loader.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -9,13 +8,17 @@ import '../../core/providers/customer_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/routing/routes.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/widgets/shimmer_loading.dart';
+import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/initials_avatar.dart';
 import '../../data/models/customer_entity.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/utils/app_translations.dart';
 
 class CustomersScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
-  const CustomersScreen({super.key, this.isEmbedded = false});
+  final bool isSelectionMode;
+  const CustomersScreen({super.key, this.isEmbedded = false, this.isSelectionMode = false});
 
   @override
   ConsumerState<CustomersScreen> createState() => _CustomersScreenState();
@@ -40,19 +43,21 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
     final isDark = theme.brightness == Brightness.dark;
     
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
     final localizations = AppLocalizations.of(context)!;
+    final lang = currentLocale.languageCode;
 
-    final title = isKurdish ? 'Ù…ÙˆØ´ØªÛ•Ø±ÛŒ Ùˆ Ù‚Û•Ø±Ø²Û•Ú©Ø§Ù†' : isArabic ? 'Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ ÙˆØ§Ù„Ø¯ÙŠÙˆÙ†' : 'Customers & Debts';
-    final searchHint = isKurdish ? 'Ú¯Û•Ú•Ø§Ù† Ø¨Û† Ù…ÙˆØ´ØªÛ•Ø±ÛŒ...' : isArabic ? 'Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø¹Ù…ÙŠÙ„...' : 'Search customers...';
+    final baseTitle = Tr.t('customersTitle', lang);
+    final title = widget.isSelectionMode 
+      ? Tr.t('selectCustomer', lang)
+      : baseTitle;
+    final searchHint = Tr.t('searchCustomers', lang);
     final allCustomers = localizations.all;
-    final outstandingDebt = isKurdish ? 'Ú©Û†ÛŒ Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯ÙŠÙˆÙ†' : 'Outstanding Debt';
+    final outstandingDebt = Tr.t('outstandingDebt', lang);
     final noData = localizations.noData;
-    final registerFirst = isKurdish ? 'ÛŒÛ•Ú©Û•Ù… Ù…ÙˆØ´ØªÛ•Ø±ÛŒ ØªÛ†Ù…Ø§Ø± Ø¨Ú©Û•' : isArabic ? 'Ø³Ø¬Ù„ Ø¹Ù…ÙŠÙ„Ùƒ Ø§Ù„Ø£ÙˆÙ„' : 'Add Your First Customer';
-    final newClient = isKurdish ? 'Ù…ÙˆØ´ØªÛ•Ø±ÛŒ Ù†ÙˆÛŽ' : isArabic ? 'Ø¹Ù…ÙŠÙ„ Ø¬Ø¯ÙŠØ¯' : 'New Client';
-    final noAddress = isKurdish ? 'Ù†Ø§ÙˆÙ†ÛŒØ´Ø§Ù† Ù†ÛŒÛŒÛ•' : isArabic ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù†ÙˆØ§Ù†' : 'No address registered';
-    final debtLabel = isKurdish ? 'Ú©Û†ÛŒ Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯ÙŠÙˆÙ†' : 'Outstanding Debt';
+    final registerFirst = Tr.t('addFirstCustomer', lang);
+    final newClient = Tr.t('newClient', lang);
+    final noAddress = Tr.t('noAddressReg', lang);
+    final debtLabel = Tr.t('debtLabel', lang);
 
     return StreamBuilder<List<CustomerEntity>>(
       stream: customersStream,
@@ -63,6 +68,14 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
         return Scaffold(
           appBar: widget.isEmbedded ? null : AppBar(
             title: Text(title),
+            actions: [
+              if (widget.isSelectionMode)
+                IconButton(
+                  icon: const Icon(Icons.person_add),
+                  onPressed: () => context.push(Routes.customerForm),
+                  tooltip: newClient,
+                ),
+            ],
           ),
           floatingActionButton: widget.isEmbedded && hasCustomers ? Padding(
             padding: const EdgeInsets.only(bottom: 96.0),
@@ -135,18 +148,31 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
               ],
             ),
           ),
+          if (widget.isSelectionMode)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: ElevatedButton.icon(
+                onPressed: () => context.pop(null), // null means Walk-in
+                icon: const Icon(Icons.directions_walk),
+                label: Text(lang == 'ku' ? 'کڕیاری کاتی (بێ ناو)' : lang == 'ar' ? 'عميل عابر' : 'Walk-In Customer'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  foregroundColor: theme.colorScheme.primary,
+                  elevation: 0,
+                ),
+              ),
+            ),
           Expanded(
             child: Builder(
               builder: (context) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CustomLoader());
+                  return const ListSkeleton();
                 }
 
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
-
-                // Use outer customers list
 
                 final filtered = customers.where((c) {
                   final matchesSearch = c.businessName.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -155,24 +181,21 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                   return matchesSearch && matchesFilter;
                 }).toList();
 
+                if (!hasCustomers) {
+                  return AnimatedEmptyState(
+                    title: noData,
+                    icon: Icons.group_off_outlined,
+                    subtitle: registerFirst,
+                    actionLabel: lang == 'ku' ? 'تۆمارکردنی کڕیار' : 'New Customer',
+                    onAction: () => context.push(Routes.customerForm),
+                  );
+                }
+
                 if (filtered.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
-                        const SizedBox(height: 12),
-                        Text(noData, style: TextStyle(color: Colors.grey.shade500)),
-                        if (customers.isEmpty) ...[
-                          const SizedBox(height: 20),
-                          ElevatedButton.icon(
-                            onPressed: () => context.push(Routes.customerForm),
-                            icon: const Icon(Icons.person_add, size: 18),
-                            label: Text(registerFirst),
-                          ),
-                        ],
-                      ],
-                    ),
+                  return AnimatedEmptyState(
+                    title: lang == 'ku' ? 'هیچ کڕیارێک نەدۆزرایەوە' : 'No customers found',
+                    icon: Icons.search_off,
+                    subtitle: lang == 'ku' ? 'وشەیەکی تر بەکاربهێنە' : 'Try different keywords',
                   );
                 }
 
@@ -249,7 +272,11 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                           ],
                         ),
                         onTap: () {
-                          context.push(Routes.customerDetail, extra: customer);
+                          if (widget.isSelectionMode) {
+                            context.pop(customer);
+                          } else {
+                            context.push(Routes.customerDetail, extra: customer);
+                          }
                         },
                       ),
                     ).animate().slideY(begin: 0.1, end: 0, duration: 200.ms, delay: (index * 20).ms);

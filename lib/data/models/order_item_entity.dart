@@ -10,6 +10,7 @@ class OrderItemEntity with _$OrderItemEntity {
     required String orderId,
     required String productId,
     required double quantity,
+    @Default(0.0) double returnedQuantity,
     required double unitPrice,
     String? createdBy,
     String? updatedBy,

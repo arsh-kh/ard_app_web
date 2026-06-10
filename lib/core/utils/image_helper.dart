@@ -18,6 +18,10 @@ class ImageHelper {
 
       if (pickedFile == null) return null;
 
+      if (kIsWeb) {
+        return pickedFile.path;
+      }
+
       final docsDir = await getApplicationDocumentsDirectory();
       final imagesDir = Directory(p.join(docsDir.path, 'app_images'));
       if (!await imagesDir.exists()) {

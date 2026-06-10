@@ -1,3 +1,6 @@
+import 'package:ard_app/core/widgets/custom_loader.dart';
+import '../../core/utils/app_translations.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +14,7 @@ import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/product_entity.dart';
 import '../../core/widgets/image_picker_widget.dart';
+import '../../core/services/cloud_storage_service.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   final ProductEntity? productToEdit;
@@ -37,9 +41,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.productToEdit?.name ?? '');
-    _stockController = TextEditingController(text: widget.productToEdit?.stockQuantity.toString() ?? '');
-    _buyPriceController = TextEditingController(text: widget.productToEdit?.buyPrice.toString() ?? '');
-    _sellPriceController = TextEditingController(text: widget.productToEdit?.sellPrice.toString() ?? '');
+    _stockController = TextEditingController(
+      text: widget.productToEdit != null
+          ? widget.productToEdit!.stockQuantity.toInt().toString()
+          : '');
+    _buyPriceController = TextEditingController(
+      text: widget.productToEdit != null
+          ? widget.productToEdit!.buyPrice.toInt().toString()
+          : '');
+    _sellPriceController = TextEditingController(
+      text: widget.productToEdit != null
+          ? widget.productToEdit!.sellPrice.toInt().toString()
+          : '');
     
     if (widget.productToEdit != null && _units.contains(widget.productToEdit!.unitType)) {
       _selectedUnit = widget.productToEdit!.unitType;
@@ -58,12 +71,26 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   void _saveProduct() async {
     if (_formKey.currentState!.validate()) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CustomLoader()),
+      );
+
       final currentLocale = ref.read(localeProvider);
-      final isKurdish = currentLocale.languageCode == 'ku';
-      final isArabic = currentLocale.languageCode == 'ar';
+      final langCode = currentLocale.languageCode;
 
       final repo = ref.read(inventoryRepositoryProvider);
       
+      String? finalImageUrl = _imagePath;
+      if (_imagePath != null && !_imagePath!.startsWith('http')) {
+        final storage = ref.read(cloudStorageServiceProvider);
+        final uploadedUrl = await storage.uploadImage(_imagePath!, 'products');
+        if (uploadedUrl != null) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+
       final product = ProductEntity(
         id: widget.productToEdit?.id ?? const Uuid().v4(),
         name: _nameController.text,
@@ -72,7 +99,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         unitType: _selectedUnit,
         buyPrice: double.tryParse(_buyPriceController.text.replaceAll(',', '')) ?? 0.0,
         sellPrice: double.tryParse(_sellPriceController.text.replaceAll(',', '')) ?? 0.0,
-        imageUrl: _imagePath,
+        imageUrl: finalImageUrl,
       );
 
       final isAdd = widget.productToEdit == null;
@@ -80,8 +107,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       if (isAdd) {
         await repo.addProduct(product);
         await ref.read(notificationProvider.notifier).addNotification(
-          title: '${AppConstants.appName} - New Product Registered',
-          message: '${_nameController.text} added to inventory catalog.',
+          title: 'new_product',
+          message: jsonEncode({'name': _nameController.text}),
           type: 'stock',
         );
       } else {
@@ -89,9 +116,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       }
 
       if (mounted) {
+        Navigator.pop(context); // dismiss loader
         AppFeedback.showSuccess(context, isAdd 
-          ? (isKurdish ? 'بەرهەمەکە بە سەرکەوتوویی دروستکرا!' : isArabic ? 'تم إنشاء المنتج بنجاح!' : 'Product created successfully!') 
-          : (isKurdish ? 'بەرهەمەکە بە سەرکەوتوویی نوێکرایەوە!' : isArabic ? 'تم تحديث المنتج بنجاح!' : 'Product updated successfully!')
+          ? (Tr.t('auto_Productcreateds', langCode)) 
+          : (Tr.t('auto_Productupdateds', langCode))
         );
         context.pop();
       }
@@ -101,32 +129,33 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   @override
   Widget build(BuildContext context) {
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
+    final isKurdish = ref.read(localeProvider).languageCode == 'ku';
+    final langCode = currentLocale.languageCode;
     final isArabic = currentLocale.languageCode == 'ar';
     final isNew = widget.productToEdit == null;
 
     final title = isNew 
-      ? (isKurdish ? 'دروستکردنی بەرهەمی نوێ' : isArabic ? 'إنشاء منتج جديد' : 'Create New Product') 
-      : (isKurdish ? 'گۆڕینی پرۆفایلی بەرهەم' : isArabic ? 'تعديل ملف المنتج' : 'Modify Product Profile');
+      ? (Tr.t('auto_CreateNewProduc', langCode)) 
+      : (Tr.t('auto_ModifyProductPr', langCode));
     
-    final nameLabel = isKurdish ? 'ناوی بەرهەم' : isArabic ? 'اسم المنتج' : 'Product Name';
-    final nameHint = isKurdish ? 'بۆ نموونە: ئاردی سپی کوردی' : isArabic ? 'مثل: طحين أبيض كردي ممتاز' : 'e.g. Kurdish White Flour Premium';
-    final nameReq = isKurdish ? 'ناوی بەرهەم داواکراوە' : isArabic ? 'اسم المنتج مطلوب' : 'Product name is required';
+    final nameLabel = Tr.t('auto_ProductName', langCode);
+    final nameHint = Tr.t('auto_egKurdishWhiteF', langCode);
+    final nameReq = Tr.t('auto_Productnameisre', langCode);
     
     final stockLabel = isNew 
-      ? (isKurdish ? 'کۆگای سەرەتا' : isArabic ? 'المخزون الافتتاحي' : 'Opening Stock')
-      : (isKurdish ? 'کۆگای ئێستا (دەستکاری مەکە بۆ کڕینی نوێ)' : isArabic ? 'المخزون الحالي' : 'Current Stock (Use Restock to add)');
-    final reqLabel = isKurdish ? 'داواکراوە' : isArabic ? 'مطلوب' : 'Required';
-    final numReqLabel = isKurdish ? 'دەبێت ژمارە بێت' : isArabic ? 'يجب أن يكون رقماً' : 'Must be a number';
-    final negLabel = isKurdish ? 'نابێت نەرێنی بێت' : isArabic ? 'لا يمكن أن يكون سالباً' : 'Cannot be negative';
+      ? (Tr.t('auto_Quantity', langCode))
+      : (Tr.t('auto_CurrentStockUse', langCode));
+    final reqLabel = Tr.t('auto_Required', langCode);
+    final numReqLabel = Tr.t('auto_Mustbeanumber', langCode);
+    final negLabel = Tr.t('auto_Cannotbenegativ', langCode);
     
-    final unitLabel = isKurdish ? 'یەکە' : isArabic ? 'الوحدة' : 'Unit';
-    final buyLabel = isKurdish ? 'نرخی کڕین' : isArabic ? 'سعر الشراء' : 'Buy Price';
-    final sellLabel = isKurdish ? 'نرخی فرۆشتن' : isArabic ? 'سعر البيع' : 'Sell Price';
+    final unitLabel = Tr.t('auto_Unit', langCode);
+    final buyLabel = Tr.t('auto_BuyPrice', langCode);
+    final sellLabel = Tr.t('auto_SellPrice', langCode);
     
     final saveBtn = isNew 
-      ? (isKurdish ? 'پاشەکەوتکردنی بەرهەمی نوێ' : isArabic ? 'حفظ المنتج الجديد' : 'Save New Product') 
-      : (isKurdish ? 'نوێکردنەوەی وردەکارییەکانی بەرهەم' : isArabic ? 'تحديث تفاصيل المنتج' : 'Update Product Details');
+      ? (Tr.t('auto_SaveNewProduct', langCode)) 
+      : (Tr.t('auto_UpdateProductDe', langCode));
 
     return Scaffold(
       appBar: AppBar(
@@ -139,17 +168,17 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text(isKurdish ? 'سڕینەوەی کاڵا' : isArabic ? 'حذف المنتج' : 'Delete Product'),
-                    content: Text(isKurdish ? 'دڵنیای لە سڕینەوەی ئەم کاڵایە؟' : isArabic ? 'هل أنت متأكد من حذف هذا المنتج؟' : 'Are you sure you want to delete this product?'),
+                    title: Text(Tr.t('auto_DeleteProduct', langCode)),
+                    content: Text(Tr.t('auto_Areyousureyouwa', langCode)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: Text(isKurdish ? 'نەخێر' : isArabic ? 'لا' : 'Cancel'),
+                        child: Text(Tr.t('auto_Cancel', langCode)),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                         onPressed: () => Navigator.pop(context, true),
-                        child: Text(isKurdish ? 'سڕینەوە' : isArabic ? 'حذف' : 'Delete', style: const TextStyle(color: Colors.white)),
+                        child: Text(Tr.t('auto_Delete', langCode), style: const TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -206,10 +235,16 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       decoration: InputDecoration(
                         labelText: stockLabel,
                         prefixIcon: const Icon(Icons.warehouse_outlined),
-                        hintText: '0.0',
+                        hintText: '0',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
+                      onTap: () {
+                        _stockController.selection = TextSelection(
+                          baseOffset: 0,
+                          extentOffset: _stockController.text.length,
+                        );
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) return reqLabel;
                         final doubleValue = double.tryParse(value.replaceAll(',', ''));
@@ -266,6 +301,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
+                      onTap: () {
+                        _buyPriceController.selection = TextSelection(
+                          baseOffset: 0,
+                          extentOffset: _buyPriceController.text.length,
+                        );
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) return reqLabel;
                         final doubleValue = double.tryParse(value.replaceAll(',', ''));
@@ -287,6 +328,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
+                      onTap: () {
+                        _sellPriceController.selection = TextSelection(
+                          baseOffset: 0,
+                          extentOffset: _sellPriceController.text.length,
+                        );
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) return reqLabel;
                         final doubleValue = double.tryParse(value.replaceAll(',', ''));
@@ -315,4 +362,3 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     );
   }
 }
-

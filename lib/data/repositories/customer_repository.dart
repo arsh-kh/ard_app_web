@@ -10,7 +10,7 @@ class CustomerRepository {
 
   Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
     final sanitized = Map<String, dynamic>.from(data);
-    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity'];
+    final doubleFields = ['amount', 'totalAmount', 'debtBalance', 'buyPrice', 'sellPrice', 'unitPrice', 'stockQuantity', 'quantity', 'discount', 'totalReturnedAmount', 'returnedQuantity', 'totalRefund', 'returnedQty', 'actualDeduction', 'debtBefore', 'debtAfter'];
     final intFields = ['orderNumber'];
     final dateFields = ['createdAt', 'updatedAt', 'date', 'timestamp', 'orderDate', 'paymentDate'];
 
@@ -58,7 +58,7 @@ class CustomerRepository {
       action: 'ADDED',
       entityType: 'Customer',
       entityId: customer.id,
-      details: 'Added customer ${customer.businessName}',
+      details: 'Registered new client: ${customer.businessName}',
     );
   }
 
@@ -71,7 +71,7 @@ class CustomerRepository {
       action: 'UPDATED',
       entityType: 'Customer',
       entityId: customer.id,
-      details: 'Updated customer ${customer.businessName}',
+      details: 'Updated profile details for client: ${customer.businessName}',
     );
   }
 
@@ -84,7 +84,7 @@ class CustomerRepository {
       action: 'DELETED',
       entityType: 'Customer',
       entityId: id,
-      details: 'Deleted customer $name',
+      details: 'Deleted client profile: $name',
     );
   }
 

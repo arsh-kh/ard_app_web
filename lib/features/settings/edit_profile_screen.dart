@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../../core/utils/app_translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/widgets/image_picker_widget.dart';
+import '../../core/widgets/custom_loader.dart';
+import '../../core/services/cloud_storage_service.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -44,35 +47,55 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  void _saveProfile() {
+  void _saveProfile() async {
     if (_formKey.currentState!.validate()) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CustomLoader()),
+      );
+
+      String? finalImageUrl = _avatarPath;
+      if (_avatarPath != null && !_avatarPath!.startsWith('http')) {
+        final storage = ref.read(cloudStorageServiceProvider);
+        final uploadedUrl = await storage.uploadImage(_avatarPath!, 'profiles');
+        if (uploadedUrl != null) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+
       ref.read(authProvider.notifier).updateProfile(
         name: _nameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
         role: _roleController.text,
-        avatarPath: _avatarPath,
+        avatarPath: finalImageUrl,
       );
-      context.pop();
+      
+      if (mounted) {
+        Navigator.pop(context); // dismiss loader
+        context.pop();
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
+    final isKurdish = ref.read(localeProvider).languageCode == 'ku';
+    final langCode = currentLocale.languageCode;
     final isArabic = currentLocale.languageCode == 'ar';
     
     final theme = Theme.of(context);
     final user = ref.read(authProvider).user;
 
-    final title = isKurdish ? 'گۆڕینی پڕۆفایل' : isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile';
-    final nameLabel = isKurdish ? 'ناو' : isArabic ? 'الاسم' : 'Name';
-    final emailLabel = isKurdish ? 'ئیمەیڵ' : isArabic ? 'البريد الإلكتروني' : 'Email';
-    final phoneLabel = isKurdish ? 'ژمارەی مۆبایل' : isArabic ? 'رقم الهاتف' : 'Phone Number';
-    final roleLabel = isKurdish ? 'ڕۆڵ' : isArabic ? 'الدور' : 'Role';
-    final saveBtn = isKurdish ? 'پاشەکەوتکردن' : isArabic ? 'حفظ' : 'Save Changes';
-    final reqError = isKurdish ? 'پێویستە' : isArabic ? 'مطلوب' : 'Required';
+    final title = Tr.t('auto_EditProfile', langCode);
+    final nameLabel = Tr.t('auto_Name', langCode);
+    final emailLabel = Tr.t('auto_Email', langCode);
+    final phoneLabel = Tr.t('auto_PhoneNumber', langCode);
+    final roleLabel = Tr.t('auto_Role', langCode);
+    final saveBtn = Tr.t('auto_SaveChanges', langCode);
+    final reqError = Tr.t('auto_Required', langCode);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -143,7 +166,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     Padding(
                       padding: const EdgeInsetsDirectional.only(start: 12, bottom: 8),
                       child: Text(
-                        isKurdish ? 'زانیارییە تایبەتییەکان' : isArabic ? 'المعلومات الشخصية' : 'PERSONAL INFO',
+                        Tr.t('auto_PERSONALINFO', langCode),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -189,7 +212,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             icon: Icons.phone_rounded,
                             keyboardType: TextInputType.phone,
                             theme: theme,
-                            validator: (value) => value == null || value.trim().isEmpty ? reqError : null,
+                            validator: (value) => null, // Phone is optional
                           ),
                           Padding(
                             padding: const EdgeInsetsDirectional.only(start: 56.0),

@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../../core/utils/app_translations.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -38,15 +39,16 @@ class PdfInvoiceLedgerService {
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
-          final tTitle = isKurdish ? 'ڕاپۆرتی پسووڵەکان' : isArabic ? 'تقرير الفواتير' : 'INVOICES LEDGER';
-          final tPeriod = isKurdish ? 'ماوە' : isArabic ? 'الفترة' : 'Period';
-          final tGenerated = isKurdish ? 'دەرچووە لە' : isArabic ? 'تاريخ الإصدار' : 'Generated';
-          final tCompany = isKurdish ? 'ئارد - کۆفرۆشی' : isArabic ? 'آرد - جملة' : 'Ard - Wholesale';
-          final tDesc = isKurdish ? 'دابەشکردنی ئارد و کۆگا' : isArabic ? 'توزيع الطحين والمخزون' : 'Flour Distribution & Inventory';
-          final tFooter = isKurdish ? 'ئەم ڕاپۆرتە بەشێوەیەکی ئۆتۆماتیکی دروستکراوە.' : isArabic ? 'تم إنشاء هذا التقرير تلقائيًا.' : 'This is an automatically generated system report.';
+          final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+          final tTitle = Tr.t('auto_INVOICESLEDGER', langCode);
+          final tPeriod = Tr.t('auto_Period', langCode);
+          final tGenerated = Tr.t('auto_Generated', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
           
-          final tTotalOrders = isKurdish ? 'کۆی داواکارییەکان' : isArabic ? 'إجمالي الطلبات' : 'Total Orders';
-          final tTotalAmount = isKurdish ? 'کۆی گشتی داهات' : isArabic ? 'إجمالي الإيرادات' : 'Total Revenue';
+          final tTotalOrders = Tr.t('auto_TotalOrders', langCode);
+          final tTotalAmount = Tr.t('auto_TotalRevenue', langCode);
 
           double totalRevenue = orders.fold(0, (sum, order) => sum + order.totalAmount);
 
@@ -194,7 +196,8 @@ class PdfInvoiceLedgerService {
   }
 
   static pw.Widget _buildLedgerTable(List<OrderEntity> orders, List<CustomerEntity> customers, {required bool isKurdish, required bool isArabic, required PdfColor primaryColor, required PdfColor borderColor, required DateFormat dateFormat}) {
-    final tEmpty = isKurdish ? 'هیچ داواکارییەک نییە لەم ماوەیەدا.' : isArabic ? 'لا توجد طلبات في هذه الفترة.' : 'No orders found in this period.';
+    final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+    final tEmpty = Tr.t('auto_Noordersfoundin', langCode);
     
     if (orders.isEmpty) {
       return pw.Container(
@@ -207,10 +210,10 @@ class PdfInvoiceLedgerService {
       );
     }
 
-    final tDate = isKurdish ? 'بەروار' : isArabic ? 'التاريخ' : 'Date';
-    final tInvoice = isKurdish ? 'ژ.وەسڵ' : isArabic ? 'رقم الفاتورة' : 'Invoice #';
-    final tCustomer = isKurdish ? 'کڕیار' : isArabic ? 'العميل' : 'Customer';
-    final tAmount = isKurdish ? 'بڕ' : isArabic ? 'المبلغ' : 'Amount';
+    final tDate = Tr.t('auto_Date', langCode);
+    final tInvoice = Tr.t('auto_Invoice', langCode);
+    final tCustomer = Tr.t('auto_Customer', langCode);
+    final tAmount = Tr.t('auto_Amount', langCode);
 
     return pw.Container(
       decoration: pw.BoxDecoration(

@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../utils/image_helper.dart';
 
 class ImagePickerWidget extends StatefulWidget {
@@ -96,6 +98,17 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
+    ImageProvider? imageProvider;
+    if (_currentImagePath != null && _currentImagePath!.isNotEmpty) {
+      if (_currentImagePath!.startsWith('http') || _currentImagePath!.startsWith('https')) {
+        imageProvider = CachedNetworkImageProvider(_currentImagePath!);
+      } else if (_currentImagePath!.startsWith('blob:') || kIsWeb) {
+        imageProvider = NetworkImage(_currentImagePath!);
+      } else {
+        imageProvider = FileImage(File(_currentImagePath!));
+      }
+    }
+
     return GestureDetector(
       onTap: _pickImage,
       child: Center(
@@ -104,7 +117,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             CircleAvatar(
               radius: widget.radius,
               backgroundColor: theme.colorScheme.primaryContainer,
-              backgroundImage: _currentImagePath != null ? FileImage(File(_currentImagePath!)) : null,
+              backgroundImage: imageProvider,
               child: _currentImagePath == null
                   ? Icon(widget.placeholderIcon, size: widget.radius * 0.8, color: theme.colorScheme.primary.withValues(alpha: 0.5))
                   : null,

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +20,7 @@ import '../../core/providers/customer_providers.dart';
 import '../../core/providers/payment_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/notification_providers.dart';
+import '../../core/utils/app_translations.dart';
 
 class CustomerDetailScreen extends ConsumerWidget {
   final CustomerEntity customer;
@@ -48,7 +49,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     colors: [
                       theme.colorScheme.primary,
                       theme.colorScheme.primary.withValues(alpha: 0.7),
-                      isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                      isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -113,17 +114,17 @@ class CustomerDetailScreen extends ConsumerWidget {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text(langCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ú©Ú•ÛŒØ§Ø±' : langCode == 'ar' ? 'Ø­Ø°Ù Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Delete Customer'),
-                      content: Text(langCode == 'ku' ? 'Ø¯ÚµÙ†ÛŒØ§ÛŒ Ù„Û• Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ø¦Û•Ù… Ú©Ú•ÛŒØ§Ø±Û•ØŸ' : langCode == 'ar' ? 'Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„ØŸ' : 'Are you sure you want to delete this customer?'),
+                      title: Text(Tr.t('deleteCustomer', langCode)),
+                      content: Text(Tr.t('deleteCustomerConfirm', langCode)),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text(langCode == 'ku' ? 'Ù†Û•Ø®ÛŽØ±' : langCode == 'ar' ? 'Ù„Ø§' : 'Cancel'),
+                          child: Text(Tr.t('cancelBtn', langCode)),
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                           onPressed: () => Navigator.pop(context, true),
-                          child: Text(langCode == 'ku' ? 'Ø³Ú•ÛŒÙ†Û•ÙˆÛ•' : langCode == 'ar' ? 'Ø­Ø°Ù' : 'Delete', style: const TextStyle(color: Colors.white)),
+                          child: Text(Tr.t('delete', langCode), style: const TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
@@ -147,7 +148,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     child: _buildActionButton(
                       context,
                       icon: Icons.phone_outlined,
-                      label: langCode == 'ku' ? 'Ù¾Û•ÛŒÙˆÛ•Ù†Ø¯ÛŒÚ©Ø±Ø¯Ù†' : langCode == 'ar' ? 'Ø§ØªØµØ§Ù„' : 'Call',
+                      label: Tr.t('callBtn', langCode),
                       color: Colors.green,
                       onTap: () => _callCustomer(context, ref),
                     ),
@@ -157,7 +158,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                     child: _buildActionButton(
                       context,
                       icon: Icons.edit_note,
-                      label: langCode == 'ku' ? 'Ú¯Û†Ú•ÛŒÙ†ÛŒ Ù¾Ú•Û†ÙØ§ÛŒÙ„' : langCode == 'ar' ? 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù„Ù' : 'Edit Profile',
+                      label: Tr.t('editProfileBtn', langCode),
                       color: theme.colorScheme.primary,
                       onTap: () => context.push(Routes.customerForm, extra: customer),
                     ),
@@ -174,7 +175,7 @@ class CustomerDetailScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  color: isDark ? const Color(0xFF111111) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: customer.debtBalance > 0
@@ -217,7 +218,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                langCode == 'ku' ? 'Ù‚Û•Ø±Ø²ÛŒ Ù…Ø§ÙˆÛ•' : langCode == 'ar' ? 'Ø§Ù„Ø¯ÙŠÙˆÙ† Ø§Ù„Ù…ØªØ¨Ù‚ÙŠØ©' : 'Outstanding Debt',
+                                Tr.t('outstandingDebtDetail', langCode),
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -244,7 +245,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                               border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                             ),
                             child: Text(
-                              langCode == 'ku' ? 'Ù†Û•Ø¯Ø±Ø§ÙˆÛ•' : langCode == 'ar' ? 'ØºÙŠØ± Ù…Ø¯ÙÙˆØ¹' : 'UNPAID',
+                              Tr.t('unpaidBadge', langCode),
                               style: TextStyle(
                                 color: Colors.amber.shade800,
                                 fontSize: 10,
@@ -261,7 +262,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                               border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                             ),
                             child: Text(
-                              langCode == 'ku' ? 'Ù¾Ø§Ú©Û•' : langCode == 'ar' ? 'Ù…Ø³Ø¯Ø¯' : 'CLEAR',
+                              Tr.t('clearBadge', langCode),
                               style: const TextStyle(
                                 color: Colors.green,
                                 fontSize: 10,
@@ -278,7 +279,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _showSettleDebtDialog(context, ref, customer, langCode),
                           icon: const Icon(Icons.payment),
-                          label: Text(langCode == 'ku' ? 'Ù¾Ø§Ø±Û•Ø¯Ø§Ù†' : langCode == 'ar' ? 'ØªØ³Ø¯ÙŠØ¯ Ø§Ù„Ø¯ÙØ¹Ø©' : 'Settle Payment'),
+                          label: Text(Tr.t('settlePayment', langCode)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green.shade600,
                             foregroundColor: Colors.white,
@@ -299,7 +300,7 @@ class CustomerDetailScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  color: isDark ? const Color(0xFF111111) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
@@ -309,7 +310,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Contact Information',
+                      Tr.t('contactInfo', langCode),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -317,11 +318,11 @@ class CustomerDetailScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildInfoRow(Icons.phone_outlined, 'Phone', customer.phone ?? 'Not provided', isDark, isLtr: true),
+                    _buildInfoRow(Icons.phone_outlined, Tr.t('phoneLabel', langCode), customer.phone ?? Tr.t('notProvided', langCode), isDark, isLtr: true),
                     const SizedBox(height: 10),
-                    _buildInfoRow(Icons.location_on_outlined, 'Address', customer.address ?? 'Not provided', isDark),
+                    _buildInfoRow(Icons.location_on_outlined, Tr.t('addressLabel', langCode), customer.address ?? Tr.t('notProvided', langCode), isDark),
                     const SizedBox(height: 10),
-                    _buildInfoRow(Icons.badge_outlined, 'Customer ID', customer.id.substring(0, 8).toUpperCase(), isDark, isLtr: true),
+                    _buildInfoRow(Icons.badge_outlined, Tr.t('customerIdLabel', langCode), customer.id.substring(0, 8).toUpperCase(), isDark, isLtr: true),
                   ],
                 ),
               ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
@@ -333,7 +334,7 @@ class CustomerDetailScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                'Recent Orders',
+                Tr.t('recentOrders', langCode),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -375,7 +376,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                         Icon(Icons.history_toggle_off, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
                         Text(
-                          langCode == 'ku' ? 'Ù‡ÛŒÚ† Ø²Ø§Ù†ÛŒØ§Ø±ÛŒÛŒÛ•Ú© Ù†ÛŒÛŒÛ•' : langCode == 'ar' ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ ØªØ§Ø±ÙŠØ®' : 'No history yet for this customer',
+                          Tr.t('noHistory', langCode),
                           style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                         ),
                       ],
@@ -403,7 +404,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                            color: isDark ? const Color(0xFF111111) : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
@@ -429,7 +430,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Order #${item.id.substring(0, 8).toUpperCase()}',
+                                      '${Tr.t('orderLabel', langCode)} #${item.orderNumber?.toString() ?? item.id.substring(0, 6).toUpperCase()}',
                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                     ),
                                     const SizedBox(height: 2),
@@ -461,7 +462,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                            color: isDark ? const Color(0xFF111111) : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: Colors.green.withValues(alpha: 0.3),
@@ -486,9 +487,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Payment Received',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.green),
+                                    Text(
+                                      Tr.t('paymentReceived', langCode),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.green),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
@@ -566,11 +567,11 @@ class CustomerDetailScreen extends ConsumerWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(langCode == 'ku' ? 'Ù¾Ø§Ø±Û•Ø¯Ø§Ù† Ø¨Û† ${customer.businessName}' : langCode == 'ar' ? 'ØªØ³Ø¯ÙŠØ¯ Ø§Ù„Ø¯ÙØ¹Ø© Ù„Ù€ ${customer.businessName}' : 'Settle Debt for ${customer.businessName}'),
+          title: Text(Tr.t('settleDebtFor', langCode) + customer.businessName),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text((langCode == 'ku' ? 'Ù‚Û•Ø±Ø²ÛŒ Ø¦ÛŽØ³ØªØ§: ' : langCode == 'ar' ? 'Ø§Ù„Ø¯ÙŠÙ† Ø§Ù„Ø­Ø§Ù„ÙŠ: ' : 'Current Debt: ') + CurrencyFormatter.format(customer.debtBalance)),
+              Text(Tr.t('currentDebtPrefix', langCode) + CurrencyFormatter.format(customer.debtBalance)),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
@@ -579,7 +580,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: langCode == 'ku' ? 'Ø¨Ú•ÛŒ Ù¾Ø§Ø±Û•' : langCode == 'ar' ? 'Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ù…Ø¯ÙÙˆØ¹' : 'Amount Paid',
+                  labelText: Tr.t('amountPaid', langCode),
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.payments),
                 ),
@@ -589,7 +590,7 @@ class CustomerDetailScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(langCode == 'ku' ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : langCode == 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'),
+              child: Text(Tr.t('cancelBtn', langCode)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -609,13 +610,13 @@ class CustomerDetailScreen extends ConsumerWidget {
 
                   if (context.mounted) {
                     Navigator.pop(context);
-                    AppFeedback.showSuccess(context, langCode == 'ku' ? 'Ø¨Û• Ø³Û•Ø±Ú©Û•ÙˆØªÙˆÙˆÛŒ Ø¯Ø±Ø§' : langCode == 'ar' ? 'ØªÙ… Ø§Ù„Ø¯ÙØ¹ Ø¨Ù†Ø¬Ø§Ø­' : 'Payment applied successfully');
+                    AppFeedback.showSuccess(context, Tr.t('paymentApplied', langCode));
                   }
                 } else {
-                  AppFeedback.showError(context, langCode == 'ku' ? 'Ø¨Ú•ÛŽÚ©ÛŒ Ø¯Ø±ÙˆØ³Øª Ø¨Ù†ÙˆÙˆØ³Û•' : langCode == 'ar' ? 'Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„Øº ØµØ­ÙŠØ­' : 'Please enter a valid amount');
+                  AppFeedback.showError(context, Tr.t('enterValidAmount', langCode));
                 }
               },
-              child: Text(langCode == 'ku' ? 'Ù¾Û•Ø³Û•Ù†Ø¯Ú©Ø±Ø¯Ù†' : langCode == 'ar' ? 'ØªØ£ÙƒÙŠØ¯' : 'Confirm Payment'),
+              child: Text(Tr.t('confirmPayment', langCode)),
             ),
           ],
         );
@@ -646,7 +647,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white : Colors.black87,
               ),
-              textDirection: isLtr ? TextDirection.rtl : null,
+              textDirection: isLtr ? TextDirection.ltr : null,
             ),
           ],
         ),
@@ -657,7 +658,7 @@ class CustomerDetailScreen extends ConsumerWidget {
   void _callCustomer(BuildContext context, WidgetRef ref) async {
     if (customer.phone == null || customer.phone!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ref.read(localeProvider).languageCode == 'ku' ? 'Ù‡ÛŒÚ† Ú˜Ù…Ø§Ø±Û•ÛŒÛ•Ú©ÛŒ ØªÛ•Ù„Û•ÙÛ†Ù† ØªÛ†Ù…Ø§Ø± Ù†Û•Ú©Ø±Ø§ÙˆÛ• Ø¨Û† Ø¦Û•Ù… Ú©Ú•ÛŒØ§Ø±Û•' : ref.read(localeProvider).languageCode == 'ar' ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø±Ù‚Ù… Ù‡Ø§ØªÙ Ù…Ø³Ø¬Ù„ Ù„Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'No phone number registered for this customer')),
+        SnackBar(content: Text(Tr.t('noPhone', ref.read(localeProvider).languageCode))),
       );
       return;
     }

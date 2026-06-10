@@ -1,6 +1,5 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -15,6 +14,10 @@ import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/payment_providers.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/utils/app_translations.dart';
+import '../../core/widgets/shimmer_loading.dart';
+import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/universal_image.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../data/models/order_entity.dart';
 import '../../data/models/order_item_entity.dart';
@@ -24,6 +27,7 @@ import '../../domain/enums.dart';
 import '../../core/constants/app_constants.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/routing/routes.dart';
 
 final posCustomersProvider = FutureProvider<List<CustomerEntity>>((ref) {
   return ref.watch(customerRepositoryProvider).getAllCustomers();
@@ -68,12 +72,11 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
     // Localization
     final localizations = AppLocalizations.of(context)!;
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final lang = currentLocale.languageCode;
     
-    final title = isKurdish ? 'ÙØ±Û†Ø´ØªÙ†' : isArabic ? 'Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª' : 'POS';
-    final searchHint = isKurdish ? 'Ú¯Û•Ú•Ø§Ù† Ø¨Û† Ø¨Û•Ø±Ù‡Û•Ù…...' : isArabic ? 'Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ù…Ù†ØªØ¬Ø§Øª...' : 'Search products...';
-    final allProducts = isKurdish ? 'Ù‡Û•Ù…ÙˆÙˆ Ø¨Û•Ø±Ù‡Û•Ù…Û•Ú©Ø§Ù†' : isArabic ? 'ÙƒÙ„ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª' : 'All Products';
+    final title = Tr.t('posTitle', lang);
+    final searchHint = Tr.t('searchProducts', lang);
+    final allProducts = Tr.t('allProducts', lang);
     final bag = localizations.bag;
     final kg = localizations.kg;
     final ton = localizations.ton;
@@ -172,7 +175,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                     const SizedBox(width: 8),
                     _buildCategoryChip(ton, 'ton'),
                     const SizedBox(width: 8),
-                    _buildCategoryChip(isKurdish ? 'Ú©Ø§Ø±ØªÛ†Ù†' : isArabic ? 'ØµÙ†Ø¯ÙˆÙ‚' : 'Box', 'box'),
+                    _buildCategoryChip(Tr.localiseUnit('box', lang), 'box'),
                   ],
                 ),
               ),
@@ -183,7 +186,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                   stream: productsStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CustomLoader());
+                      return const ListSkeleton();
                     }
 
                     if (snapshot.hasError) {
@@ -201,18 +204,10 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                     }).toList();
 
                     if (filtered.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
-                            const SizedBox(height: 12),
-                            Text(
-                              localizations.noData,
-                              style: TextStyle(color: Colors.grey.shade500),
-                            ),
-                          ],
-                        ),
+                      return AnimatedEmptyState(
+                        title: localizations.noData,
+                        icon: Icons.search_off,
+                        subtitle: Tr.t('tryDifferentKeywords', lang),
                       );
                     }
 
@@ -242,18 +237,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                               stockColor = Colors.amber;
                             }
 
-                            String displayUnit = product.unitType;
-                            if (isKurdish) {
-                              if (displayUnit == 'bag') displayUnit = 'ÙÛ•Ø±Ø¯Û•';
-                              if (displayUnit == 'kg') displayUnit = 'Ú©ÛŒÙ„Û†Ú¯Ø±Ø§Ù…';
-                              if (displayUnit == 'ton') displayUnit = 'ØªÛ†Ù†';
-                              if (displayUnit == 'box') displayUnit = 'Ú©Ø§Ø±ØªÛ†Ù†';
-                            } else if (isArabic) {
-                              if (displayUnit == 'bag') displayUnit = 'ÙƒÙŠØ³';
-                              if (displayUnit == 'kg') displayUnit = 'ÙƒÙŠÙ„ÙˆØºØ±Ø§Ù…';
-                              if (displayUnit == 'ton') displayUnit = 'Ø·Ù†';
-                              if (displayUnit == 'box') displayUnit = 'ØµÙ†Ø¯ÙˆÙ‚';
-                            }
+                            String displayUnit = Tr.localiseUnit(product.unitType, lang);
 
                         return Card(
                           elevation: 0,
@@ -282,8 +266,8 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                                       Container(
                                         color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
                                         child: product.imageUrl != null
-                                            ? Image.file(
-                                                File(product.imageUrl!),
+                                            ? UniversalImage(
+                                                product.imageUrl!,
                                                 fit: BoxFit.cover,
                                                 color: quantityInCart == 0 ? Colors.black.withValues(alpha: 0.05) : null,
                                                 colorBlendMode: quantityInCart == 0 ? BlendMode.darken : null,
@@ -369,7 +353,12 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                                         Expanded(
                                           child: ClipRRect(
                                             borderRadius: BorderRadius.circular(4),
-                                            child: CustomLoader(),
+                                            child: LinearProgressIndicator(
+                                              value: product.stockQuantity / AppConstants.defaultMinStockAlert,
+                                              backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                                              valueColor: AlwaysStoppedAnimation<Color>(stockColor),
+                                              minHeight: 4,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 6),
@@ -501,7 +490,7 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
                       Row(
                         children: [
                           Text(
-                            isKurdish ? 'Ù¾Ø§Ø±Û•Ø¯Ø§Ù†' : isArabic ? 'Ø§Ù„Ø¯ÙØ¹' : 'Checkout',
+                            Tr.t('auto_Checkout', ref.read(localeProvider).languageCode),
                             style: TextStyle(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
@@ -564,16 +553,12 @@ class _BakeryCatalogScreenState extends ConsumerState<BakeryCatalogScreen> {
     final controller = TextEditingController(text: currentQty > 0 ? currentQty.toInt().toString() : '');
     final focusNode = FocusNode();
     
-    // Localization
-    final currentLocale = ref.read(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
-    
-    final title = isKurdish ? 'Ø¨Ú•ÛŒ ${product.name} Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•' : isArabic ? 'Ø£Ø¯Ø®Ù„ ÙƒÙ…ÙŠØ© ${product.name}' : 'Enter Quantity for ${product.name}';
-    final hint = isKurdish ? 'Ø¨Ú•' : isArabic ? 'Ø§Ù„ÙƒÙ…ÙŠØ©' : 'Quantity';
-    final cancelText = isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel';
-    final updateText = isKurdish ? 'Ù†ÙˆÛŽÚ©Ø±Ø¯Ù†Û•ÙˆÛ•' : isArabic ? 'ØªØ­Ø¯ÙŠØ«' : 'Update';
-    final errorText = isKurdish ? 'Ø¨Ú•Û•Ú©Û• Ù‡Û•ÚµÛ•ÛŒÛ• ÛŒØ§Ù† Ú©Û†Ú¯Ø§ Ø¨Û•Ø´ Ù†Ø§Ú©Ø§Øª' : isArabic ? 'ÙƒÙ…ÙŠØ© ØºÙŠØ± ØµØ§Ù„Ø­Ø© Ø£Ùˆ Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø®Ø²ÙˆÙ† ÙƒØ§ÙÙ' : 'Invalid quantity or not enough stock';
+    final langCode = ref.read(localeProvider).languageCode;
+    final title = Tr.t('auto_EnterQuantityFor', langCode, {'name': product.name});
+    final hint = Tr.t('auto_Quantity', langCode);
+    final cancelText = Tr.t('auto_Cancel', langCode);
+    final updateText = Tr.t('auto_Update', langCode);
+    final errorText = Tr.t('auto_Invalidquantity', langCode);
 
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
@@ -640,15 +625,15 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     final isKurdish = currentLocale.languageCode == 'ku';
     final isArabic = currentLocale.languageCode == 'ar';
     
-    final walkInStr = isKurdish ? 'Ú©Ú•ÛŒØ§Ø±ÛŒ Ú©Ø§ØªÛŒ' : isArabic ? 'Ø¹Ù…ÙŠÙ„ Ø¹Ø§Ø¨Ø±' : 'Walk-In Customer';
+    final walkInStr = Tr.t('auto_WalkInCustomer', ref.read(localeProvider).languageCode);
     final customerName = isQuickSell ? walkInStr : (_selectedCustomer?.businessName ?? 'Client');
 
-    final confirmOrderStr = isKurdish ? 'Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ø¨Ø³Û•Ù„Ù…ÛŽÙ†Û•' : isArabic ? 'ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨' : 'Confirm Order';
+    final confirmOrderStr = Tr.t('auto_ConfirmOrder', ref.read(localeProvider).languageCode);
 
     final confirmBody = isKurdish 
-      ? 'Ø¯Û•ØªÛ•ÙˆÛŽØª Ø¯Ø§ÙˆØ§Ú©Ø§Ø±ÛŒ Ø¨Û• Ø¨Ú•ÛŒ ${CurrencyFormatter.format(totalAmount)} Ø¨Û† $customerName ØªÛ†Ù…Ø§Ø± Ø¨Ú©Û•ÛŒØªØŸ\n\nØ¦Û•Ù…Û• Ù„Û• Ú©Û†Ú¯Ø§ Ú©Û•Ù… Ø¯Û•Ú©Ø±ÛŽØªÛ•ÙˆÛ•.' 
+      ? 'دەتەوێت داواکاری بە بڕی ${CurrencyFormatter.format(totalAmount)} بۆ $customerName تۆمار بکەیت؟\n\nئەمە لە کۆگا کەم دەکرێتەوە.' 
       : isArabic 
-        ? 'Ù‡Ù„ ØªØ±ÙŠØ¯ ØªÙ‚Ø¯ÙŠÙ… Ø·Ù„Ø¨ Ø¨Ù‚ÙŠÙ…Ø© ${CurrencyFormatter.format(totalAmount)} Ù„Ù€ $customerNameØŸ\n\nÙ‡Ø°Ø§ Ø³ÙŠØ®ØµÙ… Ù…Ù† Ø§Ù„Ù…Ø®Ø²ÙˆÙ†.' 
+        ? 'هل تريد تقديم طلب بقيمة ${CurrencyFormatter.format(totalAmount)} لـ $customerName؟\n\nهذا سيخصم من المخزون.' 
         : 'Place order of ${CurrencyFormatter.format(totalAmount)} for $customerName?\n\nThis will deduct stock.';
         
     final confirmed = await AppFeedback.showConfirmDialog(
@@ -698,8 +683,8 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     }
 
     await ref.read(notificationProvider.notifier).addNotification(
-      title: '${AppConstants.appName} - Order Approved',
-      message: 'Order of ${CurrencyFormatter.format(totalAmount)} for $customerName delivered.',
+      title: 'order_delivered',
+      message: jsonEncode({'amount': totalAmount, 'customer': customerName}),
       type: 'order',
     );
 
@@ -711,8 +696,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
   }
 
   void _editPrice(BuildContext context, CartItem item, WidgetRef ref) {
-    final isKurdish = ref.watch(localeProvider).languageCode == 'ku';
-    final isArabic = ref.watch(localeProvider).languageCode == 'ar';
+    final langCode = ref.watch(localeProvider).languageCode;
     final controller = TextEditingController(text: item.customPrice.toInt().toString());
     final focusNode = FocusNode();
     focusNode.addListener(() {
@@ -723,17 +707,17 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(isKurdish ? 'Ú¯Û†Ú•ÛŒÙ†ÛŒ Ù†Ø±Ø®' : isArabic ? 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø³Ø¹Ø±' : 'Edit Price'),
+        title: Text(Tr.t('auto_EditPrice', langCode)),
         content: TextField(
           controller: controller,
           focusNode: focusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [ArabicToEnglishFormatter(), CurrencyInputFormatter()],
           autofocus: true,
-          decoration: InputDecoration(border: const OutlineInputBorder(), labelText: isKurdish ? 'Ù†Ø±Ø®ÛŒ ÛŒÛ•Ú© Ø¯Ø§Ù†Û•' : isArabic ? 'Ø§Ù„Ø³Ø¹Ø± Ù„Ù„ÙˆØ­Ø¯Ø©' : 'Price per unit'),
+          decoration: InputDecoration(border: const OutlineInputBorder(), labelText: Tr.t('auto_Priceperunit', langCode)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(Tr.t('auto_Cancel', langCode))),
           ElevatedButton(
             onPressed: () {
               final newPrice = double.tryParse(controller.text.replaceAll(',', ''));
@@ -742,7 +726,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                 Navigator.pop(ctx);
               }
             },
-            child: Text(isKurdish ? 'Ù¾Ø§Ø´Û•Ú©Û•ÙˆØªÚ©Ø±Ø¯Ù†' : isArabic ? 'Ø­ÙØ¸' : 'Save'),
+            child: Text(Tr.t('auto_Save', ref.read(localeProvider).languageCode)),
           ),
         ],
       ),
@@ -753,21 +737,19 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
-    final customersAsync = ref.watch(posCustomersProvider);
     
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
     final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final lang = currentLocale.languageCode;
 
-    final assignCustomerStr = isKurdish ? 'Ú©Ú•ÛŒØ§Ø± Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•' : isArabic ? 'ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Assign Customer';
+    final assignCustomerStr = Tr.t('auto_AssignCustomer', lang);
     final totalStr = localizations.totalAmount;
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        color: isDark ? const Color(0xFF111111) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -793,7 +775,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        isKurdish ? 'Ø³Û•Ø¨Û•ØªÛ•' : isArabic ? 'Ø¹Ø±Ø¨Ø© Ø§Ù„ØªØ³ÙˆÙ‚' : 'Cart Review',
+                        Tr.t('auto_CartReview', ref.read(localeProvider).languageCode),
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
@@ -835,35 +817,61 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                       )),
                       const Divider(height: 24),
 
-                      // Customer Dropdown Picker
-                      customersAsync.when(
-                        data: (customers) {
-                          return DropdownButtonFormField<String>(
-                            initialValue: _selectedCustomerId,
-                            decoration: InputDecoration(
-                              labelText: assignCustomerStr,
-                              prefixIcon: const Icon(Icons.person_outline),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            hint: Text(isKurdish ? 'Ú©Ú•ÛŒØ§Ø±ÛŽÚ©ÛŒ ØªÛ†Ù…Ø§Ø±Ú©Ø±Ø§Ùˆ Ù‡Û•ÚµØ¨Ú˜ÛŽØ±Û•' : isArabic ? 'Ø§Ø®ØªØ± Ø¹Ù…ÙŠÙ„Ø§Ù‹ Ù…Ø³Ø¬Ù„Ø§Ù‹' : 'Select a registered customer'),
-                            items: customers.map((c) {
-                              return DropdownMenuItem(
-                                value: c.id,
-                                child: Text('${c.businessName} (${isKurdish ? 'Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¯ÙŠÙ†' : 'Debt'}: ${CurrencyFormatter.format(c.debtBalance)})', style: const TextStyle(fontSize: 13)),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                _selectedCustomerId = val;
-                                _selectedCustomer = customers.firstWhereOrNull((c) => c.id == val);
-                              });
-                            },
-                            validator: (value) => value == null ? (isKurdish ? 'ØªÚ©Ø§ÛŒÛ• Ú©Ú•ÛŒØ§Ø±ÛŽÚ© Ø¯ÛŒØ§Ø±ÛŒ Ø¨Ú©Û•' : isArabic ? 'ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø¹Ù…ÙŠÙ„' : 'Please assign a customer') : null,
-                          );
+                      // Customer Selection Button
+                      InkWell(
+                        onTap: () async {
+                          final selected = await context.push<CustomerEntity?>(Routes.customerSelection);
+                          if (selected != null) {
+                            setState(() {
+                              _selectedCustomerId = selected.id;
+                              _selectedCustomer = selected;
+                            });
+                          } else {
+                            // User selected "Walk-In" or went back
+                            setState(() {
+                              _selectedCustomerId = null;
+                              _selectedCustomer = null;
+                            });
+                          }
                         },
-                        loading: () => const Center(child: CustomLoader()),
-                        error: (err, _) => Text('Error: $err', style: const TextStyle(color: Colors.red)),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.person_outline, color: theme.colorScheme.primary),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      assignCustomerStr,
+                                      style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _selectedCustomer?.businessName ?? (Tr.t('auto_WalkInCustomer', ref.read(localeProvider).languageCode)),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right, color: Colors.grey),
+                            ],
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 12),
 
@@ -879,7 +887,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                             children: [
                               const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
                               const SizedBox(width: 8),
-                              Expanded(child: Text('${isKurdish ? 'Ù‚Û•Ø±Ø²' : isArabic ? 'Ø¯ÙŠÙ†' : 'Debt'}: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}', style: const TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold))),
+                              Expanded(child: Text('${Tr.t('auto_Debt', ref.read(localeProvider).languageCode)}: ${CurrencyFormatter.format(_selectedCustomer!.debtBalance)}', style: const TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold))),
                             ],
                           ),
                         ),
@@ -888,7 +896,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F172A) : Colors.grey.shade50,
+                          color: isDark ? const Color(0xFF000000) : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200),
                         ),
@@ -909,10 +917,11 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                             child: ElevatedButton.icon(
                               onPressed: () => _processCheckout(ref, cartItems, cartNotifier.totalCartPrice, true),
                               icon: const Icon(Icons.bolt, color: Colors.white),
-                              label: Text(isKurdish ? 'ÙØ±Û†Ø´ØªÙ†ÛŒ Ø®ÛŽØ±Ø§' : isArabic ? 'Ø¨ÙŠØ¹ Ø³Ø±ÙŠØ¹' : 'Quick Sell (Cash)', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange.shade500,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                              label: Text(Tr.t('auto_QuickSellCash', ref.read(localeProvider).languageCode), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
@@ -921,14 +930,20 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  _processCheckout(ref, cartItems, cartNotifier.totalCartPrice, false);
+                                if (_selectedCustomer == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text(Tr.t('auto_Pleaseassignacu', ref.read(localeProvider).languageCode)),
+                                    backgroundColor: Colors.red,
+                                  ));
+                                  return;
                                 }
+                                _processCheckout(ref, cartItems, cartNotifier.totalCartPrice, false);
                               },
-                              icon: Icon(Icons.check, color: theme.colorScheme.onPrimary),
-                              label: Text(isKurdish ? 'Ø³Û•Ù„Ù…Ø§Ù†Ø¯Ù†' : isArabic ? 'ØªØ£ÙƒÙŠØ¯ Ù„Ù„Ø¹Ù…ÙŠÙ„' : 'Checkout to Client', style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 13, fontWeight: FontWeight.bold)),
+                              icon: const Icon(Icons.check, color: Colors.white),
+                              label: Text(Tr.t('auto_CheckouttoClien', ref.read(localeProvider).languageCode), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.colorScheme.primary,
+                                backgroundColor: Colors.black,
+                                elevation: 0,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),

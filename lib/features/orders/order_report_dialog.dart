@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +10,7 @@ import '../../core/services/pdf_invoice_ledger_service.dart';
 import '../../core/widgets/pdf_preview_screen.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../domain/enums.dart';
+import '../../core/utils/app_translations.dart';
 
 class OrderReportDialog extends ConsumerStatefulWidget {
   const OrderReportDialog({super.key});
@@ -25,8 +26,9 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
   bool _isLoading = false;
 
   void _generateReport() async {
+    final lang = ref.read(localeProvider).languageCode;
     if (_selectedRange == 'custom' && (_customStart == null || _customEnd == null)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select start and end dates')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Tr.t('selectDatesError', lang))));
       return;
     }
 
@@ -38,26 +40,26 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
       DateTime end;
       String periodName;
 
-      final currentLocale = ref.read(localeProvider);
-      final isKurdish = currentLocale.languageCode == 'ku';
-      final isArabic = currentLocale.languageCode == 'ar';
+      final langCode = ref.read(localeProvider).languageCode;
+      final isKurdish = langCode == 'ku';
+      final isArabic = langCode == 'ar';
 
       switch (_selectedRange) {
         case 'week':
-          start = now.subtract(Duration(days: now.weekday - 1)); // Start of week (Monday)
+          start = now.subtract(Duration(days: now.weekday - 1));
           start = DateTime(start.year, start.month, start.day);
           end = start.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
-          periodName = isKurdish ? 'Ø¦Û•Ù… Ù‡Û•ÙØªÛ•ÛŒÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹' : 'This Week';
+          periodName = Tr.t('auto_ThisWeek', langCode);
           break;
         case 'month':
           start = DateTime(now.year, now.month, 1);
           end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-          periodName = isKurdish ? 'Ø¦Û•Ù… Ù…Ø§Ù†Ú¯Û•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±' : 'This Month';
+          periodName = Tr.t('auto_ThisMonth', langCode);
           break;
         case 'year':
           start = DateTime(now.year, 1, 1);
           end = DateTime(now.year, 12, 31, 23, 59, 59);
-          periodName = isKurdish ? 'Ø¦Û•Ù… Ø³Ø§ÚµÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø¹Ø§Ù…' : 'This Year';
+          periodName = Tr.t('auto_ThisYear', langCode);
           break;
         case 'custom':
         default:
@@ -142,19 +144,17 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final currentLocale = ref.watch(localeProvider);
-    final isKurdish = currentLocale.languageCode == 'ku';
-    final isArabic = currentLocale.languageCode == 'ar';
+    final langCode = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final tTitle = isKurdish ? 'Ú•Ø§Ù¾Û†Ø±ØªÛŒ Ù¾Ø³ÙˆÙˆÚµÛ•Ú©Ø§Ù†' : isArabic ? 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„ÙÙˆØ§ØªÙŠØ±' : 'Invoices Report';
-    final tDesc = isKurdish ? 'Ù…Ø§ÙˆÛ•ÛŒÛ•Ú© Ù‡Û•ÚµØ¨Ú˜ÛŽØ±Û• Ø¨Û† Ø¯Ø±ÙˆØ³ØªÚ©Ø±Ø¯Ù†ÛŒ Ú•Ø§Ù¾Û†Ø±Øª' : isArabic ? 'Ø­Ø¯Ø¯ ÙØªØ±Ø© Ù„Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØªÙ‚Ø±ÙŠØ±' : 'Select a period to generate ledger';
-    final tWeek = isKurdish ? 'Ø¦Û•Ù… Ù‡Û•ÙØªÛ•ÛŒÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹' : 'This Week';
-    final tMonth = isKurdish ? 'Ø¦Û•Ù… Ù…Ø§Ù†Ú¯Û•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±' : 'This Month';
-    final tYear = isKurdish ? 'Ø¦Û•Ù… Ø³Ø§ÚµÛ•' : isArabic ? 'Ù‡Ø°Ø§ Ø§Ù„Ø¹Ø§Ù…' : 'This Year';
-    final tCustom = isKurdish ? 'Ù…Û•ÙˆØ¯Ø§ÛŒ ØªØ§ÛŒØ¨Û•Øª' : isArabic ? 'Ù†Ø·Ø§Ù‚ Ù…Ø®ØµØµ' : 'Custom Range';
-    final tGenerate = isKurdish ? 'Ø¯Ø±ÙˆØ³ØªÚ©Ø±Ø¯Ù†ÛŒ Ú•Ø§Ù¾Û†Ø±Øª' : isArabic ? 'Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØªÙ‚Ø±ÙŠØ±' : 'Generate Report';
+    final tTitle = Tr.t('auto_InvoicesReport', langCode);
+    final tDesc = Tr.t('auto_Selectaperiodto', langCode);
+    final tWeek = Tr.t('auto_ThisWeek', langCode);
+    final tMonth = Tr.t('auto_ThisMonth', langCode);
+    final tYear = Tr.t('auto_ThisYear', langCode);
+    final tCustom = Tr.t('auto_CustomRange', langCode);
+    final tGenerate = Tr.t('auto_GenerateReport', langCode);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -163,7 +163,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
       child: Container(
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          color: isDark ? const Color(0xFF111111) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -238,7 +238,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
                 style: TextButton.styleFrom(foregroundColor: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-                child: Text(isKurdish ? 'Ù¾Ø§Ø´Ú¯Û•Ø²Ø¨ÙˆÙˆÙ†Û•ÙˆÛ•' : isArabic ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'),
+                child: Text(Tr.t('auto_Cancel', ref.read(localeProvider).languageCode)),
               ),
             )
           ],
@@ -260,7 +260,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
         decoration: BoxDecoration(
           color: isSelected 
             ? theme.colorScheme.primary 
-            : (isDark ? const Color(0xFF0F172A) : Colors.grey.shade100),
+            : (isDark ? const Color(0xFF000000) : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? theme.colorScheme.primary : Colors.transparent,
@@ -311,7 +311,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
         decoration: BoxDecoration(
           color: isSelected 
             ? theme.colorScheme.primary 
-            : (isDark ? const Color(0xFF0F172A) : Colors.grey.shade100),
+            : (isDark ? const Color(0xFF000000) : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? theme.colorScheme.primary : Colors.transparent,
