@@ -1,0 +1,192 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Function to get the user's role
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Function to get the user's businessId
+    function getUserBusinessId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.businessId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    function isEmployee() {
+      return isAuthenticated() && (getUserRole() == 'employee' || getUserRole() == 'admin');
+    }
+
+    function hasValidBusinessId(data) {
+      return data.businessId == getUserBusinessId();
+    }
+
+    // Businesses Collection
+    match /businesses/{businessId} {
+      // Anyone authenticated can query a business by invite code, or create a new one
+      allow read, create: if isAuthenticated();
+      allow update: if isAuthenticated() && businessId == getUserBusinessId() && isAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // User can read their own profile to get their businessId/role, or admins of the same business can read it
+      allow read: if isAuthenticated() && (request.auth.uid == userId || (isAdmin() && resource.data.businessId == getUserBusinessId()));
+      
+      // User can create their own profile initially. Admins can update/delete users in their business.
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (
+        (request.auth.uid == userId && 
+         (
+           // Standard Profile Update: Cannot change core fields
+           (request.resource.data.role == resource.data.role && 
+            request.resource.data.status == resource.data.status && 
+            (resource.data.businessId == null || request.resource.data.businessId == resource.data.businessId)) 
+           ||
+           // Initial Setup: If they have no business, they can join/create one
+           ((resource.data.businessId == null || resource.data.businessId == "") && 
+             request.resource.data.businessId != "" && 
+             (
+               (request.resource.data.role == 'admin' && get(/databases/$(database)/documents/businesses/$(request.resource.data.businessId)).data.ownerId == request.auth.uid) ||
+               (request.resource.data.role == 'employee' && request.resource.data.status == 'pending')
+             )
+           )
+         )
+        ) || 
+        (isAdmin() && resource.data.businessId == getUserBusinessId() && request.resource.data.businessId == getUserBusinessId())
+      );
+      
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == userId || 
+        (isAdmin() && resource.data.businessId == getUserBusinessId())
+      );
+    }
+
+    // Collections that require Employee/Admin access and MUST match businessId
+    match /products/{productId} {
+      allow read: if isAuthenticated() && hasValidBusinessId(resource.data);
+      allow create: if isAdmin() && hasValidBusinessId(request.resource.data);
+      allow update: if isAdmin() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isAdmin() && hasValidBusinessId(resource.data);
+    }
+
+    match /categories/{categoryId} {
+      allow read: if isAuthenticated() && hasValidBusinessId(resource.data);
+      allow create: if isAdmin() && hasValidBusinessId(request.resource.data);
+      allow update: if isAdmin() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isAdmin() && hasValidBusinessId(resource.data);
+    }
+
+    match /orders/{orderId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /order_items/{itemId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /customers/{customerId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /returns/{returnId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /return_items/{itemId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /purchases/{purchaseId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /purchaseItems/{itemId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /purchase_returns/{returnId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /purchase_return_items/{itemId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    match /supplierPayments/{paymentId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isEmployee() && hasValidBusinessId(resource.data);
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if isAdmin() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update, delete: if false; // Logs are immutable
+    }
+
+    // Counters (Sequences for invoices, orders)
+    match /counters/{counterId} {
+      allow read: if isEmployee() && hasValidBusinessId(resource.data);
+      allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
+      allow update: if isEmployee() && hasValidBusinessId(resource.data) && hasValidBusinessId(request.resource.data);
+      allow delete: if isAdmin() && hasValidBusinessId(resource.data);
+    }
+  }
+}

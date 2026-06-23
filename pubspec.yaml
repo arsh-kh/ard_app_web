@@ -1,0 +1,128 @@
+name: ard_app
+description: "ئارد - Professional Flour Distribution & Inventory Management System"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Local Database (Drift - SQLite)
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Firebase
+  firebase_core: ^3.12.1
+  cloud_firestore: ^5.6.5
+  firebase_auth: ^5.5.1
+
+  # Routing
+  go_router: ^14.8.1
+
+  # Connectivity
+  connectivity_plus: ^6.1.4
+  internet_connection_checker_plus: ^2.7.1
+
+  # PDF & Printing
+  pdf: ^3.11.2
+  printing: ^5.13.5
+
+  # Charts
+  fl_chart: ^0.70.2
+
+  # UI & Design
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.2
+  gap: ^3.0.1
+  intl: ^0.20.2
+
+  # Utilities
+  uuid: ^4.5.1
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  equatable: ^2.0.7
+  collection: ^1.19.1
+  rxdart: ^0.28.0
+
+  # Sharing & Export
+  share_plus: ^10.1.4
+  open_file: ^3.5.10
+  url_launcher: ^6.3.1
+
+  # Barcode
+
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+
+  # Excel Export
+  csv: ^6.0.0
+
+
+  # Icons
+  cupertino_icons: ^1.0.8
+  material_design_icons_flutter: ^7.0.7296
+  image_picker: ^1.2.2
+  shared_preferences: ^2.5.5
+  crypto: ^3.0.6
+  flutter_native_splash: ^2.4.1
+  firebase_storage: ^12.4.10
+  animated_theme_switcher: ^2.0.10
+  flutter_secure_storage: ^10.3.1
+  http: ^1.6.0
+  kurdish_pdf: ^1.0.3
+  screenshot: ^3.0.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.14
+  freezed: ^2.5.7
+  json_serializable: ^6.9.2
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/APPLogo.png"
+  web:
+    generate: true
+    image_path: "assets/images/APPLogo.png"
+    background_color: "#ffffff"
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/images/APPLogo.png"
+  android: true
+  ios: true
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+
+  fonts:
+    - family: NotoNaskhArabic
+      fonts:
+        - asset: assets/fonts/NotoNaskhArabic-Regular.ttf
+        - asset: assets/fonts/NotoNaskhArabic-Bold.ttf
+          weight: 700

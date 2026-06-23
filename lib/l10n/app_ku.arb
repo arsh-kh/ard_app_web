@@ -1,0 +1,209 @@
+{
+  "@@locale": "ku",
+
+  "appName": "ئارد",
+  "appTagline": "سیستەمی بەڕێوەبردنی ئارد",
+
+  "login": "چوونەژوورەوە",
+  "logout": "چوونەدەرەوە",
+  "email": "ئیمەیڵ",
+  "password": "وشەی نهێنی",
+  "rememberMe": "لەبیرم بێت",
+  "forgotPassword": "وشەی نهێنیت لەبیرچووە؟",
+
+  "dashboard": "داشبۆرد",
+  "inventory": "کۆگا",
+  "sales": "فرۆشتن",
+  "purchases": "کڕین",
+  "customers": "موشتەرییەکان",
+  "invoices": "وەسڵەکان",
+  "reports": "ڕاپۆرتەکان",
+  "settings": "ڕێکخستنەکان",
+
+  "totalInventory": "کۆی کۆگا",
+  "todaySales": "فرۆشتنی ئەمڕۆ",
+  "monthlyProfit": "قازانجی مانگانە",
+  "pendingDebts": "قەرزداران",
+  "lowStockAlerts": "کاڵا کەمبووەکان",
+
+  "recentTransactions": "جوڵەکانی ئەم دواییە",
+  "bestSellingFlour": "باشترین جۆری ئارد",
+
+  "addProduct": "زیادکردنی کاڵا",
+  "editProduct": "دەستکاریکردنی کاڵا",
+  "deleteProduct": "سڕینەوەی کاڵا",
+  "productName": "ناوی کاڵا",
+  "flourType": "جۆری ئارد",
+  "brand": "مارکە",
+
+  "stockQuantity": "ماوە لە کۆگا",
+  "unitType": "یەکە",
+  "buyPrice": "نرخی کڕین (تێچوو)",
+  "sellPrice": "نرخی فرۆشتن",
+  "minimumStock": "کەمترین بڕی ئاگادارکردنەوە",
+  "barcode": "بارکۆد",
+
+  "kg": "کیلۆگرام",
+  "bag": "فەردە",
+  "ton": "تۆن",
+  "pieces": "دانە",
+
+  "searchInventory": "گەڕان لە کۆگا...",
+  "filterBy": "فلتەر",
+  "sortBy": "ڕیزکردن",
+  "lowStock": "بڕی کەم ماوە",
+  "inStock": "بەردەستە",
+  "outOfStock": "تەواو بووە",
+
+  "addCustomer": "موشتەری نوێ",
+  "editCustomer": "دەستکاریکردنی موشتەری",
+  "customerName": "ناوی موشتەری",
+  "bakeryName": "ناوی فڕن",
+  "phone": "ژمارەی مۆبایل",
+  "address": "ناونیشان",
+
+  "currentDebt": "قەرزداران",
+  "paymentHistory": "مێژووی پارەدان",
+  "purchaseHistory": "مێژووی کڕینەکانی موشتەری",
+  "customerNotes": "تێبینییەکان",
+
+  "createSale": "تۆمارکردنی فرۆشتن",
+  "salesHistory": "مێژووی فرۆشتنەکان",
+  "saleDetails": "وردەکاری وەسڵ",
+  "selectCustomer": "موشتەری هەڵبژێرە...",
+  "selectProduct": "کاڵا هەڵبژێرە...",
+
+  "quantity": "بڕ",
+  "unitPrice": "نرخی تاک",
+  "totalPrice": "کۆی گشتی",
+  "subtotal": "کۆی پێش داشکاندن",
+  "discount": "داشکاندن (بەخشش)",
+  "totalAmount": "کۆی کۆتایی",
+
+  "paidAmount": "بڕی دراو (واصل)",
+  "remainingDebt": "قەرزی ماوە",
+  "paymentStatus": "دۆخی پارەدان",
+
+  "paid": "پاکتاوکراو",
+  "partial": "بەشێکی دراوە",
+  "unpaid": "قەرز",
+
+  "addPayment": "وەرگرتنی پارە (واصل)",
+  "recordPayment": "تۆمارکردنی پارەدان",
+  "paymentMethod": "شێوازی پارەدان",
+  "cash": "کاش",
+  "transfer": "حەواڵە",
+  "check": "چەک",
+
+  "createPurchase": "کڕینی نوێ",
+  "supplierName": "ناوی کۆمپانیا (دابینکەر)",
+  "transportCost": "کرێی گواستنەوە",
+  "purchaseDate": "بەرواری کڕین",
+  "invoiceNumber": "ژمارەی وەسڵ",
+
+  "generateInvoice": "دەرکردنی وەسڵ",
+  "printInvoice": "چاپکردنی وەسڵ",
+  "shareInvoice": "ناردنی وەسڵ",
+  "downloadPdf": "داگرتن بە PDF",
+
+  "businessName": "ناوی کار",
+  "businessAddress": "ناونیشانی کار",
+  "businessPhone": "ژمارەی کار",
+
+  "dailyReport": "ڕاپۆرتی ڕۆژانە",
+  "weeklyReport": "ڕاپۆرتی هەفتانە",
+  "monthlyReport": "ڕاپۆرتی مانگانە",
+  "profitLoss": "قازانج و زیان",
+
+  "inventoryReport": "ڕاپۆرتی کۆگا",
+  "salesReport": "ڕاپۆرتی فرۆشتنەکان",
+  "debtReport": "ڕاپۆرتی قەرزەکان",
+
+  "exportPdf": "دەرکردن بە PDF",
+  "exportExcel": "دەرکردن بە Excel",
+
+  "syncStatus": "دۆخی هاوکاتکردن",
+  "synced": "تەواو بووە",
+  "pendingSyncLabel": "چاوەڕێی ئینتەرنێت...",
+  "syncing": "لە ناردندایە...",
+  "syncFailed": "سەرنەکەوت",
+
+  "online": "سەرهێڵ",
+  "offline": "دەرهێڵ",
+  "lastSynced": "دوایین ناردن",
+  "syncNow": "ناردنی ئێستا",
+
+  "lightMode": "دۆخی ڕووناک",
+  "darkMode": "دۆخی تاریک",
+  "language": "زمان",
+  "currency": "دراو",
+
+  "employees": "کارمەندەکان",
+  "addEmployee": "زیادکردنی کارمەند",
+  "editEmployee": "دەستکاریکردنی کارمەند",
+  "role": "پلە",
+  "admin": "بەڕێوەبەر",
+  "employee": "کارمەند",
+
+  "activityLog": "تۆماری چالاکییەکان",
+  "backup": "کۆپی یەدەگ",
+  "restore": "گەڕاندنەوە",
+
+  "confirm": "بەڵێ",
+  "cancel": "پاشگەزبوونەوە",
+  "save": "پاشەکەوتکردن",
+  "delete": "سڕینەوە",
+  "edit": "دەستکاریکردن",
+  "add": "زیادکردن",
+  "search": "گەڕان...",
+  "filter": "فلتەر",
+  "clear": "پاککردنەوە",
+
+  "noData": "هیچ زانیارییەک نییە",
+  "loading": "چاوەڕوان بە...",
+  "error": "کێشەیەک هەیە",
+  "retry": "هەوڵبدەرەوە",
+  "success": "سەرکەوتوو بوو",
+
+  "areYouSure": "دڵنیایت؟",
+  "deleteConfirmation": "ئەم زانیارییە بە تەواوی دەسڕدرێتەوە و ناگەڕێتەوە.",
+  "cannotUndo": "ناتوانیت پاشگەز ببیتەوە لەم کارە.",
+
+  "notes": "تێبینی",
+  "date": "بەروار",
+  "createdAt": "بەرواری تۆمارکردن",
+  "updatedAt": "دوایین گۆڕانکاری",
+
+  "total": "کۆی گشتی",
+  "average": "تێکڕا",
+  "count": "دانە",
+  "minimum": "کەمترین",
+  "maximum": "زۆرترین",
+
+  "today": "ئەمڕۆ",
+  "thisWeek": "ئەم هەفتەیە",
+  "thisMonth": "ئەم مانگە",
+  "thisYear": "ئەمساڵ",
+  "custom": "بەرواری دیاریکراو",
+  "dateRange": "ماوەی بەروار",
+
+  "all": "هەمووی",
+  "active": "چالاک",
+  "inactive": "ڕاگیراو",
+
+  "welcome": "بەخێربێیت",
+  "welcomeBack": "سڵاو، بەخێربێیتەوە",
+
+  "lowStockWarning": "{productName} خەریکە تەواو دەبێت ({quantity} ماوە)",
+  "debtReminder": "کۆی قەرزی {customerName} بریتییە لە {amount}",
+  "saleCreated": "وەسڵی ژمارە #{invoiceNumber} بە سەرکەوتوویی دروستکرا",
+  "paymentRecorded": "بڕی {amount} پارە وەرگیرا",
+  "productAdded": "{productName} بۆ کۆگا زیادکرا",
+  "syncComplete": "هەموو زانیارییەکان خەزنکران لە ئینتەرنێت",
+  "syncPending": "{count} گۆڕانکاری چاوەڕێی ئینتەرنێتە",
+
+  "noInternetConnection": "هێڵی ئینتەرنێتت نییە",
+
+  "currencySymbol": "د.ع",
+  "iraqiDinar": "د.ع"
+}
