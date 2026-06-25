@@ -180,7 +180,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
         // Gestures active (activeIndex = null)
         cards = [
           _buildCardContent(Icons.waving_hand_rounded, Tr.t('cardWelcome', lang), isDark: false),
-          _buildCardContent(Icons.storefront_rounded, Tr.t('cardManage', lang), isDark: true),
+          _buildCardContent(Icons.dashboard_rounded, Tr.t('cardManage', lang), isDark: true),
         ];
         break;
       case 2:
@@ -218,6 +218,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
     }
 
     return AnimatedCardStack(
+      key: ValueKey(_currentPage),
       cards: cards,
       slideAnimations: _slideAnimations,
       activeIndex: activeIndex,
@@ -296,6 +297,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
+      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+        return Stack(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            ...previousChildren.map((child) => Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: child,
+                )),
+            if (currentChild != null) currentChild,
+          ],
+        );
+      },
       child: Column(
         key: ValueKey<int>(_currentPage),
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,7 +412,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
               // Cards Section (Takes up all available middle space, perfectly centering the cards)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  padding: const EdgeInsets.only(top: 56, bottom: 24),
                   child: Center(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
