@@ -53,8 +53,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _initAndRestore() async {
-    // Wait for native splash and ensure minimum UI settling time
-    await Future.delayed(const Duration(milliseconds: 400));
+    // Allow minimal time for UI tree to mount before reading auth state
+    await Future.delayed(const Duration(milliseconds: 50));
 
     // Setup listener for auth state changes to auto-restore
     _firebaseAuth.authStateChanges().listen((User? firebaseUser) async {
@@ -102,7 +102,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     });
 
     // Fallback if the listener doesn't trigger quickly
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future.delayed(const Duration(milliseconds: 250));
     if (state.isInitializing && _firebaseAuth.currentUser == null) {
       state = state.copyWith(isInitializing: false);
     }

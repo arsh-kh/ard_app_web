@@ -6,7 +6,7 @@ import '../constants/app_constants.dart';
 class LocaleNotifier extends StateNotifier<Locale> {
   static const _localeKey = 'app_locale';
 
-  LocaleNotifier() : super(const Locale('en')) {
+  LocaleNotifier() : super(const Locale('ku')) {
     _loadLocale();
   }
 
@@ -14,19 +14,24 @@ class LocaleNotifier extends StateNotifier<Locale> {
     final prefs = await SharedPreferences.getInstance();
     final savedCode = prefs.getString(_localeKey);
     if (savedCode != null) {
-      if (savedCode == 'ku') {
-        state = const Locale('ku');
-        AppConstants.languageCode = 'ku';
-        AppConstants.currencySymbol = 'د.ع';
+      if (savedCode == 'en') {
+        state = const Locale('en');
+        AppConstants.languageCode = 'en';
+        AppConstants.currencySymbol = 'IQD';
       } else if (savedCode == 'ar') {
         state = const Locale('ar');
         AppConstants.languageCode = 'ar';
         AppConstants.currencySymbol = 'د.ع';
       } else {
-        state = const Locale('en');
-        AppConstants.languageCode = 'en';
-        AppConstants.currencySymbol = 'IQD';
+        state = const Locale('ku');
+        AppConstants.languageCode = 'ku';
+        AppConstants.currencySymbol = 'د.ع';
       }
+    } else {
+      // Default to Kurdish if no preference is saved
+      state = const Locale('ku');
+      AppConstants.languageCode = 'ku';
+      AppConstants.currencySymbol = 'د.ع';
     }
   }
 

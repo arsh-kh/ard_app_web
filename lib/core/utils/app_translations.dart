@@ -45,6 +45,12 @@ class Tr {
           'Optimize your business and take control of your financial growth today.',
       'skipBtn': 'Skip',
       'getStartedBtn': 'Get Started',
+      'cardWelcome': 'Welcome',
+      'cardManage': 'Hello',
+      'cardLanguage': 'Language',
+      'cardLocalization': 'Localization',
+      'cardReady': 'Ready',
+      'cardStart': 'Start',
 
       // Dashboard
       'welcomeBack': 'Welcome back,',
@@ -583,12 +589,18 @@ class Tr {
       'themeLight': 'ڕووناک',
       'themeDark': 'تاریک',
       'onboardingTitle1': 'زمان هەڵبژێرە',
-      'onboardingDesc1': 'تکایە زمانەکەت هەڵبژێرە.',
+      'onboardingDesc1': '  (دەتوانرێت لەداهاتوشدا بگۆڕدرێت) زمانی گونجاو هەڵبژێرە.',
       'onboardingTitle4': 'ئامادەی بۆ دەستپێکردن؟',
       'onboardingDesc4':
-          'کارەکەت بەرەو پێش ببە و کۆنتڕۆڵی گەشەی داراییت بکە ئەمڕۆ.',
+          'کارەکەت بەرەو پێش ببە و کۆنتڕۆڵی گەشەی داراییت بکە.',
       'skipBtn': 'تێپەڕاندن',
       'getStartedBtn': 'دەستپێکردن',
+      'cardWelcome': 'بەخێربێیت',
+      'cardManage': 'سڵاو',
+      'cardLanguage': 'زمان',
+      'cardLocalization': 'ناوخۆیی',
+      'cardReady': 'ئامادە',
+      'cardStart': 'دەستپێکردن',
 
       // Dashboard
       'welcomeBack': 'بەخێربێیتەوە،',
@@ -1136,6 +1148,12 @@ class Tr {
       'onboardingDesc4': 'طور عملك وسيطر على نموك المالي اليوم.',
       'skipBtn': 'تخطي',
       'getStartedBtn': 'ابدأ الآن',
+      'cardWelcome': 'مرحباً',
+      'cardManage': 'أهلاً',
+      'cardLanguage': 'اللغة',
+      'cardLocalization': 'توطين',
+      'cardReady': 'جاهز',
+      'cardStart': 'البدء',
 
       // Dashboard
       'welcomeBack': 'مرحباً بعودتك،',

@@ -896,7 +896,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: fg,
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          foregroundColor: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
