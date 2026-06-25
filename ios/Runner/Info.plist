@@ -7,7 +7,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Ard App</string>
+		<string>ئارد</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -68,5 +68,11 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>This app requires access to the camera to take profile and product pictures.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app requires access to the photo library to upload profile and product pictures.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>This app requires access to the microphone when recording video.</string>
 	</dict>
 </plist>

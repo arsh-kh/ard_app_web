@@ -12,7 +12,7 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
   @override
   FutureOr<void> build() {}
 
-  Future<void> createBusiness(String name) async {
+  Future<void> createBusiness(String name, {required String recoveryEmail}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final user = ref.read(authProvider).user;
@@ -21,7 +21,7 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
       final businessRepo = ref.read(businessRepositoryProvider);
       final userRepo = ref.read(userRepositoryProvider);
 
-      final business = await businessRepo.createBusiness(name, user.id);
+      final business = await businessRepo.createBusiness(name, user.id, recoveryEmail: recoveryEmail);
       
       // Update user doc with new business ID and admin role
       await userRepo.updateUserBusinessAndRole(user.id, business.id, 'admin', 'active');

@@ -11,6 +11,7 @@ class BusinessEntity with _$BusinessEntity {
     required String nameLower,
     required String inviteCode,
     required String ownerId,
+    String? recoveryEmail,
     DateTime? createdAt,
   }) = _BusinessEntity;
 

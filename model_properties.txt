@@ -1,0 +1,120 @@
+﻿### audit_log_entity.dart
+    required String id,
+    required String userId,
+    required String userName,
+    required String action,
+    required String entityType,
+    required String entityId,
+    required DateTime timestamp,
+
+### business_entity.dart
+    required String id,
+    required String name,
+    required String nameLower,
+    required String inviteCode,
+    required String ownerId,
+
+### customer_entity.dart
+    required String id,
+    required String businessName,
+    required double debtBalance,
+
+### order_entity.dart
+    required String id,
+    required String customerId,
+    required String status,
+    required double totalAmount,
+    @Default(0.0) double discount,
+    @Default(0.0) double totalCogs,
+    @Default(false) bool hasReturn,
+    @Default(0.0) double totalReturnedAmount,
+    required DateTime orderDate,
+
+### order_item_entity.dart
+    required String id,
+    required String orderId,
+    required String productId,
+    required double quantity,
+    @Default(0.0) double returnedQuantity,
+    required double unitPrice,
+    @Default(0.0) double buyPrice,
+
+### payment_entity.dart
+    required String id,
+    required String customerId,
+    required double amount,
+    required DateTime paymentDate,
+
+### product_entity.dart
+    required String id,
+    required String name,
+    required String categoryId,
+    required double stockQuantity,
+    required String unitType,
+    required double buyPrice,
+    required double sellPrice,
+
+### purchase_entity.dart
+    required String id,
+    required String status, // 'pending', 'received', 'cancelled'
+    required double totalAmount,
+    @Default(0.0) double discount,
+    @Default(0.0) double deliveryFee,
+    required DateTime purchaseDate,
+    @Default(false) bool hasReturn,
+    @Default(0.0) double totalReturnedAmount,
+
+### purchase_item_entity.dart
+    required String id,
+    required String purchaseId,
+    required String productId,
+    required double quantity,
+    required double unitPrice,
+    @Default(0.0) double returnedQuantity,
+
+### purchase_return_entity.dart
+  final String id;
+  final String? businessId;
+  final String purchaseId;
+  final String? supplierId;
+  final DateTime returnDate;
+  final double totalRefund;
+  final String? notes;
+  final String? createdBy;
+    required this.id,
+    required this.purchaseId,
+    required this.returnDate,
+    required this.totalRefund,
+    DateTime parseDate(dynamic v) {
+
+### purchase_return_item_entity.dart
+    required String id,
+    required String returnId,
+    required String productId,
+    required String productName,
+    required String unitType,
+    required double unitPrice,
+    required double returnedQty,
+
+### return_entity.dart
+    required String id,
+    required String orderId,
+    required String customerId,
+    required DateTime returnDate,
+    required double totalRefund,
+
+### return_item_entity.dart
+    required String id,
+    required String returnId,
+    required String productId,
+    required String productName,
+    required String unitType,
+    required double unitPrice,
+    required double returnedQty,
+  double get lineRefund => unitPrice * returnedQty;
+
+### user_entity.dart
+    required String id,
+    required String role,
+    required String name,
+

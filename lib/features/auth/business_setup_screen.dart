@@ -15,25 +15,19 @@ class BusinessSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
+  final _joinFormKey = GlobalKey<FormState>();
+  final _createFormKey = GlobalKey<FormState>();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _inviteCodeController = TextEditingController();
+  final TextEditingController _recoveryEmailController = TextEditingController();
 
   bool _isJoinMode = true;
 
-  late AnimationController _floatCtrl;
-  late Animation<double> _floatAnim;
   late AnimationController _tabCtrl;
 
   @override
   void initState() {
     super.initState();
-    _floatCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3000),
-    )..repeat(reverse: true);
-    _floatAnim = CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut);
-
     _tabCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 350),
@@ -44,7 +38,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
   void dispose() {
     _businessNameController.dispose();
     _inviteCodeController.dispose();
-    _floatCtrl.dispose();
+    _recoveryEmailController.dispose();
     _tabCtrl.dispose();
     super.dispose();
   }
@@ -53,7 +47,8 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
     if (_isJoinMode == joinMode) return;
     setState(() {
       _isJoinMode = joinMode;
-      _formKey.currentState?.reset();
+      _joinFormKey.currentState?.reset();
+      _createFormKey.currentState?.reset();
     });
     if (joinMode) {
       _tabCtrl.reverse();
@@ -67,7 +62,8 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
     if (!mounted) return;
 
     try {
-      if (!(_formKey.currentState?.validate() ?? false)) return;
+      final formKey = _isJoinMode ? _joinFormKey : _createFormKey;
+      if (!(formKey.currentState?.validate() ?? false)) return;
 
       if (_isJoinMode) {
         final code = _inviteCodeController.text.trim().toUpperCase();
@@ -82,7 +78,11 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
         }
       } else {
         final name = _businessNameController.text.trim();
-        await provider.createBusiness(name);
+        final email = _recoveryEmailController.text.trim();
+        await provider.createBusiness(
+          name, 
+          recoveryEmail: email, 
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -108,6 +108,63 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
     }
   }
 
+  void _showRecoverDialog(String lang, bool isDark, Color fg) {
+    final emailCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          title: Text(Tr.t('recoverDialogTitle', lang), style: TextStyle(color: fg, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(Tr.t('recoverDialogBody', lang), style: TextStyle(color: fg.withValues(alpha: 0.8), fontSize: 14)),
+              const SizedBox(height: 16),
+              _buildInputField(
+                controller: emailCtrl,
+                hint: Tr.t('recoveryEmailHint', lang),
+                icon: Icons.email_outlined,
+                isDark: isDark,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return Tr.t('reqField', lang);
+                  if (!v.contains('@')) return 'Invalid email';
+                  return null;
+                },
+                textCapitalization: TextCapitalization.none,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(Tr.t('cancelBtn', lang), style: TextStyle(color: fg.withValues(alpha: 0.5))),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: fg,
+                foregroundColor: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                if (emailCtrl.text.trim().isNotEmpty && emailCtrl.text.contains('@')) {
+                  Navigator.of(ctx).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(Tr.t('recoverSuccess', lang)),
+                      backgroundColor: isDark ? Colors.white : Colors.black,
+                    ),
+                  );
+                }
+              },
+              child: Text(Tr.t('recoverBtn', lang), style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(businessSetupProvider);
@@ -127,55 +184,44 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
       body: Stack(
         children: [
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                     // Icon
-                    AnimatedBuilder(
-                      animation: _floatAnim,
-                      builder: (_, __) {
-                        final floatOffset = (_floatAnim.value - 0.5) * 6;
-                        return Column(
-                          children: [
-                            Transform.translate(
-                              offset: Offset(0, floatOffset),
-                              child: Container(
-                                height: 100,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.primaryColor.withValues(alpha: 0.1),
-                                ),
-                                child: Icon(
-                                  Icons.business_center_rounded,
-                                  size: 48,
-                                  color: theme.primaryColor,
-                                ),
-                              ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      switchInCurve: Curves.easeOutBack,
+                      switchOutCurve: Curves.easeInBack,
+                      transitionBuilder: (child, animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: RotationTransition(
+                              turns: Tween<double>(begin: 0.8, end: 1.0).animate(animation),
+                              child: child,
                             ),
-                            const SizedBox(height: 12),
-                            // Dynamic Pedestal Shadow
-                            Container(
-                              width: 60 - (_floatAnim.value * 15),
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                                borderRadius: BorderRadius.circular(100),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         );
                       },
+                      child: Container(
+                        key: ValueKey<bool>(_isJoinMode),
+                        height: 110,
+                        width: 110,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            _isJoinMode ? Icons.group_add_rounded : Icons.domain_add_rounded,
+                            size: 52,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 24),
@@ -186,31 +232,34 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                       child: Column(
                         key: ValueKey(_isJoinMode),
                         children: [
-                          RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '${(_isJoinMode ? joinTitle : createTitle).split(' ').first} ',
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w900,
-                                    color: fg,
-                                    letterSpacing: -1.0,
-                                    fontFamily: theme.textTheme.headlineMedium?.fontFamily,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${(_isJoinMode ? joinTitle : createTitle).split(' ').first} ',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w900,
+                                      color: fg,
+                                      letterSpacing: -1.2,
+                                      fontFamily: theme.textTheme.headlineMedium?.fontFamily,
+                                    ),
                                   ),
-                                ),
-                                TextSpan(
-                                  text: (_isJoinMode ? joinTitle : createTitle).split(' ').skip(1).join(' '),
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w300,
-                                    color: fg,
-                                    letterSpacing: -0.5,
-                                    fontFamily: theme.textTheme.headlineMedium?.fontFamily,
+                                  TextSpan(
+                                    text: (_isJoinMode ? joinTitle : createTitle).split(' ').skip(1).join(' '),
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w300,
+                                      color: fg,
+                                      letterSpacing: -0.5,
+                                      fontFamily: theme.textTheme.headlineMedium?.fontFamily,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -222,17 +271,17 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                     // Premium Solid Card
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(24),
+                        color: isDark ? const Color(0xFF151515) : Colors.white,
+                        borderRadius: BorderRadius.circular(28),
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          width: 1.5,
+                          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                          width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 40,
+                            offset: const Offset(0, 15),
                           ),
                         ],
                       ),
@@ -247,7 +296,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                                 return Container(
                                   height: 44,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04),
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: Stack(
@@ -263,15 +312,19 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                                         width: tabWidth - 6,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surface,
+                                            color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white,
                                             borderRadius: BorderRadius.circular(10),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                                                blurRadius: 5,
+                                                color: Colors.black.withValues(alpha: 0.08),
+                                                blurRadius: 10,
                                                 offset: const Offset(0, 2),
                                               ),
                                             ],
+                                            border: Border.all(
+                                              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                                              width: 0.5,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -299,15 +352,30 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                           ),
 
                           // Form
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 320),
-                            switchInCurve: Curves.easeInOut,
-                            switchOutCurve: Curves.easeInOut,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-                              child: _isJoinMode
-                                  ? _buildJoinForm(lang, isDark, fg, theme, isLoading)
-                                  : _buildCreateForm(lang, isDark, fg, theme, isLoading),
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeOutCubic,
+                            alignment: Alignment.topCenter,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 350),
+                              switchInCurve: Curves.easeOut,
+                              switchOutCurve: Curves.easeIn,
+                              layoutBuilder: (currentChild, previousChildren) {
+                                return Stack(
+                                  alignment: Alignment.topCenter,
+                                  children: <Widget>[
+                                    ...previousChildren,
+                                    if (currentChild != null) currentChild,
+                                  ],
+                                );
+                              },
+                              child: Padding(
+                                key: ValueKey(_isJoinMode),
+                                padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+                                child: _isJoinMode
+                                    ? _buildJoinForm(lang, isDark, fg, theme, isLoading)
+                                    : _buildCreateForm(lang, isDark, fg, theme, isLoading),
+                              ),
                             ),
                           ),
                         ],
@@ -317,7 +385,6 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -350,26 +417,26 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
 
   Widget _buildJoinForm(String lang, bool isDark, Color fg, ThemeData theme, bool isLoading) {
     return Form(
-      key: _formKey,
+      key: _joinFormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Info Box
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: theme.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.primaryColor.withValues(alpha: 0.2)),
+              color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05)),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: theme.primaryColor, size: 20),
-                const SizedBox(width: 10),
+                Icon(Icons.info_outline, color: isDark ? Colors.white70 : Colors.black87, size: 22),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     Tr.t('joinWorkspaceInfo', lang),
-                    style: TextStyle(fontSize: 13, color: fg),
+                    style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87, height: 1.4),
                   ),
                 ),
               ],
@@ -390,7 +457,18 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
             textCapitalization: TextCapitalization.characters,
             maxLength: 6,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => _showRecoverDialog(lang, isDark, fg),
+              child: Text(
+                Tr.t('recoverPrompt', lang),
+                style: TextStyle(color: fg, fontSize: 13),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           _submitBtn(
             label: Tr.t('joinBtn', lang),
             isDark: isDark,
@@ -406,26 +484,26 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
 
   Widget _buildCreateForm(String lang, bool isDark, Color fg, ThemeData theme, bool isLoading) {
     return Form(
-      key: _formKey,
+      key: _createFormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Warning/Info Box
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isDark ? Colors.white24 : Colors.black12),
+              color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05)),
             ),
             child: Row(
               children: [
-                Icon(Icons.shield_outlined, color: fg.withValues(alpha: 0.7), size: 20),
-                const SizedBox(width: 10),
+                Icon(Icons.shield_outlined, color: isDark ? Colors.white70 : Colors.black87, size: 22),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     Tr.t('createWorkspaceInfo', lang),
-                    style: TextStyle(fontSize: 13, color: fg),
+                    style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87, height: 1.4),
                   ),
                 ),
               ],
@@ -445,6 +523,19 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
             },
             textCapitalization: TextCapitalization.words,
           ),
+          const SizedBox(height: 16),
+          _buildInputField(
+            controller: _recoveryEmailController,
+            hint: Tr.t('recoveryEmailHint', lang),
+            icon: Icons.email_outlined,
+            isDark: isDark,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return Tr.t('reqField', lang);
+              if (!v.contains('@')) return Tr.t('invalidEmail', lang);
+              return null;
+            },
+            textCapitalization: TextCapitalization.none,
+          ),
           const SizedBox(height: 24),
           _submitBtn(
             label: Tr.t('createBtn', lang),
@@ -460,6 +551,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
   }
 
   Widget _buildInputField({
+    Key? key,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
@@ -468,22 +560,29 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
     required TextCapitalization textCapitalization,
     int? maxLength,
   }) {
+    final fg = isDark ? Colors.white : Colors.black;
     return TextFormField(
+      key: key,
       controller: controller,
       textCapitalization: textCapitalization,
       textInputAction: TextInputAction.done,
       maxLength: maxLength,
       style: TextStyle(
         fontSize: 16,
-        color: Theme.of(context).colorScheme.onSurface,
+        color: fg,
+        fontWeight: FontWeight.w600,
       ),
+      cursorColor: fg,
       decoration: InputDecoration(
         labelText: hint,
         counterText: '',
-        labelStyle: TextStyle(color: isDark ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) : Colors.grey.shade600),
+        labelStyle: TextStyle(
+          color: fg.withValues(alpha: 0.5),
+          fontWeight: FontWeight.w500,
+        ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
-        prefixIcon: Icon(icon, color: isDark ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) : Colors.grey.shade400),
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.02),
+        prefixIcon: Icon(icon, color: fg.withValues(alpha: 0.5)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -491,14 +590,14 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: isDark ? Colors.white10 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
             width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
+            color: fg,
             width: 2,
           ),
         ),
@@ -523,30 +622,34 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
     required bool isLoading,
     required VoidCallback onTap,
   }) {
+    final bgColor = isDark ? Colors.white : Colors.black;
+    final textColor = isDark ? Colors.black : Colors.white;
+
     return BouncingWidget(
       onTap: isLoading ? () {} : onTap,
       child: Container(
-        height: 52,
+        height: 56,
         decoration: BoxDecoration(
-          color: theme.primaryColor,
-          borderRadius: BorderRadius.circular(14),
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: theme.primaryColor.withValues(alpha: 0.3),
-              blurRadius: 10,
+              color: bgColor.withValues(alpha: 0.2),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
         alignment: Alignment.center,
         child: isLoading
-            ? const SizedBox(height: 20, width: 20, child: CustomLoader(color: Colors.white))
+            ? SizedBox(height: 24, width: 24, child: CustomLoader(color: textColor))
             : Text(
                 label,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  letterSpacing: 0.5,
                 ),
               ),
       ),

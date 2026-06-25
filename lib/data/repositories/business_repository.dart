@@ -22,7 +22,7 @@ class BusinessRepository {
     return List.generate(6, (index) => chars[random.nextInt(chars.length)]).join();
   }
 
-  Future<BusinessEntity> createBusiness(String name, String ownerId) async {
+  Future<BusinessEntity> createBusiness(String name, String ownerId, {required String recoveryEmail}) async {
     final nameLower = name.trim().toLowerCase();
     
     // Check if business name already exists (case-insensitive)
@@ -59,6 +59,7 @@ class BusinessRepository {
       nameLower: nameLower,
       inviteCode: inviteCode,
       ownerId: ownerId,
+      recoveryEmail: recoveryEmail,
       createdAt: DateTime.now(),
     );
 

@@ -6,8 +6,7 @@ class OnboardingNotifier extends Notifier<bool> {
 
   @override
   bool build() {
-    return false; // TEMP: Always return false to test onboarding
-    // return sharedPrefs.getBool(_key) ?? false;
+    return sharedPrefs.getBool(_key) ?? false;
   }
 
   Future<void> completeOnboarding() async {

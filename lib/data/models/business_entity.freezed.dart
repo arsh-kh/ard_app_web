@@ -26,6 +26,7 @@ mixin _$BusinessEntity {
   String get nameLower => throw _privateConstructorUsedError;
   String get inviteCode => throw _privateConstructorUsedError;
   String get ownerId => throw _privateConstructorUsedError;
+  String? get recoveryEmail => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this BusinessEntity to a JSON map.
@@ -51,6 +52,7 @@ abstract class $BusinessEntityCopyWith<$Res> {
     String nameLower,
     String inviteCode,
     String ownerId,
+    String? recoveryEmail,
     DateTime? createdAt,
   });
 }
@@ -75,6 +77,7 @@ class _$BusinessEntityCopyWithImpl<$Res, $Val extends BusinessEntity>
     Object? nameLower = null,
     Object? inviteCode = null,
     Object? ownerId = null,
+    Object? recoveryEmail = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -99,6 +102,10 @@ class _$BusinessEntityCopyWithImpl<$Res, $Val extends BusinessEntity>
                 ? _value.ownerId
                 : ownerId // ignore: cast_nullable_to_non_nullable
                       as String,
+            recoveryEmail: freezed == recoveryEmail
+                ? _value.recoveryEmail
+                : recoveryEmail // ignore: cast_nullable_to_non_nullable
+                      as String?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -124,6 +131,7 @@ abstract class _$$BusinessEntityImplCopyWith<$Res>
     String nameLower,
     String inviteCode,
     String ownerId,
+    String? recoveryEmail,
     DateTime? createdAt,
   });
 }
@@ -147,6 +155,7 @@ class __$$BusinessEntityImplCopyWithImpl<$Res>
     Object? nameLower = null,
     Object? inviteCode = null,
     Object? ownerId = null,
+    Object? recoveryEmail = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -171,6 +180,10 @@ class __$$BusinessEntityImplCopyWithImpl<$Res>
             ? _value.ownerId
             : ownerId // ignore: cast_nullable_to_non_nullable
                   as String,
+        recoveryEmail: freezed == recoveryEmail
+            ? _value.recoveryEmail
+            : recoveryEmail // ignore: cast_nullable_to_non_nullable
+                  as String?,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -189,6 +202,7 @@ class _$BusinessEntityImpl implements _BusinessEntity {
     required this.nameLower,
     required this.inviteCode,
     required this.ownerId,
+    this.recoveryEmail,
     this.createdAt,
   });
 
@@ -206,11 +220,13 @@ class _$BusinessEntityImpl implements _BusinessEntity {
   @override
   final String ownerId;
   @override
+  final String? recoveryEmail;
+  @override
   final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'BusinessEntity(id: $id, name: $name, nameLower: $nameLower, inviteCode: $inviteCode, ownerId: $ownerId, createdAt: $createdAt)';
+    return 'BusinessEntity(id: $id, name: $name, nameLower: $nameLower, inviteCode: $inviteCode, ownerId: $ownerId, recoveryEmail: $recoveryEmail, createdAt: $createdAt)';
   }
 
   @override
@@ -225,6 +241,8 @@ class _$BusinessEntityImpl implements _BusinessEntity {
             (identical(other.inviteCode, inviteCode) ||
                 other.inviteCode == inviteCode) &&
             (identical(other.ownerId, ownerId) || other.ownerId == ownerId) &&
+            (identical(other.recoveryEmail, recoveryEmail) ||
+                other.recoveryEmail == recoveryEmail) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -238,6 +256,7 @@ class _$BusinessEntityImpl implements _BusinessEntity {
     nameLower,
     inviteCode,
     ownerId,
+    recoveryEmail,
     createdAt,
   );
 
@@ -265,6 +284,7 @@ abstract class _BusinessEntity implements BusinessEntity {
     required final String nameLower,
     required final String inviteCode,
     required final String ownerId,
+    final String? recoveryEmail,
     final DateTime? createdAt,
   }) = _$BusinessEntityImpl;
 
@@ -281,6 +301,8 @@ abstract class _BusinessEntity implements BusinessEntity {
   String get inviteCode;
   @override
   String get ownerId;
+  @override
+  String? get recoveryEmail;
   @override
   DateTime? get createdAt;
 

@@ -31,6 +31,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
   int _currentPage = 1;
   int _indicatorPage = 1; // Used for precise timing of the arc fill
   final int _totalPages = 4;
+  bool _isTextVisible = true;
 
   @override
   void initState() {
@@ -132,6 +133,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
         }
       });
       
+      setState(() {
+        _isTextVisible = false;
+      });
+      
       _setCardsSlideOutAnimation();
       await _cardsAnimationController.forward();
       
@@ -139,6 +144,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
       
       setState(() {
         _currentPage++;
+        _isTextVisible = true;
       });
       
       _setCardsSlideInAnimation();
@@ -295,23 +301,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
         descKey = 'onboardingWelcomeDesc';
     }
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-        return Stack(
-          alignment: Alignment.topCenter,
-          clipBehavior: Clip.none,
-          children: <Widget>[
-            ...previousChildren.map((child) => Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: child,
-                )),
-            if (currentChild != null) currentChild,
-          ],
-        );
-      },
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 250),
+      opacity: _isTextVisible ? 1.0 : 0.0,
       child: Column(
         key: ValueKey<int>(_currentPage),
         crossAxisAlignment: CrossAxisAlignment.start,
