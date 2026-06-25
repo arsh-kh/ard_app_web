@@ -463,6 +463,11 @@ class Tr {
       'createWorkspaceInfo': 'Creating a workspace makes you the Admin. You will be able to invite your employees and manage all store data.',
       'csvFormat': 'CSV Format',
       'business_joined_success': 'Joined business successfully! Waiting for admin approval.',
+      'logoutBusinessBtn': 'Log out from Workspace',
+      'logoutBusinessTitle': 'Log Out',
+      'logoutBusinessDesc': 'To log out from this workspace, please type the business name "{businessName}" below to confirm:',
+      'businessNameHintDialog': 'Business Name',
+      'leaveBtn': 'Log Out',
 
       // Nav bar labels
       'posLabel': 'POS',
@@ -1012,6 +1017,11 @@ class Tr {
       'createWorkspaceInfo': 'دروستکردنی کارێک تۆ دەکاتە بەڕێوەبەر. دەتوانیت کارمەندەکانت بانگهێشت بکەیت و هەموو زانیارییەکانی فرۆشگا بەڕێوەببەیت.',
       'csvFormat': 'فۆرماتی CSV',
       'business_joined_success': 'پەیوەندیکردن سەرکەوتوو بوو! چاوەڕێی پەسەندکردنی بەڕێوەبەر بکە.',
+      'logoutBusinessBtn': 'چوونەدەرەوە لە شوێنی کار',
+      'logoutBusinessTitle': 'چوونەدەرەوە',
+      'logoutBusinessDesc': 'بۆ چوونەدەرەوە لەم شوێنی کارە، تکایە ناوی کارەکە "{businessName}" لە خوارەوە بنووسە بۆ دڵنیابوونەوە:',
+      'businessNameHintDialog': 'ناوی کار',
+      'leaveBtn': 'چوونەدەرەوە',
 
       // Nav bar labels
       'posLabel': 'فرۆشتن',
@@ -1439,6 +1449,11 @@ class Tr {
       'createWorkspaceInfo': 'إنشاء مساحة عمل يجعلك المسؤول. ستتمكن من دعوة موظفيك وإدارة جميع بيانات المتجر.',
       'csvFormat': 'تنسيق CSV',
       'business_joined_success': 'تم الانضمام بنجاح! في انتظار موافقة المسؤول.',
+      'logoutBusinessBtn': 'تسجيل الخروج من مساحة العمل',
+      'logoutBusinessTitle': 'تسجيل الخروج',
+      'logoutBusinessDesc': 'لتسجيل الخروج من مساحة العمل هذه، يرجى كتابة اسم العمل "{businessName}" أدناه للتأكيد:',
+      'businessNameHintDialog': 'اسم العمل',
+      'leaveBtn': 'تسجيل الخروج',
 
       // Nav bar labels
       'posLabel': 'المبيعات',

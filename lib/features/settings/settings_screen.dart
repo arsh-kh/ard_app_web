@@ -13,6 +13,7 @@ import '../../core/widgets/image_picker_widget.dart';
 import '../../core/providers/business_provider.dart';
 import '../../core/widgets/custom_theme_switch.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
+import '../../data/repositories/user_repository.dart';
 import 'data_wipe_dialog.dart' as data_wipe_dialog;
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -255,7 +256,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                   const SizedBox(height: 32),
 
-                  if (user?.role == 'admin' && business != null) ...[
+                  if (business != null) ...[
                     _buildSectionLabel(Tr.t('workspace', langCode)).animate().fadeIn(delay: 120.ms).slideY(begin: 0.2),
                     const SizedBox(height: 8),
                     Container(
@@ -265,10 +266,97 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       child: Column(
                         children: [
+                          if (user?.role == 'admin') ...[
+                            _buildSettingsRow(
+                              title: Tr.t('inviteEmployeesTitle', langCode),
+                              theme: theme,
+                              onTap: () => context.push(Routes.invite),
+                            ),
+                            _buildDivider(theme),
+                          ],
                           _buildSettingsRow(
-                            title: Tr.t('inviteEmployeesTitle', langCode),
+                            title: Tr.t('logoutBusinessBtn', langCode),
                             theme: theme,
-                            onTap: () => context.push(Routes.invite),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) {
+                                  String typedName = '';
+                                  return StatefulBuilder(
+                                    builder: (context, setState) {
+                                      final isMatch = typedName.trim().toLowerCase() == business.name.toLowerCase();
+                                      return AlertDialog(
+                                        backgroundColor: theme.colorScheme.surface,
+                                        title: Text(
+                                          Tr.t('logoutBusinessTitle', langCode),
+                                          style: TextStyle(
+                                            color: theme.colorScheme.onSurface,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          children: [
+                                            Text(
+                                              Tr.t('logoutBusinessDesc', langCode, {'businessName': business.name}),
+                                              style: TextStyle(
+                                                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            TextField(
+                                              autofocus: true,
+                                              onChanged: (val) {
+                                                setState(() => typedName = val);
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: Tr.t('businessNameHintDialog', langCode),
+                                                filled: true,
+                                                fillColor: theme.colorScheme.surfaceContainerHighest,
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: BorderSide.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(ctx),
+                                            child: Text(
+                                              Tr.t('cancelBtn', langCode),
+                                              style: TextStyle(color: theme.colorScheme.onSurface),
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: isMatch
+                                                ? () async {
+                                                    Navigator.pop(ctx);
+                                                    final userId = user?.id;
+                                                    if (userId != null) {
+                                                      try {
+                                                        await ref.read(userRepositoryProvider).updateUserBusinessAndRole(userId, '', 'employee', 'pending');
+                                                      } catch (e) {
+                                                        debugPrint('Error leaving workspace: $e');
+                                                      }
+                                                    }
+                                                  }
+                                                : null,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: theme.colorScheme.error,
+                                              foregroundColor: theme.colorScheme.onError,
+                                            ),
+                                            child: Text(Tr.t('leaveBtn', langCode)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ],
                       ),

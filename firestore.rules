@@ -64,6 +64,11 @@ service cloud.firestore {
                (request.resource.data.role == 'employee' && request.resource.data.status == 'pending')
              )
            )
+           ||
+           // Leaving Business: Allow a user to clear their businessId to leave
+           (request.resource.data.businessId == "" && 
+            request.resource.data.role == 'employee' && 
+            request.resource.data.status == 'pending')
          )
         ) || 
         (isAdmin() && resource.data.businessId == getUserBusinessId() && request.resource.data.businessId == getUserBusinessId())
