@@ -8,6 +8,7 @@ class BusinessEntity with _$BusinessEntity {
   const factory BusinessEntity({
     required String id,
     required String name,
+    required String nameLower,
     required String inviteCode,
     required String ownerId,
     DateTime? createdAt,

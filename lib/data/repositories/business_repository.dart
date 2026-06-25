@@ -23,12 +23,40 @@ class BusinessRepository {
   }
 
   Future<BusinessEntity> createBusiness(String name, String ownerId) async {
+    final nameLower = name.trim().toLowerCase();
+    
+    // Check if business name already exists (case-insensitive)
+    final existingNameSnapshot = await _firestore
+        .collection('businesses')
+        .where('nameLower', isEqualTo: nameLower)
+        .limit(1)
+        .get();
+        
+    if (existingNameSnapshot.docs.isNotEmpty) {
+      throw Exception('businessNameTaken');
+    }
+
     final id = const Uuid().v4();
-    final inviteCode = _generateInviteCode();
+    
+    // Generate an invite code and ensure it is universally unique
+    String inviteCode;
+    bool isUnique = false;
+    do {
+      inviteCode = _generateInviteCode();
+      final existingCodeSnapshot = await _firestore
+          .collection('businesses')
+          .where('inviteCode', isEqualTo: inviteCode)
+          .limit(1)
+          .get();
+      if (existingCodeSnapshot.docs.isEmpty) {
+        isUnique = true;
+      }
+    } while (!isUnique);
     
     final business = BusinessEntity(
       id: id,
-      name: name,
+      name: name.trim(),
+      nameLower: nameLower,
       inviteCode: inviteCode,
       ownerId: ownerId,
       createdAt: DateTime.now(),

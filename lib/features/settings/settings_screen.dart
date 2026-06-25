@@ -299,9 +299,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
                                             Text(
-                                              Tr.t('logoutBusinessDesc', langCode, {'businessName': business.name}),
+                                              Tr.t('logoutBusinessDesc', langCode),
                                               style: TextStyle(
                                                 color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                              decoration: BoxDecoration(
+                                                color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                                                borderRadius: BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                                                ),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                business.name,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: theme.colorScheme.onSurface,
+                                                  letterSpacing: 1.2,
+                                                ),
+                                                textAlign: TextAlign.center,
                                               ),
                                             ),
                                             const SizedBox(height: 16),
@@ -345,8 +367,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                   }
                                                 : null,
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: theme.colorScheme.error,
-                                              foregroundColor: theme.colorScheme.onError,
+                                              backgroundColor: theme.colorScheme.onSurface,
+                                              foregroundColor: theme.colorScheme.surface,
                                             ),
                                             child: Text(Tr.t('leaveBtn', langCode)),
                                           ),
@@ -519,7 +541,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => ref.read(authProvider.notifier).logout(),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              backgroundColor: theme.colorScheme.surface,
+                              title: Text(
+                                Tr.t('logoutProfileTitle', langCode),
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              content: Text(
+                                Tr.t('logoutProfileWarning', langCode),
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: Text(
+                                    Tr.t('cancelBtn', langCode),
+                                    style: TextStyle(color: theme.colorScheme.onSurface),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    ref.read(authProvider.notifier).logout();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: theme.colorScheme.onSurface,
+                                    foregroundColor: theme.colorScheme.surface,
+                                  ),
+                                  child: Text(logoutLabel),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         borderRadius: BorderRadius.circular(20),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(

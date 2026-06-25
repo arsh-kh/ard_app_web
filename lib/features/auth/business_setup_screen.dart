@@ -94,9 +94,13 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
       }
     } catch (e) {
       if (!mounted) return;
+      String errorMsg = e.toString().replaceAll('Exception: ', '');
+      if (errorMsg == 'businessNameTaken') {
+        errorMsg = Tr.t('businessNameTaken', lang);
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', ''), style: TextStyle(color: Theme.of(context).colorScheme.onInverseSurface)),
+          content: Text(errorMsg, style: TextStyle(color: Theme.of(context).colorScheme.onInverseSurface)),
           backgroundColor: Theme.of(context).colorScheme.inverseSurface,
           behavior: SnackBarBehavior.floating,
         ),

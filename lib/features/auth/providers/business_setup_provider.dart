@@ -29,6 +29,7 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
       // Refresh auth provider to pull latest user claims
       await ref.read(authProvider.notifier).refreshSession();
     });
+    if (state.hasError) throw state.error!;
   }
 
   Future<void> joinBusiness(String inviteCode) async {
@@ -49,5 +50,6 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
       // Refresh auth provider to pull latest user claims
       await ref.read(authProvider.notifier).refreshSession();
     });
+    if (state.hasError) throw state.error!;
   }
 }

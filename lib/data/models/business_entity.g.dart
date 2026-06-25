@@ -10,6 +10,7 @@ _$BusinessEntityImpl _$$BusinessEntityImplFromJson(Map<String, dynamic> json) =>
     _$BusinessEntityImpl(
       id: json['id'] as String,
       name: json['name'] as String,
+      nameLower: json['nameLower'] as String,
       inviteCode: json['inviteCode'] as String,
       ownerId: json['ownerId'] as String,
       createdAt: json['createdAt'] == null
@@ -22,6 +23,7 @@ Map<String, dynamic> _$$BusinessEntityImplToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
+  'nameLower': instance.nameLower,
   'inviteCode': instance.inviteCode,
   'ownerId': instance.ownerId,
   'createdAt': instance.createdAt?.toIso8601String(),

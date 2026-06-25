@@ -23,6 +23,7 @@ BusinessEntity _$BusinessEntityFromJson(Map<String, dynamic> json) {
 mixin _$BusinessEntity {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  String get nameLower => throw _privateConstructorUsedError;
   String get inviteCode => throw _privateConstructorUsedError;
   String get ownerId => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -47,6 +48,7 @@ abstract class $BusinessEntityCopyWith<$Res> {
   $Res call({
     String id,
     String name,
+    String nameLower,
     String inviteCode,
     String ownerId,
     DateTime? createdAt,
@@ -70,6 +72,7 @@ class _$BusinessEntityCopyWithImpl<$Res, $Val extends BusinessEntity>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? nameLower = null,
     Object? inviteCode = null,
     Object? ownerId = null,
     Object? createdAt = freezed,
@@ -83,6 +86,10 @@ class _$BusinessEntityCopyWithImpl<$Res, $Val extends BusinessEntity>
             name: null == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            nameLower: null == nameLower
+                ? _value.nameLower
+                : nameLower // ignore: cast_nullable_to_non_nullable
                       as String,
             inviteCode: null == inviteCode
                 ? _value.inviteCode
@@ -114,6 +121,7 @@ abstract class _$$BusinessEntityImplCopyWith<$Res>
   $Res call({
     String id,
     String name,
+    String nameLower,
     String inviteCode,
     String ownerId,
     DateTime? createdAt,
@@ -136,6 +144,7 @@ class __$$BusinessEntityImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? nameLower = null,
     Object? inviteCode = null,
     Object? ownerId = null,
     Object? createdAt = freezed,
@@ -149,6 +158,10 @@ class __$$BusinessEntityImplCopyWithImpl<$Res>
         name: null == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        nameLower: null == nameLower
+            ? _value.nameLower
+            : nameLower // ignore: cast_nullable_to_non_nullable
                   as String,
         inviteCode: null == inviteCode
             ? _value.inviteCode
@@ -173,6 +186,7 @@ class _$BusinessEntityImpl implements _BusinessEntity {
   const _$BusinessEntityImpl({
     required this.id,
     required this.name,
+    required this.nameLower,
     required this.inviteCode,
     required this.ownerId,
     this.createdAt,
@@ -186,6 +200,8 @@ class _$BusinessEntityImpl implements _BusinessEntity {
   @override
   final String name;
   @override
+  final String nameLower;
+  @override
   final String inviteCode;
   @override
   final String ownerId;
@@ -194,7 +210,7 @@ class _$BusinessEntityImpl implements _BusinessEntity {
 
   @override
   String toString() {
-    return 'BusinessEntity(id: $id, name: $name, inviteCode: $inviteCode, ownerId: $ownerId, createdAt: $createdAt)';
+    return 'BusinessEntity(id: $id, name: $name, nameLower: $nameLower, inviteCode: $inviteCode, ownerId: $ownerId, createdAt: $createdAt)';
   }
 
   @override
@@ -204,6 +220,8 @@ class _$BusinessEntityImpl implements _BusinessEntity {
             other is _$BusinessEntityImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.nameLower, nameLower) ||
+                other.nameLower == nameLower) &&
             (identical(other.inviteCode, inviteCode) ||
                 other.inviteCode == inviteCode) &&
             (identical(other.ownerId, ownerId) || other.ownerId == ownerId) &&
@@ -213,8 +231,15 @@ class _$BusinessEntityImpl implements _BusinessEntity {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, inviteCode, ownerId, createdAt);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    name,
+    nameLower,
+    inviteCode,
+    ownerId,
+    createdAt,
+  );
 
   /// Create a copy of BusinessEntity
   /// with the given fields replaced by the non-null parameter values.
@@ -237,6 +262,7 @@ abstract class _BusinessEntity implements BusinessEntity {
   const factory _BusinessEntity({
     required final String id,
     required final String name,
+    required final String nameLower,
     required final String inviteCode,
     required final String ownerId,
     final DateTime? createdAt,
@@ -249,6 +275,8 @@ abstract class _BusinessEntity implements BusinessEntity {
   String get id;
   @override
   String get name;
+  @override
+  String get nameLower;
   @override
   String get inviteCode;
   @override

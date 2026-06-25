@@ -465,9 +465,12 @@ class Tr {
       'business_joined_success': 'Joined business successfully! Waiting for admin approval.',
       'logoutBusinessBtn': 'Log out from Workspace',
       'logoutBusinessTitle': 'Log Out',
-      'logoutBusinessDesc': 'To log out from this workspace, please type the business name "{businessName}" below to confirm:',
+      'logoutBusinessDesc': 'To log out from this workspace, please type the business name below to confirm:',
       'businessNameHintDialog': 'Business Name',
       'leaveBtn': 'Log Out',
+      'logoutProfileTitle': 'Log Out',
+      'logoutProfileWarning': 'Are you sure you want to log out from your account?',
+      'businessNameTaken': 'Business name is already taken. Please choose another.',
 
       // Nav bar labels
       'posLabel': 'POS',
@@ -1019,9 +1022,12 @@ class Tr {
       'business_joined_success': 'پەیوەندیکردن سەرکەوتوو بوو! چاوەڕێی پەسەندکردنی بەڕێوەبەر بکە.',
       'logoutBusinessBtn': 'چوونەدەرەوە لە شوێنی کار',
       'logoutBusinessTitle': 'چوونەدەرەوە',
-      'logoutBusinessDesc': 'بۆ چوونەدەرەوە لەم شوێنی کارە، تکایە ناوی کارەکە "{businessName}" لە خوارەوە بنووسە بۆ دڵنیابوونەوە:',
+      'logoutBusinessDesc': 'بۆ چوونەدەرەوە لەم شوێنی کارە، تکایە ناوی کارەکە لە خوارەوە بنووسە بۆ دڵنیابوونەوە:',
       'businessNameHintDialog': 'ناوی کار',
       'leaveBtn': 'چوونەدەرەوە',
+      'logoutProfileTitle': 'چوونەدەرەوە',
+      'logoutProfileWarning': 'دڵنیایت دەتەوێت لە هەژمارەکەت بچیتە دەرەوە؟',
+      'businessNameTaken': 'ناوی کارەکە پێشتر بەکارهێنراوە. تکایە ناوێکی تر هەڵبژێرە.',
 
       // Nav bar labels
       'posLabel': 'فرۆشتن',
@@ -1451,9 +1457,12 @@ class Tr {
       'business_joined_success': 'تم الانضمام بنجاح! في انتظار موافقة المسؤول.',
       'logoutBusinessBtn': 'تسجيل الخروج من مساحة العمل',
       'logoutBusinessTitle': 'تسجيل الخروج',
-      'logoutBusinessDesc': 'لتسجيل الخروج من مساحة العمل هذه، يرجى كتابة اسم العمل "{businessName}" أدناه للتأكيد:',
+      'logoutBusinessDesc': 'لتسجيل الخروج من مساحة العمل هذه، يرجى كتابة اسم العمل أدناه للتأكيد:',
       'businessNameHintDialog': 'اسم العمل',
       'leaveBtn': 'تسجيل الخروج',
+      'logoutProfileTitle': 'تسجيل الخروج',
+      'logoutProfileWarning': 'هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟',
+      'businessNameTaken': 'اسم العمل مستخدم مسبقاً. يرجى اختيار اسم آخر.',
 
       // Nav bar labels
       'posLabel': 'المبيعات',
