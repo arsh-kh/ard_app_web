@@ -140,45 +140,39 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                          child: Hero(
-                            tag: 'avatar_${user?.id}',
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
+                                width: 3,
+                              ),
+                            ),
                             child: Container(
-                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: theme.colorScheme.primary.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                  width: 3,
-                                ),
+                                color: theme.colorScheme.surface,
                               ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.colorScheme.surface,
-                                ),
-                                child: ImagePickerWidget(
-                                  initialImagePath: _avatarPath,
-                                  isKurdish: isKurdish,
-                                  isArabic: isArabic,
-                                  radius: 56,
-                                  placeholderIcon: Icons.camera_alt_rounded,
-                                  namePlaceholder:
-                                      _nameController.text.isNotEmpty
-                                      ? _nameController.text
-                                      : user?.name,
-                                  onImageSelected: (path) {
-                                    setState(() => _avatarPath = path);
-                                  },
-                                ),
+                              child: ImagePickerWidget(
+                                initialImagePath: _avatarPath,
+                                isKurdish: isKurdish,
+                                isArabic: isArabic,
+                                radius: 56,
+                                heroTag: 'avatar_${user?.id}',
+                                placeholderIcon: Icons.camera_alt_rounded,
+                                namePlaceholder: _nameController.text.isNotEmpty
+                                    ? _nameController.text
+                                    : user?.name,
+                                onImageSelected: (path) {
+                                  setState(() => _avatarPath = path);
+                                },
                               ),
                             ),
                           ),
-                        )
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .scale(begin: const Offset(0.9, 0.9)),
+                        ),
 
                     const SizedBox(height: 48),
 

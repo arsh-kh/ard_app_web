@@ -12,6 +12,7 @@ class ImagePickerWidget extends StatefulWidget {
   final String? namePlaceholder;
   final bool isKurdish;
   final bool isArabic;
+  final String? heroTag;
 
   const ImagePickerWidget({
     super.key,
@@ -22,6 +23,7 @@ class ImagePickerWidget extends StatefulWidget {
     this.namePlaceholder,
     this.isKurdish = false,
     this.isArabic = false,
+    this.heroTag,
   });
 
   @override
@@ -141,33 +143,45 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       }
     }
 
+    Widget avatarWidget = CircleAvatar(
+      radius: widget.radius,
+      backgroundColor: avatarBg,
+      backgroundImage: imageProvider,
+      child: _currentImagePath == null
+          ? (widget.namePlaceholder != null &&
+                    widget.namePlaceholder!.trim().isNotEmpty)
+                ? Text(
+                    widget.namePlaceholder!.trim()[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: widget.radius * 0.8,
+                      fontWeight: FontWeight.bold,
+                      color: avatarFg,
+                    ),
+                  )
+                : Icon(
+                    widget.placeholderIcon,
+                    size: widget.radius * 0.8,
+                    color: avatarFg.withValues(alpha: 0.5),
+                  )
+          : null,
+    );
+
+    if (widget.heroTag != null) {
+      avatarWidget = Hero(
+        tag: widget.heroTag!,
+        child: Material(
+          type: MaterialType.transparency,
+          child: avatarWidget,
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: _pickImage,
       child: Center(
         child: Stack(
           children: [
-            CircleAvatar(
-              radius: widget.radius,
-              backgroundColor: avatarBg,
-              backgroundImage: imageProvider,
-              child: _currentImagePath == null
-                  ? (widget.namePlaceholder != null &&
-                            widget.namePlaceholder!.trim().isNotEmpty)
-                        ? Text(
-                            widget.namePlaceholder!.trim()[0].toUpperCase(),
-                            style: TextStyle(
-                              fontSize: widget.radius * 0.8,
-                              fontWeight: FontWeight.bold,
-                              color: avatarFg,
-                            ),
-                          )
-                        : Icon(
-                            widget.placeholderIcon,
-                            size: widget.radius * 0.8,
-                            color: avatarFg.withValues(alpha: 0.5),
-                          )
-                  : null,
-            ),
+            avatarWidget,
             Positioned(
               bottom: 0,
               right: 0,

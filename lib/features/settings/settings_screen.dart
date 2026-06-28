@@ -99,33 +99,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           padding: const EdgeInsets.all(20.0),
                           child: Row(
                             children: [
-                              Hero(
-                                tag: 'avatar_${user?.id}',
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: theme.colorScheme.primary
-                                          .withValues(alpha: 0.2),
-                                      width: 2,
-                                    ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: theme.colorScheme.primary
+                                        .withValues(alpha: 0.2),
+                                    width: 2,
                                   ),
-                                  child: ImagePickerWidget(
-                                    initialImagePath: user?.imageUrl,
-                                    isKurdish: langCode == 'ku',
-                                    isArabic: langCode == 'ar',
-                                    radius: 38,
-                                    placeholderIcon: Icons.person_rounded,
-                                    namePlaceholder: user?.name,
-                                    onImageSelected: (path) {
-                                      ref
-                                          .read(authProvider.notifier)
-                                          .updateProfile(
-                                            avatarPath: path,
-                                            removeAvatar: path == null,
-                                          );
-                                    },
-                                  ),
+                                ),
+                                child: ImagePickerWidget(
+                                  initialImagePath: user?.imageUrl,
+                                  isKurdish: langCode == 'ku',
+                                  isArabic: langCode == 'ar',
+                                  radius: 38,
+                                  heroTag: 'avatar_${user?.id}',
+                                  placeholderIcon: Icons.person_rounded,
+                                  namePlaceholder: user?.name,
+                                  onImageSelected: (path) {
+                                    ref
+                                        .read(authProvider.notifier)
+                                        .updateProfile(
+                                          avatarPath: path,
+                                          removeAvatar: path == null,
+                                        );
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -798,7 +796,8 @@ class _LanguageSegmentedPickerState extends State<_LanguageSegmentedPicker>
         builder: (context, constraints) {
           final totalWidth = constraints.maxWidth;
           const gap = 4.0;
-          final itemWidth = (totalWidth - gap * 2) / 3;
+          // Available width = totalWidth - 2 (left margin) - 2 (right margin) - 2 * gap (8) = totalWidth - 12
+          final itemWidth = (totalWidth - 12) / 3;
 
           return Container(
             height: 42,

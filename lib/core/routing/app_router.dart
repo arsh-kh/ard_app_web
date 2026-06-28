@@ -57,6 +57,24 @@ Page _buildSlideTransition(
   );
 }
 
+Page _buildFadeTransition(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurveTween(curve: Curves.easeOut).animate(animation),
+        child: child,
+      );
+    },
+  );
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authListenable = ValueNotifier<AuthState>(ref.read(authProvider));
   ref.listen(authProvider, (_, next) => authListenable.value = next);
@@ -267,7 +285,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.editProfile,
         pageBuilder: (context, state) =>
-            _buildSlideTransition(context, state, const EditProfileScreen()),
+            _buildFadeTransition(context, state, const EditProfileScreen()),
       ),
       GoRoute(
         path: Routes.notifications,
