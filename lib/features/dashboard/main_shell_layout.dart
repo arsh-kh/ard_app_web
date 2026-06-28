@@ -67,8 +67,8 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
           ),
           // 3. The True Floating Pill Navigation Bar
           Positioned(
-            left: 8,
-            right: 8,
+            left: 20,
+            right: 20,
             bottom: 20, // Lowered vertically as requested
             child: Container(
               height: 75,
