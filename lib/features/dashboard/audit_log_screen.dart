@@ -7,20 +7,19 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../data/models/audit_log_entity.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/providers/auth_provider.dart';
 import '../../core/widgets/custom_loader.dart';
+
+import '../../core/providers/business_provider.dart';
 
 final auditLogsProvider = StreamProvider.autoDispose<List<AuditLogEntity>>((
   ref,
 ) {
-  final user = ref.watch(authProvider).user;
-  if (user == null || user.businessId == null) {
-    return Stream.value([]);
-  }
+  final businessId = ref.watch(currentBusinessIdProvider);
+  if (businessId == null) return Stream.value([]);
 
   return FirebaseFirestore.instance
       .collection('audit_logs')
-      .where('businessId', isEqualTo: user.businessId)
+      .where('businessId', isEqualTo: businessId)
       .orderBy('timestamp', descending: true)
       .limit(100)
       .snapshots()
@@ -340,8 +339,8 @@ class AuditLogScreen extends ConsumerWidget {
 
   Color _getColorForAction(String action, ThemeData theme) {
     final lower = action.toLowerCase();
-    if (lower.contains('create')) return Colors.grey;
-    if (lower.contains('delete')) return Colors.grey;
+    if (lower.contains('create')) return Colors.green;
+    if (lower.contains('delete')) return Colors.red;
     if (lower.contains('update') || lower.contains('deliver')) {
       return theme.colorScheme.primary;
     }

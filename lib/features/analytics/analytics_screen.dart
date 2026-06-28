@@ -155,9 +155,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                 boxShadow: [
                   if (!isDark)
                     BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.05),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                       blurRadius: 5,
                       offset: const Offset(0, 2),
                     ),
@@ -293,9 +291,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                   ),
                   child: Padding(
@@ -398,7 +394,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                             Text(
                               '+${CurrencyFormatter.format(item.marginAmount)}',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Colors.green.shade600,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -459,9 +455,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                   ),
                   child: Padding(
@@ -585,9 +579,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                   ),
                   child: Column(
@@ -623,9 +615,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                             if (percentRecent > 0)
                               Expanded(
                                 flex: (percentRecent * 100).round(),
-                                child: Container(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                                child: Container(color: Colors.green),
                               ),
                             if (percentDue > 0)
                               Expanded(
@@ -635,9 +625,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                             if (percentOverdue > 0)
                               Expanded(
                                 flex: (percentOverdue * 100).round(),
-                                child: Container(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
+                                child: Container(color: Colors.red),
                               ),
                           ],
                         ),
@@ -649,7 +637,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildLegendItem(
-                            Theme.of(context).colorScheme.primary,
+                            Colors.green,
                             t('recent'),
                             aging.recentDebt,
                           ),
@@ -659,7 +647,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                             aging.dueDebt,
                           ),
                           _buildLegendItem(
-                            Theme.of(context).colorScheme.error,
+                            Colors.red,
                             t('overdue'),
                             aging.overdueDebt,
                           ),
@@ -714,7 +702,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                       }(),
                       builder: (context, orderSnapshot) {
                         final lastOrder = orderSnapshot.data;
-                        Color riskColor = Theme.of(context).colorScheme.primary;
+                        Color riskColor = Colors.green;
                         String statusDesc = t('neverOrdered');
 
                         if (lastOrder != null) {
@@ -725,15 +713,15 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                             'lastOrder',
                           ).replaceFirst('{days}', '$days');
                           if (days <= 15) {
-                            riskColor = Theme.of(context).colorScheme.primary;
+                            riskColor = Colors.green;
                           } else if (days <= 30) {
                             riskColor = Colors.amber;
                           } else {
-                            riskColor = Theme.of(context).colorScheme.error;
+                            riskColor = Colors.red;
                           }
                         } else {
                           // No order means long-standing manual ledger debt balance
-                          riskColor = Theme.of(context).colorScheme.error;
+                          riskColor = Colors.red;
                         }
 
                         return Card(
@@ -742,9 +730,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             ),
                           ),
                           child: ListTile(

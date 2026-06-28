@@ -224,7 +224,10 @@ class AdminDashboardScreen extends ConsumerWidget {
           end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: theme.colorScheme.primaryContainer, width: 1),
+        border: Border.all(
+          color: theme.colorScheme.primaryContainer,
+          width: 1,
+        ),
         boxShadow: isDark
             ? []
             : [
@@ -288,9 +291,9 @@ class AdminDashboardScreen extends ConsumerWidget {
                                 isCurrency: true,
                                 style: TextStyle(
                                   color: metrics.thisWeekProfit > 0
-                                      ? theme.colorScheme.primary
+                                      ? Colors.green
                                       : metrics.thisWeekProfit < 0
-                                      ? theme.colorScheme.error
+                                      ? Colors.redAccent
                                       : textColor,
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -464,9 +467,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           border: Border.all(
             color: theme.brightness == Brightness.dark
                 ? const Color(0xFF1A1A1A)
-                : Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
           ),
           boxShadow: [
             BoxShadow(
@@ -527,7 +528,9 @@ class AdminDashboardScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: theme.colorScheme.primaryContainer),
+            border: Border.all(
+              color: theme.colorScheme.primaryContainer,
+            ),
           ),
           child: debtorsAsync.when(
             loading: () => const Center(child: CustomLoader()),
@@ -614,7 +617,9 @@ class AdminDashboardScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: theme.colorScheme.primaryContainer),
+            border: Border.all(
+              color: theme.colorScheme.primaryContainer,
+            ),
           ),
           child: recentAsync.when(
             loading: () => const Center(child: CustomLoader()),
@@ -662,15 +667,14 @@ class AdminDashboardScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 2),
-                                Text(
-                                  DateFormat(
-                                    'dd/MM/yyyy • HH:mm',
-                                  ).format(activities[i].date),
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
+                                  Text(
+                                    DateFormat('dd/MM/yyyy • HH:mm')
+                                        .format(activities[i].date),
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

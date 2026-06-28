@@ -95,7 +95,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ) ??
           '30',
     );
-
+    
     _supplierNameController = TextEditingController(
       text: widget.productToEdit?.supplierName ?? '',
     );
@@ -188,9 +188,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         sellPrice: sellPrice,
         lowStockThreshold: lowStockThreshold,
         imageUrl: finalImageUrl,
-        supplierName: _supplierNameController.text.trim().isEmpty
-            ? null
-            : _supplierNameController.text.trim(),
+        supplierName: _supplierNameController.text.trim().isEmpty ? null : _supplierNameController.text.trim(),
       );
 
       if (isAdd) {
@@ -275,10 +273,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         actions: [
           if (!isNew)
             IconButton(
-              icon: Icon(
-                Icons.delete_outline,
-                color: Theme.of(context).colorScheme.error,
-              ),
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
@@ -292,7 +287,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.error,
+                          backgroundColor: Colors.red,
                         ),
                         onPressed: () => Navigator.pop(context, true),
                         child: Text(
@@ -355,17 +350,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 textInputAction: TextInputAction.next,
                 focusNode: _supplierNameFocus,
                 decoration: InputDecoration(
-                  labelText: langCode == 'ku'
-                      ? 'ناوی دابینکەر (ئارەزوومەندانە)'
-                      : langCode == 'ar'
-                      ? 'اسم المورد (اختياري)'
-                      : 'Supplier Name (Optional)',
+                  labelText: langCode == 'ku' ? 'ناوی دابینکەر (ئارەزوومەندانە)' : langCode == 'ar' ? 'اسم المورد (اختياري)' : 'Supplier Name (Optional)',
                   prefixIcon: const Icon(Icons.storefront_outlined),
-                  hintText: langCode == 'ku'
-                      ? 'ناوی ئەو کۆمپانیایە بنووسە'
-                      : langCode == 'ar'
-                      ? 'اكتب اسم الشركة'
-                      : 'Enter supplier or company name',
+                  hintText: langCode == 'ku' ? 'ناوی ئەو کۆمپانیایە بنووسە' : langCode == 'ar' ? 'اكتب اسم الشركة' : 'Enter supplier or company name',
                 ),
               ),
               const SizedBox(height: 16),
@@ -400,9 +387,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                             builder: (ctx) => AlertDialog(
                               title: Text(
                                 Tr.t('addAmountWarningTitle', langCode),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.error,
+                                  color: Colors.red,
                                 ),
                               ),
                               content: Text(
@@ -416,9 +403,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                                 ElevatedButton(
                                   onPressed: () => Navigator.pop(ctx, true),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.error,
+                                    backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
                                   ),
                                   child: Text(Tr.t('agreeAnywayBtn', langCode)),
@@ -579,23 +564,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       return Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                            const Icon(Icons.info_outline, color: Colors.blue),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 '${Tr.t('calculatedUnitCost', langCode)}: ${CurrencyFormatter.format(trueUnitCost)}',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
+                                style: const TextStyle(
+                                  color: Colors.blue,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

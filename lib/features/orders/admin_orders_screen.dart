@@ -103,11 +103,7 @@ class AdminOrdersScreen extends ConsumerWidget {
   final bool isEmbedded;
   final String? initialSearchQuery;
 
-  const AdminOrdersScreen({
-    super.key,
-    this.isEmbedded = false,
-    this.initialSearchQuery,
-  });
+  const AdminOrdersScreen({super.key, this.isEmbedded = false, this.initialSearchQuery});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,7 +120,8 @@ class AdminOrdersScreen extends ConsumerWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting &&
             !snapshot.hasData) {
-          return const Scaffold(body: ShimmerListLoader());
+          return const Scaffold(resizeToAvoidBottomInset: false,
+      body: ShimmerListLoader());
         }
         if (snapshot.hasError) {
           return Scaffold(
@@ -259,9 +256,7 @@ class _OrdersBody extends ConsumerStatefulWidget {
 
 class _OrdersBodyState extends ConsumerState<_OrdersBody> {
   final TextEditingController _searchCtrl = TextEditingController();
-  late final FocusNode _searchFocusNode = SelectAllFocusNode(
-    controller: _searchCtrl,
-  );
+  late final FocusNode _searchFocusNode = SelectAllFocusNode(controller: _searchCtrl);
   final ScrollController _scrollCtrl = ScrollController();
 
   String _searchQuery = '';
@@ -336,7 +331,7 @@ class _OrdersBodyState extends ConsumerState<_OrdersBody> {
         final q = _searchQuery.toLowerCase();
         final orderNumStr = o.orderNumber?.toString().toLowerCase() ?? '';
         final idPrefix = o.id.substring(0, 8).toLowerCase();
-
+        
         if (!orderNumStr.contains(q) && !idPrefix.contains(q)) return false;
       }
       return true;
@@ -386,11 +381,10 @@ class _OrdersBodyState extends ConsumerState<_OrdersBody> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final t = widget.t;
     final langCode = widget.langCode;
-    final selectedSort =
-        ref.watch(sortPreferencesProvider)['orders'] ?? SortOptionType.dateDesc;
+    final selectedSort = ref.watch(sortPreferencesProvider)['orders'] ?? SortOptionType.dateDesc;
 
     final filtered = _applyFilters(widget.orders);
-
+    
     filtered.sort((a, b) {
       switch (selectedSort) {
         case SortOptionType.dateDesc:
@@ -412,7 +406,6 @@ class _OrdersBodyState extends ConsumerState<_OrdersBody> {
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: widget.isEmbedded ? Colors.transparent : null,
       appBar: widget.isEmbedded
           ? null
@@ -471,266 +464,226 @@ class _OrdersBodyState extends ConsumerState<_OrdersBody> {
             elevation: 0,
             automaticallyImplyLeading: false,
             toolbarHeight: 0,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(68),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                child: TextField(
-                  controller: _searchCtrl,
-                  focusNode: _searchFocusNode,
-                  onChanged: (v) => setState(() => _searchQuery = v),
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    hintText: Tr.t('searchOrders', langCode),
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () {
-                              _searchCtrl.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide.none,
-                    ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(68),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: TextField(
+                controller: _searchCtrl,
+                focusNode: _searchFocusNode,
+                onChanged: (v) => setState(() => _searchQuery = v),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: Tr.t('searchOrders', langCode),
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                        )
+                      : null,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
             ),
           ),
+        ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: AnimatedSegmentedPill<String>(
+                        items: const ['all', 'today', 'week', 'month', 'custom'],
+                        selectedValue: _selectedPeriod,
+                        onChanged: (val) {
+                          if (val == 'custom') {
+                            _pickCustomRange();
+                          } else {
+                            setState(() {
+                              _selectedPeriod = val;
+                              _customRange = null;
+                            });
+                          }
+                        },
+                        labelBuilder: (val) {
+                          switch (val) {
+                            case 'all': return Tr.t('periodAll', langCode);
+                            case 'today': return Tr.t('periodToday', langCode);
+                            case 'week': return Tr.t('periodThisWeek', langCode);
+                            case 'month': return Tr.t('periodThisMonth', langCode);
+                            case 'custom': return _customRangeLabel();
+                            default: return '';
+                          }
+                        },
+                        iconBuilder: (val) => val == 'custom' ? Icons.date_range_rounded : null,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                PremiumSortDropdown<SortOptionType>(
+                  selectedValue: selectedSort,
+                  options: const [
+                    SortOption(labelKey: 'sortDateDesc', icon: Icons.access_time, value: SortOptionType.dateDesc),
+                    SortOption(labelKey: 'sortDateAsc', icon: Icons.history, value: SortOptionType.dateAsc),
+                    SortOption(labelKey: 'sortAmountDesc', icon: Icons.arrow_downward, value: SortOptionType.amountDesc),
+                    SortOption(labelKey: 'sortAmountAsc', icon: Icons.arrow_upward, value: SortOptionType.amountAsc),
+                  ],
+                  onSelected: (newSort) async {
+                    await ref.read(sortPreferencesProvider.notifier).setSort('orders', newSort);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // ── Summary Bar ───────────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 4.0,
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: AnimatedSegmentedPill<String>(
-                          items: const [
-                            'all',
-                            'today',
-                            'week',
-                            'month',
-                            'custom',
-                          ],
-                          selectedValue: _selectedPeriod,
-                          onChanged: (val) {
-                            if (val == 'custom') {
-                              _pickCustomRange();
-                            } else {
-                              setState(() {
-                                _selectedPeriod = val;
-                                _customRange = null;
-                              });
-                            }
-                          },
-                          labelBuilder: (val) {
-                            switch (val) {
-                              case 'all':
-                                return Tr.t('periodAll', langCode);
-                              case 'today':
-                                return Tr.t('periodToday', langCode);
-                              case 'week':
-                                return Tr.t('periodThisWeek', langCode);
-                              case 'month':
-                                return Tr.t('periodThisMonth', langCode);
-                              case 'custom':
-                                return _customRangeLabel();
-                              default:
-                                return '';
-                            }
-                          },
-                          iconBuilder: (val) =>
-                              val == 'custom' ? Icons.date_range_rounded : null,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.receipt_long_outlined,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            Tr.t('summaryOrders', langCode, {
+                              'count': filtered.length.toString(),
+                              'total': CurrencyFormatter.format(totalAmount),
+                            }),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8),
-                  PremiumSortDropdown<SortOptionType>(
-                    selectedValue: selectedSort,
-                    options: const [
-                      SortOption(
-                        labelKey: 'sortDateDesc',
-                        icon: Icons.access_time,
-                        value: SortOptionType.dateDesc,
+                  GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => const OrderReportDialog(),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
                       ),
-                      SortOption(
-                        labelKey: 'sortDateAsc',
-                        icon: Icons.history,
-                        value: SortOptionType.dateAsc,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? const Color(0xFF4D4D4D)
+                                : Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      SortOption(
-                        labelKey: 'sortAmountDesc',
-                        icon: Icons.arrow_downward,
-                        value: SortOptionType.amountDesc,
-                      ),
-                      SortOption(
-                        labelKey: 'sortAmountAsc',
-                        icon: Icons.arrow_upward,
-                        value: SortOptionType.amountAsc,
-                      ),
-                    ],
-                    onSelected: (newSort) async {
-                      await ref
-                          .read(sortPreferencesProvider.notifier)
-                          .setSort('orders', newSort);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Summary Bar ───────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 4.0,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
                       child: Row(
                         children: [
                           Icon(
-                            Icons.receipt_long_outlined,
-                            size: 16,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                            Icons.picture_as_pdf_rounded,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.surface,
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              Tr.t('summaryOrders', langCode, {
-                                'count': filtered.length.toString(),
-                                'total': CurrencyFormatter.format(totalAmount),
-                              }),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                          const SizedBox(width: 4),
+                          Text(
+                            Tr.t('auto_InvoicesReport', langCode),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.surface,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (_) => const OrderReportDialog(),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? const Color(0xFF4D4D4D)
-                                  : Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.picture_as_pdf_rounded,
-                              size: 14,
-                              color: Theme.of(context).colorScheme.surface,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              Tr.t('auto_InvoicesReport', langCode),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.surface,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
+        ),
 
-          // ── Orders List ───────────────────────────────────────────────
-          if (filtered.isEmpty)
-            SliverFillRemaining(
-              child: AnimatedEmptyState(
-                title: t('noOrderHistory'),
-                icon: Icons.receipt_long_outlined,
-              ),
-            )
-          else
-            SliverPadding(
-              padding: EdgeInsets.only(
-                top: 4,
-                bottom: widget.isEmbedded ? 140 : 100,
-              ),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _OrderCard(
-                    order: filtered[index],
-                    index: index,
-                    langCode: langCode,
-                    t: t,
-                    isDark: isDark,
-                    onPrint: widget.onPrint,
-                  ),
-                  childCount: filtered.length,
+        // ── Orders List ───────────────────────────────────────────────
+        if (filtered.isEmpty)
+          SliverFillRemaining(
+            child: AnimatedEmptyState(
+              title: t('noOrderHistory'),
+              icon: Icons.receipt_long_outlined,
+            ),
+          )
+        else
+          SliverPadding(
+            padding: EdgeInsets.only(
+              top: 4,
+              bottom: widget.isEmbedded ? 140 : 100,
+            ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _OrderCard(
+                  order: filtered[index],
+                  index: index,
+                  langCode: langCode,
+                  t: t,
+                  isDark: isDark,
+                  onPrint: widget.onPrint,
                 ),
+                childCount: filtered.length,
               ),
             ),
-        ],
-      ),
-    );
+          ),
+      ],
+    ),
+   );
   }
 }
 
@@ -770,104 +723,98 @@ class _OrderCard extends ConsumerWidget {
         final displayName = isWalkIn ? t('walkIn') : customerName;
 
         return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              elevation: 0,
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          elevation: 0,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+          ),
+          child: Theme(
+            data: theme.copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+              childrenPadding: EdgeInsets.zero,
+              title: Text(
+                displayName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              child: Theme(
-                data: theme.copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  tilePadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 0,
-                  ),
-                  childrenPadding: EdgeInsets.zero,
-                  title: Text(
-                    displayName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 2.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          '${t('orderLabel')} #${order.orderNumber ?? index + 1}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          DateFormat('dd/MM • HH:mm').format(order.orderDate),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  trailing: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        CurrencyFormatter.format(order.totalAmount),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: order.hasReturn ? 12 : 16,
-                          decoration: order.hasReturn
-                              ? TextDecoration.lineThrough
-                              : null,
-                          color: order.hasReturn
-                              ? Colors.grey
-                              : (Theme.of(context).colorScheme.onSurface),
-                        ),
-                      ),
-                      if (order.hasReturn)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Text(
-                            CurrencyFormatter.format(
-                              order.totalAmount - order.totalReturnedAmount,
-                            ),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 2.0),
+                child: Row(
                   children: [
-                    _buildExpandedContent(
-                      context,
-                      ref,
-                      customer,
-                      customerName,
-                      isWalkIn,
+                    Text(
+                      '${t('orderLabel')} #${order.orderNumber ?? index + 1}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      DateFormat('dd/MM • HH:mm').format(order.orderDate),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
               ),
-            )
-            .animate()
-            .fadeIn(duration: 300.ms, delay: (20 * index.clamp(0, 15)).ms)
-            .slideX(begin: 0.05);
+              trailing: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    CurrencyFormatter.format(order.totalAmount),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: order.hasReturn ? 12 : 16,
+                      decoration: order.hasReturn
+                          ? TextDecoration.lineThrough
+                          : null,
+                      color: order.hasReturn ? Colors.grey : (Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ),
+                  if (order.hasReturn)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        CurrencyFormatter.format(
+                          order.totalAmount - order.totalReturnedAmount,
+                        ),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              children: [
+                _buildExpandedContent(
+                  context,
+                  ref,
+                  customer,
+                  customerName,
+                  isWalkIn,
+                ),
+              ],
+            ),
+          ),
+        ).animate()
+          .fadeIn(duration: 300.ms, delay: (20 * index.clamp(0, 15)).ms)
+          .slideX(begin: 0.05);
       },
     );
   }
@@ -891,7 +838,9 @@ class _OrderCard extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
           top: BorderSide(
-            color: isDarkLocal ? const Color(0xFF2E2E2E) : Colors.grey.shade300,
+            color: isDarkLocal
+                ? const Color(0xFF2E2E2E)
+                : Colors.grey.shade300,
           ),
         ),
       ),
@@ -938,7 +887,9 @@ class _OrderCard extends ConsumerWidget {
                   builder: (context, itemsSnapshot) {
                     if (itemsSnapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return const Center(child: CustomLoader());
+                      return const Center(
+                        child: CustomLoader(),
+                      );
                     }
                     final items = itemsSnapshot.data ?? [];
                     return Column(
@@ -958,117 +909,64 @@ class _OrderCard extends ConsumerWidget {
                               ),
                               child: item.returnedQuantity == 0
                                   ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text(
                                             '$prodName x ${item.quantity.toInt()} ${Tr.localiseUnit(unit, langCode)}',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                            ),
+                                            style: const TextStyle(fontSize: 13),
                                           ),
                                         ),
                                         Text(
-                                          CurrencyFormatter.format(
-                                            item.quantity * item.unitPrice,
-                                          ),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                          ),
+                                          CurrencyFormatter.format(item.quantity * item.unitPrice),
+                                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                                         ),
                                       ],
                                     )
                                   : Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: [
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
                                               child: Text(
                                                 '$prodName x ${item.quantity.toInt()} ${Tr.localiseUnit(unit, langCode)}',
-                                                style: const TextStyle(
-                                                  fontSize: 13,
-                                                  decoration: TextDecoration
-                                                      .lineThrough,
-                                                  color: Colors.grey,
-                                                ),
+                                                style: const TextStyle(fontSize: 13, decoration: TextDecoration.lineThrough, color: Colors.grey),
                                               ),
                                             ),
                                             Text(
-                                              CurrencyFormatter.format(
-                                                item.quantity * item.unitPrice,
-                                              ),
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                decoration:
-                                                    TextDecoration.lineThrough,
-                                                color: Colors.grey,
-                                              ),
+                                              CurrencyFormatter.format(item.quantity * item.unitPrice),
+                                              style: const TextStyle(fontSize: 12, decoration: TextDecoration.lineThrough, color: Colors.grey),
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 4),
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               '- ${item.returnedQuantity.toInt()} ${Tr.t('retPrefix', langCode)}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              style: const TextStyle(fontSize: 12, color: Colors.redAccent, fontWeight: FontWeight.bold),
                                             ),
                                             Text(
                                               '- ${CurrencyFormatter.format(item.returnedQuantity * item.unitPrice)}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              style: const TextStyle(fontSize: 12, color: Colors.redAccent, fontWeight: FontWeight.bold),
                                             ),
                                           ],
                                         ),
-                                        if (item.returnedQuantity <
-                                            item.quantity) ...[
+                                        if (item.returnedQuantity < item.quantity) ...[
                                           const SizedBox(height: 4),
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
                                                 '= ${(item.quantity - item.returnedQuantity).toInt()} ${Tr.localiseUnit(unit, langCode)}',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary,
-                                                ),
+                                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.orange),
                                               ),
                                               Text(
-                                                CurrencyFormatter.format(
-                                                  (item.quantity -
-                                                          item.returnedQuantity) *
-                                                      item.unitPrice,
-                                                ),
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary,
-                                                ),
+                                                CurrencyFormatter.format((item.quantity - item.returnedQuantity) * item.unitPrice),
+                                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.orange),
                                               ),
                                             ],
                                           ),
@@ -1092,10 +990,8 @@ class _OrderCard extends ConsumerWidget {
                 Expanded(
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
                     ),
                     onPressed: () async {
                       final confirmed = await AppFeedback.showConfirmDialog(
@@ -1108,7 +1004,7 @@ class _OrderCard extends ConsumerWidget {
                             )
                             .replaceFirst('{client}', customerName),
                         confirmLabel: t('reject'),
-                        confirmColor: Theme.of(context).colorScheme.error,
+                        confirmColor: Colors.red,
                         icon: Icons.cancel_outlined,
                       );
                       if (!confirmed) return;
@@ -1118,11 +1014,9 @@ class _OrderCard extends ConsumerWidget {
                       );
                       await notifNotifier.addNotification(
                         title: 'order_rejected',
-                        message:
-                            'Order of ${CurrencyFormatter.format(order.totalAmount)} for $customerName was rejected.',
+                        message: 'Order of ${CurrencyFormatter.format(order.totalAmount)} for $customerName was rejected.',
                         type: 'order',
-                        route:
-                            '${Routes.adminOrders}?search=${order.orderNumber ?? order.id.substring(0, 8)}',
+                        route: '${Routes.adminOrders}?search=${order.orderNumber ?? order.id.substring(0, 8)}',
                       );
                       if (context.mounted) {
                         AppFeedback.showInfo(context, t('orderRejectedInfo'));
@@ -1149,18 +1043,16 @@ class _OrderCard extends ConsumerWidget {
                             )
                             .replaceFirst('{client}', customerName),
                         confirmLabel: t('markDelivered'),
-                        confirmColor: Theme.of(context).colorScheme.primary,
+                        confirmColor: Colors.green,
                         icon: Icons.local_shipping,
                       );
                       if (!confirmed) return;
                       await orderRepo.markOrderDelivered(order.id);
                       await notifNotifier.addNotification(
                         title: 'order_delivered',
-                        message:
-                            'Order of ${CurrencyFormatter.format(order.totalAmount)} for $customerName delivered.',
+                        message: 'Order of ${CurrencyFormatter.format(order.totalAmount)} for $customerName delivered.',
                         type: 'order',
-                        route:
-                            '${Routes.adminOrders}?search=${order.orderNumber ?? order.id.substring(0, 8)}',
+                        route: '${Routes.adminOrders}?search=${order.orderNumber ?? order.id.substring(0, 8)}',
                       );
                       if (context.mounted) {
                         AppFeedback.showSuccess(
@@ -1196,7 +1088,8 @@ class _OrderCard extends ConsumerWidget {
                       showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (_) => const Center(child: CustomLoader()),
+                        builder: (_) =>
+                            const Center(child: CustomLoader()),
                       ).ignore();
                       try {
                         final items = await orderRepo.getOrderItems(order.id);
@@ -1237,14 +1130,14 @@ class _OrderCard extends ConsumerWidget {
                 HeavyIOSButton(
                   label: Tr.t('deleteBtn', langCode),
                   icon: Icons.delete_outline,
-                  color: Theme.of(context).colorScheme.error,
+                  color: Colors.red,
                   onTap: () async {
                     final confirmed = await AppFeedback.showConfirmDialog(
                       context,
                       title: Tr.t('deleteOrder', langCode),
                       message: Tr.t('deleteOrderMsg', langCode),
                       confirmLabel: Tr.t('deleteBtn', langCode),
-                      confirmColor: Theme.of(context).colorScheme.error,
+                      confirmColor: Colors.red,
                       icon: Icons.warning,
                     );
                     if (confirmed == true) {
@@ -1260,3 +1153,4 @@ class _OrderCard extends ConsumerWidget {
     );
   }
 }
+

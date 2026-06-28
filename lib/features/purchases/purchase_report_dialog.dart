@@ -15,8 +15,7 @@ class PurchaseReportDialog extends ConsumerStatefulWidget {
   const PurchaseReportDialog({super.key});
 
   @override
-  ConsumerState<PurchaseReportDialog> createState() =>
-      _PurchaseReportDialogState();
+  ConsumerState<PurchaseReportDialog> createState() => _PurchaseReportDialogState();
 }
 
 class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
@@ -99,9 +98,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
           )
           .toList();
 
-      filteredPurchases.sort(
-        (a, b) => b.purchaseDate.compareTo(a.purchaseDate),
-      );
+      filteredPurchases.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
 
       final pdfBytes = await PdfPurchaseLedgerService.generateLedger(
         purchases: filteredPurchases,
@@ -223,9 +220,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
                             tDesc,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ],
@@ -294,9 +289,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     child: Text(
                       Tr.t(
@@ -350,9 +343,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
               size: 32,
               color: isSelected
                   ? theme.colorScheme.onPrimary
-                  : (Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
             ),
             const SizedBox(height: 8),
             Text(
@@ -363,9 +354,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
                 fontSize: 13,
                 color: isSelected
                     ? theme.colorScheme.onPrimary
-                    : (Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7)),
+                    : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
             ),
           ],
@@ -381,20 +370,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
 
     String formatDate(DateTime date) {
       if (langCode == 'ku') {
-        const months = [
-          'مانگی یەک',
-          'مانگی دوو',
-          'مانگی سێ',
-          'مانگی چوار',
-          'مانگی پێنج',
-          'مانگی شەش',
-          'مانگی حەوت',
-          'مانگی هەشت',
-          'مانگی نۆ',
-          'مانگی دە',
-          'مانگی یانزە',
-          'مانگی دوانزە',
-        ];
+        const months = ['مانگی یەک','مانگی دوو','مانگی سێ','مانگی چوار','مانگی پێنج','مانگی شەش','مانگی حەوت','مانگی هەشت','مانگی نۆ','مانگی دە','مانگی یانزە','مانگی دوانزە'];
         return '${date.day} ${months[date.month - 1]}';
       }
       return DateFormat('MMM d', langCode).format(date);
@@ -436,9 +412,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
               size: 32,
               color: isSelected
                   ? theme.colorScheme.onPrimary
-                  : (Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
             ),
             const SizedBox(height: 8),
             Text(
@@ -451,9 +425,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
                 fontSize: 12,
                 color: isSelected
                     ? theme.colorScheme.onPrimary
-                    : (Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7)),
+                    : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
             ),
           ],

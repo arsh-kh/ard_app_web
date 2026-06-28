@@ -264,8 +264,7 @@ class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              badgeColor ?? Theme.of(context).colorScheme.error,
+                          color: badgeColor ?? Colors.red,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected

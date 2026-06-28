@@ -182,7 +182,7 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
       title: Tr.t('processReturn', lang),
       message: confirmMsg,
       confirmLabel: Tr.t('processReturn', lang),
-      confirmColor: Colors.black,
+      confirmColor: Colors.orange,
       icon: Icons.replay_rounded,
     );
     if (!confirmed) return;
@@ -340,16 +340,12 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isOver
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.error.withValues(alpha: 0.5)
+                                    ? Colors.red.withValues(alpha: 0.5)
                                     : hasReturn
                                     ? theme.colorScheme.primary.withValues(
                                         alpha: 0.45,
                                       )
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.surfaceContainerHighest,
+                                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                               ),
                               boxShadow: [
                                 BoxShadow(
@@ -473,9 +469,7 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                             color: isOver
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.error
+                                                ? Colors.red
                                                 : hasReturn
                                                 ? theme.colorScheme.primary
                                                 : null,
@@ -493,9 +487,7 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
                                                   BorderRadius.circular(12),
                                               borderSide: BorderSide(
                                                 color: isOver
-                                                    ? Theme.of(
-                                                        context,
-                                                      ).colorScheme.error
+                                                    ? Colors.red
                                                     : theme.colorScheme.primary
                                                           .withValues(
                                                             alpha: 0.3,
@@ -507,9 +499,7 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
                                                   BorderRadius.circular(12),
                                               borderSide: BorderSide(
                                                 color: isOver
-                                                    ? Theme.of(
-                                                        context,
-                                                      ).colorScheme.error
+                                                    ? Colors.red
                                                     : theme.colorScheme.primary,
                                                 width: 2,
                                               ),
