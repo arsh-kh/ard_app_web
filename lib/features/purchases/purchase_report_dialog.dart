@@ -137,8 +137,8 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
     final picked = await showAppDateRangePicker(
       context: context,
       langCode: langCode,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2050),
       initialDateRange: _customStart != null && _customEnd != null
           ? DateTimeRange(start: _customStart!, end: _customEnd!)
           : null,

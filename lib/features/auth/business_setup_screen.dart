@@ -132,6 +132,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
                   return null;
                 },
                 textCapitalization: TextCapitalization.none,
+                forceLtr: true,
               ),
             ],
           ),
@@ -456,6 +457,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
             },
             textCapitalization: TextCapitalization.characters,
             maxLength: 6,
+            forceLtr: true,
           ),
           const SizedBox(height: 4),
           Align(
@@ -535,6 +537,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
               return null;
             },
             textCapitalization: TextCapitalization.none,
+            forceLtr: true,
           ),
           const SizedBox(height: 24),
           _submitBtn(
@@ -559,9 +562,10 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
     required String? Function(String?) validator,
     required TextCapitalization textCapitalization,
     int? maxLength,
+    bool forceLtr = false,
   }) {
     final fg = isDark ? Colors.white : Colors.black;
-    return TextFormField(
+    final Widget field = TextFormField(
       key: key,
       controller: controller,
       textCapitalization: textCapitalization,
@@ -609,9 +613,19 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen> with 
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent, width: 2),
         ),
+        errorMaxLines: 2,
       ),
       validator: validator,
     );
+    
+    if (forceLtr) {
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: field,
+      );
+    }
+    
+    return field;
   }
 
   Widget _submitBtn({

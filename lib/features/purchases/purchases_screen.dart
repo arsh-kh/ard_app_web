@@ -198,8 +198,8 @@ class _PurchasesBodyState extends ConsumerState<_PurchasesBody> {
       context: context,
       langCode: widget.lang,
       initialDateRange: _customRange,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2050),
     );
     if (picked != null) {
       setState(() {

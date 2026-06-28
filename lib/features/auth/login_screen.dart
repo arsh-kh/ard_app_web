@@ -583,14 +583,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 children: [
                   Text(Tr.t('forgotPassBody', lang)),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: emailCtrl,
-                    style: TextStyle(color: fg),
-                    decoration: InputDecoration(
-                      labelText: Tr.t('emailLbl', lang),
-                      hintText: 'you@example.com',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: TextFormField(
+                      controller: emailCtrl,
+                      style: TextStyle(color: fg),
+                      decoration: InputDecoration(
+                        labelText: Tr.t('emailLbl', lang),
+                        hintText: 'you@example.com',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
@@ -679,6 +682,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             isDark: isDark,
             fg: fg,
             border: border,
+            forceLtr: true,
             validator: (v) {
               if (v == null || v.isEmpty) return req;
               if (!AppValidators.isValidEmail(v)) return Tr.t('invalidEmail', lang);
@@ -696,6 +700,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             obscure: _obscurePass,
+            forceLtr: true,
             textInputAction: TextInputAction.done,
             suffix: IconButton(
               icon: Icon(
@@ -764,6 +769,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             isDark: isDark,
             fg: fg,
             border: border,
+            forceLtr: true,
             validator: (v) => (v == null || v.isEmpty) ? req : null,
           ),
           const SizedBox(height: 12),
@@ -776,6 +782,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             isDark: isDark,
             fg: fg,
             border: border,
+            forceLtr: true,
             validator: (v) {
               if (v == null || v.isEmpty) return req;
               if (!AppValidators.isValidEmail(v)) return Tr.t('invalidEmail', lang);
@@ -793,6 +800,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             obscure: _obscureRegPass,
+            forceLtr: true,
             textInputAction: TextInputAction.done,
             suffix: IconButton(
               icon: Icon(
@@ -836,8 +844,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     Widget? suffix,
     String? Function(String?)? validator,
     TextInputAction textInputAction = TextInputAction.next,
+    bool forceLtr = false,
   }) {
-    return TextFormField(
+    final Widget field = TextFormField(
       controller: ctrl,
       focusNode: focus,
       obscureText: obscure,
@@ -883,6 +892,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       ),
       validator: validator,
     );
+    
+    if (forceLtr) {
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: field,
+      );
+    }
+    
+    return field;
   }
 
   Widget _submitBtn({
