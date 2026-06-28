@@ -26,7 +26,9 @@ class ShimmerListLoader extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Shimmer.fromColors(
             baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
+            highlightColor: isDark
+                ? Colors.grey.shade700
+                : Colors.grey.shade100,
             child: Container(
               height: height,
               decoration: BoxDecoration(

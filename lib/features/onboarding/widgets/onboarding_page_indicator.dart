@@ -18,7 +18,7 @@ class OnboardingPageIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return SizedBox(
       width: 72,
       height: 72,
@@ -55,7 +55,8 @@ class _IndicatorPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
 
     const double indicatorGap = pi / 12;
-    final double indicatorLength = (2 * pi - (totalPages * indicatorGap)) / totalPages;
+    final double indicatorLength =
+        (2 * pi - (totalPages * indicatorGap)) / totalPages;
 
     canvas.save();
     canvas.translate(center.dx, center.dy);
@@ -64,7 +65,7 @@ class _IndicatorPainter extends CustomPainter {
 
     for (int i = 0; i < totalPages; i++) {
       final isFilled = currentPage > i;
-      
+
       final paint = Paint()
         ..color = isFilled ? color : color.withValues(alpha: 0.15)
         ..style = PaintingStyle.stroke
@@ -72,23 +73,17 @@ class _IndicatorPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round;
 
       final startAngle = i * (indicatorLength + indicatorGap);
-      
-      canvas.drawArc(
-        rect,
-        startAngle,
-        indicatorLength,
-        false,
-        paint,
-      );
+
+      canvas.drawArc(rect, startAngle, indicatorLength, false, paint);
     }
-    
+
     canvas.restore();
   }
 
   @override
   bool shouldRepaint(covariant _IndicatorPainter oldDelegate) {
-    return oldDelegate.arcAngle != arcAngle || oldDelegate.currentPage != currentPage || oldDelegate.totalPages != totalPages;
+    return oldDelegate.arcAngle != arcAngle ||
+        oldDelegate.currentPage != currentPage ||
+        oldDelegate.totalPages != totalPages;
   }
 }
-
-

@@ -36,8 +36,12 @@ class PremiumSortDropdown<T> extends ConsumerWidget {
     // Premium styling colors
     final menuColor = Theme.of(context).colorScheme.surface;
     final textColor = Theme.of(context).colorScheme.onSurface;
-    final iconColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
-    final selectedBgColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final iconColor = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.7);
+    final selectedBgColor = Theme.of(
+      context,
+    ).colorScheme.surfaceContainerHighest;
 
     return Theme(
       data: Theme.of(context).copyWith(
@@ -78,7 +82,7 @@ class PremiumSortDropdown<T> extends ConsumerWidget {
                     Icon(
                       option.icon,
                       size: 20,
-                      color: isSelected ? theme.primaryColor : iconColor,
+                      color: isSelected ? theme.colorScheme.primary : iconColor,
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -90,7 +94,7 @@ class PremiumSortDropdown<T> extends ConsumerWidget {
                             fontWeight: isSelected
                                 ? FontWeight.w700
                                 : FontWeight.w500,
-                            color: isSelected ? theme.primaryColor : textColor,
+                            color: isSelected ? theme.colorScheme.primary : textColor,
                           );
 
                           if (fullText.contains('|')) {
@@ -107,7 +111,7 @@ class PremiumSortDropdown<T> extends ConsumerWidget {
                                     Icons.arrow_forward,
                                     size: 14,
                                     color: isSelected
-                                        ? theme.primaryColor
+                                        ? theme.colorScheme.primary
                                         : iconColor,
                                   ),
                                 ),
@@ -127,7 +131,7 @@ class PremiumSortDropdown<T> extends ConsumerWidget {
                       Icon(
                         Icons.check_circle_rounded,
                         size: 20,
-                        color: theme.primaryColor,
+                        color: theme.colorScheme.primary,
                       ),
                     ],
                   ],

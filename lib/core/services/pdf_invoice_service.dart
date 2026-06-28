@@ -40,10 +40,7 @@ class PdfInvoiceService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [
-            fontRegular,
-            fontBold,
-          ],
+          fontFallback: [fontRegular, fontBold],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -615,10 +612,7 @@ class PdfInvoiceService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [
-            fontRegular,
-            fontBold,
-          ],
+          fontFallback: [fontRegular, fontBold],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -627,14 +621,30 @@ class PdfInvoiceService {
               : isArabic
               ? 'ar'
               : 'en';
-          
-          final tReceipt = isKurdish ? 'پسوڵەی پاره‌دان' : isArabic ? 'وصل استلام' : 'Payment Receipt';
-          final tReceiptId = isKurdish ? 'ژمارە' : isArabic ? 'رقم الوصل' : 'Receipt No';
+
+          final tReceipt = isKurdish
+              ? 'پسوڵەی پاره‌دان'
+              : isArabic
+              ? 'وصل استلام'
+              : 'Payment Receipt';
+          final tReceiptId = isKurdish
+              ? 'ژمارە'
+              : isArabic
+              ? 'رقم الوصل'
+              : 'Receipt No';
           final tDate = Tr.t('auto_Date', langCode);
           final tCompany = Tr.t('auto_ArdWholesale', langCode);
           final tContact = Tr.t('auto_Contact', langCode);
-          final tReceivedFrom = isKurdish ? 'وەرگیراوە لە' : isArabic ? 'استلمت من' : 'Received From';
-          final tAmountPaid = isKurdish ? 'بڕی پاره‌دان' : isArabic ? 'المبلغ المدفوع' : 'Amount Paid';
+          final tReceivedFrom = isKurdish
+              ? 'وەرگیراوە لە'
+              : isArabic
+              ? 'استلمت من'
+              : 'Received From';
+          final tAmountPaid = isKurdish
+              ? 'بڕی پاره‌دان'
+              : isArabic
+              ? 'المبلغ المدفوع'
+              : 'Amount Paid';
           final tDebt = Tr.t('auto_CurrentDebtBala', langCode);
           final tThanks = Tr.t('auto_Thankyouforyour', langCode);
 
@@ -646,7 +656,9 @@ class PdfInvoiceService {
                 padding: const pw.EdgeInsets.all(20),
                 decoration: pw.BoxDecoration(
                   color: primaryColor,
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                  borderRadius: const pw.BorderRadius.all(
+                    pw.Radius.circular(12),
+                  ),
                 ),
                 child: pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -770,7 +782,9 @@ class PdfInvoiceService {
                 padding: const pw.EdgeInsets.all(16),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.grey50,
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                  borderRadius: const pw.BorderRadius.all(
+                    pw.Radius.circular(8),
+                  ),
                   border: pw.Border.all(color: PdfColors.grey300),
                 ),
                 child: pw.Column(
@@ -846,7 +860,9 @@ class PdfInvoiceService {
                           ] else ...[
                             pw.Text(
                               '$tDebt: ',
-                              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
                             ),
                             pw.Text(
                               CurrencyFormatter.format(customer.debtBalance),

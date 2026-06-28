@@ -52,7 +52,9 @@ class AboutUsScreen extends ConsumerWidget {
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -71,9 +73,9 @@ class AboutUsScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withValues(
-                            alpha: 0.3,
-                          ),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -104,7 +106,9 @@ class AboutUsScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
@@ -120,7 +124,9 @@ class AboutUsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -133,7 +139,9 @@ class AboutUsScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.6,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -155,7 +163,7 @@ class AboutUsScreen extends ConsumerWidget {
             _buildFeatureCard(
               context,
               icon: Icons.speed_rounded,
-              color: Colors.orange,
+              color: Theme.of(context).colorScheme.primary,
               title: langCode == 'ku'
                   ? 'خێرا و ئاسان'
                   : langCode == 'ar'
@@ -167,7 +175,7 @@ class AboutUsScreen extends ConsumerWidget {
             _buildFeatureCard(
               context,
               icon: Icons.security_rounded,
-              color: Colors.green,
+              color: Theme.of(context).colorScheme.primary,
               title: langCode == 'ku'
                   ? 'سەلامەت و پارێزراو'
                   : langCode == 'ar'
@@ -179,7 +187,7 @@ class AboutUsScreen extends ConsumerWidget {
             _buildFeatureCard(
               context,
               icon: Icons.wifi_off_rounded,
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               title: langCode == 'ku'
                   ? 'کارکردن بەبێ ئینتەرنێت'
                   : langCode == 'ar'
@@ -208,11 +216,15 @@ class AboutUsScreen extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -223,7 +235,9 @@ class AboutUsScreen extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.08),
                     child: Icon(
                       Icons.person_rounded,
                       size: 40,
@@ -248,7 +262,9 @@ class AboutUsScreen extends ConsumerWidget {
                         : 'Lead Developer & Designer',
                     style: TextStyle(
                       fontSize: 15,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -282,7 +298,6 @@ class AboutUsScreen extends ConsumerWidget {
     required String title,
     required bool isRtl,
   }) {
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -290,7 +305,9 @@ class AboutUsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -324,7 +341,8 @@ class AboutUsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContactItem(BuildContext context, {
+  Widget _buildContactItem(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
@@ -344,10 +362,16 @@ class AboutUsScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+              child: Icon(
+                icon,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -365,9 +389,11 @@ class AboutUsScreen extends ConsumerWidget {
             Directionality(
               textDirection: TextDirection.ltr,
               child: Icon(
-                Icons.chevron_right_rounded, 
-                size: 20, 
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
               ),
             ),
           ],

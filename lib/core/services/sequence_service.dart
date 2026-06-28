@@ -5,7 +5,10 @@ class SequenceService {
 
   /// Gets the next sequential number for a given entity type (e.g., 'orders', 'purchases').
   /// This runs inside an atomic transaction to ensure no duplicates.
-  static Future<int> getNextSequence(String sequenceName, {required String businessId}) async {
+  static Future<int> getNextSequence(
+    String sequenceName, {
+    required String businessId,
+  }) async {
     final firestore = FirebaseFirestore.instance;
     final docId = '${businessId}_$sequenceName';
     final counterRef = firestore.collection('counters').doc(docId);

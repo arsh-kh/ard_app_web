@@ -124,7 +124,9 @@ class _AnimatedSegmentedPillState<T> extends State<AnimatedSegmentedPill<T>> {
                           size: 14,
                           color: isSelected
                               ? (Theme.of(context).colorScheme.onSurface)
-                              : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                              : (Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5)),
                         ),
                         const SizedBox(width: 6),
                       ],

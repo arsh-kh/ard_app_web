@@ -39,10 +39,7 @@ class PdfInvoiceLedgerService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [
-            fontRegular,
-            fontBold,
-          ],
+          fontFallback: [fontRegular, fontBold],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {

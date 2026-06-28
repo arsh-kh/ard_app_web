@@ -35,7 +35,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     final theme = Theme.of(context);
 
-
     final title = Tr.t('notifTitle', langCode);
     final noData = Tr.t('noNotifs', langCode);
     final clearAll = Tr.t('clearAll', langCode);
@@ -48,60 +47,60 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         ),
         slivers: [
           SliverAppBar(
-              pinned: true,
-              actions: [
-                if (notifications.isNotEmpty)
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_horiz_rounded),
-                    color: theme.colorScheme.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    onSelected: (value) {
-                      if (value == 'clear') {
-                        ref.read(notificationProvider.notifier).clearAll();
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'clear',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.delete_sweep_rounded,
+            pinned: true,
+            actions: [
+              if (notifications.isNotEmpty)
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_horiz_rounded),
+                  color: theme.colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  onSelected: (value) {
+                    if (value == 'clear') {
+                      ref.read(notificationProvider.notifier).clearAll();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'clear',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete_sweep_rounded,
+                            color: theme.colorScheme.error,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            clearAll,
+                            style: TextStyle(
                               color: theme.colorScheme.error,
-                              size: 20,
+                              fontWeight: FontWeight.w600,
                             ),
-                            const SizedBox(width: 12),
-                            Text(
-                              clearAll,
-                              style: TextStyle(
-                                color: theme.colorScheme.error,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-              ],
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsetsDirectional.only(
-                  start: 60,
-                  bottom: 16,
-                  end: 60,
+                    ),
+                  ],
                 ),
-                title: Text(
-                  title,
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsetsDirectional.only(
+                start: 60,
+                bottom: 16,
+                end: 60,
+              ),
+              title: Text(
+                title,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                 ),
               ),
             ),
+          ),
 
           if (notifications.isEmpty)
             SliverFillRemaining(
@@ -158,13 +157,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   Color iconColor = theme.colorScheme.primary;
                   if (notification.type == 'sync') {
                     iconData = Icons.sync_rounded;
-                    iconColor = Colors.blueAccent;
                   } else if (notification.type == 'stock') {
                     iconData = Icons.inventory_2_rounded;
-                    iconColor = Colors.orangeAccent;
                   } else if (notification.type == 'order') {
                     iconData = Icons.shopping_bag_rounded;
-                    iconColor = Colors.greenAccent;
                   }
 
                   return Container(
@@ -277,7 +273,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
                                       color: isRead
-                                          ? (theme.colorScheme.onSurface.withValues(alpha: 0.12))
+                                          ? (theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.12))
                                           : iconColor.withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                     ),

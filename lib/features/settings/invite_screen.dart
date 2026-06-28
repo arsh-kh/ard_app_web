@@ -21,9 +21,7 @@ class InviteScreen extends ConsumerWidget {
     final langCode = ref.watch(localeProvider).languageCode;
 
     if (business == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final inviteCode = business.inviteCode;
@@ -31,7 +29,10 @@ class InviteScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(Tr.t('inviteEmployeesTitle', langCode), style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(
+          Tr.t('inviteEmployeesTitle', langCode),
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -43,7 +44,7 @@ class InviteScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              
+
               // Business Name (Subtle)
               Text(
                 business.name.toUpperCase(),
@@ -56,7 +57,7 @@ class InviteScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Icon Header
               Center(
                 child: Container(
@@ -66,12 +67,16 @@ class InviteScreen extends ConsumerWidget {
                     color: theme.colorScheme.surface,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.05,
+                      ),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.05,
+                        ),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -105,7 +110,11 @@ class InviteScreen extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isDark ? Colors.white10 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                    color: isDark
+                        ? Colors.white10
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
                 child: Row(
@@ -121,9 +130,11 @@ class InviteScreen extends ConsumerWidget {
                       child: Text(
                         Tr.t('inviteInstructions', langCode),
                         style: TextStyle(
-                          fontSize: 14, 
+                          fontSize: 14,
                           height: 1.5,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.9,
+                          ),
                         ),
                       ),
                     ),
@@ -149,7 +160,12 @@ class InviteScreen extends ConsumerWidget {
                   Clipboard.setData(ClipboardData(text: inviteCode));
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(Tr.t('inviteCodeCopied', langCode), style: TextStyle(color: theme.colorScheme.onInverseSurface)),
+                      content: Text(
+                        Tr.t('inviteCodeCopied', langCode),
+                        style: TextStyle(
+                          color: theme.colorScheme.onInverseSurface,
+                        ),
+                      ),
                       backgroundColor: theme.colorScheme.inverseSurface,
                     ),
                   );
@@ -165,7 +181,9 @@ class InviteScreen extends ConsumerWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.02),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.02,
+                        ),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -186,7 +204,9 @@ class InviteScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Icon(
                         Icons.copy_rounded,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.3,
+                        ),
                       ),
                     ],
                   ),
@@ -197,7 +217,9 @@ class InviteScreen extends ConsumerWidget {
               // Share Button
               ElevatedButton.icon(
                 onPressed: () {
-                  final text = Tr.t('shareInviteMsg', langCode, {'code': inviteCode});
+                  final text = Tr.t('shareInviteMsg', langCode, {
+                    'code': inviteCode,
+                  });
                   Share.share(text);
                 },
                 style: ElevatedButton.styleFrom(
@@ -212,7 +234,10 @@ class InviteScreen extends ConsumerWidget {
                 icon: const Icon(Icons.share_rounded),
                 label: Text(
                   Tr.t('shareInviteBtn', langCode),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

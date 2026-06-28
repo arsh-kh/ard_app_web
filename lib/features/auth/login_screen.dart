@@ -201,7 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           SnackBar(
             content: Text(Tr.t('msg_reg_success_verify', lang)),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green.shade700,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -220,7 +220,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         SnackBar(
           content: Text(Tr.t(error, lang)),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red.shade700,
+          backgroundColor: Theme.of(context).colorScheme.error,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -250,11 +250,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final req = Tr.t('reqField', lang);
     final forgotLbl = Tr.t('forgotLbl', lang);
 
-
     final bg = Theme.of(context).scaffoldBackgroundColor;
 
     final fg = Theme.of(context).colorScheme.onSurface;
-    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
+    final muted = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.5);
     final border = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     final authState = ref.watch(authProvider);
@@ -395,7 +396,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           width: 1.5,
                         ),
                         boxShadow: [
@@ -422,7 +425,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 return Container(
                                   height: 44,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: Stack(
@@ -441,7 +446,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         width: tabWidth - 6,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surface,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.surface,
                                             borderRadius: BorderRadius.circular(
                                               10,
                                             ),
@@ -551,7 +558,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: selected ? fg : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: selected
+                  ? fg
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             child: Text(label),
           ),
@@ -604,7 +615,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   onPressed: () => Navigator.pop(ctx),
                   child: Text(
                     Tr.t('cancelBtn', lang),
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
                 TextButton(
@@ -628,8 +643,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     : Tr.t(error, lang),
                               ),
                               backgroundColor: error == null
-                                  ? Colors.green.shade600
-                                  : Colors.red.shade600,
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.error,
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -685,7 +700,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             forceLtr: true,
             validator: (v) {
               if (v == null || v.isEmpty) return req;
-              if (!AppValidators.isValidEmail(v)) return Tr.t('invalidEmail', lang);
+              if (!AppValidators.isValidEmail(v))
+                return Tr.t('invalidEmail', lang);
               return null;
             },
           ),
@@ -707,7 +723,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 _obscurePass
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
                 size: 19,
               ),
               onPressed: () => setState(() => _obscurePass = !_obscurePass),
@@ -785,7 +803,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             forceLtr: true,
             validator: (v) {
               if (v == null || v.isEmpty) return req;
-              if (!AppValidators.isValidEmail(v)) return Tr.t('invalidEmail', lang);
+              if (!AppValidators.isValidEmail(v))
+                return Tr.t('invalidEmail', lang);
               return null;
             },
           ),
@@ -807,7 +826,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 _obscureRegPass
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
                 size: 19,
               ),
               onPressed: () =>
@@ -815,7 +836,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             validator: (v) {
               if (v == null || v.isEmpty) return req;
-              if (!AppValidators.isStrongPassword(v)) return Tr.t('weakPassword', lang);
+              if (!AppValidators.isStrongPassword(v))
+                return Tr.t('weakPassword', lang);
               return null;
             },
           ),
@@ -856,15 +878,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 14),
-        hintStyle: TextStyle(
-          color: isDark ? Colors.grey.shade700 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           fontSize: 14,
         ),
-        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
+        hintStyle: TextStyle(
+          color: isDark
+              ? Colors.grey.shade700
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          size: 20,
+        ),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+        fillColor: Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: border),
@@ -879,11 +912,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+          borderSide: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), width: 1.8),
+          borderSide: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
+            width: 1.8,
+          ),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
@@ -892,14 +934,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       ),
       validator: validator,
     );
-    
+
     if (forceLtr) {
-      return Directionality(
-        textDirection: TextDirection.ltr,
-        child: field,
-      );
+      return Directionality(textDirection: TextDirection.ltr, child: field);
     }
-    
+
     return field;
   }
 

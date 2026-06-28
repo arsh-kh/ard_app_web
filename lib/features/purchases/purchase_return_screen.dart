@@ -188,7 +188,7 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
       title: Tr.t('processPurchaseReturn', lang),
       message: confirmMsg,
       confirmLabel: Tr.t('processPurchaseReturn', lang),
-      confirmColor: Colors.orange,
+      confirmColor: Colors.black,
       icon: Icons.replay_rounded,
     );
     if (!confirmed) return;
@@ -356,16 +356,22 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isOver
-                                    ? Colors.red.withValues(alpha: 0.5)
+                                    ? Theme.of(
+                                        context,
+                                      ).colorScheme.error.withValues(alpha: 0.5)
                                     : hasReturn
                                     ? theme.colorScheme.primary.withValues(
                                         alpha: 0.45,
                                       )
-                                    : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                                    : theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.1,
+                                      ),
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.04,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -485,7 +491,9 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                             color: isOver
-                                                ? Colors.red
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.error
                                                 : hasReturn
                                                 ? theme.colorScheme.primary
                                                 : null,
@@ -503,7 +511,9 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                                   BorderRadius.circular(12),
                                               borderSide: BorderSide(
                                                 color: isOver
-                                                    ? Colors.red
+                                                    ? Theme.of(
+                                                        context,
+                                                      ).colorScheme.error
                                                     : theme.colorScheme.primary
                                                           .withValues(
                                                             alpha: 0.3,
@@ -515,7 +525,9 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                                   BorderRadius.circular(12),
                                               borderSide: BorderSide(
                                                 color: isOver
-                                                    ? Colors.red
+                                                    ? Theme.of(
+                                                        context,
+                                                      ).colorScheme.error
                                                     : theme.colorScheme.primary,
                                                 width: 2,
                                               ),
@@ -634,7 +646,9 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                       decoration: BoxDecoration(
                         color: selectedCount > 0
                             ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                            : theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                            : theme.colorScheme.onSurface.withValues(
+                                alpha: 0.08,
+                              ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

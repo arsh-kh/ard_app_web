@@ -7,7 +7,10 @@ import '../models/business_entity.dart';
 import '../../core/services/audit_service.dart';
 
 final businessRepositoryProvider = Provider<BusinessRepository>((ref) {
-  return BusinessRepository(FirebaseFirestore.instance, ref.read(auditServiceProvider));
+  return BusinessRepository(
+    FirebaseFirestore.instance,
+    ref.read(auditServiceProvider),
+  );
 });
 
 class BusinessRepository {
@@ -19,25 +22,32 @@ class BusinessRepository {
   String _generateInviteCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random.secure();
-    return List.generate(6, (index) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(
+      6,
+      (index) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 
-  Future<BusinessEntity> createBusiness(String name, String ownerId, {required String recoveryEmail}) async {
+  Future<BusinessEntity> createBusiness(
+    String name,
+    String ownerId, {
+    required String recoveryEmail,
+  }) async {
     final nameLower = name.trim().toLowerCase();
-    
+
     // Check if business name already exists (case-insensitive)
     final existingNameSnapshot = await _firestore
         .collection('businesses')
         .where('nameLower', isEqualTo: nameLower)
         .limit(1)
         .get();
-        
+
     if (existingNameSnapshot.docs.isNotEmpty) {
       throw Exception('businessNameTaken');
     }
 
     final id = const Uuid().v4();
-    
+
     // Generate an invite code and ensure it is universally unique
     String inviteCode;
     bool isUnique = false;
@@ -52,7 +62,7 @@ class BusinessRepository {
         isUnique = true;
       }
     } while (!isUnique);
-    
+
     final business = BusinessEntity(
       id: id,
       name: name.trim(),
@@ -64,7 +74,7 @@ class BusinessRepository {
     );
 
     await _firestore.collection('businesses').doc(id).set(business.toJson());
-    
+
     try {
       await _auditService.logAction(
         action: 'BUSINESS_CREATED',

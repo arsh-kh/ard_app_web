@@ -27,7 +27,9 @@ class PdfPaymentReportService {
       await rootBundle.load('assets/fonts/NotoNaskhArabic-Bold.ttf'),
     );
 
-    final primaryColor = PdfColor.fromHex('#065F46'); // Green 800 (for payments)
+    final primaryColor = PdfColor.fromHex(
+      '#065F46',
+    ); // Green 800 (for payments)
     final accentColor = PdfColor.fromHex('#10B981'); // Emerald 500
     final secondaryColor = PdfColor.fromHex('#F8FAFC'); // Slate 50
     final borderColor = PdfColor.fromHex('#E2E8F0'); // Slate 200
@@ -39,10 +41,7 @@ class PdfPaymentReportService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [
-            fontRegular,
-            fontBold,
-          ],
+          fontFallback: [fontRegular, fontBold],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -58,7 +57,10 @@ class PdfPaymentReportService {
           final tDesc = Tr.t('auto_FlourDistributi', langCode);
           final tFooter = Tr.t('auto_Thisisanautomat', langCode);
 
-          final tTotalPayments = Tr.t('summaryPayments', langCode, {'count': payments.length.toString(), 'total': ''}).replaceAll(RegExp(r'[^a-zA-Z\s]'), '').trim();
+          final tTotalPayments = Tr.t('summaryPayments', langCode, {
+            'count': payments.length.toString(),
+            'total': '',
+          }).replaceAll(RegExp(r'[^a-zA-Z\s]'), '').trim();
           final tTotalAmount = Tr.t('auto_TotalRevenue', langCode);
 
           final double totalRevenue = payments.fold(
@@ -205,7 +207,9 @@ class PdfPaymentReportService {
                               ? pw.TextDirection.rtl
                               : pw.TextDirection.ltr,
                           child: pw.Text(
-                            tTotalPayments.isEmpty ? "Payments" : tTotalPayments,
+                            tTotalPayments.isEmpty
+                                ? "Payments"
+                                : tTotalPayments,
                             style: const pw.TextStyle(
                               fontSize: 12,
                               color: PdfColors.grey700,

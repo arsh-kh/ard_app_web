@@ -10,19 +10,23 @@ final currentBusinessIdProvider = Provider<String?>((ref) {
   return authState.user?.businessId;
 });
 
-final currentBusinessEntityProvider = StreamProvider.autoDispose<BusinessEntity?>((ref) {
-  final businessId = ref.watch(currentBusinessIdProvider);
-  
-  if (businessId == null || businessId.isEmpty) {
-    return Stream.value(null);
-  }
+final currentBusinessEntityProvider =
+    StreamProvider.autoDispose<BusinessEntity?>((ref) {
+      final businessId = ref.watch(currentBusinessIdProvider);
 
-  return FirebaseFirestore.instance
-      .collection('businesses')
-      .doc(businessId)
-      .snapshots()
-      .map((snapshot) {
-    if (!snapshot.exists || snapshot.data() == null) return null;
-    return BusinessEntity.fromJson({'id': snapshot.id, ...snapshot.data()!});
-  });
-});
+      if (businessId == null || businessId.isEmpty) {
+        return Stream.value(null);
+      }
+
+      return FirebaseFirestore.instance
+          .collection('businesses')
+          .doc(businessId)
+          .snapshots()
+          .map((snapshot) {
+            if (!snapshot.exists || snapshot.data() == null) return null;
+            return BusinessEntity.fromJson({
+              'id': snapshot.id,
+              ...snapshot.data()!,
+            });
+          });
+    });

@@ -10,18 +10,30 @@ class DatabaseSeeder {
   static final _random = Random();
 
   static const List<String> _kurdishNames = [
-    'Ahmed Ali', 'Sarmad Hassan', 'Karwan Omer', 'Zana Jamal', 'Rabar Qadir',
-    'Shwan Kareem', 'Bakhtyar Namiq', 'Aram Azad', 'Diyar Fatah', 'Goran Othman'
+    'Ahmed Ali',
+    'Sarmad Hassan',
+    'Karwan Omer',
+    'Zana Jamal',
+    'Rabar Qadir',
+    'Shwan Kareem',
+    'Bakhtyar Namiq',
+    'Aram Azad',
+    'Diyar Fatah',
+    'Goran Othman',
   ];
 
   static const List<String> _flourBrands = [
-    'Zer Flour (50kg)', 'Altunsa Flour (25kg)', 'Cihan Flour (50kg)', 
-    'Aland Flour (25kg)', 'Kurdistan Flour (50kg)', 'Nergiz Flour (25kg)'
+    'Zer Flour (50kg)',
+    'Altunsa Flour (25kg)',
+    'Cihan Flour (50kg)',
+    'Aland Flour (25kg)',
+    'Kurdistan Flour (50kg)',
+    'Nergiz Flour (25kg)',
   ];
 
   static Future<void> seedRealisticData(String businessId) async {
     final batch = _firestore.batch();
-    
+
     // 1. Generate 20 Products
     final productIds = <String>[];
     for (int i = 0; i < 6; i++) {
@@ -31,7 +43,8 @@ class DatabaseSeeder {
         id: pid,
         businessId: businessId,
         name: _flourBrands[i],
-        sellPrice: 25000 + (_random.nextInt(15) * 1000).toDouble(), // 25k to 40k
+        sellPrice:
+            25000 + (_random.nextInt(15) * 1000).toDouble(), // 25k to 40k
         buyPrice: 20000 + (_random.nextInt(10) * 1000).toDouble(),
         stockQuantity: (100 + _random.nextInt(400)).toDouble(),
         unitType: 'bag',
@@ -47,7 +60,7 @@ class DatabaseSeeder {
       final cid = _uuid.v4();
       final hasDebt = _random.nextBool();
       final debt = hasDebt ? (_random.nextInt(500) * 1000).toDouble() : 0.0;
-      
+
       final customer = CustomerEntity(
         id: cid,
         businessId: businessId,
@@ -55,7 +68,9 @@ class DatabaseSeeder {
         phone: '0750${1000000 + _random.nextInt(8999999)}',
         address: 'Erbil, Kurdistan',
         debtBalance: debt,
-        createdAt: DateTime.now().subtract(Duration(days: _random.nextInt(100))),
+        createdAt: DateTime.now().subtract(
+          Duration(days: _random.nextInt(100)),
+        ),
         updatedAt: DateTime.now(),
       );
       batch.set(_firestore.collection('customers').doc(cid), customer.toJson());

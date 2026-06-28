@@ -11,12 +11,14 @@ final customerRepositoryProvider = Provider<CustomerRepository>((ref) {
   return CustomerRepository(auditService, businessId);
 });
 
-final dashboardCustomersProvider = StreamProvider.autoDispose<List<CustomerEntity>>((ref) {
-  final repo = ref.watch(customerRepositoryProvider);
-  return repo.watchCustomers();
-});
+final dashboardCustomersProvider =
+    StreamProvider.autoDispose<List<CustomerEntity>>((ref) {
+      final repo = ref.watch(customerRepositoryProvider);
+      return repo.watchCustomers();
+    });
 
-final allCustomersStreamProvider = StreamProvider.autoDispose<List<CustomerEntity>>((ref) {
-  final repo = ref.watch(customerRepositoryProvider);
-  return repo.watchAllCustomers();
-});
+final allCustomersStreamProvider =
+    StreamProvider.autoDispose<List<CustomerEntity>>((ref) {
+      final repo = ref.watch(customerRepositoryProvider);
+      return repo.watchAllCustomers();
+    });

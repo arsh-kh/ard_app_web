@@ -76,21 +76,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
               .collection('users')
               .doc(firebaseUser.uid)
               .snapshots()
-              .listen((doc) {
-            if (doc.exists && doc.data() != null) {
-              final user = UserEntity.fromJson({'id': doc.id, ...doc.data()!});
-              state = AuthState(
-                userId: firebaseUser.uid,
-                user: user,
-                isInitializing: false,
+              .listen(
+                (doc) {
+                  if (doc.exists && doc.data() != null) {
+                    final user = UserEntity.fromJson({
+                      'id': doc.id,
+                      ...doc.data()!,
+                    });
+                    state = AuthState(
+                      userId: firebaseUser.uid,
+                      user: user,
+                      isInitializing: false,
+                    );
+                  } else {
+                    state = const AuthState(isInitializing: false);
+                  }
+                },
+                onError: (e) {
+                  debugPrint('[Auth] Firestore stream error: $e');
+                  state = const AuthState(isInitializing: false);
+                },
               );
-            } else {
-              state = const AuthState(isInitializing: false);
-            }
-          }, onError: (e) {
-            debugPrint('[Auth] Firestore stream error: $e');
-            state = const AuthState(isInitializing: false);
-          });
         } catch (e) {
           debugPrint('[Auth] Restore error: $e');
           state = const AuthState(isInitializing: false);
@@ -229,10 +235,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Send verification email
       await firebaseUser.sendEmailVerification();
 
-      // Check if this is the very first user in the system
-      final usersSnapshot = await _firestore.collection('users').limit(1).get();
-      final isFirstUser = usersSnapshot.docs.isEmpty;
-
       // Store in Firestore
       final user = UserEntity(
         id: firebaseUser.uid,
@@ -240,10 +242,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         name: name.trim(),
         email: emailLower,
         passwordHash: '', // No longer need to manually hash/store password
-        role: isFirstUser ? 'admin' : 'user',
-        status: isFirstUser
-            ? 'active'
-            : 'pending', // First user is auto-approved admin
+        role: 'user',
+        status: 'pending',
         createdAt: DateTime.now(),
       );
 
@@ -258,7 +258,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: false);
       return null; // Return null on success
     } on FirebaseAuthException catch (e) {
-      debugPrint('Registration FirebaseAuthException: ${e.code} - ${e.message}');
+      debugPrint(
+        'Registration FirebaseAuthException: ${e.code} - ${e.message}',
+      );
       state = state.copyWith(isLoading: false);
       if (e.code == 'email-already-in-use') {
         return 'err_email_in_use';

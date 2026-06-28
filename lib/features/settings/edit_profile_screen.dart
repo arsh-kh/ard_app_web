@@ -111,22 +111,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ),
         slivers: [
           SliverAppBar(
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsetsDirectional.only(
-                  start: 60,
-                  bottom: 16,
-                  end: 60,
-                ),
-                title: Text(
-                  title,
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsetsDirectional.only(
+                start: 60,
+                bottom: 16,
+                end: 60,
+              ),
+              title: Text(
+                title,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                 ),
               ),
             ),
+          ),
 
           SliverToBoxAdapter(
             child: Form(
@@ -140,39 +140,39 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.5,
-                                ),
-                                width: 3,
-                              ),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.5,
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: theme.colorScheme.surface,
-                              ),
-                              child: ImagePickerWidget(
-                                initialImagePath: _avatarPath,
-                                isKurdish: isKurdish,
-                                isArabic: isArabic,
-                                radius: 56,
-                                heroTag: 'avatar_${user?.id}',
-                                placeholderIcon: Icons.camera_alt_rounded,
-                                namePlaceholder: _nameController.text.isNotEmpty
-                                    ? _nameController.text
-                                    : user?.name,
-                                onImageSelected: (path) {
-                                  setState(() => _avatarPath = path);
-                                },
-                              ),
-                            ),
+                            width: 3,
                           ),
                         ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: theme.colorScheme.surface,
+                          ),
+                          child: ImagePickerWidget(
+                            initialImagePath: _avatarPath,
+                            isKurdish: isKurdish,
+                            isArabic: isArabic,
+                            radius: 56,
+                            heroTag: 'avatar_${user?.id}',
+                            placeholderIcon: Icons.camera_alt_rounded,
+                            namePlaceholder: _nameController.text.isNotEmpty
+                                ? _nameController.text
+                                : user?.name,
+                            onImageSelected: (path) {
+                              setState(() => _avatarPath = path);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
 
                     const SizedBox(height: 48),
 

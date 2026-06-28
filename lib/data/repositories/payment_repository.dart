@@ -87,7 +87,8 @@ class PaymentRepository {
       action: 'COLLECTED_DEBT',
       entityType: 'Payment',
       entityId: finalPayment.id,
-      details: 'Collected payment of ${finalPayment.amount} IQD from $customerName',
+      details:
+          'Collected payment of ${finalPayment.amount} IQD from $customerName',
       metadata: {
         'amount': finalPayment.amount,
         'customerId': finalPayment.customerId,
@@ -166,7 +167,10 @@ class PaymentRepository {
         );
   }
 
-  Stream<List<PaymentEntity>> watchPaymentsByDateRange(DateTime start, DateTime end) {
+  Stream<List<PaymentEntity>> watchPaymentsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) {
     return _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -185,7 +189,10 @@ class PaymentRepository {
         );
   }
 
-  Future<List<PaymentEntity>> getPaymentsByDateRange(DateTime start, DateTime end) async {
+  Future<List<PaymentEntity>> getPaymentsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
     final snapshot = await _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)

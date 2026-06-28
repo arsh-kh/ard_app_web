@@ -196,7 +196,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
                 isKurdish,
                 isArabic,
                 Icons.shopping_bag,
-                Colors.blue,
+                Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 16),
               _buildStatRow(
@@ -205,7 +205,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
                 isKurdish,
                 isArabic,
                 Icons.trending_up,
-                Colors.green,
+                Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 16),
               _buildStatRow(
@@ -214,7 +214,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
                 isKurdish,
                 isArabic,
                 Icons.inventory,
-                Colors.orange,
+                Theme.of(context).colorScheme.primary,
               ),
               const Divider(height: 32, thickness: 2),
               _buildStatRow(
@@ -223,7 +223,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
                 isKurdish,
                 isArabic,
                 Icons.account_balance_wallet,
-                Colors.purple,
+                Theme.of(context).colorScheme.primary,
                 isTotal: true,
               ),
               const SizedBox(height: 24),
@@ -254,7 +254,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     bool isKurdish,
     bool isArabic,
     IconData icon,
-    MaterialColor color, {
+    Color color, {
     bool isTotal = false,
   }) {
     final langCode = isKurdish

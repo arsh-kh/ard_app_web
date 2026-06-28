@@ -87,6 +87,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final title = Tr.t('posTitle', lang);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -142,9 +143,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.remove_shopping_cart,
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                     ),
                     onPressed: () async {
                       final confirmed = await AppFeedback.showConfirmDialog(
@@ -152,7 +153,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                         title: Tr.t('auto_Cancel', langCode),
                         message: clearMsg,
                         confirmLabel: Tr.t('yesBtn', langCode),
-                        confirmColor: Colors.red,
+                        confirmColor: Theme.of(context).colorScheme.error,
                         icon: Icons.delete_sweep,
                       );
                       if (confirmed) {
@@ -191,7 +192,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 ),
                 Container(
                   width: 1,
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade300,
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.grey.shade300,
                 ),
                 Expanded(
                   flex: 5,
@@ -231,59 +234,59 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         SliverAppBar(
           floating: false,
           snap: false,
-            pinned: false,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 0,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(76),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        textInputAction: TextInputAction.search,
-                        decoration: InputDecoration(
-                          hintText: searchHint,
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: isDark
-                              ? Colors.grey.shade900
-                              : Colors.grey.shade100,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _searchController.clear();
-                                      _searchQuery = '';
-                                    });
-                                  },
-                                )
-                              : null,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+          pinned: false,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 0,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(76),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: searchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: isDark
+                            ? Colors.grey.shade900
+                            : Colors.grey.shade100,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
-                        onChanged: (val) {
-                          setState(() {
-                            _searchQuery = val;
-                          });
-                        },
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val;
+                        });
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
+        ),
 
         SliverToBoxAdapter(
           child: Padding(
@@ -539,7 +542,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                     }),
                               style: TextStyle(
                                 color: isOutOfStock
-                                    ? Colors.red
+                                    ? Theme.of(context).colorScheme.error
                                     : Colors.grey.shade500,
                                 fontSize: 10,
                                 fontWeight: isOutOfStock
@@ -561,7 +564,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.black.withValues(alpha: 0.7) : Colors.white.withValues(alpha: 0.6),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.7)
+                        : Colors.white.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
@@ -672,7 +677,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade200,
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.grey.shade200,
                 ),
               ),
             ),
@@ -701,11 +708,11 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1A1A1A)
-                      : Colors.grey.shade50,
+                  color: isDark ? const Color(0xFF1A1A1A) : Colors.grey.shade50,
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade300,
+                    color: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.grey.shade300,
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -861,7 +868,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
                 border: Border(
                   top: BorderSide(
-                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade200,
+                    color: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.grey.shade200,
                   ),
                 ),
               ),
@@ -884,25 +893,29 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                       ),
                     ],
                   ),
-                  if (_selectedCustomerId != null && _selectedCustomerId != 'walk-in')
+                  if (_selectedCustomerId != null &&
+                      _selectedCustomerId != 'walk-in')
                     StatefulBuilder(
-                      builder: (BuildContext context, StateSetter setStateCheckbox) {
-                        return CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            Tr.t('auto_PayCashImmediately', lang),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          value: _payCashImmediately,
-                          onChanged: (val) {
-                            setStateCheckbox(() {
-                              _payCashImmediately = val ?? false;
-                            });
+                      builder:
+                          (BuildContext context, StateSetter setStateCheckbox) {
+                            return CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: Text(
+                                Tr.t('auto_PayCashImmediately', lang),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              value: _payCashImmediately,
+                              onChanged: (val) {
+                                setStateCheckbox(() {
+                                  _payCashImmediately = val ?? false;
+                                });
+                              },
+                              activeColor: theme.colorScheme.primary,
+                            );
                           },
-                          activeColor: theme.colorScheme.primary,
-                        );
-                      },
                     ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -973,7 +986,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: AlignmentDirectional.centerEnd,
-        color: Colors.red,
+        color: Theme.of(context).colorScheme.error,
         padding: const EdgeInsetsDirectional.only(end: 20),
         child: const Icon(Icons.delete, color: Colors.white),
       ),
@@ -1285,7 +1298,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       title: confirmOrderStr,
       message: confirmBody,
       confirmLabel: localizations.confirm,
-      confirmColor: Colors.green,
+      confirmColor: Colors.black,
       icon: Icons.shopping_cart_checkout,
     );
 

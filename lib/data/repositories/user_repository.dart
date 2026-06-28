@@ -83,7 +83,12 @@ class UserRepository {
     );
   }
 
-  Future<void> updateUserBusinessAndRole(String userId, String newBusinessId, String role, String status) async {
+  Future<void> updateUserBusinessAndRole(
+    String userId,
+    String newBusinessId,
+    String role,
+    String status,
+  ) async {
     // This allows a new user to join or create a business
     await _firestore.collection('users').doc(userId).update({
       'businessId': newBusinessId,

@@ -85,17 +85,14 @@ class ExportDataService {
     await _generateAndShareCsv('purchases_export', rows);
   }
 
-  static Future<void> exportCustomerPayments(List<PaymentEntity> payments) async {
+  static Future<void> exportCustomerPayments(
+    List<PaymentEntity> payments,
+  ) async {
     final List<List<dynamic>> rows = [];
     rows.add(['Payment ID', 'Date', 'Customer ID', 'Amount']);
 
     for (var p in payments) {
-      rows.add([
-        p.id,
-        p.paymentDate.toString(),
-        p.customerId,
-        p.amount,
-      ]);
+      rows.add([p.id, p.paymentDate.toString(), p.customerId, p.amount]);
     }
 
     await _generateAndShareCsv('customer_payments_export', rows);
@@ -103,7 +100,15 @@ class ExportDataService {
 
   static Future<void> exportAuditLogs(List<AuditLogEntity> logs) async {
     final List<List<dynamic>> rows = [];
-    rows.add(['Log ID', 'Created At', 'User ID', 'Action', 'Entity Type', 'Entity ID', 'Details']);
+    rows.add([
+      'Log ID',
+      'Created At',
+      'User ID',
+      'Action',
+      'Entity Type',
+      'Entity ID',
+      'Details',
+    ]);
 
     for (var l in logs) {
       rows.add([
@@ -121,7 +126,9 @@ class ExportDataService {
   }
 
   // Secure Full Backup (JSON format)
-  static Future<void> exportFullBackup(Map<String, dynamic> fullDataSnapshot) async {
+  static Future<void> exportFullBackup(
+    Map<String, dynamic> fullDataSnapshot,
+  ) async {
     try {
       final jsonString = jsonEncode(fullDataSnapshot);
       final directory = await getTemporaryDirectory();

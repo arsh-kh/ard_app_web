@@ -217,7 +217,9 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   PhoneInputFormatter(),
                 ],
                 validator: (value) {
-                  if (value != null && value.isNotEmpty && !AppValidators.isValidPhone(value.replaceAll(' ', ''))) {
+                  if (value != null &&
+                      value.isNotEmpty &&
+                      !AppValidators.isValidPhone(value.replaceAll(' ', ''))) {
                     return Tr.t('invalidPhone', langCode);
                   }
                   return null;

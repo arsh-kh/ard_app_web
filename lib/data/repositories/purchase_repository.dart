@@ -23,8 +23,14 @@ class PurchaseRepository {
     final batch = _firestore.batch();
 
     // Generate strict sequence number for purchase
-    final purchaseNum = await SequenceService.getNextSequence('purchases', businessId: businessId);
-    final finalPurchase = purchase.copyWith(purchaseNumber: purchaseNum, businessId: businessId);
+    final purchaseNum = await SequenceService.getNextSequence(
+      'purchases',
+      businessId: businessId,
+    );
+    final finalPurchase = purchase.copyWith(
+      purchaseNumber: purchaseNum,
+      businessId: businessId,
+    );
 
     // 1. Create Purchase
     final purchaseRef = _purchases.doc(finalPurchase.id);

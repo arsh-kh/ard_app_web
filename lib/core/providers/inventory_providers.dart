@@ -11,7 +11,9 @@ final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
   return InventoryRepository(auditService, businessId);
 });
 
-final productsStreamProvider = StreamProvider.autoDispose<List<ProductEntity>>((ref) {
+final productsStreamProvider = StreamProvider.autoDispose<List<ProductEntity>>((
+  ref,
+) {
   final repo = ref.watch(inventoryRepositoryProvider);
   return repo.watchAllProducts();
 });

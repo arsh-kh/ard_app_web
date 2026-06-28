@@ -11,6 +11,7 @@ final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return PaymentRepository(auditService, businessId);
 });
 
-final allPaymentsStreamProvider = StreamProvider.autoDispose<List<PaymentEntity>>((ref) {
-  return ref.watch(paymentRepositoryProvider).watchAllPayments();
-});
+final allPaymentsStreamProvider =
+    StreamProvider.autoDispose<List<PaymentEntity>>((ref) {
+      return ref.watch(paymentRepositoryProvider).watchAllPayments();
+    });

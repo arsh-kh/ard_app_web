@@ -11,11 +11,13 @@ import '../../core/widgets/pdf_preview_screen.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/utils/app_date_range_picker.dart';
+
 class PaymentReportDialog extends ConsumerStatefulWidget {
   const PaymentReportDialog({super.key});
 
   @override
-  ConsumerState<PaymentReportDialog> createState() => _PaymentReportDialogState();
+  ConsumerState<PaymentReportDialog> createState() =>
+      _PaymentReportDialogState();
 }
 
 class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
@@ -161,7 +163,6 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
     final langCode = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-
     final tTitle = Tr.t('auto_PaymentReport', langCode);
     final tDesc = Tr.t('auto_Selectaperiodto', langCode);
     final tWeek = Tr.t('auto_ThisWeek', langCode);
@@ -225,7 +226,9 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
                             tDesc,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ],
@@ -294,7 +297,9 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     child: Text(
                       Tr.t(
@@ -316,7 +321,6 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
   Widget _buildPremiumCard(String value, String label, IconData icon) {
     final isSelected = _selectedRange == value;
     final theme = Theme.of(context);
-
 
     return GestureDetector(
       onTap: () => setState(() => _selectedRange = value),
@@ -349,7 +353,9 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
               size: 32,
               color: isSelected
                   ? theme.colorScheme.onPrimary
-                  : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  : (Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5)),
             ),
             const SizedBox(height: 8),
             Text(
@@ -360,7 +366,9 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
                 fontSize: 13,
                 color: isSelected
                     ? theme.colorScheme.onPrimary
-                    : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+                    : (Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
             ),
           ],
@@ -376,7 +384,20 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
 
     String formatDate(DateTime date) {
       if (langCode == 'ku') {
-        const months = ['مانگی یەک','مانگی دوو','مانگی سێ','مانگی چوار','مانگی پێنج','مانگی شەش','مانگی حەوت','مانگی هەشت','مانگی نۆ','مانگی دە','مانگی یانزە','مانگی دوانزە'];
+        const months = [
+          'مانگی یەک',
+          'مانگی دوو',
+          'مانگی سێ',
+          'مانگی چوار',
+          'مانگی پێنج',
+          'مانگی شەش',
+          'مانگی حەوت',
+          'مانگی هەشت',
+          'مانگی نۆ',
+          'مانگی دە',
+          'مانگی یانزە',
+          'مانگی دوانزە',
+        ];
         return '${date.day} ${months[date.month - 1]}';
       }
       return DateFormat('MMM d', langCode).format(date);
@@ -418,7 +439,9 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
               size: 32,
               color: isSelected
                   ? theme.colorScheme.onPrimary
-                  : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  : (Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5)),
             ),
             const SizedBox(height: 8),
             Text(
@@ -431,7 +454,9 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
                 fontSize: 12,
                 color: isSelected
                     ? theme.colorScheme.onPrimary
-                    : (Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+                    : (Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
             ),
           ],

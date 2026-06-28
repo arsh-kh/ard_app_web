@@ -23,7 +23,12 @@ class AuditService {
   final String? _currentUserName;
   final String? _businessId;
 
-  AuditService(this._firestore, this._currentUserId, this._currentUserName, this._businessId);
+  AuditService(
+    this._firestore,
+    this._currentUserId,
+    this._currentUserName,
+    this._businessId,
+  );
 
   Future<void> logAction({
     required String action,

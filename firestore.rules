@@ -31,13 +31,15 @@ service cloud.firestore {
     }
 
     function hasValidBusinessId(data) {
-      return data.businessId == getUserBusinessId();
+      return 'businessId' in data && data.businessId == getUserBusinessId();
     }
 
     // Businesses Collection
     match /businesses/{businessId} {
-      // Anyone authenticated can query a business by invite code, or create a new one
-      allow read, create: if isAuthenticated();
+      // Restrict read to exact document gets or lists of maximum size 1
+      allow get: if isAuthenticated();
+      allow list: if isAuthenticated() && request.query.limit <= 1;
+      allow create: if isAuthenticated();
       allow update: if isAuthenticated() && businessId == getUserBusinessId() && isAdmin();
     }
 

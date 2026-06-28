@@ -10,10 +10,14 @@ class AppTheme {
   static const Color surfaceDark = Color(0xFF141414); // Solid rich dark surface
   static const Color borderDark = Color(0xFF2A2A2A); // Premium solid border
   static const Color textLight = Color(0xFF000000);
-  static const Color textDark = Color(0xFFF3F4F6); // Soft white for less eye strain
+  static const Color textDark = Color(
+    0xFFF3F4F6,
+  ); // Soft white for less eye strain
   static const Color textMutedLight = Color(0xFF6B7280);
   static const Color textMutedDark = Color(0xFFA0A0A0); // Elegant muted text
-  static const Color errorColor = Color(0xFF4B5563); // Muted grey instead of red
+  static const Color errorColor = Color(
+    0xFF4B5563,
+  ); // Muted grey instead of red
   static const Color successColor = Color(0xFF000000); // Black instead of green
 
   static ThemeData get lightTheme {

@@ -79,9 +79,11 @@ class ExportDataScreen extends ConsumerWidget {
                       langCode == 'ku'
                           ? 'دابەزاندنی کۆپییەکی تەواو لە هەموو داتاکانی کارەکەت بۆ پاراستنیان لە لەناوچوون.'
                           : langCode == 'ar'
-                              ? 'تنزيل نسخة كاملة من جميع بيانات عملك لحمايتها من الضياع.'
-                              : 'Download a complete copy of all your business data to keep it safe.',
-                      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                          ? 'تنزيل نسخة كاملة من جميع بيانات عملك لحمايتها من الضياع.'
+                          : 'Download a complete copy of all your business data to keep it safe.',
+                      textDirection: isRtl
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.5,
@@ -100,8 +102,8 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: langCode == 'ku'
                   ? 'کۆپییەکی تەواو'
                   : langCode == 'ar'
-                      ? 'نسخة كاملة'
-                      : 'Complete Copy',
+                  ? 'نسخة كاملة'
+                  : 'Complete Copy',
               isRtl: isRtl,
               onTap: () async {
                 _showLoading(context, langCode);
@@ -118,8 +120,8 @@ class ExportDataScreen extends ConsumerWidget {
               langCode == 'ku'
                   ? 'فرۆشتن و کڕیارەکان'
                   : langCode == 'ar'
-                      ? 'المبيعات والعملاء'
-                      : 'Sales & Customers',
+                  ? 'المبيعات والعملاء'
+                  : 'Sales & Customers',
             ),
             _buildExportCard(
               theme: theme,
@@ -128,7 +130,9 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: Tr.t('csvFormat', langCode),
               isRtl: isRtl,
               onTap: () async {
-                final customers = await ref.read(customerRepositoryProvider).getAllCustomers();
+                final customers = await ref
+                    .read(customerRepositoryProvider)
+                    .getAllCustomers();
                 await ExportDataService.exportCustomers(customers);
               },
             ),
@@ -140,7 +144,9 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: Tr.t('csvFormat', langCode),
               isRtl: isRtl,
               onTap: () async {
-                final orders = await ref.read(orderRepositoryProvider).getAllOrders();
+                final orders = await ref
+                    .read(orderRepositoryProvider)
+                    .getAllOrders();
                 await ExportDataService.exportMonthlySales(orders);
               },
             ),
@@ -152,7 +158,9 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: Tr.t('csvFormat', langCode),
               isRtl: isRtl,
               onTap: () async {
-                final payments = await ref.read(paymentRepositoryProvider).getAllPayments();
+                final payments = await ref
+                    .read(paymentRepositoryProvider)
+                    .getAllPayments();
                 await ExportDataService.exportCustomerPayments(payments);
               },
             ),
@@ -165,8 +173,8 @@ class ExportDataScreen extends ConsumerWidget {
               langCode == 'ku'
                   ? 'کڕینەکان'
                   : langCode == 'ar'
-                      ? 'المشتريات'
-                      : 'Purchases',
+                  ? 'المشتريات'
+                  : 'Purchases',
             ),
             _buildExportCard(
               theme: theme,
@@ -175,7 +183,9 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: Tr.t('csvFormat', langCode),
               isRtl: isRtl,
               onTap: () async {
-                final purchases = await ref.read(purchaseRepositoryProvider).getAllPurchases();
+                final purchases = await ref
+                    .read(purchaseRepositoryProvider)
+                    .getAllPurchases();
                 await ExportDataService.exportPurchases(purchases);
               },
             ),
@@ -189,8 +199,8 @@ class ExportDataScreen extends ConsumerWidget {
               langCode == 'ku'
                   ? 'کۆگا و تۆمارەکان'
                   : langCode == 'ar'
-                      ? 'المخزون والسجلات'
-                      : 'Inventory & Logs',
+                  ? 'المخزون والسجلات'
+                  : 'Inventory & Logs',
             ),
             _buildExportCard(
               theme: theme,
@@ -199,7 +209,9 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: Tr.t('csvFormat', langCode),
               isRtl: isRtl,
               onTap: () async {
-                final products = await ref.read(inventoryRepositoryProvider).getAllProducts();
+                final products = await ref
+                    .read(inventoryRepositoryProvider)
+                    .getAllProducts();
                 await ExportDataService.exportInventory(products);
               },
             ),
@@ -211,8 +223,18 @@ class ExportDataScreen extends ConsumerWidget {
               subtitle: Tr.t('csvFormat', langCode),
               isRtl: isRtl,
               onTap: () async {
-                final snapshot = await FirebaseFirestore.instance.collection('audit_logs').where('businessId', isEqualTo: businessId).get();
-                final logs = snapshot.docs.map((doc) => AuditLogEntity.fromJson({'id': doc.id, ...doc.data()})).toList();
+                final snapshot = await FirebaseFirestore.instance
+                    .collection('audit_logs')
+                    .where('businessId', isEqualTo: businessId)
+                    .get();
+                final logs = snapshot.docs
+                    .map(
+                      (doc) => AuditLogEntity.fromJson({
+                        'id': doc.id,
+                        ...doc.data(),
+                      }),
+                    )
+                    .toList();
                 await ExportDataService.exportAuditLogs(logs);
               },
             ),
@@ -227,13 +249,14 @@ class ExportDataScreen extends ConsumerWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
   }
 
-  Future<Map<String, dynamic>> _gatherFullBackupData(WidgetRef ref, String businessId) async {
+  Future<Map<String, dynamic>> _gatherFullBackupData(
+    WidgetRef ref,
+    String businessId,
+  ) async {
     final db = FirebaseFirestore.instance;
     final Map<String, dynamic> backup = {};
 
@@ -251,14 +274,17 @@ class ExportDataScreen extends ConsumerWidget {
     ];
 
     for (var col in collections) {
-      final snap = await db.collection(col).where('businessId', isEqualTo: businessId).get();
+      final snap = await db
+          .collection(col)
+          .where('businessId', isEqualTo: businessId)
+          .get();
       backup[col] = snap.docs.map((d) {
         final data = d.data();
         data['id'] = d.id;
         return data;
       }).toList();
     }
-    
+
     return backup;
   }
 
@@ -289,7 +315,9 @@ class ExportDataScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.05)),
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+        ),
         boxShadow: [
           BoxShadow(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.02),
@@ -322,7 +350,9 @@ class ExportDataScreen extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                        textDirection: isRtl
+                            ? TextDirection.rtl
+                            : TextDirection.ltr,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -334,7 +364,9 @@ class ExportDataScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.4,
+                          ),
                         ),
                       ),
                     ],

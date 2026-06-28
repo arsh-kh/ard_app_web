@@ -109,6 +109,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
         final hasCustomers = customers.isNotEmpty;
 
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(title),
@@ -195,51 +196,51 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
               SliverAppBar(
                 floating: false,
                 snap: false,
-                  pinned: false,
-                  automaticallyImplyLeading: false,
-                  toolbarHeight: 0,
-                  bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(76),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        textInputAction: TextInputAction.search,
-                        decoration: InputDecoration(
-                          hintText: searchHint,
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _searchController.clear();
-                                      _searchQuery = '';
-                                    });
-                                  },
-                                )
-                              : null,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          filled: true,
-                          fillColor: theme.colorScheme.surfaceContainerHighest,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
+                pinned: false,
+                automaticallyImplyLeading: false,
+                toolbarHeight: 0,
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(76),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: searchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        onChanged: (val) {
-                          setState(() {
-                            _searchQuery = val;
-                          });
-                        },
+                        filled: true,
+                        fillColor: theme.colorScheme.surfaceContainerHighest,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val;
+                        });
+                      },
                     ),
                   ),
                 ),
+              ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -396,8 +397,12 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
                                 color: hasDebt
-                                    ? (theme.colorScheme.onSurface.withValues(alpha: 0.5))
-                                    : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                                    ? (theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.5,
+                                      ))
+                                    : theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.1,
+                                      ),
                                 width: 1,
                               ),
                             ),
@@ -485,7 +490,9 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                                 ),
                                 constraints: const BoxConstraints(minWidth: 80),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Column(
@@ -511,11 +518,19 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                                         fontSize: 13,
                                         color: hasDebt
                                             ? (isDark
-                                                  ? Colors.red.shade400
-                                                  : Colors.red.shade600)
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.error
+                                                  : Theme.of(
+                                                      context,
+                                                    ).colorScheme.error)
                                             : (isDark
-                                                  ? Colors.green.shade400
-                                                  : Colors.green.shade600),
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                  : Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary),
                                       ),
                                     ),
                                   ],

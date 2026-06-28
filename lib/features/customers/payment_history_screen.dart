@@ -28,7 +28,6 @@ import '../../core/widgets/pdf_preview_screen.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import 'history_hub_screen.dart';
 
-
 class PaymentHistoryScreen extends ConsumerWidget {
   final bool isEmbedded;
   final String? initialSearchQuery;
@@ -80,11 +79,13 @@ class _PaymentsBody extends ConsumerStatefulWidget {
 
 class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
   final TextEditingController _searchCtrl = TextEditingController();
-  late final FocusNode _searchFocusNode = SelectAllFocusNode(controller: _searchCtrl);
+  late final FocusNode _searchFocusNode = SelectAllFocusNode(
+    controller: _searchCtrl,
+  );
   final ScrollController _scrollCtrl = ScrollController();
 
   String _searchQuery = '';
-  String _selectedPeriod = 'all'; 
+  String _selectedPeriod = 'all';
   DateTimeRange? _customRange;
   bool _isScrolled = false;
   SortOptionType _selectedSort = SortOptionType.dateDesc;
@@ -108,8 +109,10 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
     final customerRepo = ref.read(customerRepositoryProvider);
     try {
       final customers = await customerRepo.getAllCustomers();
-      final customerMap = {for (var c in customers) c.id: c.businessName.toLowerCase()};
-      
+      final customerMap = {
+        for (var c in customers) c.id: c.businessName.toLowerCase(),
+      };
+
       for (final p in widget.payments) {
         final name = customerMap[p.customerId] ?? '';
         _paymentIdToCustomerNames[p.id] = name;
@@ -172,7 +175,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
       if (_searchQuery.isNotEmpty) {
         final q = _searchQuery.toLowerCase();
         final name = _paymentIdToCustomerNames[p.id] ?? '';
-        
+
         if (!name.contains(q) && !p.id.toLowerCase().contains(q)) return false;
       }
       return true;
@@ -206,7 +209,9 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(Tr.t('delete', widget.lang)),
-        content: Text(Tr.t('deletePaymentConfirm', widget.lang)), // We need to add this if not present
+        content: Text(
+          Tr.t('deletePaymentConfirm', widget.lang),
+        ), // We need to add this if not present
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -214,7 +219,9 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(Tr.t('delete', widget.lang)),
           ),
         ],
@@ -226,17 +233,11 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
     try {
       await ref.read(paymentRepositoryProvider).deletePayment(payment.id);
       if (mounted) {
-        AppFeedback.showSuccess(
-          context,
-          Tr.t('paymentDeleted', widget.lang),
-        );
+        AppFeedback.showSuccess(context, Tr.t('paymentDeleted', widget.lang));
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(
-          context,
-          '${Tr.t('errorPrefix', widget.lang)}$e',
-        );
+        AppFeedback.showError(context, '${Tr.t('errorPrefix', widget.lang)}$e');
       }
     }
   }
@@ -258,7 +259,8 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
         isDialogOpen = false;
       }
 
-      if (customer == null) throw Exception(Tr.t('error_customer_not_found', widget.lang));
+      if (customer == null)
+        throw Exception(Tr.t('error_customer_not_found', widget.lang));
 
       final authState = ref.read(authProvider);
       final adminPhone = authState.user?.phone;
@@ -288,10 +290,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
         isDialogOpen = false;
       }
       if (mounted) {
-        AppFeedback.showError(
-          context,
-          '${Tr.t('errorPrefix', widget.lang)}$e',
-        );
+        AppFeedback.showError(context, '${Tr.t('errorPrefix', widget.lang)}$e');
       }
     }
   }
@@ -319,7 +318,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
     }
 
     final filtered = _applyFilters(widget.payments);
-    
+
     filtered.sort((a, b) {
       switch (_selectedSort) {
         case SortOptionType.nameAsc:
@@ -343,10 +342,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
       }
     });
 
-    final totalAmount = filtered.fold<double>(
-      0,
-      (sum, p) => sum + p.amount,
-    );
+    final totalAmount = filtered.fold<double>(0, (sum, p) => sum + p.amount);
 
     return Scaffold(
       backgroundColor: widget.isEmbedded ? Colors.transparent : null,
@@ -418,208 +414,252 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
                   decoration: InputDecoration(
                     hintText: Tr.t('searchPayments', lang),
                     prefixIcon: const Icon(Icons.search, size: 20),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
-                          onPressed: () {
-                            _searchCtrl.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      : null,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHighest,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surfaceContainerHighest,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
 
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-            child: Row(
-              children: [
-                Flexible(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      child: AnimatedSegmentedPill<String>(
-                        items: const ['all', 'today', 'week', 'month', 'custom'],
-                        selectedValue: _selectedPeriod,
-                        onChanged: (val) {
-                          if (val == 'custom') {
-                            _pickCustomRange();
-                          } else {
-                            setState(() {
-                              _selectedPeriod = val;
-                              _customRange = null;
-                            });
-                          }
-                        },
-                        labelBuilder: (val) {
-                          switch (val) {
-                            case 'all': return Tr.t('periodAll', lang);
-                            case 'today': return Tr.t('periodToday', lang);
-                            case 'week': return Tr.t('periodThisWeek', lang);
-                            case 'month': return Tr.t('periodThisMonth', lang);
-                            case 'custom': return _customRangeLabel();
-                            default: return '';
-                          }
-                        },
-                        iconBuilder: (val) => val == 'custom' ? Icons.date_range_rounded : null,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                PremiumSortDropdown<SortOptionType>(
-                  selectedValue: _selectedSort,
-                  options: const [
-                    SortOption(labelKey: 'sortDateDesc', icon: Icons.access_time, value: SortOptionType.dateDesc),
-                    SortOption(labelKey: 'sortDateAsc', icon: Icons.history, value: SortOptionType.dateAsc),
-                    SortOption(labelKey: 'sortPriceDesc', icon: Icons.arrow_downward, value: SortOptionType.priceDesc),
-                    SortOption(labelKey: 'sortPriceAsc', icon: Icons.arrow_upward, value: SortOptionType.priceAsc),
-                    SortOption(labelKey: 'sortNameAsc', icon: Icons.sort_by_alpha, value: SortOptionType.nameAsc),
-                    SortOption(labelKey: 'sortNameDesc', icon: Icons.sort_by_alpha, value: SortOptionType.nameDesc),
-                  ],
-                  onSelected: (val) => setState(() => _selectedSort = val),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 4.0,
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.payments_outlined,
-                    size: 16,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      Tr.t('summaryPayments', lang, {
-                        'count': filtered.length.toString(),
-                        'total': CurrencyFormatter.format(totalAmount),
-                      }),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (_) => const PaymentReportDialog(),
-                    ),
+                  Flexible(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.onSurface,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.picture_as_pdf_rounded,
-                            size: 14,
-                            color: theme.colorScheme.surface,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            Tr.t('auto_PaymentReport', lang),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: theme.colorScheme.surface,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: AnimatedSegmentedPill<String>(
+                          items: const [
+                            'all',
+                            'today',
+                            'week',
+                            'month',
+                            'custom',
+                          ],
+                          selectedValue: _selectedPeriod,
+                          onChanged: (val) {
+                            if (val == 'custom') {
+                              _pickCustomRange();
+                            } else {
+                              setState(() {
+                                _selectedPeriod = val;
+                                _customRange = null;
+                              });
+                            }
+                          },
+                          labelBuilder: (val) {
+                            switch (val) {
+                              case 'all':
+                                return Tr.t('periodAll', lang);
+                              case 'today':
+                                return Tr.t('periodToday', lang);
+                              case 'week':
+                                return Tr.t('periodThisWeek', lang);
+                              case 'month':
+                                return Tr.t('periodThisMonth', lang);
+                              case 'custom':
+                                return _customRangeLabel();
+                              default:
+                                return '';
+                            }
+                          },
+                          iconBuilder: (val) =>
+                              val == 'custom' ? Icons.date_range_rounded : null,
+                        ),
                       ),
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  PremiumSortDropdown<SortOptionType>(
+                    selectedValue: _selectedSort,
+                    options: const [
+                      SortOption(
+                        labelKey: 'sortDateDesc',
+                        icon: Icons.access_time,
+                        value: SortOptionType.dateDesc,
+                      ),
+                      SortOption(
+                        labelKey: 'sortDateAsc',
+                        icon: Icons.history,
+                        value: SortOptionType.dateAsc,
+                      ),
+                      SortOption(
+                        labelKey: 'sortPriceDesc',
+                        icon: Icons.arrow_downward,
+                        value: SortOptionType.priceDesc,
+                      ),
+                      SortOption(
+                        labelKey: 'sortPriceAsc',
+                        icon: Icons.arrow_upward,
+                        value: SortOptionType.priceAsc,
+                      ),
+                      SortOption(
+                        labelKey: 'sortNameAsc',
+                        icon: Icons.sort_by_alpha,
+                        value: SortOptionType.nameAsc,
+                      ),
+                      SortOption(
+                        labelKey: 'sortNameDesc',
+                        icon: Icons.sort_by_alpha,
+                        value: SortOptionType.nameDesc,
+                      ),
+                    ],
+                    onSelected: (val) => setState(() => _selectedSort = val),
                   ),
                 ],
               ),
             ),
           ),
-        ),
 
-        if (filtered.isEmpty)
-          SliverFillRemaining(
-            child: AnimatedEmptyState(
-              icon: Icons.payments,
-              title: _searchQuery.isNotEmpty || _selectedPeriod != 'all'
-                  ? Tr.t('noResults', lang)
-                  : Tr.t('noPaymentHistory', lang),
-              subtitle: _searchQuery.isNotEmpty
-                  ? Tr.t('tryDifferentKeywords', lang)
-                  : null,
-            ),
-          )
-        else
-          SliverPadding(
-            padding: EdgeInsets.only(
-              top: 4,
-              bottom: widget.isEmbedded ? 140 : 100,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _PaymentCard(
-                  payment: filtered[index],
-                  index: index,
-                  lang: lang,
-                  isDark: isDark,
-                  customerRepo: ref.read(customerRepositoryProvider),
-                  onDelete: () => _deletePayment(filtered[index]),
-                  onPrint: () => _printReceipt(filtered[index]),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 4.0,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
                 ),
-                childCount: filtered.length,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.payments_outlined,
+                      size: 16,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        Tr.t('summaryPayments', lang, {
+                          'count': filtered.length.toString(),
+                          'total': CurrencyFormatter.format(totalAmount),
+                        }),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.8,
+                          ),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (_) => const PaymentReportDialog(),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.onSurface,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.2,
+                              ),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf_rounded,
+                              size: 14,
+                              color: theme.colorScheme.surface,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              Tr.t('auto_PaymentReport', lang),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.colorScheme.surface,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-      ],
-    ),
-   );
+
+          if (filtered.isEmpty)
+            SliverFillRemaining(
+              child: AnimatedEmptyState(
+                icon: Icons.payments,
+                title: _searchQuery.isNotEmpty || _selectedPeriod != 'all'
+                    ? Tr.t('noResults', lang)
+                    : Tr.t('noPaymentHistory', lang),
+                subtitle: _searchQuery.isNotEmpty
+                    ? Tr.t('tryDifferentKeywords', lang)
+                    : null,
+              ),
+            )
+          else
+            SliverPadding(
+              padding: EdgeInsets.only(
+                top: 4,
+                bottom: widget.isEmbedded ? 140 : 100,
+              ),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _PaymentCard(
+                    payment: filtered[index],
+                    index: index,
+                    lang: lang,
+                    isDark: isDark,
+                    customerRepo: ref.read(customerRepositoryProvider),
+                    onDelete: () => _deletePayment(filtered[index]),
+                    onPrint: () => _printReceipt(filtered[index]),
+                  ),
+                  childCount: filtered.length,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 
@@ -647,86 +687,95 @@ class _PaymentCard extends StatelessWidget {
     return FutureBuilder<CustomerEntity?>(
       future: customerRepo.getCustomerById(payment.customerId),
       builder: (context, snapshot) {
-        final customerName = snapshot.data?.businessName ?? Tr.t('unknownCustomer', lang);
+        final customerName =
+            snapshot.data?.businessName ?? Tr.t('unknownCustomer', lang);
         final theme = Theme.of(context);
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          elevation: 0,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Theme(
-            data: theme.copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-              childrenPadding: EdgeInsets.zero,
-              title: Text(
-                customerName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              elevation: 0,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  DateFormat('dd/MM • HH:mm').format(payment.paymentDate),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                    fontWeight: FontWeight.w500,
+              child: Theme(
+                data: theme.copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 0,
                   ),
-                ),
-              ),
-              trailing: Text(
-                CurrencyFormatter.format(payment.amount),
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.end,
+                  childrenPadding: EdgeInsets.zero,
+                  title: Text(
+                    customerName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 2.0),
+                    child: Text(
+                      DateFormat('dd/MM • HH:mm').format(payment.paymentDate),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  trailing: Text(
+                    CurrencyFormatter.format(payment.amount),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.05,
+                      ),
+                      child: Column(
                         children: [
-                          HeavyIOSButton(
-                            label: Tr.t('auto_Print', lang),
-                            icon: Icons.print_rounded,
-                            onTap: onPrint,
-                          ),
-                          HeavyIOSButton(
-                            label: Tr.t('deleteBtn', lang),
-                            icon: Icons.delete_outline,
-                            color: Colors.red,
-                            onTap: onDelete,
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.end,
+                            children: [
+                              HeavyIOSButton(
+                                label: Tr.t('auto_Print', lang),
+                                icon: Icons.print_rounded,
+                                onTap: onPrint,
+                              ),
+                              HeavyIOSButton(
+                                label: Tr.t('deleteBtn', lang),
+                                icon: Icons.delete_outline,
+                                color: Theme.of(context).colorScheme.error,
+                                onTap: onDelete,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ).animate()
-          .fadeIn(duration: 300.ms, delay: (20 * index.clamp(0, 15)).ms)
-          .slideX(begin: 0.05);
+              ),
+            )
+            .animate()
+            .fadeIn(duration: 300.ms, delay: (20 * index.clamp(0, 15)).ms)
+            .slideX(begin: 0.05);
       },
     );
   }

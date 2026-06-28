@@ -86,14 +86,19 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
               ),
               if (_currentImagePath != null)
                 ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
+                  leading: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                   title: Text(
                     widget.isKurdish
                         ? 'سڕینەوەی وێنە'
                         : widget.isArabic
                         ? 'حذف الصورة'
                         : 'Remove Photo',
-                    style: const TextStyle(color: Colors.red),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                   onTap: () {
                     setState(() {
@@ -169,10 +174,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     if (widget.heroTag != null) {
       avatarWidget = Hero(
         tag: widget.heroTag!,
-        child: Material(
-          type: MaterialType.transparency,
-          child: avatarWidget,
-        ),
+        child: Material(type: MaterialType.transparency, child: avatarWidget),
       );
     }
 

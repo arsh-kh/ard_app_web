@@ -14,7 +14,9 @@ final orderRepositoryProvider = Provider<OrderRepository>((ref) {
   return OrderRepository(auditService, businessId);
 });
 
-final allOrdersStreamProvider = StreamProvider.autoDispose<List<OrderEntity>>((ref) {
+final allOrdersStreamProvider = StreamProvider.autoDispose<List<OrderEntity>>((
+  ref,
+) {
   return ref.watch(orderRepositoryProvider).watchAllOrders();
 });
 

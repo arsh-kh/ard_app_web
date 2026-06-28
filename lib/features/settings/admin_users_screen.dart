@@ -41,7 +41,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
 
     final userRepo = ref.watch(userRepositoryProvider);
     final currentUser = ref.watch(authProvider).user;
-    
+
     final businessAsync = ref.watch(currentBusinessEntityProvider);
     final business = businessAsync.valueOrNull;
 
@@ -59,7 +59,12 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(20, business != null ? 10 : 10, 20, 20),
+            padding: EdgeInsets.fromLTRB(
+              20,
+              business != null ? 10 : 10,
+              20,
+              20,
+            ),
             child: TextField(
               controller: _searchCtrl,
               focusNode: _searchFocus,
@@ -90,9 +95,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                   return Center(
                     child: Text(
                       '${Tr.t('errorPrefix', lang)}$snapshot.error',
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                   );
                 }
@@ -147,15 +150,21 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                     final isPending = user.status == 'pending';
                     final isCurrentUser = user.id == currentUser?.id;
 
-                    final Color statusColor = isBanned 
-                        ? Colors.red 
-                        : (isPending ? Colors.orange : Colors.green);
+                    final Color statusColor = isBanned
+                        ? theme.colorScheme.error
+                        : (isPending
+                              ? theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                )
+                              : theme.colorScheme.primary);
 
                     return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           color: theme.colorScheme.surface,
                           elevation: isDark ? 0 : 4,
-                          shadowColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                          shadowColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.05),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
@@ -223,13 +232,14 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.orange.withValues(alpha: 0.15),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'Pending',
                                       style: TextStyle(
-                                        color: Colors.orange,
+                                        color: theme.colorScheme.onSurface,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
                                       ),

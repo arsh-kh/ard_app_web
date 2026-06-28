@@ -75,7 +75,6 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -85,12 +84,12 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: Colors.red.withValues(alpha: 0.3),
+            color: theme.colorScheme.error.withValues(alpha: 0.3),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.red.withValues(alpha: 0.2),
+              color: theme.colorScheme.error.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -100,15 +99,19 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Icons.warning_rounded, color: Colors.red, size: 56),
+            Icon(
+              Icons.warning_rounded,
+              color: theme.colorScheme.error,
+              size: 56,
+            ),
             const SizedBox(height: 16),
             Text(
               Tr.t('wipeAllDataTitle', lang),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: theme.colorScheme.error,
               ),
             ),
             const SizedBox(height: 12),
@@ -126,8 +129,8 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
               lang == 'ku'
                   ? 'بۆ دڵنیابوونەوە لەم کردارە، تکایە وشەی "DELETE" بە پیتی گەورە (Capital) بنووسە لە خوارەوە:'
                   : lang == 'ar'
-                      ? 'للتأكيد، يرجى كتابة كلمة "DELETE" بأحرف كبيرة (Capital) أدناه:'
-                      : 'To confirm, please type the word "DELETE" in ALL CAPS below:',
+                  ? 'للتأكيد، يرجى كتابة كلمة "DELETE" بأحرف كبيرة (Capital) أدناه:'
+                  : 'To confirm, please type the word "DELETE" in ALL CAPS below:',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             ),
@@ -138,7 +141,9 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
               decoration: InputDecoration(
                 hintText: 'DELETE',
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -160,7 +165,7 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
                   width: 24,
                   child: Checkbox(
                     value: _isUnderstood,
-                    activeColor: Colors.red,
+                    activeColor: theme.colorScheme.error,
                     onChanged: (val) {
                       setState(() => _isUnderstood = val ?? false);
                     },
@@ -172,8 +177,8 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
                     lang == 'ku'
                         ? 'تێدەگەم کە ئەمە کردارێکی هەمیشەییە و ناتوانرێت بگەڕێندرێتەوە.'
                         : lang == 'ar'
-                            ? 'أدرك أن هذا الإجراء دائم ولا يمكن التراجع عنه.'
-                            : 'I understand that this action is permanent and cannot be undone.',
+                        ? 'أدرك أن هذا الإجراء دائم ولا يمكن التراجع عنه.'
+                        : 'I understand that this action is permanent and cannot be undone.',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -192,12 +197,16 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
                   HeavyIOSButton(
                     label: Tr.t('wipeAllDataBtn', lang),
                     icon: Icons.delete_forever_rounded,
-                    onTap: _confirmController.text.trim() == 'DELETE' && _isUnderstood
+                    onTap:
+                        _confirmController.text.trim() == 'DELETE' &&
+                            _isUnderstood
                         ? () => _performWipe()
                         : () {},
-                    color: _confirmController.text.trim() == 'DELETE' && _isUnderstood
-                        ? Colors.red
-                        : Colors.grey,
+                    color:
+                        _confirmController.text.trim() == 'DELETE' &&
+                            _isUnderstood
+                        ? theme.colorScheme.error
+                        : theme.colorScheme.surfaceContainerHighest,
                   ),
                   const SizedBox(height: 12),
                   TextButton(

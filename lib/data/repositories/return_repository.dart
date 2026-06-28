@@ -217,7 +217,10 @@ class ReturnRepository {
     }).toList();
   }
 
-  Future<List<ReturnEntity>> getReturnsByDateRange(DateTime start, DateTime end) async {
+  Future<List<ReturnEntity>> getReturnsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
     final snapshot = await _firestore
         .collection('returns')
         .where('businessId', isEqualTo: businessId)

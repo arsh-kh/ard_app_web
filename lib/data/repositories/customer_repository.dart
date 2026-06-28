@@ -16,21 +16,21 @@ class CustomerRepository {
         .where('businessId', isEqualTo: businessId)
         .snapshots()
         .map((snapshot) {
-      final list = snapshot.docs
-          .map(
-            (doc) => CustomerEntity.fromJson(
-              DataSanitizer.sanitize({'id': doc.id, ...doc.data()}),
-            ),
-          )
-          .where((c) => !c.id.startsWith('walk-in-'))
-          .toList();
-      list.sort((a, b) {
-        final aDate = a.updatedAt ?? a.createdAt ?? DateTime(2000);
-        final bDate = b.updatedAt ?? b.createdAt ?? DateTime(2000);
-        return bDate.compareTo(aDate);
-      });
-      return list;
-    });
+          final list = snapshot.docs
+              .map(
+                (doc) => CustomerEntity.fromJson(
+                  DataSanitizer.sanitize({'id': doc.id, ...doc.data()}),
+                ),
+              )
+              .where((c) => !c.id.startsWith('walk-in-'))
+              .toList();
+          list.sort((a, b) {
+            final aDate = a.updatedAt ?? a.createdAt ?? DateTime(2000);
+            final bDate = b.updatedAt ?? b.createdAt ?? DateTime(2000);
+            return bDate.compareTo(aDate);
+          });
+          return list;
+        });
   }
 
   Future<void> addCustomer(CustomerEntity customer) async {

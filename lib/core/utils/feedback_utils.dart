@@ -36,7 +36,7 @@ class AppFeedback {
     HapticFeedback.lightImpact();
     final langCode = Localizations.localeOf(context).languageCode;
     final resolvedUndoLabel = undoLabel ?? Tr.t('btn_undo', langCode);
-    
+
     final bottomMargin = _calculateBottomMargin(context);
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -134,15 +134,16 @@ class AppFeedback {
     bool hasBottomNav = false;
     try {
       final location = GoRouterState.of(context).matchedLocation;
-      hasBottomNav = location == '/admin' ||
-                     location == '/bakery' ||
-                     location == '/clients-orders' ||
-                     location == '/inventory' ||
-                     location == '/settings';
+      hasBottomNav =
+          location == '/admin' ||
+          location == '/bakery' ||
+          location == '/clients-orders' ||
+          location == '/inventory' ||
+          location == '/settings';
     } catch (_) {}
 
     final safeAreaBottom = MediaQuery.of(context).padding.bottom;
-    
+
     if (hasBottomNav) {
       // The custom pill nav bar is 75px tall and sits 20px from the bottom edge (95px total).
       // We want the SnackBar to sit 10px above the pill (105px total).
@@ -230,7 +231,9 @@ class AppFeedback {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: confirmColor ?? theme.colorScheme.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: confirmColor != null
+                  ? Colors.white
+                  : theme.colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

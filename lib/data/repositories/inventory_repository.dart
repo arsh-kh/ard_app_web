@@ -20,20 +20,20 @@ class InventoryRepository {
         .where('businessId', isEqualTo: businessId)
         .snapshots()
         .map((snapshot) {
-      final list = snapshot.docs
-          .map(
-            (doc) => ProductEntity.fromJson(
-              _sanitizeData({'id': doc.id, ...doc.data()}),
-            ),
-          )
-          .toList();
-      list.sort((a, b) {
-        final aDate = a.updatedAt ?? a.createdAt ?? DateTime(2000);
-        final bDate = b.updatedAt ?? b.createdAt ?? DateTime(2000);
-        return bDate.compareTo(aDate);
-      });
-      return list;
-    });
+          final list = snapshot.docs
+              .map(
+                (doc) => ProductEntity.fromJson(
+                  _sanitizeData({'id': doc.id, ...doc.data()}),
+                ),
+              )
+              .toList();
+          list.sort((a, b) {
+            final aDate = a.updatedAt ?? a.createdAt ?? DateTime(2000);
+            final bDate = b.updatedAt ?? b.createdAt ?? DateTime(2000);
+            return bDate.compareTo(aDate);
+          });
+          return list;
+        });
   }
 
   Future<void> addProduct(ProductEntity product) async {
@@ -166,9 +166,7 @@ class InventoryRepository {
     if (!doc.exists) return null;
     final data = doc.data()!;
     if (data['businessId'] != businessId) return null; // Security check
-    return ProductEntity.fromJson(
-      _sanitizeData({'id': doc.id, ...data}),
-    );
+    return ProductEntity.fromJson(_sanitizeData({'id': doc.id, ...data}));
   }
 
   Future<void> restockProduct(String id, double quantity) async {

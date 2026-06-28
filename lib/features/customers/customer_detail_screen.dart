@@ -39,115 +39,119 @@ class CustomerDetailScreen extends ConsumerWidget {
         slivers: [
           // Stylish App Bar with gradient
           SliverAppBar(
-              expandedHeight: 200,
-              pinned: true,
-              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
-                  child: SafeArea(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 32),
-                        // Avatar
-                        Hero(
-                          tag: 'customer_${customer.id}',
-                          child: InitialsAvatar(
-                            text: customer.businessName,
-                            imageUrl: customer.imageUrl,
-                            radius: 36,
+            expandedHeight: 200,
+            pinned: true,
+            iconTheme: IconThemeData(
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 32),
+                      // Avatar
+                      Hero(
+                        tag: 'customer_${customer.id}',
+                        child: InitialsAvatar(
+                          text: customer.businessName,
+                          imageUrl: customer.imageUrl,
+                          radius: 36,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        customer.businessName,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (customer.address != null &&
+                          customer.address!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 14,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                customer.address!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimary
+                                      .withValues(alpha: 0.8),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          customer.businessName,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (customer.address != null &&
-                            customer.address!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.location_on,
-                                  size: 14,
-                                  color: Theme.of(context).colorScheme.onPrimary.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  customer.address!,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onPrimary
-                                        .withValues(alpha: 0.8),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  onPressed: () {
-                    context.push(Routes.customerForm, extra: customer);
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  onPressed: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(Tr.t('deleteCustomer', langCode)),
-                        content: Text(Tr.t('deleteCustomerConfirm', langCode)),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(Tr.t('cancelBtn', langCode)),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            ),
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text(
-                              Tr.t('delete', langCode),
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (confirm == true) {
-                      await ref
-                          .read(customerRepositoryProvider)
-                          .deleteCustomer(customer.id);
-                      if (context.mounted) Navigator.pop(context);
-                    }
-                  },
-                ),
-              ],
             ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.edit_outlined,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                onPressed: () {
+                  context.push(Routes.customerForm, extra: customer);
+                },
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(Tr.t('deleteCustomer', langCode)),
+                      content: Text(Tr.t('deleteCustomerConfirm', langCode)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(Tr.t('cancelBtn', langCode)),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.error,
+                          ),
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(
+                            Tr.t('delete', langCode),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await ref
+                        .read(customerRepositoryProvider)
+                        .deleteCustomer(customer.id);
+                    if (context.mounted) Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+          ),
 
           // Quick Actions Row
           SliverToBoxAdapter(
@@ -160,7 +164,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                       context,
                       icon: Icons.phone_outlined,
                       label: Tr.t('callBtn', langCode),
-                      color: Colors.green,
+                      color: theme.colorScheme.primary,
                       onTap: () => _callCustomer(context, ref),
                     ),
                   ),
@@ -192,11 +196,15 @@ class CustomerDetailScreen extends ConsumerWidget {
                   border: Border.all(
                     color: customer.debtBalance > 0
                         ? Colors.amber.withValues(alpha: 0.3)
-                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -211,7 +219,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: customer.debtBalance > 0
                                 ? Colors.amber.withValues(alpha: 0.1)
-                                : Colors.green.withValues(alpha: 0.1),
+                                : theme.colorScheme.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -220,7 +230,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                 : Icons.check_circle,
                             color: customer.debtBalance > 0
                                 ? Colors.amber.shade700
-                                : Colors.green,
+                                : theme.colorScheme.primary,
                             size: 24,
                           ),
                         ),
@@ -233,7 +243,8 @@ class CustomerDetailScreen extends ConsumerWidget {
                                 Tr.t('outstandingDebtDetail', langCode),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -243,8 +254,8 @@ class CustomerDetailScreen extends ConsumerWidget {
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   color: customer.debtBalance > 0
-                                      ? Colors.red.shade600
-                                      : Colors.green.shade600,
+                                      ? theme.colorScheme.error
+                                      : theme.colorScheme.primary,
                                 ),
                               ),
                             ],
@@ -279,16 +290,20 @@ class CustomerDetailScreen extends ConsumerWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.1),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.green.withValues(alpha: 0.3),
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                             ),
                             child: Text(
                               Tr.t('clearBadge', langCode),
-                              style: const TextStyle(
-                                color: Colors.green,
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -307,10 +322,10 @@ class CustomerDetailScreen extends ConsumerWidget {
                             customer,
                             langCode,
                           ),
-                          icon: const Icon(Icons.payment),
+                          icon: Icon(Icons.payment),
                           label: Text(Tr.t('settlePayment', langCode)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green.shade600,
+                            backgroundColor: theme.colorScheme.primary,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -332,7 +347,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                   color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Column(
@@ -428,13 +445,17 @@ class CustomerDetailScreen extends ConsumerWidget {
                         Icon(
                           Icons.history_toggle_off,
                           size: 48,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           Tr.t('noHistory', langCode),
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
                             fontSize: 13,
                           ),
                         ),
@@ -481,7 +502,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                             color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.1),
                             ),
                           ),
                           child: Row(
@@ -521,7 +544,10 @@ class CustomerDetailScreen extends ConsumerWidget {
                                       ).format(item.orderDate),
                                       style: TextStyle(
                                         fontSize: 11,
-                                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.5),
                                       ),
                                     ),
                                   ],
@@ -560,7 +586,9 @@ class CustomerDetailScreen extends ConsumerWidget {
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.green.withValues(alpha: 0.3),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                         child: Row(
@@ -568,12 +596,14 @@ class CustomerDetailScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.1),
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.payments,
-                                color: Colors.green,
+                                color: theme.colorScheme.primary,
                                 size: 18,
                               ),
                             ),
@@ -584,10 +614,10 @@ class CustomerDetailScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     Tr.t('paymentReceived', langCode),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
-                                      color: Colors.green,
+                                      color: theme.colorScheme.primary,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -597,7 +627,10 @@ class CustomerDetailScreen extends ConsumerWidget {
                                     ).format(item.paymentDate),
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.5),
                                     ),
                                   ),
                                 ],
@@ -608,10 +641,10 @@ class CustomerDetailScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   '+ ${CurrencyFormatter.format(item.amount)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
-                                    color: Colors.green,
+                                    color: theme.colorScheme.primary,
                                   ),
                                 ),
                               ],
@@ -705,7 +738,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 decoration: InputDecoration(
                   labelText: Tr.t('amountPaid', langCode),
                   border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.payments),
+                  prefixIcon: Icon(Icons.payments),
                   hintText: '0',
                 ),
               ),
@@ -762,7 +795,9 @@ class CustomerDetailScreen extends ConsumerWidget {
         Icon(
           icon,
           size: 18,
-          color: isDark ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          color: isDark
+              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         ),
         const SizedBox(width: 12),
         Column(
@@ -772,7 +807,13 @@ class CustomerDetailScreen extends ConsumerWidget {
               label,
               style: TextStyle(
                 fontSize: 10,
-                color: isDark ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: isDark
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.4)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             Text(

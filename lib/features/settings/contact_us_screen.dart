@@ -88,7 +88,7 @@ class ContactUsScreen extends ConsumerWidget {
             _buildContactCard(
               theme: theme,
               icon: Icons.call_rounded,
-              iconColor: Colors.blue,
+              iconColor: theme.colorScheme.onSurface,
               title: Tr.t('callUs', langCode),
               subtitle: '0770 645 5868',
               isRtl: isRtl,
@@ -98,7 +98,7 @@ class ContactUsScreen extends ConsumerWidget {
             _buildContactCard(
               theme: theme,
               icon: Icons.message_rounded,
-              iconColor: Colors.green,
+              iconColor: theme.colorScheme.onSurface,
               title: 'WhatsApp',
               subtitle: '0770 645 5868',
               isRtl: isRtl,
@@ -108,7 +108,7 @@ class ContactUsScreen extends ConsumerWidget {
             _buildContactCard(
               theme: theme,
               icon: Icons.email_rounded,
-              iconColor: Colors.redAccent,
+              iconColor: theme.colorScheme.onSurface,
               title: 'Email',
               subtitle: 'yarasdywanh@gmail.com',
               isRtl: isRtl,

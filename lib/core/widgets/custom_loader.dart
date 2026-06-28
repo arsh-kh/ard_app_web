@@ -33,9 +33,6 @@ class _CustomLoaderState extends State<CustomLoader>
 
   @override
   Widget build(BuildContext context) {
-
-
-
     // Default to a premium monochrome color based on theme if no color provided
     final loaderColor =
         widget.color ?? (Theme.of(context).colorScheme.onSurface);

@@ -37,18 +37,15 @@ class PdfPurchaseLedgerService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [
-            fontRegular,
-            fontBold,
-          ],
+          fontFallback: [fontRegular, fontBold],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
           final langCode = isKurdish
               ? 'ku'
               : isArabic
-                  ? 'ar'
-                  : 'en';
+              ? 'ar'
+              : 'en';
           final tTitle = Tr.t('auto_PURCHASESLEDGER', langCode);
           final tPeriod = Tr.t('auto_Period', langCode);
           final tGenerated = Tr.t('auto_Generated', langCode);
@@ -56,7 +53,10 @@ class PdfPurchaseLedgerService {
           final tDesc = Tr.t('auto_FlourDistributi', langCode);
           final tFooter = Tr.t('auto_Thisisanautomat', langCode);
 
-          final tTotalPurchases = Tr.t('summaryPurchases', langCode).split('·').first.replaceAll('{count}', ''); // Extracting "purchases" word
+          final tTotalPurchases = Tr.t('summaryPurchases', langCode)
+              .split('·')
+              .first
+              .replaceAll('{count}', ''); // Extracting "purchases" word
           final tTotalAmount = Tr.t('auto_Amount', langCode);
 
           final double totalExpenses = purchases.fold(
@@ -323,8 +323,8 @@ class PdfPurchaseLedgerService {
     final langCode = isKurdish
         ? 'ku'
         : isArabic
-            ? 'ar'
-            : 'en';
+        ? 'ar'
+        : 'en';
     final tEmpty = Tr.t('auto_Noordersfoundin', langCode);
 
     if (purchases.isEmpty) {
@@ -530,7 +530,9 @@ class PdfPurchaseLedgerService {
                     child: pw.Directionality(
                       textDirection: pw.TextDirection.ltr,
                       child: pw.Text(
-                        CurrencyFormatter.format(p.totalAmount - p.totalReturnedAmount),
+                        CurrencyFormatter.format(
+                          p.totalAmount - p.totalReturnedAmount,
+                        ),
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,

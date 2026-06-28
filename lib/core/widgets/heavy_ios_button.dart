@@ -48,8 +48,8 @@ class _HeavyIOSButtonState extends State<HeavyIOSButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                widget.icon, 
-                color: widget.color != null ? Colors.white : defaultFgColor, 
+                widget.icon,
+                color: widget.color != null ? Colors.white : defaultFgColor,
                 size: 22,
               ),
               const SizedBox(width: 8),

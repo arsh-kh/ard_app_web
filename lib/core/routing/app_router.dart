@@ -132,7 +132,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return Routes.login;
         }
 
-        if (isOnLogin || isOnSplash || isOnPending || isOnOnboarding || isOnBusinessSetup) {
+        if (isOnLogin ||
+            isOnSplash ||
+            isOnPending ||
+            isOnOnboarding ||
+            isOnBusinessSetup) {
           return Routes.adminDashboard;
         }
       }

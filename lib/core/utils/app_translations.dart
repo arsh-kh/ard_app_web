@@ -39,7 +39,8 @@ class Tr {
       'themeLight': 'Light Mode',
       'themeDark': 'Dark Mode',
       'onboardingTitle1': 'Select Language',
-      'onboardingDesc1': 'Please select your preferred language (you can change it later).',
+      'onboardingDesc1':
+          'Please select your preferred language (you can change it later).',
       'onboardingTitle4': 'Ready to Start?',
       'onboardingDesc4':
           'Optimize your business and take control of your financial growth today.',
@@ -197,10 +198,11 @@ class Tr {
 
       // Error / General
       'errorPrefix': 'Error: ',
-      'err_permission_denied': 'Permission denied. You do not have access to perform this action.',
+      'err_permission_denied':
+          'Permission denied. You do not have access to perform this action.',
       'notProvided': 'Not provided',
       'noInternetConnection': 'No Internet Connection',
-    'cancelBtn': 'Cancel',
+      'cancelBtn': 'Cancel',
       'yesBtn': 'Yes',
       'delete': 'Delete',
       'print': 'Print',
@@ -418,20 +420,24 @@ class Tr {
       'reqField': 'Required field',
       'reqEmailOrPhone': 'Please provide either an email or a phone number',
       'invalidEmail': 'Please enter a valid email address',
-      'weakPassword': 'Password must be at least 8 characters with 1 uppercase and 1 number',
+      'weakPassword':
+          'Password must be at least 8 characters with 1 uppercase and 1 number',
       'invalidPhone': 'Please enter a valid phone number',
       'forgotLbl': 'Forgot Password?',
       'recoveryEmailHint': 'Business Email',
       'recoverBtn': 'Recover Business',
       'recoverPrompt': 'Lost access to your business?',
       'recoverDialogTitle': 'Recover Business',
-      'recoverDialogBody': 'Enter the recovery email linked to your business. If it exists, instructions will be sent to it.',
-      'recoverSuccess': 'If a business is linked to this email, recovery instructions have been sent.',
+      'recoverDialogBody':
+          'Enter the recovery email linked to your business. If it exists, instructions will be sent to it.',
+      'recoverSuccess':
+          'If a business is linked to this email, recovery instructions have been sent.',
       'settingsTitle': 'Settings',
 
       // Business Setup
       'businessSetupTitleJoin': 'Join a Business',
-      'businessSetupSubJoin': 'Enter the 6-character invite code provided by your admin.',
+      'businessSetupSubJoin':
+          'Enter the 6-character invite code provided by your admin.',
       'businessSetupTitleCreate': 'Create a Business',
       'businessSetupSubCreate': 'Start a new workspace for your team.',
       'inviteCodeHint': 'Invite Code (e.g. A9F3K2)',
@@ -445,7 +451,8 @@ class Tr {
       'business_created_success': 'Business created successfully!',
       // Settings specific
       'inviteCodeLbl': 'Invite Code',
-      'shareInviteDesc': 'Share this code with employees to let them join your workspace.',
+      'shareInviteDesc':
+          'Share this code with employees to let them join your workspace.',
       'genDemoData': 'Generate Demo Data',
       'genDemoDesc': 'Populate workspace with realistic mock data',
       'generatingDemo': 'Generating realistic mock data...',
@@ -455,9 +462,11 @@ class Tr {
       'workspace': 'Workspace',
       'inviteEmployeesTitle': 'Invite Employees',
       'growWorkspace': 'Grow Your Workspace',
-      'inviteInstructions': 'When your employees download the app, tell them to select "Join Workspace". They will need this 6-character code to connect.\n\nAfter they enter the code, you must go to Manage Users to approve their request before they can access the workspace.',
+      'inviteInstructions':
+          'When your employees download the app, tell them to select "Join Workspace". They will need this 6-character code to connect.\n\nAfter they enter the code, you must go to Manage Users to approve their request before they can access the workspace.',
       'secureFullBackup': 'Secure Full Backup',
-      'backupDesc': 'Download a complete JSON snapshot of your entire workspace database.',
+      'backupDesc':
+          'Download a complete JSON snapshot of your entire workspace database.',
       'jsonFormat': 'JSON Format',
       'exportSuppliers': 'Export Suppliers',
       'exportPurchases': 'Export Purchases',
@@ -466,19 +475,26 @@ class Tr {
       'exportAuditLogs': 'Export Audit Logs',
       'yourInviteCode': 'YOUR INVITE CODE',
       'shareInviteBtn': 'Share Invite Code',
-      'shareInviteMsg': 'Join my workspace on ARD Bazar!\n\nEnter this code: {code} when setting up your account.',
-      'joinWorkspaceInfo': 'Ask your manager for the 6-character Invite Code to join their existing workspace.',
-      'createWorkspaceInfo': 'Creating a workspace makes you the Admin. You will be able to invite your employees and manage all store data.',
+      'shareInviteMsg':
+          'Join my workspace on ARD Bazar!\n\nEnter this code: {code} when setting up your account.',
+      'joinWorkspaceInfo':
+          'Ask your manager for the 6-character Invite Code to join their existing workspace.',
+      'createWorkspaceInfo':
+          'Creating a workspace makes you the Admin. You will be able to invite your employees and manage all store data.',
       'csvFormat': 'CSV Format',
-      'business_joined_success': 'Joined business successfully! Waiting for admin approval.',
+      'business_joined_success':
+          'Joined business successfully! Waiting for admin approval.',
       'logoutBusinessBtn': 'Log out from Workspace',
       'logoutBusinessTitle': 'Log Out',
-      'logoutBusinessDesc': 'To log out from this workspace, please type the business name below to confirm:',
+      'logoutBusinessDesc':
+          'To log out from this workspace, please type the business name below to confirm:',
       'businessNameHintDialog': 'Business Name',
       'leaveBtn': 'Log Out',
       'logoutProfileTitle': 'Log Out',
-      'logoutProfileWarning': 'Are you sure you want to log out from your account?',
-      'businessNameTaken': 'Business name is already taken. Please choose another.',
+      'logoutProfileWarning':
+          'Are you sure you want to log out from your account?',
+      'businessNameTaken':
+          'Business name is already taken. Please choose another.',
 
       // Nav bar labels
       'posLabel': 'POS',
@@ -592,7 +608,8 @@ class Tr {
       'noPaymentHistory': 'No payment history found.',
       'historyHub': 'History Hub',
       'auto_PaymentReport': 'Payment Report',
-      'deletePaymentConfirm': 'Are you sure you want to delete this payment? This will revert the customer\'s balance.',
+      'deletePaymentConfirm':
+          'Are you sure you want to delete this payment? This will revert the customer\'s balance.',
     },
     // ── SORANI KURDISH ──────────────────────────────────────────
     'ku': {
@@ -607,8 +624,7 @@ class Tr {
       'onboardingTitle1': 'زمان هەڵبژێرە',
       'onboardingDesc1': 'زمانێکی گونجاو هەڵبژێرە (دواتر دەتوانیت بیگۆڕیت).',
       'onboardingTitle4': 'ئامادەی بۆ دەستپێکردن؟',
-      'onboardingDesc4':
-          'کارەکەت بەرەو پێش ببە و کۆنتڕۆڵی گەشەی داراییت بکە.',
+      'onboardingDesc4': 'کارەکەت بەرەو پێش ببە و کۆنتڕۆڵی گەشەی داراییت بکە.',
       'skipBtn': 'تێپەڕاندن',
       'getStartedBtn': 'دەستپێکردن',
       'cardWelcome': 'بەخێربێیت',
@@ -764,10 +780,11 @@ class Tr {
 
       // Error / General
       'errorPrefix': 'هەڵە: ',
-      'err_permission_denied': 'ڕێگەپێنەدراوە. تۆ دەسەڵاتی ئەنجامدانی ئەم کردارەت نییە.',
+      'err_permission_denied':
+          'ڕێگەپێنەدراوە. تۆ دەسەڵاتی ئەنجامدانی ئەم کردارەت نییە.',
       'notProvided': 'تۆمارنەکراوە',
       'noInternetConnection': 'هیڵی ئینتەرنێت پچڕاوە',
-    'cancelBtn': 'پاشگەزبوونەوە',
+      'cancelBtn': 'پاشگەزبوونەوە',
       'yesBtn': 'بەڵێ',
       'delete': 'سڕینەوە',
       'print': 'چاپکردن',
@@ -959,10 +976,12 @@ class Tr {
           'تکایە ئیمەیڵەکەت (یان فۆڵدەری Spam) بپشکنە بۆ سەلماندنی هەژمارەکەت. لینکی نوێمان ناردووە.',
       'err_user_not_found': 'هیچ هەژمارێک بەم زانیارییانە نەدۆزرایەوە.',
       'err_invalid_credentials': 'ئیمەیڵ یان وشەی نهێنی هەڵەیە.',
-      'err_auth_failed': 'چوونەژوورەوە سەرکەوتوو نەبوو، تکایە دووبارە هەوڵبدەرەوە.',
+      'err_auth_failed':
+          'چوونەژوورەوە سەرکەوتوو نەبوو، تکایە دووبارە هەوڵبدەرەوە.',
       'err_something_went_wrong': 'هەڵەیەک ڕوویدا. تکایە دواتر هەوڵبدەرەوە.',
       'err_email_in_use': 'پێشتر هەژمارێک بەم ئیمەیڵە تۆمارکراوە.',
-      'err_password_too_short': 'وشەی نهێنی دەبێت لانی کەم ٦ پیت یان ژمارە بێت.',
+      'err_password_too_short':
+          'وشەی نهێنی دەبێت لانی کەم ٦ پیت یان ژمارە بێت.',
       'err_registration_failed':
           'تۆمارکردن سەرکەوتوو نەبوو. تکایە زانیارییەکانت بپشکنە و دووبارە هەوڵبدەرەوە.',
       'err_send_reset_failed':
@@ -987,16 +1006,20 @@ class Tr {
       'recoverBtn': 'گەڕاندنەوەی فرۆشگا',
       'recoverPrompt': 'دەستگەیشتنت بە فرۆشگاکەت لەدەستداوە؟',
       'recoverDialogTitle': 'گەڕاندنەوەی فرۆشگا',
-      'recoverDialogBody': 'ئەو ئیمەیڵەی کە بە فرۆشگاکەتەوە بەستراوەتەوە بنووسە. ئەگەر هەبێت، ڕێنماییەکانی بۆ دەنێردرێت.',
-      'recoverSuccess': 'ئەگەر فرۆشگایەک بەم ئیمەیڵەوە بەسترابێتەوە، ڕێنماییەکانی گەڕاندنەوە نێردراون.',
+      'recoverDialogBody':
+          'ئەو ئیمەیڵەی کە بە فرۆشگاکەتەوە بەستراوەتەوە بنووسە. ئەگەر هەبێت، ڕێنماییەکانی بۆ دەنێردرێت.',
+      'recoverSuccess':
+          'ئەگەر فرۆشگایەک بەم ئیمەیڵەوە بەسترابێتەوە، ڕێنماییەکانی گەڕاندنەوە نێردراون.',
       'settingsTitle': 'ڕێکخستنەکان',
       'invalidEmail': 'تکایە ئیمەیڵێکی دروست بنووسە',
-      'weakPassword': 'وشەی نهێنی دەبێت لانی کەم ٨ پیت بێت، پیتێکی گەورە و ژمارەیەکی تێدابێت',
+      'weakPassword':
+          'وشەی نهێنی دەبێت لانی کەم ٨ پیت بێت، پیتێکی گەورە و ژمارەیەکی تێدابێت',
       'invalidPhone': 'تکایە ژمارە مۆبایلێکی دروست بنووسە',
 
       // Business Setup
       'businessSetupTitleJoin': 'پەیوەندیکردن بە فرۆشگایەکەوە',
-      'businessSetupSubJoin': 'تکایە کۆدی بانگهێشتنامەی ٦ پیت بنووسە کە لەلایەن بەڕێوەبەرەکەتەوە پێتدراوە.',
+      'businessSetupSubJoin':
+          'تکایە کۆدی بانگهێشتنامەی ٦ پیت بنووسە کە لەلایەن بەڕێوەبەرەکەتەوە پێتدراوە.',
       'businessSetupTitleCreate': 'دروستکردنی فرۆشگایەکی نوێ',
       'businessSetupSubCreate': 'فرۆشگایەکی نوێ بۆ تیمەکەت دەستپێبکە.',
       'inviteCodeHint': 'کۆدی بانگهێشتنامە (بۆ نموونە: A9F3K2)',
@@ -1010,7 +1033,8 @@ class Tr {
       'business_created_success': 'فرۆشگاکە بە سەرکەوتوویی دروستکرا!',
       // Settings specific
       'inviteCodeLbl': 'کۆدی بانگهێشتنامە',
-      'shareInviteDesc': 'ئەم کۆدە بەشدار بکە لەگەڵ کارمەندان بۆ ئەوەی بێنە ناو فرۆشگاکەت.',
+      'shareInviteDesc':
+          'ئەم کۆدە بەشدار بکە لەگەڵ کارمەندان بۆ ئەوەی بێنە ناو فرۆشگاکەت.',
       'genDemoData': 'دروستکردنی داتای تاقیکاری',
       'genDemoDesc': 'پڕکردنەوەی فرۆشگاکە بە داتای ڕاستەقینە',
       'generatingDemo': 'دروستکردنی داتای تاقیکاری...',
@@ -1020,7 +1044,8 @@ class Tr {
       'workspace': 'فرۆشگا',
       'inviteEmployeesTitle': 'بانگهێشتکردنی کارمەندان',
       'growWorkspace': 'گەورەکردنی فرۆشگاکەت',
-      'inviteInstructions': 'کاتێک کارمەندەکانت بەرنامەکە دادەبەزێنن، پێیان بڵێ "پەیوەندیکردن بە فرۆشگایەکەوە" هەڵبژێرن. پێویستیان بەم کۆدە ٦ پیتە دەبێت بۆ پەیوەندیکردن.\n\nدوای ئەوەی کۆدەکە دەنووسن، دەبێت بچیتە بەشی بەڕێوەبردنی بەکارهێنەران (Manage Users) بۆ ئەوەی داواکارییەکەیان پەسەند بکەیت پێش ئەوەی بتوانن دەستیان بە فرۆشگاکە بگات.',
+      'inviteInstructions':
+          'کاتێک کارمەندەکانت بەرنامەکە دادەبەزێنن، پێیان بڵێ "پەیوەندیکردن بە فرۆشگایەکەوە" هەڵبژێرن. پێویستیان بەم کۆدە ٦ پیتە دەبێت بۆ پەیوەندیکردن.\n\nدوای ئەوەی کۆدەکە دەنووسن، دەبێت بچیتە بەشی بەڕێوەبردنی بەکارهێنەران (Manage Users) بۆ ئەوەی داواکارییەکەیان پەسەند بکەیت پێش ئەوەی بتوانن دەستیان بە فرۆشگاکە بگات.',
       'secureFullBackup': 'پاراستنی تەواوەتی',
       'backupDesc': 'دابەزاندنی کۆپییەکی تەواوی JSON لە بنکەدراوەی فرۆشگاکەت.',
       'jsonFormat': 'فۆرماتی JSON',
@@ -1031,19 +1056,25 @@ class Tr {
       'exportAuditLogs': 'هەناردەکردنی تۆماری چاودێری',
       'yourInviteCode': 'کۆدی بانگهێشتنامەکەت',
       'shareInviteBtn': 'هاوبەشپێکردنی کۆدی بانگهێشتنامە',
-      'shareInviteMsg': 'وەرە ناو فرۆشگاکەم لە ئارد!\n\nئەم کۆدە بەکاربهێنە: {code} کاتێک هەژمارەکەت دروست دەکەیت.',
-      'joinWorkspaceInfo': 'لە بەڕێوەبەرەکەت بپرسە بۆ کۆدی بانگهێشتنامەی ٦ پیت بۆ ئەوەی پەیوەندی بکەیت بە فرۆشگاکەیانەوە.',
-      'createWorkspaceInfo': 'دروستکردنی فرۆشگایەک تۆ دەکاتە بەڕێوەبەر. دەتوانیت کارمەندەکانت بانگهێشت بکەیت و هەموو زانیارییەکانی فرۆشگا بەڕێوەببەیت.',
+      'shareInviteMsg':
+          'وەرە ناو فرۆشگاکەم لە ئارد!\n\nئەم کۆدە بەکاربهێنە: {code} کاتێک هەژمارەکەت دروست دەکەیت.',
+      'joinWorkspaceInfo':
+          'لە بەڕێوەبەرەکەت بپرسە بۆ کۆدی بانگهێشتنامەی ٦ پیت بۆ ئەوەی پەیوەندی بکەیت بە فرۆشگاکەیانەوە.',
+      'createWorkspaceInfo':
+          'دروستکردنی فرۆشگایەک تۆ دەکاتە بەڕێوەبەر. دەتوانیت کارمەندەکانت بانگهێشت بکەیت و هەموو زانیارییەکانی فرۆشگا بەڕێوەببەیت.',
       'csvFormat': 'فۆرماتی CSV',
-      'business_joined_success': 'پەیوەندیکردن سەرکەوتوو بوو! چاوەڕێی پەسەندکردنی بەڕێوەبەر بکە.',
+      'business_joined_success':
+          'پەیوەندیکردن سەرکەوتوو بوو! چاوەڕێی پەسەندکردنی بەڕێوەبەر بکە.',
       'logoutBusinessBtn': 'چوونەدەرەوە لە فرۆشگا',
       'logoutBusinessTitle': 'چوونەدەرەوە',
-      'logoutBusinessDesc': 'بۆ چوونەدەرەوە لەم فرۆشگایە، تکایە ناوی فرۆشگاکە لە خوارەوە بنووسە بۆ دڵنیابوونەوە:',
+      'logoutBusinessDesc':
+          'بۆ چوونەدەرەوە لەم فرۆشگایە، تکایە ناوی فرۆشگاکە لە خوارەوە بنووسە بۆ دڵنیابوونەوە:',
       'businessNameHintDialog': 'ناوی فرۆشگا',
       'leaveBtn': 'چوونەدەرەوە',
       'logoutProfileTitle': 'چوونەدەرەوە',
       'logoutProfileWarning': 'دڵنیایت دەتەوێت لە هەژمارەکەت بچیتە دەرەوە؟',
-      'businessNameTaken': 'ناوی فرۆشگاکە پێشتر بەکارهێنراوە. تکایە ناوێکی تر هەڵبژێرە.',
+      'businessNameTaken':
+          'ناوی فرۆشگاکە پێشتر بەکارهێنراوە. تکایە ناوێکی تر هەڵبژێرە.',
 
       // Nav bar labels
       'posLabel': 'فرۆشتن',
@@ -1163,7 +1194,8 @@ class Tr {
       'noPaymentHistory': 'هیچ مێژوویەکی پارەدان نەدۆزرایەوە.',
       'historyHub': 'ناوەندی مێژوو',
       'auto_PaymentReport': 'ڕاپۆرتی پارەدان',
-      'deletePaymentConfirm': 'دڵنیایت دەتەوێت ئەم پارەدانە بسڕیتەوە؟ ئەمە باڵانسی کڕیارەکە دەگێڕێتەوە.',
+      'deletePaymentConfirm':
+          'دڵنیایت دەتەوێت ئەم پارەدانە بسڕیتەوە؟ ئەمە باڵانسی کڕیارەکە دەگێڕێتەوە.',
     },
     // ── ARABIC ─────────────────────────────────────────────────
     'ar': {
@@ -1334,7 +1366,7 @@ class Tr {
       'err_permission_denied': 'تم الرفض. ليس لديك صلاحية لأداء هذا الإجراء.',
       'notProvided': 'غير مسجل',
       'noInternetConnection': 'لا يوجد اتصال بالإنترنت',
-    'cancelBtn': 'إلغاء',
+      'cancelBtn': 'إلغاء',
       'yesBtn': 'نعم',
       'delete': 'حذف',
       'print': 'طباعة',
@@ -1426,20 +1458,24 @@ class Tr {
       'reqField': 'حقل مطلوب',
       'reqEmailOrPhone': 'يرجى تقديم بريد إلكتروني أو رقم هاتف',
       'invalidEmail': 'الرجاء إدخال بريد إلكتروني صحيح',
-      'weakPassword': 'يجب أن لا تقل كلمة المرور عن 8 أحرف وتحتوي على حرف كبير ورقم',
+      'weakPassword':
+          'يجب أن لا تقل كلمة المرور عن 8 أحرف وتحتوي على حرف كبير ورقم',
       'invalidPhone': 'الرجاء إدخال رقم هاتف صحيح',
       'forgotLbl': 'هل نسيت كلمة المرور؟',
       'recoveryEmailHint': 'بريد العمل',
       'recoverBtn': 'استرداد العمل',
       'recoverPrompt': 'فقدت الوصول إلى عملك؟',
       'recoverDialogTitle': 'استرداد العمل',
-      'recoverDialogBody': 'أدخل البريد الإلكتروني المخصص للاسترداد المرتبط بعملك. إذا كان موجوداً، سيتم إرسال التعليمات إليه.',
-      'recoverSuccess': 'إذا كان هناك عمل مرتبط بهذا البريد، فقد تم إرسال تعليمات الاسترداد.',
+      'recoverDialogBody':
+          'أدخل البريد الإلكتروني المخصص للاسترداد المرتبط بعملك. إذا كان موجوداً، سيتم إرسال التعليمات إليه.',
+      'recoverSuccess':
+          'إذا كان هناك عمل مرتبط بهذا البريد، فقد تم إرسال تعليمات الاسترداد.',
       'settingsTitle': 'الإعدادات',
 
       // Business Setup
       'businessSetupTitleJoin': 'الانضمام إلى عمل',
-      'businessSetupSubJoin': 'أدخل رمز الدعوة المكون من 6 أحرف المقدم من المسؤول.',
+      'businessSetupSubJoin':
+          'أدخل رمز الدعوة المكون من 6 أحرف المقدم من المسؤول.',
       'businessSetupTitleCreate': 'إنشاء عمل',
       'businessSetupSubCreate': 'ابدأ مساحة عمل جديدة لفريقك.',
       'inviteCodeHint': 'رمز الدعوة (مثل A9F3K2)',
@@ -1453,7 +1489,8 @@ class Tr {
       'business_created_success': 'تم إنشاء العمل بنجاح!',
       // Settings specific
       'inviteCodeLbl': 'رمز الدعوة',
-      'shareInviteDesc': 'شارك هذا الرمز مع الموظفين للسماح لهم بالانضمام إلى مساحة عملك.',
+      'shareInviteDesc':
+          'شارك هذا الرمز مع الموظفين للسماح لهم بالانضمام إلى مساحة عملك.',
       'genDemoData': 'إنشاء بيانات تجريبية',
       'genDemoDesc': 'ملء مساحة العمل ببيانات تجريبية واقعية',
       'generatingDemo': 'جاري إنشاء بيانات تجريبية...',
@@ -1463,9 +1500,11 @@ class Tr {
       'workspace': 'مساحة العمل',
       'inviteEmployeesTitle': 'دعوة الموظفين',
       'growWorkspace': 'توسيع مساحة عملك',
-      'inviteInstructions': 'عندما يقوم موظفوك بتنزيل التطبيق، أخبرهم باختيار "الانضمام إلى عمل". سيحتاجون إلى هذا الرمز المكون من 6 أحرف للاتصال.\n\nبعد إدخال الرمز، يجب عليك الذهاب إلى إدارة المستخدمين (Manage Users) للموافقة على طلبهم قبل أن يتمكنوا من الوصول إلى مساحة العمل.',
+      'inviteInstructions':
+          'عندما يقوم موظفوك بتنزيل التطبيق، أخبرهم باختيار "الانضمام إلى عمل". سيحتاجون إلى هذا الرمز المكون من 6 أحرف للاتصال.\n\nبعد إدخال الرمز، يجب عليك الذهاب إلى إدارة المستخدمين (Manage Users) للموافقة على طلبهم قبل أن يتمكنوا من الوصول إلى مساحة العمل.',
       'secureFullBackup': 'نسخة احتياطية كاملة وآمنة',
-      'backupDesc': 'تنزيل لقطة JSON كاملة لقاعدة بيانات مساحة العمل الخاصة بك.',
+      'backupDesc':
+          'تنزيل لقطة JSON كاملة لقاعدة بيانات مساحة العمل الخاصة بك.',
       'jsonFormat': 'صيغة JSON',
       'exportSuppliers': 'تصدير الموردين',
       'exportPurchases': 'تصدير المشتريات',
@@ -1474,14 +1513,18 @@ class Tr {
       'exportAuditLogs': 'تصدير سجلات التدقيق',
       'yourInviteCode': 'رمز الدعوة الخاص بك',
       'shareInviteBtn': 'مشاركة رمز الدعوة',
-      'shareInviteMsg': 'انضم إلى مساحة العمل الخاصة بي على تطبيق آرد!\n\nأدخل هذا الرمز: {code} عند إعداد حسابك.',
-      'joinWorkspaceInfo': 'اطلب من مديرك رمز الدعوة المكون من 6 أحرف للانضمام إلى مساحة عمله الحالية.',
-      'createWorkspaceInfo': 'إنشاء مساحة عمل يجعلك المسؤول. ستتمكن من دعوة موظفيك وإدارة جميع بيانات المتجر.',
+      'shareInviteMsg':
+          'انضم إلى مساحة العمل الخاصة بي على تطبيق آرد!\n\nأدخل هذا الرمز: {code} عند إعداد حسابك.',
+      'joinWorkspaceInfo':
+          'اطلب من مديرك رمز الدعوة المكون من 6 أحرف للانضمام إلى مساحة عمله الحالية.',
+      'createWorkspaceInfo':
+          'إنشاء مساحة عمل يجعلك المسؤول. ستتمكن من دعوة موظفيك وإدارة جميع بيانات المتجر.',
       'csvFormat': 'تنسيق CSV',
       'business_joined_success': 'تم الانضمام بنجاح! في انتظار موافقة المسؤول.',
       'logoutBusinessBtn': 'تسجيل الخروج من مساحة العمل',
       'logoutBusinessTitle': 'تسجيل الخروج',
-      'logoutBusinessDesc': 'لتسجيل الخروج من مساحة العمل هذه، يرجى كتابة اسم العمل أدناه للتأكيد:',
+      'logoutBusinessDesc':
+          'لتسجيل الخروج من مساحة العمل هذه، يرجى كتابة اسم العمل أدناه للتأكيد:',
       'businessNameHintDialog': 'اسم العمل',
       'leaveBtn': 'تسجيل الخروج',
       'logoutProfileTitle': 'تسجيل الخروج',
@@ -1725,7 +1768,8 @@ class Tr {
       'noPaymentHistory': 'لم يتم العثور على سجل دفعات.',
       'historyHub': 'مركز السجل',
       'auto_PaymentReport': 'تقرير الدفعات',
-      'deletePaymentConfirm': 'هل أنت متأكد أنك تريد حذف هذه الدفعة؟ سيؤدي هذا إلى إرجاع رصيد العميل.',
+      'deletePaymentConfirm':
+          'هل أنت متأكد أنك تريد حذف هذه الدفعة؟ سيؤدي هذا إلى إرجاع رصيد العميل.',
     },
   };
 

@@ -33,7 +33,10 @@ class OrderRepository {
         );
   }
 
-  Stream<List<OrderEntity>> watchOrdersByDateRange(DateTime start, DateTime end) {
+  Stream<List<OrderEntity>> watchOrdersByDateRange(
+    DateTime start,
+    DateTime end,
+  ) {
     return _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -52,7 +55,10 @@ class OrderRepository {
         );
   }
 
-  Future<List<OrderEntity>> getOrdersByDateRange(DateTime start, DateTime end) async {
+  Future<List<OrderEntity>> getOrdersByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
     final snapshot = await _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -125,9 +131,7 @@ class OrderRepository {
       if (!doc.exists) return null;
       final data = doc.data()!;
       if (data['businessId'] != businessId) return null;
-      return OrderEntity.fromJson(
-        _sanitizeData({'id': doc.id, ...data}),
-      );
+      return OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...data}));
     });
   }
 
@@ -206,8 +210,14 @@ class OrderRepository {
     final batch = _firestore.batch();
 
     // Use atomic sequence for order number
-    final orderNum = await SequenceService.getNextSequence('orders', businessId: businessId);
-    final finalOrder = order.copyWith(orderNumber: orderNum, businessId: businessId);
+    final orderNum = await SequenceService.getNextSequence(
+      'orders',
+      businessId: businessId,
+    );
+    final finalOrder = order.copyWith(
+      orderNumber: orderNum,
+      businessId: businessId,
+    );
 
     final orderRef = _firestore.collection('orders').doc(finalOrder.id);
     batch.set(orderRef, finalOrder.toJson());
@@ -454,5 +464,4 @@ class OrderRepository {
       },
     );
   }
-
 }

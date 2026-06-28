@@ -81,11 +81,7 @@ class UniversalImage extends StatelessWidget {
       height: height,
       color: Colors.grey.shade200,
       child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CustomLoader(),
-        ),
+        child: SizedBox(width: 20, height: 20, child: CustomLoader()),
       ),
     );
   }

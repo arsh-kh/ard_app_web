@@ -21,11 +21,12 @@ class AsyncValueWidget<T> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lang = ref.watch(localeProvider).languageCode;
-    
+
     return value.when(
       data: data,
       loading: loading ?? () => const ShimmerListLoader(),
-      error: error ??
+      error:
+          error ??
           (err, stack) => Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),

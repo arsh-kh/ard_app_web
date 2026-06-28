@@ -21,7 +21,8 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with TickerProviderStateMixin {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
+    with TickerProviderStateMixin {
   late final AnimationController _cardsAnimationController;
   late final AnimationController _pageIndicatorAnimationController;
 
@@ -42,7 +43,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
     );
     _pageIndicatorAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700), // Matched to card slide duration for smoothness
+      duration: const Duration(
+        milliseconds: 700,
+      ), // Matched to card slide duration for smoothness
     );
 
     _setPageIndicatorAnimation();
@@ -66,13 +69,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
     setState(() {
       _slideAnimations = [
         Tween<Offset>(begin: const Offset(3.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _cardsAnimationController, curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic)),
+          CurvedAnimation(
+            parent: _cardsAnimationController,
+            curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic),
+          ),
         ),
         Tween<Offset>(begin: const Offset(1.5, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _cardsAnimationController, curve: const Interval(0.1, 0.9, curve: Curves.easeOutCubic)),
+          CurvedAnimation(
+            parent: _cardsAnimationController,
+            curve: const Interval(0.1, 0.9, curve: Curves.easeOutCubic),
+          ),
         ),
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _cardsAnimationController, curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic)),
+          CurvedAnimation(
+            parent: _cardsAnimationController,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+          ),
         ),
       ];
     });
@@ -83,13 +95,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
     setState(() {
       _slideAnimations = [
         Tween<Offset>(begin: Offset.zero, end: const Offset(-3.0, 0.0)).animate(
-          CurvedAnimation(parent: _cardsAnimationController, curve: const Interval(0.0, 0.8, curve: Curves.easeInCubic)),
+          CurvedAnimation(
+            parent: _cardsAnimationController,
+            curve: const Interval(0.0, 0.8, curve: Curves.easeInCubic),
+          ),
         ),
         Tween<Offset>(begin: Offset.zero, end: const Offset(-1.5, 0.0)).animate(
-          CurvedAnimation(parent: _cardsAnimationController, curve: const Interval(0.1, 0.9, curve: Curves.easeInCubic)),
+          CurvedAnimation(
+            parent: _cardsAnimationController,
+            curve: const Interval(0.1, 0.9, curve: Curves.easeInCubic),
+          ),
         ),
         Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-          CurvedAnimation(parent: _cardsAnimationController, curve: const Interval(0.2, 1.0, curve: Curves.easeInCubic)),
+          CurvedAnimation(
+            parent: _cardsAnimationController,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeInCubic),
+          ),
         ),
       ];
     });
@@ -101,10 +122,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
     final multiplier = isClockwiseAnimation ? 2 : -2;
 
     setState(() {
-      _pageIndicatorAnimation = Tween(
-        begin: 0.0,
-        end: multiplier * pi,
-      ).animate(
+      _pageIndicatorAnimation = Tween(begin: 0.0, end: multiplier * pi).animate(
         CurvedAnimation(
           parent: _pageIndicatorAnimationController,
           curve: Curves.easeInOutCubic, // Much smoother than easeIn
@@ -122,7 +140,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
 
     if (_pageIndicatorAnimationController.status == AnimationStatus.dismissed) {
       _pageIndicatorAnimationController.forward().ignore();
-      
+
       // Update the indicator exactly in the middle of the 700ms spin (350ms)
       // so the segment turns black while it's rotating fastest, hiding the change.
       Future.delayed(const Duration(milliseconds: 350), () {
@@ -132,29 +150,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
           });
         }
       });
-      
+
       setState(() {
         _isTextVisible = false;
       });
-      
+
       _setCardsSlideOutAnimation();
       await _cardsAnimationController.forward();
-      
+
       if (!mounted) return;
-      
+
       setState(() {
         _currentPage++;
         _isTextVisible = true;
       });
-      
+
       _setCardsSlideInAnimation();
       await _cardsAnimationController.forward();
-      
+
       _setPageIndicatorAnimation(isClockwiseAnimation: true);
     }
   }
 
-  Widget _buildCardContent(IconData icon, String label, {required bool isDark}) {
+  Widget _buildCardContent(
+    IconData icon,
+    String label, {
+    required bool isDark,
+  }) {
     final color = isDark ? Colors.white : Colors.black;
     return GlassCard(
       isDark: isDark,
@@ -185,8 +207,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
       case 1:
         // Gestures active (activeIndex = null)
         cards = [
-          _buildCardContent(Icons.waving_hand_rounded, Tr.t('cardWelcome', lang), isDark: false),
-          _buildCardContent(Icons.dashboard_rounded, Tr.t('cardManage', lang), isDark: true),
+          _buildCardContent(
+            Icons.waving_hand_rounded,
+            Tr.t('cardWelcome', lang),
+            isDark: false,
+          ),
+          _buildCardContent(
+            Icons.dashboard_rounded,
+            Tr.t('cardManage', lang),
+            isDark: true,
+          ),
         ];
         break;
       case 2:
@@ -207,16 +237,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
       case 3:
         // Theme screen: 2 cards, synced to theme state
         cards = [
-          _buildCardContent(Icons.light_mode_rounded, Tr.t('themeLight', lang), isDark: false),
-          _buildCardContent(Icons.dark_mode_rounded, Tr.t('themeDark', lang), isDark: true),
+          _buildCardContent(
+            Icons.light_mode_rounded,
+            Tr.t('themeLight', lang),
+            isDark: false,
+          ),
+          _buildCardContent(
+            Icons.dark_mode_rounded,
+            Tr.t('themeDark', lang),
+            isDark: true,
+          ),
         ];
         final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
         activeIndex = isDarkTheme ? 1 : 0;
         break;
       case 4:
         cards = [
-          _buildCardContent(Icons.task_alt_rounded, Tr.t('cardReady', lang), isDark: false),
-          _buildCardContent(Icons.rocket_launch_rounded, Tr.t('cardStart', lang), isDark: true),
+          _buildCardContent(
+            Icons.task_alt_rounded,
+            Tr.t('cardReady', lang),
+            isDark: false,
+          ),
+          _buildCardContent(
+            Icons.rocket_launch_rounded,
+            Tr.t('cardStart', lang),
+            isDark: true,
+          ),
         ];
         break;
       default:
@@ -241,12 +287,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Theme.of(context).colorScheme.onSurface : Colors.transparent,
+            color: isSelected
+                ? Theme.of(context).colorScheme.onSurface
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected 
-                  ? Colors.transparent 
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+              color: isSelected
+                  ? Colors.transparent
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
               width: 1.5,
             ),
           ),
@@ -258,7 +308,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.surface
+                        : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -320,50 +372,65 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
           ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
           const SizedBox(height: 8),
           Text(
-            Tr.t(descKey, lang),
-            style: TextStyle(
-              fontSize: 15,
-              height: 1.4,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ).animate().fadeIn(duration: 400.ms, delay: 100.ms).slideY(begin: 0.2, end: 0),
-          
+                Tr.t(descKey, lang),
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.4,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 400.ms, delay: 100.ms)
+              .slideY(begin: 0.2, end: 0),
+
           if (_currentPage == 2) ...[
             const SizedBox(height: 16),
             Column(
               children: [
                 _buildOptionButton(
-                  'English', 
-                  lang == 'en', 
-                  () => ref.read(localeProvider.notifier).setLocale(const Locale('en'))
+                  'English',
+                  lang == 'en',
+                  () => ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('en')),
                 ),
                 _buildOptionButton(
-                  'کوردی', 
-                  lang == 'ku', 
-                  () => ref.read(localeProvider.notifier).setLocale(const Locale('ku'))
+                  'کوردی',
+                  lang == 'ku',
+                  () => ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('ku')),
                 ),
                 _buildOptionButton(
-                  'العربية', 
-                  lang == 'ar', 
-                  () => ref.read(localeProvider.notifier).setLocale(const Locale('ar'))
+                  'العربية',
+                  lang == 'ar',
+                  () => ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('ar')),
                 ),
               ],
             ).animate().fadeIn(duration: 400.ms, delay: 200.ms),
           ],
-          
+
           if (_currentPage == 3) ...[
             const SizedBox(height: 16),
             Column(
               children: [
                 _buildOptionButton(
-                  Tr.t('themeLight', lang), 
-                  Theme.of(context).brightness == Brightness.light, 
-                  () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light)
+                  Tr.t('themeLight', lang),
+                  Theme.of(context).brightness == Brightness.light,
+                  () => ref
+                      .read(themeModeProvider.notifier)
+                      .setThemeMode(ThemeMode.light),
                 ),
                 _buildOptionButton(
-                  Tr.t('themeDark', lang), 
-                  Theme.of(context).brightness == Brightness.dark, 
-                  () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark)
+                  Tr.t('themeDark', lang),
+                  Theme.of(context).brightness == Brightness.dark,
+                  () => ref
+                      .read(themeModeProvider.notifier)
+                      .setThemeMode(ThemeMode.dark),
                 ),
               ],
             ).animate().fadeIn(duration: 400.ms, delay: 200.ms),
@@ -377,13 +444,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDarkTheme ? const Color(0xFF0A0A0A) : const Color(0xFFF9F9F9);
+    final bgColor = isDarkTheme
+        ? const Color(0xFF0A0A0A)
+        : const Color(0xFFF9F9F9);
 
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), // Adjusted vertical padding
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ), // Adjusted vertical padding
           child: Column(
             children: [
               // Header
@@ -394,13 +466,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
                   child: Text(
                     Tr.t('skipBtn', lang),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              
+
               // Cards Section (Takes up all available middle space, perfectly centering the cards)
               Expanded(
                 child: Padding(
@@ -413,16 +487,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
                   ),
                 ),
               ),
-              
+
               // Text and Controls Section (Hugs the bottom of the screen tightly)
               Column(
                 mainAxisSize: MainAxisSize.min, // Hugs its content
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildTextContent(lang),
-                  
-                  const SizedBox(height: 32), // Strictly controlled, perfect gap between text and next button
-                  
+
+                  const SizedBox(
+                    height: 32,
+                  ), // Strictly controlled, perfect gap between text and next button
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -432,7 +508,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
                         builder: (_, Widget? child) {
                           return OnboardingPageIndicator(
                             angle: _pageIndicatorAnimation.value,
-                            currentPage: _indicatorPage, // Uses perfectly timed indicator page
+                            currentPage:
+                                _indicatorPage, // Uses perfectly timed indicator page
                             totalPages: _totalPages,
                             child: child!,
                           );
@@ -450,7 +527,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> with Ticker
                             child: Directionality(
                               textDirection: TextDirection.ltr,
                               child: Icon(
-                                _currentPage == _totalPages ? Icons.check_rounded : Icons.arrow_forward_rounded,
+                                _currentPage == _totalPages
+                                    ? Icons.check_rounded
+                                    : Icons.arrow_forward_rounded,
                                 color: Theme.of(context).colorScheme.surface,
                               ),
                             ),

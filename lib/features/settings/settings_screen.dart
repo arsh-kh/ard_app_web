@@ -33,7 +33,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final authState = ref.watch(authProvider);
     final user = authState.user;
     final langCode = currentLocale.languageCode;
-    
+
     final businessAsync = ref.watch(currentBusinessEntityProvider);
     final business = businessAsync.valueOrNull;
 
@@ -103,8 +103,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: theme.colorScheme.primary
-                                        .withValues(alpha: 0.2),
+                                    color: theme.colorScheme.primary.withValues(
+                                      alpha: 0.2,
+                                    ),
                                     width: 2,
                                   ),
                                 ),
@@ -255,7 +256,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 32),
 
                   if (business != null) ...[
-                    _buildSectionLabel(Tr.t('workspace', langCode)).animate().fadeIn(delay: 120.ms).slideY(begin: 0.2),
+                    _buildSectionLabel(
+                      Tr.t('workspace', langCode),
+                    ).animate().fadeIn(delay: 120.ms).slideY(begin: 0.2),
                     const SizedBox(height: 8),
                     Container(
                       decoration: BoxDecoration(
@@ -282,9 +285,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   String typedName = '';
                                   return StatefulBuilder(
                                     builder: (context, setState) {
-                                      final isMatch = typedName.trim().toLowerCase() == business.name.toLowerCase();
+                                      final isMatch =
+                                          typedName.trim().toLowerCase() ==
+                                          business.name.toLowerCase();
                                       return AlertDialog(
-                                        backgroundColor: theme.colorScheme.surface,
+                                        backgroundColor:
+                                            theme.colorScheme.surface,
                                         title: Text(
                                           Tr.t('logoutBusinessTitle', langCode),
                                           style: TextStyle(
@@ -294,22 +300,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                         ),
                                         content: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
                                           children: [
                                             Text(
-                                              Tr.t('logoutBusinessDesc', langCode),
+                                              Tr.t(
+                                                'logoutBusinessDesc',
+                                                langCode,
+                                              ),
                                               style: TextStyle(
-                                                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withValues(alpha: 0.8),
                                               ),
                                             ),
                                             const SizedBox(height: 12),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12,
+                                                    horizontal: 16,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-                                                borderRadius: BorderRadius.circular(12),
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withValues(alpha: 0.05),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                                 border: Border.all(
-                                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                                                  color: theme
+                                                      .colorScheme
+                                                      .onSurface
+                                                      .withValues(alpha: 0.1),
                                                 ),
                                               ),
                                               alignment: Alignment.center,
@@ -318,7 +342,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                 style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.w800,
-                                                  color: theme.colorScheme.onSurface,
+                                                  color: theme
+                                                      .colorScheme
+                                                      .onSurface,
                                                   letterSpacing: 1.2,
                                                 ),
                                                 textAlign: TextAlign.center,
@@ -331,11 +357,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                 setState(() => typedName = val);
                                               },
                                               decoration: InputDecoration(
-                                                hintText: Tr.t('businessNameHintDialog', langCode),
+                                                hintText: Tr.t(
+                                                  'businessNameHintDialog',
+                                                  langCode,
+                                                ),
                                                 filled: true,
-                                                fillColor: theme.colorScheme.surfaceContainerHighest,
+                                                fillColor: theme
+                                                    .colorScheme
+                                                    .surfaceContainerHighest,
                                                 border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                   borderSide: BorderSide.none,
                                                 ),
                                               ),
@@ -347,7 +379,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                             onPressed: () => Navigator.pop(ctx),
                                             child: Text(
                                               Tr.t('cancelBtn', langCode),
-                                              style: TextStyle(color: theme.colorScheme.onSurface),
+                                              style: TextStyle(
+                                                color:
+                                                    theme.colorScheme.onSurface,
+                                              ),
                                             ),
                                           ),
                                           ElevatedButton(
@@ -357,18 +392,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                                     final userId = user?.id;
                                                     if (userId != null) {
                                                       try {
-                                                        await ref.read(userRepositoryProvider).updateUserBusinessAndRole(userId, '', 'employee', 'pending');
+                                                        await ref
+                                                            .read(
+                                                              userRepositoryProvider,
+                                                            )
+                                                            .updateUserBusinessAndRole(
+                                                              userId,
+                                                              '',
+                                                              'employee',
+                                                              'pending',
+                                                            );
                                                       } catch (e) {
-                                                        debugPrint('Error leaving workspace: $e');
+                                                        debugPrint(
+                                                          'Error leaving workspace: $e',
+                                                        );
                                                       }
                                                     }
                                                   }
                                                 : null,
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: theme.colorScheme.onSurface,
-                                              foregroundColor: theme.colorScheme.surface,
+                                              backgroundColor:
+                                                  theme.colorScheme.onSurface,
+                                              foregroundColor:
+                                                  theme.colorScheme.surface,
                                             ),
-                                            child: Text(Tr.t('leaveBtn', langCode)),
+                                            child: Text(
+                                              Tr.t('leaveBtn', langCode),
+                                            ),
                                           ),
                                         ],
                                       );
@@ -431,7 +481,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             theme: theme,
                             onTap: () => context.push(Routes.exportData),
                           ),
-
                         ],
                       ),
                     ).animate().fadeIn(delay: 235.ms).slideY(begin: 0.2),
@@ -485,7 +534,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.1,
+                          ),
                           width: 1.5,
                         ),
                       ),
@@ -509,19 +560,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.8,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    Tr.t('wipeAllDataBtn', langCode),
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  Tr.t('wipeAllDataBtn', langCode),
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.8),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
                                   ),
+                                ),
                               ],
                             ),
                           ),
@@ -554,7 +608,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               content: Text(
                                 Tr.t('logoutProfileWarning', langCode),
                                 style: TextStyle(
-                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.8,
+                                  ),
                                 ),
                               ),
                               actions: [
@@ -562,7 +618,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   onPressed: () => Navigator.pop(ctx),
                                   child: Text(
                                     Tr.t('cancelBtn', langCode),
-                                    style: TextStyle(color: theme.colorScheme.onSurface),
+                                    style: TextStyle(
+                                      color: theme.colorScheme.onSurface,
+                                    ),
                                   ),
                                 ),
                                 ElevatedButton(
@@ -571,7 +629,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     ref.read(authProvider.notifier).logout();
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.colorScheme.onSurface,
+                                    backgroundColor:
+                                        theme.colorScheme.onSurface,
                                     foregroundColor: theme.colorScheme.surface,
                                   ),
                                   child: Text(logoutLabel),
@@ -590,7 +649,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             child: Text(
                               logoutLabel,
                               style: TextStyle(
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.8,
+                                ),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),

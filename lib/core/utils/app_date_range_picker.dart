@@ -3,7 +3,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'app_translations.dart';
 
 /// Opens a custom, intuitive Date Range Picker dialog.
-/// It uses standard DatePickers for Start and End dates separately, 
+/// It uses standard DatePickers for Start and End dates separately,
 /// avoiding the confusing native Range Picker UI.
 Future<DateTimeRange?> showAppDateRangePicker({
   required BuildContext context,
@@ -50,12 +50,51 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
     _start = widget.initialDateRange?.start;
     _end = widget.initialDateRange?.end;
   }
-  
+
   String t(String key) => Tr.t(key, widget.langCode);
 
-  static const kuMonths = ['مانگی یەک','مانگی دوو','مانگی سێ','مانگی چوار','مانگی پێنج','مانگی شەش','مانگی حەوت','مانگی هەشت','مانگی نۆ','مانگی دە','مانگی یانزە','مانگی دوانزە'];
-  static const arMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-  static const enMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  static const kuMonths = [
+    'مانگی یەک',
+    'مانگی دوو',
+    'مانگی سێ',
+    'مانگی چوار',
+    'مانگی پێنج',
+    'مانگی شەش',
+    'مانگی حەوت',
+    'مانگی هەشت',
+    'مانگی نۆ',
+    'مانگی دە',
+    'مانگی یانزە',
+    'مانگی دوانزە',
+  ];
+  static const arMonths = [
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ];
+  static const enMonths = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   String _getMonthName(int month) {
     if (widget.langCode == 'ku') return kuMonths[month - 1];
@@ -63,33 +102,48 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
     return enMonths[month - 1];
   }
 
-  Future<int?> _showGridPicker(BuildContext context, List<String> items, int selectedIndex, String title) {
+  Future<int?> _showGridPicker(
+    BuildContext context,
+    List<String> items,
+    int selectedIndex,
+    String title,
+  ) {
     // Perfectly calculate the exact scroll position before rendering to avoid frame lag
     final double viewportHeight = MediaQuery.of(context).size.height * 0.5;
     final int totalRows = (items.length / 3).ceil();
-    final double contentHeight = totalRows * 60.0 - 12.0; // 48 height + 12 spacing
-    
+    final double contentHeight =
+        totalRows * 60.0 - 12.0; // 48 height + 12 spacing
+
     double initialOffset = 0.0;
     if (contentHeight > viewportHeight) {
       final double maxScroll = contentHeight - viewportHeight;
       final int targetRow = selectedIndex ~/ 3;
       double offset = targetRow * 60.0;
-      offset -= (viewportHeight / 2) - 30; // Center it vertically in the viewport
+      offset -=
+          (viewportHeight / 2) - 30; // Center it vertically in the viewport
       initialOffset = offset.clamp(0.0, maxScroll);
     }
 
-    final ScrollController scrollController = ScrollController(initialScrollOffset: initialOffset);
+    final ScrollController scrollController = ScrollController(
+      initialScrollOffset: initialOffset,
+    );
 
     return showDialog<int>(
       context: context,
       builder: (c) {
         final theme = Theme.of(c);
-        final baseColor = theme.brightness == Brightness.dark ? Colors.white : Colors.black;
-        final onBase = theme.brightness == Brightness.dark ? Colors.black : Colors.white;
+        final baseColor = theme.brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black;
+        final onBase = theme.brightness == Brightness.dark
+            ? Colors.black
+            : Colors.white;
 
         return Dialog(
           backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -97,11 +151,17 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: baseColor),
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: baseColor,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(c).size.height * 0.5),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(c).size.height * 0.5,
+                  ),
                   child: Directionality(
                     textDirection: RegExp(r'^[0-9]+$').hasMatch(items.first)
                         ? TextDirection.ltr
@@ -110,53 +170,60 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                       controller: scrollController,
                       physics: const BouncingScrollPhysics(),
                       shrinkWrap: true,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisExtent: 48, // Fixed height for precise scrolling math
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                    ),
-                    itemCount: items.length,
-                    itemBuilder: (ctx, i) {
-                      final isSelected = i == selectedIndex;
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => Navigator.pop(c, i),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isSelected ? baseColor : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisExtent:
+                                48, // Fixed height for precise scrolling math
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
                           ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            items[i],
-                            style: TextStyle(
-                              color: isSelected ? onBase : baseColor,
-                              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                              fontSize: 16,
+                      itemCount: items.length,
+                      itemBuilder: (ctx, i) {
+                        final isSelected = i == selectedIndex;
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => Navigator.pop(c, i),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? baseColor
+                                  : theme.colorScheme.surfaceContainerHighest
+                                        .withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              items[i],
+                              style: TextStyle(
+                                color: isSelected ? onBase : baseColor,
+                                fontWeight: isSelected
+                                    ? FontWeight.w900
+                                    : FontWeight.w600,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
                 ),
               ],
             ),
           ),
         );
-      }
+      },
     );
   }
 
   Future<void> _pickDate(bool isStart) async {
-    final initial = isStart 
-        ? (_start ?? DateTime.now()) 
+    final initial = isStart
+        ? (_start ?? DateTime.now())
         : (_end ?? _start ?? DateTime.now());
-        
-    final initialClamped = initial.isBefore(widget.firstDate) 
-        ? widget.firstDate 
+
+    final initialClamped = initial.isBefore(widget.firstDate)
+        ? widget.firstDate
         : (initial.isAfter(widget.lastDate) ? widget.lastDate : initial);
 
     final first = isStart ? widget.firstDate : (_start ?? widget.firstDate);
@@ -168,7 +235,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
         final isDark = theme.brightness == Brightness.dark;
         final baseColor = isDark ? Colors.white : Colors.black;
         final onBase = isDark ? Colors.black : Colors.white;
-        
+
         DateTime tempSelectedDate = initialClamped;
         int displayedMonth = tempSelectedDate.month;
         int displayedYear = tempSelectedDate.year;
@@ -176,7 +243,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
 
         return Dialog(
           backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           child: StatefulBuilder(
             builder: (ctx, setState) {
               return Padding(
@@ -185,7 +254,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      isStart ? t('dpStartDate').toUpperCase() : t('dpEndDate').toUpperCase(),
+                      isStart
+                          ? t('dpStartDate').toUpperCase()
+                          : t('dpEndDate').toUpperCase(),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -193,7 +264,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // FOOLPROOF YEAR & MONTH STEPPERS (WITH GRID PICKER)
                     // FOOLPROOF YEAR & MONTH STEPPERS (WITH GRID PICKER)
                     Column(
@@ -202,70 +273,123 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                         Container(
                           height: 48,
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.keyboard_double_arrow_right),
+                                icon: const Icon(
+                                  Icons.keyboard_double_arrow_right,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     int y = displayedYear - 1;
                                     if (y < first.year) return;
                                     displayedYear = y;
-                                    if (y == first.year && displayedMonth < first.month) displayedMonth = first.month;
-                                    
+                                    if (y == first.year &&
+                                        displayedMonth < first.month)
+                                      displayedMonth = first.month;
+
                                     int d = tempSelectedDate.day;
-                                    final maxDays = DateTime(displayedYear, displayedMonth + 1, 0).day;
+                                    final maxDays = DateTime(
+                                      displayedYear,
+                                      displayedMonth + 1,
+                                      0,
+                                    ).day;
                                     if (d > maxDays) d = maxDays;
-                                    tempSelectedDate = DateTime(displayedYear, displayedMonth, d);
+                                    tempSelectedDate = DateTime(
+                                      displayedYear,
+                                      displayedMonth,
+                                      d,
+                                    );
                                     calendarKey = UniqueKey();
                                   });
                                 },
                               ),
                               InkWell(
                                 onTap: () async {
-                                  final totalYears = widget.lastDate.year - first.year + 1;
-                                  final items = List.generate(totalYears, (i) => '${first.year + i}');
-                                  final res = await _showGridPicker(ctx, items, displayedYear - first.year, '$displayedYear');
+                                  final totalYears =
+                                      widget.lastDate.year - first.year + 1;
+                                  final items = List.generate(
+                                    totalYears,
+                                    (i) => '${first.year + i}',
+                                  );
+                                  final res = await _showGridPicker(
+                                    ctx,
+                                    items,
+                                    displayedYear - first.year,
+                                    '$displayedYear',
+                                  );
                                   if (res != null) {
                                     setState(() {
                                       int y = first.year + res;
                                       displayedYear = y;
-                                      if (y == first.year && displayedMonth < first.month) displayedMonth = first.month;
-                                      if (y == widget.lastDate.year && displayedMonth > widget.lastDate.month) displayedMonth = widget.lastDate.month;
-                                      
+                                      if (y == first.year &&
+                                          displayedMonth < first.month)
+                                        displayedMonth = first.month;
+                                      if (y == widget.lastDate.year &&
+                                          displayedMonth >
+                                              widget.lastDate.month)
+                                        displayedMonth = widget.lastDate.month;
+
                                       int d = tempSelectedDate.day;
-                                      final maxDays = DateTime(displayedYear, displayedMonth + 1, 0).day;
+                                      final maxDays = DateTime(
+                                        displayedYear,
+                                        displayedMonth + 1,
+                                        0,
+                                      ).day;
                                       if (d > maxDays) d = maxDays;
-                                      tempSelectedDate = DateTime(displayedYear, displayedMonth, d);
+                                      tempSelectedDate = DateTime(
+                                        displayedYear,
+                                        displayedMonth,
+                                        d,
+                                      );
                                       calendarKey = UniqueKey();
                                     });
                                   }
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
                                   child: Text(
                                     '$displayedYear',
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: baseColor),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: baseColor,
+                                    ),
                                   ),
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.keyboard_double_arrow_left),
+                                icon: const Icon(
+                                  Icons.keyboard_double_arrow_left,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     int y = displayedYear + 1;
                                     if (y > widget.lastDate.year) return;
                                     displayedYear = y;
-                                    if (y == widget.lastDate.year && displayedMonth > widget.lastDate.month) displayedMonth = widget.lastDate.month;
-                                    
+                                    if (y == widget.lastDate.year &&
+                                        displayedMonth > widget.lastDate.month)
+                                      displayedMonth = widget.lastDate.month;
+
                                     int d = tempSelectedDate.day;
-                                    final maxDays = DateTime(displayedYear, displayedMonth + 1, 0).day;
+                                    final maxDays = DateTime(
+                                      displayedYear,
+                                      displayedMonth + 1,
+                                      0,
+                                    ).day;
                                     if (d > maxDays) d = maxDays;
-                                    tempSelectedDate = DateTime(displayedYear, displayedMonth, d);
+                                    tempSelectedDate = DateTime(
+                                      displayedYear,
+                                      displayedMonth,
+                                      d,
+                                    );
                                     calendarKey = UniqueKey();
                                   });
                                 },
@@ -278,7 +402,8 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                         Container(
                           height: 48,
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Row(
@@ -290,11 +415,16 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                   setState(() {
                                     int m = displayedMonth - 1;
                                     int y = displayedYear;
-                                    if (m < 1) { m = 12; y--; }
-                                    if (y < first.year || (y == first.year && m < first.month)) return; // Out of bounds
+                                    if (m < 1) {
+                                      m = 12;
+                                      y--;
+                                    }
+                                    if (y < first.year ||
+                                        (y == first.year && m < first.month))
+                                      return; // Out of bounds
                                     displayedMonth = m;
                                     displayedYear = y;
-                                    
+
                                     int d = tempSelectedDate.day;
                                     final maxDays = DateTime(y, m + 1, 0).day;
                                     if (d > maxDays) d = maxDays;
@@ -305,27 +435,54 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                               ),
                               InkWell(
                                 onTap: () async {
-                                  final items = List.generate(12, (i) => _getMonthName(i + 1));
-                                  final res = await _showGridPicker(ctx, items, displayedMonth - 1, _getMonthName(displayedMonth));
+                                  final items = List.generate(
+                                    12,
+                                    (i) => _getMonthName(i + 1),
+                                  );
+                                  final res = await _showGridPicker(
+                                    ctx,
+                                    items,
+                                    displayedMonth - 1,
+                                    _getMonthName(displayedMonth),
+                                  );
                                   if (res != null) {
                                     setState(() {
                                       int m = res + 1;
-                                      if (displayedYear == first.year && m < first.month) m = first.month;
-                                      if (displayedYear == widget.lastDate.year && m > widget.lastDate.month) m = widget.lastDate.month;
+                                      if (displayedYear == first.year &&
+                                          m < first.month)
+                                        m = first.month;
+                                      if (displayedYear ==
+                                              widget.lastDate.year &&
+                                          m > widget.lastDate.month)
+                                        m = widget.lastDate.month;
                                       displayedMonth = m;
                                       int d = tempSelectedDate.day;
-                                      final maxDays = DateTime(displayedYear, m + 1, 0).day;
+                                      final maxDays = DateTime(
+                                        displayedYear,
+                                        m + 1,
+                                        0,
+                                      ).day;
                                       if (d > maxDays) d = maxDays;
-                                      tempSelectedDate = DateTime(displayedYear, m, d);
+                                      tempSelectedDate = DateTime(
+                                        displayedYear,
+                                        m,
+                                        d,
+                                      );
                                       calendarKey = UniqueKey();
                                     });
                                   }
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
                                   child: Text(
                                     _getMonthName(displayedMonth),
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: baseColor),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: baseColor,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -335,11 +492,17 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                   setState(() {
                                     int m = displayedMonth + 1;
                                     int y = displayedYear;
-                                    if (m > 12) { m = 1; y++; }
-                                    if (y > widget.lastDate.year || (y == widget.lastDate.year && m > widget.lastDate.month)) return; // Out of bounds
+                                    if (m > 12) {
+                                      m = 1;
+                                      y++;
+                                    }
+                                    if (y > widget.lastDate.year ||
+                                        (y == widget.lastDate.year &&
+                                            m > widget.lastDate.month))
+                                      return; // Out of bounds
                                     displayedMonth = m;
                                     displayedYear = y;
-                                    
+
                                     int d = tempSelectedDate.day;
                                     final maxDays = DateTime(y, m + 1, 0).day;
                                     if (d > maxDays) d = maxDays;
@@ -403,13 +566,19 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                               foregroundColor: baseColor.withValues(alpha: 0.6),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
-                            child: Text(t('cancelBtn'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text(
+                              t('cancelBtn'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => Navigator.pop(ctx, tempSelectedDate),
+                            onPressed: () =>
+                                Navigator.pop(ctx, tempSelectedDate),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: baseColor,
                               foregroundColor: onBase,
@@ -417,7 +586,12 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                               shape: const StadiumBorder(),
                               elevation: 0,
                             ),
-                            child: Text(t('dpSave'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text(
+                              t('dpSave'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -451,9 +625,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
     final theme = Theme.of(context);
     final fg = theme.colorScheme.onSurface;
     final bg = theme.colorScheme.surface;
-    
+
     // We use English format for dates to keep numbers readable (e.g. 2026/06/15)
-    final fmt = DateFormat('yyyy/MM/dd'); 
+    final fmt = DateFormat('yyyy/MM/dd');
 
     return Dialog(
       backgroundColor: bg,
@@ -474,7 +648,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // Start Date Button
             _buildDateButton(
               label: t('dpStartDate'),
@@ -484,7 +658,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               onTap: () => _pickDate(true),
             ),
             const SizedBox(height: 16),
-            
+
             // End Date Button
             _buildDateButton(
               label: t('dpEndDate'),
@@ -494,7 +668,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               onTap: () => _pickDate(false),
             ),
             const SizedBox(height: 32),
-            
+
             // Action Buttons
             Row(
               children: [
@@ -519,11 +693,14 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                       ),
                       elevation: 0,
                     ),
-                    onPressed: (_start != null && _end != null) 
-                      ? () {
-                          Navigator.pop(context, DateTimeRange(start: _start!, end: _end!));
-                        }
-                      : null,
+                    onPressed: (_start != null && _end != null)
+                        ? () {
+                            Navigator.pop(
+                              context,
+                              DateTimeRange(start: _start!, end: _end!),
+                            );
+                          }
+                        : null,
                     child: Text(
                       t('dpSave'),
                       style: const TextStyle(
@@ -569,7 +746,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               color: fg.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: date != null ? fg.withValues(alpha: 0.3) : Colors.transparent,
+                color: date != null
+                    ? fg.withValues(alpha: 0.3)
+                    : Colors.transparent,
               ),
             ),
             child: Row(
@@ -582,7 +761,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                     style: TextStyle(
                       fontSize: 16,
                       color: date != null ? fg : fg.withValues(alpha: 0.4),
-                      fontWeight: date != null ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: date != null
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       letterSpacing: 1.0,
                     ),
                   ),

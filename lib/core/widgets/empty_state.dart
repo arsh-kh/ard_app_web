@@ -21,7 +21,6 @@ class AnimatedEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
