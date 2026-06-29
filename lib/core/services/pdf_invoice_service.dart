@@ -32,10 +32,16 @@ class PdfInvoiceService {
     );
 
     // Load APPLogo to use as the baker placeholder if needed
-    final ByteData logoData = await rootBundle.load('assets/images/APPLogo.png');
+    final ByteData logoData = await rootBundle.load(
+      'assets/images/APPLogo.png',
+    );
     final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
 
-    final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
+    final langCode = isKurdish
+        ? 'ku'
+        : isArabic
+        ? 'ar'
+        : 'en';
 
     // Translations
     final String shopName = Tr.t('pdfShopName', langCode);
@@ -123,7 +129,10 @@ class PdfInvoiceService {
                   children: [
                     pw.Text(
                       tDear,
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                     ),
                     pw.Text(
                       customer.businessName,
@@ -135,7 +144,10 @@ class PdfInvoiceService {
                   children: [
                     pw.Text(
                       tDate,
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                     ),
                     pw.Text(
                       dateFormat.format(order.orderDate),
@@ -173,7 +185,7 @@ class PdfInvoiceService {
                   final item = entry.value;
                   final product = products.firstWhere(
                     (p) => p.id == item.productId,
-                    orElse: () => ProductEntity(
+                    orElse: () => const ProductEntity(
                       id: '',
                       name: 'Unknown',
                       stockQuantity: 0,
@@ -197,8 +209,8 @@ class PdfInvoiceService {
                       _buildCell(CurrencyFormatter.format(totalItemCost)),
                     ],
                   );
-                }).toList(),
-                
+                }),
+
                 // Add empty rows to match the style of the picture
                 ...List.generate(
                   (10 - items.length > 0) ? 10 - items.length : 0,
@@ -218,16 +230,19 @@ class PdfInvoiceService {
                 ),
               ],
             ),
-            
+
             // If total has a discount, show the final total below
             if (order.discount > 0) ...[
               pw.SizedBox(height: 8),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
-                  pw.Text('Total After Discount: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'Total After Discount: ',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
                   pw.Text(CurrencyFormatter.format(order.totalAmount)),
-                ]
+                ],
               ),
             ],
 
@@ -242,15 +257,33 @@ class PdfInvoiceService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Text('0776 481 3985', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
+                    pw.Text(
+                      '0776 481 3985',
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                     pw.SizedBox(height: 4),
                     pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.end,
                       children: [
-                        pw.Text('ر.م: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
-                        pw.Text('0770 156 9971', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
-                      ]
-                    )
+                        pw.Text(
+                          'ر.م: ',
+                          style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        pw.Text(
+                          '0770 156 9971',
+                          style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 // Left: Free delivery
@@ -259,7 +292,10 @@ class PdfInvoiceService {
                   children: [
                     pw.Text(
                       tFreeDelivery,
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18),
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     pw.SizedBox(width: 8),
                     // Draw a simple truck shape using basic widgets
@@ -271,7 +307,14 @@ class PdfInvoiceService {
                         borderRadius: pw.BorderRadius.circular(4),
                       ),
                       child: pw.Center(
-                        child: pw.Text('TRUCK', style: pw.TextStyle(color: PdfColors.white, fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                        child: pw.Text(
+                          'TRUCK',
+                          style: pw.TextStyle(
+                            color: PdfColors.white,
+                            fontSize: 10,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],

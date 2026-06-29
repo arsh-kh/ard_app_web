@@ -94,7 +94,9 @@ class PremiumSortDropdown<T> extends ConsumerWidget {
                             fontWeight: isSelected
                                 ? FontWeight.w700
                                 : FontWeight.w500,
-                            color: isSelected ? theme.colorScheme.primary : textColor,
+                            color: isSelected
+                                ? theme.colorScheme.primary
+                                : textColor,
                           );
 
                           if (fullText.contains('|')) {

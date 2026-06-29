@@ -95,7 +95,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                 if (snapshot.hasError) {
                   return Center(
                     child: Text(
-                      '${Tr.t('errorPrefix', lang)}$snapshot.error',
+                      '${Tr.t('errorPrefix', lang)}${snapshot.error}',
                       style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                   );
@@ -229,7 +229,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      'Pending',
+                                      Tr.t('statusPending', lang),
                                       style: TextStyle(
                                         color: theme.colorScheme.onSurface,
                                         fontSize: 10,

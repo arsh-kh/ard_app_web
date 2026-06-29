@@ -52,6 +52,16 @@ class CustomerRepository {
     );
   }
 
+  Future<void> updateCustomerImageUrl(
+    String customerId,
+    String imageUrl,
+  ) async {
+    await _firestore.collection('customers').doc(customerId).update({
+      'imageUrl': imageUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<void> updateCustomer(CustomerEntity customer) async {
     final Map<String, dynamic> data = customer.toJson();
     if (customer.imageUrl == null) {

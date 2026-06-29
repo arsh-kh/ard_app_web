@@ -361,11 +361,15 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                     ? theme.colorScheme.primary.withValues(
                                         alpha: 0.45,
                                       )
-                                    : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                                    : theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.1,
+                                      ),
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.04,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -634,7 +638,9 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                       decoration: BoxDecoration(
                         color: selectedCount > 0
                             ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                            : theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                            : theme.colorScheme.onSurface.withValues(
+                                alpha: 0.08,
+                              ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

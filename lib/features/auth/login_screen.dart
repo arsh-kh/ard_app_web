@@ -201,9 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           SnackBar(
             content: Text(
               Tr.t('msg_reg_success_verify', lang),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -225,9 +223,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         SnackBar(
           content: Text(
             Tr.t(error, lang),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onError,
-            ),
+            style: TextStyle(color: Theme.of(context).colorScheme.onError),
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -404,10 +400,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     // ── Premium Solid Card ───────────────────────────────────
                     Container(
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF080808) : Theme.of(context).colorScheme.surface,
+                        color: isDark
+                            ? const Color(0xFF080808)
+                            : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: isDark 
+                          color: isDark
                               ? Colors.white.withValues(alpha: 0.08)
                               : Theme.of(
                                   context,
@@ -417,9 +415,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         boxShadow: [
                           if (!isDark)
                             BoxShadow(
-                              color: Colors.black.withValues(
-                                alpha: 0.05,
-                              ),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 30,
                               offset: const Offset(0, 10),
                             ),
@@ -724,8 +720,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             onSubmitted: (_) => FocusScope.of(context).requestFocus(_passFocus),
             validator: (v) {
               if (v == null || v.isEmpty) return req;
-              if (!AppValidators.isValidEmail(v))
+              if (!AppValidators.isValidEmail(v)) {
                 return Tr.t('invalidEmail', lang);
+              }
               return null;
             },
           ),
@@ -813,7 +810,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             forceLtr: true,
-            onSubmitted: (_) => FocusScope.of(context).requestFocus(_regEmailFocus),
+            onSubmitted: (_) =>
+                FocusScope.of(context).requestFocus(_regEmailFocus),
             validator: (v) => (v == null || v.isEmpty) ? req : null,
           ),
           const SizedBox(height: 12),
@@ -827,11 +825,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             forceLtr: true,
-            onSubmitted: (_) => FocusScope.of(context).requestFocus(_regPassFocus),
+            onSubmitted: (_) =>
+                FocusScope.of(context).requestFocus(_regPassFocus),
             validator: (v) {
               if (v == null || v.isEmpty) return req;
-              if (!AppValidators.isValidEmail(v))
+              if (!AppValidators.isValidEmail(v)) {
                 return Tr.t('invalidEmail', lang);
+              }
               return null;
             },
           ),
@@ -864,8 +864,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             validator: (v) {
               if (v == null || v.isEmpty) return req;
-              if (!AppValidators.isStrongPassword(v))
+              if (!AppValidators.isStrongPassword(v)) {
                 return Tr.t('weakPassword', lang);
+              }
               return null;
             },
           ),
@@ -925,18 +926,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         suffixIcon: suffix,
         filled: true,
-        fillColor: isDark 
+        fillColor: isDark
             ? Colors.white.withValues(alpha: 0.04)
-            : Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.05),
+            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: isDark ? Colors.transparent : border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.06) : border),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white.withValues(alpha: 0.06) : border,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

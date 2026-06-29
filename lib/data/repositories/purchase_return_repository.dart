@@ -116,16 +116,14 @@ class PurchaseReturnRepository {
     // 6. Reduce stock for each returned item (inside batch)
     for (final item in items) {
       if (item.returnedQty <= 0) continue;
-      try {
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await prodRef.get();
-        if (prodDoc.exists) {
-          batch.update(prodRef, {
-            // Important: DECREMENT stock because we are giving it back to the supplier
-            'stockQuantity': FieldValue.increment(-item.returnedQty),
-          });
-        }
-      } catch (_) {}
+      final prodRef = _firestore.collection('products').doc(item.productId);
+      final prodDoc = await prodRef.get();
+      if (prodDoc.exists) {
+        batch.update(prodRef, {
+          // Important: DECREMENT stock because we are giving it back to the supplier
+          'stockQuantity': FieldValue.increment(-item.returnedQty),
+        });
+      }
     }
 
     await batch.commit();

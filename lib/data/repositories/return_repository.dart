@@ -139,16 +139,12 @@ class ReturnRepository {
     // 4. Restore stock for each returned item inside the batch
     for (final item in items) {
       if (item.returnedQty <= 0) continue;
-      try {
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await prodRef.get();
-        if (prodDoc.exists) {
-          batch.update(prodRef, {
-            'stockQuantity': FieldValue.increment(item.returnedQty),
-          });
-        }
-      } catch (_) {
-        // Product was deleted — skip stock restore for this item.
+      final prodRef = _firestore.collection('products').doc(item.productId);
+      final prodDoc = await prodRef.get();
+      if (prodDoc.exists) {
+        batch.update(prodRef, {
+          'stockQuantity': FieldValue.increment(item.returnedQty),
+        });
       }
     }
 

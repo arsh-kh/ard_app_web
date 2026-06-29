@@ -85,46 +85,71 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       final currentLocale = ref.read(localeProvider);
       final langCode = currentLocale.languageCode;
 
-      final repo = ref.read(customerRepositoryProvider);
+      try {
+        final repo = ref.read(customerRepositoryProvider);
 
-      String? finalImageUrl = _imagePath;
-      if (_imagePath != null && !_imagePath!.startsWith('http')) {
-        final storage = ref.read(cloudStorageServiceProvider);
-        final uploadedUrl = await storage.uploadImage(_imagePath!, 'customers');
-        if (uploadedUrl != null) {
-          finalImageUrl = uploadedUrl;
-        } else {
-          finalImageUrl = null;
+        String? finalImageUrl = _imagePath;
+        bool hasNewImageToUpload = false;
+        String? localImagePath;
+
+        if (_imagePath != null && !_imagePath!.startsWith('http')) {
+          hasNewImageToUpload = true;
+          localImagePath = _imagePath;
+          // Temporarily keep old image (if editing) or null
+          finalImageUrl = widget.customerToEdit?.imageUrl;
         }
-      }
 
-      final customer = CustomerEntity(
-        id: widget.customerToEdit?.id ?? const Uuid().v4(),
-        businessName: _nameController.text,
-        phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
-        address: _addressController.text,
-        debtBalance:
-            double.tryParse(_debtController.text.replaceAll(',', '')) ?? 0.0,
-        imageUrl: finalImageUrl,
-      );
-
-      final isAdd = widget.customerToEdit == null;
-
-      if (isAdd) {
-        await repo.addCustomer(customer);
-      } else {
-        await repo.updateCustomer(customer);
-      }
-
-      if (mounted) {
-        Navigator.pop(context); // dismiss loader
-        AppFeedback.showSuccess(
-          context,
-          isAdd
-              ? (Tr.t('auto_Customerregiste', langCode))
-              : (Tr.t('auto_Customerprofile', langCode)),
+        final customer = CustomerEntity(
+          id: widget.customerToEdit?.id ?? const Uuid().v4(),
+          businessName: _nameController.text,
+          phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
+          address: _addressController.text,
+          debtBalance:
+              double.tryParse(_debtController.text.replaceAll(',', '')) ?? 0.0,
+          imageUrl: finalImageUrl,
         );
-        context.pop();
+
+        final isAdd = widget.customerToEdit == null;
+
+        if (isAdd) {
+          await repo.addCustomer(customer);
+        } else {
+          await repo.updateCustomer(customer);
+        }
+
+        if (mounted) {
+          Navigator.pop(context); // dismiss loader
+          AppFeedback.showSuccess(
+            context,
+            isAdd
+                ? (Tr.t('auto_Customerregiste', langCode))
+                : (Tr.t('auto_Customerprofile', langCode)),
+          );
+          context.pop();
+        }
+
+        // Fire and forget image upload
+        if (hasNewImageToUpload && localImagePath != null) {
+          final storage = ref.read(cloudStorageServiceProvider);
+          final currentRepo = ref.read(customerRepositoryProvider);
+          final customerId = customer.id;
+          () async {
+            try {
+              final uploadedUrl = await storage.uploadImage(
+                localImagePath!,
+                'customers',
+              );
+              await currentRepo.updateCustomerImageUrl(customerId, uploadedUrl ?? '');
+            } catch (e) {
+              debugPrint('Failed to upload customer image: $e');
+            }
+          }().ignore();
+        }
+      } catch (e) {
+        if (mounted) {
+          Navigator.pop(context); // dismiss loader
+          AppFeedback.showError(context, e.toString());
+        }
       }
     }
   }
@@ -187,7 +212,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 focusNode: _nameFocus,
                 autofocus: isNew,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_phoneFocus),
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_phoneFocus),
                 decoration: InputDecoration(
                   labelText: nameLabel,
                   prefixIcon: const Icon(Icons.business_outlined),
@@ -208,7 +234,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                     : TextAlign.left,
                 textDirection: TextDirection.ltr,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_addressFocus),
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_addressFocus),
                 decoration: InputDecoration(
                   labelText: phoneLabel,
                   prefixIcon: const Icon(Icons.phone_outlined),
@@ -221,7 +248,9 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   PhoneInputFormatter(),
                 ],
                 validator: (value) {
-                  if (value != null && value.isNotEmpty && !AppValidators.isValidPhone(value.replaceAll(' ', ''))) {
+                  if (value != null &&
+                      value.isNotEmpty &&
+                      !AppValidators.isValidPhone(value.replaceAll(' ', ''))) {
                     return Tr.t('invalidPhone', langCode);
                   }
                   return null;
@@ -234,7 +263,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 controller: _addressController,
                 focusNode: _addressFocus,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_debtFocus),
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_debtFocus),
                 decoration: InputDecoration(
                   labelText: addressLabel,
                   prefixIcon: const Icon(Icons.location_on_outlined),

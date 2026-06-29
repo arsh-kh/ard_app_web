@@ -62,7 +62,6 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final products = productsAsync.valueOrNull ?? [];
     final theme = Theme.of(context);
 
-
     final currentLocale = ref.watch(localeProvider);
     final langCode = currentLocale.languageCode;
 
@@ -152,51 +151,51 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           SliverAppBar(
             floating: false,
             snap: false,
-              pinned: false,
-              automaticallyImplyLeading: false,
-              toolbarHeight: 0,
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(76),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: searchHint,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                  _searchQuery = '';
-                                });
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surfaceContainerHighest,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+            pinned: false,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(76),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: TextField(
+                  controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  textInputAction: TextInputAction.search,
+                  decoration: InputDecoration(
+                    hintText: searchHint,
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                _searchController.clear();
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
-                    onChanged: (val) {
-                      setState(() {
-                        _searchQuery = val;
-                      });
-                    },
+                    filled: true,
+                    fillColor: theme.colorScheme.surfaceContainerHighest,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
                 ),
               ),
             ),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -351,8 +350,12 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
                               color: isAlert
-                                  ? (theme.colorScheme.onSurface.withValues(alpha: 0.5))
-                                  : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                                  ? (theme.colorScheme.onSurface.withValues(
+                                      alpha: 0.5,
+                                    ))
+                                  : theme.colorScheme.onSurface.withValues(
+                                      alpha: 0.1,
+                                    ),
                               width: 1,
                             ),
                           ),

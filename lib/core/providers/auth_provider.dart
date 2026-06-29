@@ -211,7 +211,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return AppException.fromFirebase(e).message;
     } on FirebaseException catch (e) {
       state = state.copyWith(isLoading: false);
-      debugPrint('[Auth] FirebaseException during login: ${e.code} - ${e.message}');
+      debugPrint(
+        '[Auth] FirebaseException during login: ${e.code} - ${e.message}',
+      );
       return e.message ?? 'err_something_went_wrong';
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -250,7 +252,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
 
       // Send verification email
-      await firebaseUser.sendEmailVerification();
+      firebaseUser.sendEmailVerification().ignore();
 
       // Store in Firestore
       final user = UserEntity(
@@ -309,6 +311,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  void updateUser(UserEntity user) {
+    state = state.copyWith(user: user);
+  }
+
   Future<void> logout() async {
     await _userDocSub?.cancel();
     await _firebaseAuth.signOut();
@@ -344,7 +350,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> seedDemoData() async {
     final businessId = state.user?.businessId;
     if (businessId == null || businessId.isEmpty) {
-      throw Exception('No business attached');
+      throw Exception('noBusinessAttached');
     }
     await DatabaseSeeder.seedRealisticData(businessId);
   }

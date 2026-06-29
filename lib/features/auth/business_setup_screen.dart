@@ -109,8 +109,9 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     } catch (e) {
       if (!mounted) return;
       String errorMsg = e.toString().replaceAll('Exception: ', '');
-      if (errorMsg == 'businessNameTaken') {
-        errorMsg = Tr.t('businessNameTaken', lang);
+      final knownErrors = ['businessNameTaken', 'userNotAuthenticated', 'invalidInviteCode'];
+      if (knownErrors.contains(errorMsg)) {
+        errorMsg = Tr.t(errorMsg, lang);
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

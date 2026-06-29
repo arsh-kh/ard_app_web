@@ -345,7 +345,9 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
                                     ? theme.colorScheme.primary.withValues(
                                         alpha: 0.45,
                                       )
-                                    : Theme.of(context).colorScheme.surfaceContainerHighest,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
                               ),
                               boxShadow: [
                                 BoxShadow(

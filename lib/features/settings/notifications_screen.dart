@@ -154,7 +154,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   final isRead = notification.isRead;
 
                   IconData iconData = Icons.notifications_rounded;
-                  Color iconColor = theme.colorScheme.primary;
+                  final Color iconColor = theme.colorScheme.primary;
                   if (notification.type == 'sync') {
                     iconData = Icons.sync_rounded;
                   } else if (notification.type == 'stock') {

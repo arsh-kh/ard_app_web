@@ -95,14 +95,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ) ??
           '30',
     );
-    
+
     _supplierNameController = TextEditingController(
       text: widget.productToEdit?.supplierName ?? '',
     );
-
-    _stockController.addListener(() => setState(() {}));
-    _buyPriceController.addListener(() => setState(() {}));
-    _deliveryFeeController.addListener(() => setState(() {}));
 
     _stockController.addListener(() => setState(() {}));
     _buyPriceController.addListener(() => setState(() {}));
@@ -165,14 +161,14 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       final repo = ref.read(inventoryRepositoryProvider);
 
       String? finalImageUrl = _imagePath;
+      bool hasNewImageToUpload = false;
+      String? localImagePath;
+
       if (_imagePath != null && !_imagePath!.startsWith('http')) {
-        final storage = ref.read(cloudStorageServiceProvider);
-        final uploadedUrl = await storage.uploadImage(_imagePath!, 'products');
-        if (uploadedUrl != null) {
-          finalImageUrl = uploadedUrl;
-        } else {
-          finalImageUrl = null;
-        }
+        hasNewImageToUpload = true;
+        localImagePath = _imagePath;
+        // Temporarily keep old image (if editing) or null
+        finalImageUrl = widget.productToEdit?.imageUrl;
       }
 
       final trueBuyPrice = isAdd && stockQty > 0
@@ -190,50 +186,84 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         sellPrice: sellPrice,
         lowStockThreshold: lowStockThreshold,
         imageUrl: finalImageUrl,
-        supplierName: _supplierNameController.text.trim().isEmpty ? null : _supplierNameController.text.trim(),
+        supplierName: _supplierNameController.text.trim().isEmpty
+            ? null
+            : _supplierNameController.text.trim(),
       );
 
-      if (isAdd) {
-        await repo.addProduct(product);
+      try {
+        if (isAdd) {
+          await repo.addProduct(product);
 
-        // Auto-generate purchase if initial stock > 0
-        if (stockQty > 0) {
-          const targetSupplierId = 'no_supplier';
+          // Auto-generate purchase if initial stock > 0
+          if (stockQty > 0) {
+            try {
+              const targetSupplierId = 'no_supplier';
 
-          final purchaseRepo = ref.read(purchaseRepositoryProvider);
-          final purchaseId = const Uuid().v4();
-          final purchaseItem = PurchaseItemEntity(
-            id: const Uuid().v4(),
-            purchaseId: purchaseId,
-            productId: productId,
-            quantity: stockQty,
-            unitPrice: trueBuyPrice,
-          );
+              final purchaseRepo = ref.read(purchaseRepositoryProvider);
+              final purchaseId = const Uuid().v4();
+              final purchaseItem = PurchaseItemEntity(
+                id: const Uuid().v4(),
+                purchaseId: purchaseId,
+                productId: productId,
+                quantity: stockQty,
+                unitPrice: trueBuyPrice,
+              );
 
-          final purchase = PurchaseEntity(
-            id: purchaseId,
-            supplierId: targetSupplierId,
-            status: 'received', // Auto-received since stock is added directly
-            totalAmount: (rawBuyPrice * stockQty) + deliveryFee,
-            deliveryFee: deliveryFee,
-            purchaseDate: DateTime.now(),
-          );
+              final purchase = PurchaseEntity(
+                id: purchaseId,
+                supplierId: targetSupplierId,
+                status: 'received', // Auto-received since stock is added directly
+                totalAmount: (rawBuyPrice * stockQty) + deliveryFee,
+                deliveryFee: deliveryFee,
+                purchaseDate: DateTime.now(),
+              );
 
-          await purchaseRepo.createPurchase(purchase, [purchaseItem]);
+              await purchaseRepo.createPurchase(purchase, [purchaseItem]);
+            } catch (e) {
+              // Rollback the product creation if the purchase fails
+              await repo.deleteProduct(productId);
+              throw Exception('Failed to add initial stock. Product creation rolled back: $e');
+            }
+          }
+        } else {
+          await repo.updateProduct(product);
         }
-      } else {
-        await repo.updateProduct(product);
+
+        if (mounted) {
+          Navigator.pop(context); // dismiss loader
+          AppFeedback.showSuccess(
+            context,
+            isAdd
+                ? (Tr.t('auto_Productcreateds', langCode))
+                : (Tr.t('auto_Productupdateds', langCode)),
+          );
+          context.pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          Navigator.pop(context); // dismiss loader
+          AppFeedback.showError(context, e.toString());
+        }
       }
 
-      if (mounted) {
-        Navigator.pop(context); // dismiss loader
-        AppFeedback.showSuccess(
-          context,
-          isAdd
-              ? (Tr.t('auto_Productcreateds', langCode))
-              : (Tr.t('auto_Productupdateds', langCode)),
-        );
-        context.pop();
+      // Fire and forget image upload
+      if (hasNewImageToUpload && localImagePath != null) {
+        final storage = ref.read(cloudStorageServiceProvider);
+        final currentRepo = ref.read(inventoryRepositoryProvider);
+        () async {
+          try {
+            final uploadedUrl = await storage.uploadImage(
+              localImagePath!,
+              'products',
+            );
+            if (uploadedUrl != null) {
+              await currentRepo.updateProductImageUrl(productId, uploadedUrl);
+            }
+          } catch (e) {
+            debugPrint('Background image upload failed: $e');
+          }
+        }().ignore();
       }
     }
   }
@@ -336,7 +366,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 controller: _nameController,
                 autofocus: isNew,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_supplierNameFocus),
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_supplierNameFocus),
                 decoration: InputDecoration(
                   labelText: nameLabel,
                   prefixIcon: const Icon(Icons.label_outline),
@@ -351,12 +382,21 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _supplierNameController,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_stockFocus),
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_stockFocus),
                 focusNode: _supplierNameFocus,
                 decoration: InputDecoration(
-                  labelText: langCode == 'ku' ? 'ناوی دابینکەر (ئارەزوومەندانە)' : langCode == 'ar' ? 'اسم المورد (اختياري)' : 'Supplier Name (Optional)',
+                  labelText: langCode == 'ku'
+                      ? 'ناوی دابینکەر (ئارەزوومەندانە)'
+                      : langCode == 'ar'
+                      ? 'اسم المورد (اختياري)'
+                      : 'Supplier Name (Optional)',
                   prefixIcon: const Icon(Icons.storefront_outlined),
-                  hintText: langCode == 'ku' ? 'ناوی ئەو کۆمپانیایە بنووسە' : langCode == 'ar' ? 'اكتب اسم الشركة' : 'Enter supplier or company name',
+                  hintText: langCode == 'ku'
+                      ? 'ناوی ئەو کۆمپانیایە بنووسە'
+                      : langCode == 'ar'
+                      ? 'اكتب اسم الشركة'
+                      : 'Enter supplier or company name',
                 ),
               ),
               const SizedBox(height: 16),
@@ -370,7 +410,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     child: TextFormField(
                       controller: _stockController,
                       textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_buyPriceFocus),
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).requestFocus(_buyPriceFocus),
                       decoration: InputDecoration(
                         labelText: stockLabel,
                         prefixIcon: const Icon(Icons.warehouse_outlined),
@@ -464,7 +505,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _buyPriceController,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_sellPriceFocus),
+                onFieldSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_sellPriceFocus),
                 decoration: InputDecoration(
                   labelText: buyLabel,
                   prefixIcon: const Icon(Icons.shopping_basket_outlined),
@@ -499,7 +541,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   if (isNew) {
                     FocusScope.of(context).requestFocus(_deliveryFeeFocus);
                   } else {
-                    FocusScope.of(context).requestFocus(_lowStockThresholdFocus);
+                    FocusScope.of(
+                      context,
+                    ).requestFocus(_lowStockThresholdFocus);
                   }
                 },
                 decoration: InputDecoration(
@@ -533,7 +577,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 TextFormField(
                   controller: _deliveryFeeController,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_lowStockThresholdFocus),
+                  onFieldSubmitted: (_) => FocusScope.of(
+                    context,
+                  ).requestFocus(_lowStockThresholdFocus),
                   decoration: InputDecoration(
                     labelText: Tr.t('deliveryFee', langCode),
                     prefixIcon: const Icon(Icons.local_shipping_outlined),

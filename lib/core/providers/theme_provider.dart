@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../main.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   static const _key = 'app_theme_mode';
 
   @override
   ThemeMode build() {
-    _loadFromPrefs();
-    // Force light mode natively for the first time as requested
-    return ThemeMode.light;
+    return _loadFromPrefs();
   }
 
-  Future<void> _loadFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedValue = prefs.getString(_key);
+  ThemeMode _loadFromPrefs() {
+    // Read synchronously using the global sharedPrefs initialized in main.dart
+    final savedValue = sharedPrefs.getString(_key);
     if (savedValue != null) {
       if (savedValue == 'dark') {
-        state = ThemeMode.dark;
+        return ThemeMode.dark;
       } else if (savedValue == 'system') {
-        state = ThemeMode.system;
-      } else {
-        state = ThemeMode.light;
+        return ThemeMode.system;
       }
     }
+    // Force light mode natively for the first time as requested
+    return ThemeMode.light;
   }
 
   void setThemeMode(ThemeMode mode) async {

@@ -85,7 +85,9 @@ class PurchaseRepository {
     }
 
     // 3. Update Supplier Debt (we owe them more money)
-    if (finalPurchase.status == 'received') {
+    if (finalPurchase.status == 'received' && 
+        finalPurchase.supplierId != null && 
+        finalPurchase.supplierId != 'no_supplier') {
       final supplierRef = _firestore
           .collection('suppliers')
           .doc(finalPurchase.supplierId);

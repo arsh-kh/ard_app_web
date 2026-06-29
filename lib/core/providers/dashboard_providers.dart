@@ -100,7 +100,9 @@ class ReportData {
   });
 }
 
-final dashboardMetricsProvider = StreamProvider.autoDispose<DashboardMetrics>((ref) async* {
+final dashboardMetricsProvider = StreamProvider.autoDispose<DashboardMetrics>((
+  ref,
+) async* {
   final orderRepo = ref.watch(orderRepositoryProvider);
   final purchaseRepo = ref.watch(purchaseRepositoryProvider);
 
@@ -205,80 +207,79 @@ final dashboardMetricsProvider = StreamProvider.autoDispose<DashboardMetrics>((r
   }
 });
 
-final recentActivityProvider = StreamProvider.autoDispose<List<RecentActivityItem>>((ref) {
-  final langCode = ref.watch(localeProvider).languageCode;
-  final orderRepo = ref.watch(orderRepositoryProvider);
-  final paymentRepo = ref.watch(paymentRepositoryProvider);
-  final customerRepo = ref.watch(customerRepositoryProvider);
+final recentActivityProvider =
+    StreamProvider.autoDispose<List<RecentActivityItem>>((ref) {
+      final langCode = ref.watch(localeProvider).languageCode;
+      final orderRepo = ref.watch(orderRepositoryProvider);
+      final paymentRepo = ref.watch(paymentRepositoryProvider);
+      final customerRepo = ref.watch(customerRepositoryProvider);
 
-  final ordersStream = orderRepo.watchAllOrders();
-  final paymentsStream = paymentRepo.watchAllPayments();
-  final customersStream = customerRepo.watchAllCustomers();
+      final ordersStream = orderRepo.watchAllOrders();
+      final paymentsStream = paymentRepo.watchAllPayments();
+      final customersStream = customerRepo.watchAllCustomers();
 
-  return CombineLatestStream.combine3(
-    ordersStream,
-    paymentsStream,
-    customersStream,
-    (
-      List<OrderEntity> orders,
-      List<PaymentEntity> payments,
-      List<CustomerEntity> customers,
-    ) {
-      final List<RecentActivityItem> combined = [];
-      final customerMap = {for (var c in customers) c.id: c.businessName};
+      return CombineLatestStream.combine3(
+        ordersStream,
+        paymentsStream,
+        customersStream,
+        (
+          List<OrderEntity> orders,
+          List<PaymentEntity> payments,
+          List<CustomerEntity> customers,
+        ) {
+          final List<RecentActivityItem> combined = [];
+          final customerMap = {for (var c in customers) c.id: c.businessName};
 
-      for (final order in orders) {
-        final isWalkIn =
-            order.customerId == 'walk-in' ||
-            order.customerId == 'walk-in-customer-id';
-        combined.add(
-          RecentActivityItem(
-            orderId: order.id,
-            customerName: isWalkIn
-                ? Tr.t('auto_WalkInCustomer', langCode)
-                : customerMap[order.customerId] ??
-                      Tr.t('unknownCustomer', langCode),
-            totalAmount: order.totalAmount,
-            date: order.orderDate,
-            isPayment: false,
-            status: order.status,
-            orderNumber: order.orderNumber,
-          ),
-        );
-      }
+          for (final order in orders) {
+            final isWalkIn = order.customerId.startsWith('walk-in-');
+            combined.add(
+              RecentActivityItem(
+                orderId: order.id,
+                customerName: isWalkIn
+                    ? Tr.t('auto_WalkInCustomer', langCode)
+                    : customerMap[order.customerId] ??
+                          Tr.t('unknownCustomer', langCode),
+                totalAmount: order.totalAmount,
+                date: order.orderDate,
+                isPayment: false,
+                status: order.status,
+                orderNumber: order.orderNumber,
+              ),
+            );
+          }
 
-      for (final payment in payments) {
-        final isWalkIn =
-            payment.customerId == 'walk-in' ||
-            payment.customerId == 'walk-in-customer-id';
-        // Hide duplicate payments for walk-in customers since their orders are always fully paid simultaneously
-        if (isWalkIn) continue;
+          for (final payment in payments) {
+            final isWalkIn = payment.customerId.startsWith('walk-in-');
+            // Hide duplicate payments for walk-in customers since their orders are always fully paid simultaneously
+            if (isWalkIn) continue;
 
-        combined.add(
-          RecentActivityItem(
-            orderId: payment.id,
-            customerName:
-                customerMap[payment.customerId] ??
-                Tr.t('unknownCustomer', langCode),
-            totalAmount: payment.amount,
-            date: payment.paymentDate,
-            isPayment: true,
-          ),
-        );
-      }
+            combined.add(
+              RecentActivityItem(
+                orderId: payment.id,
+                customerName:
+                    customerMap[payment.customerId] ??
+                    Tr.t('unknownCustomer', langCode),
+                totalAmount: payment.amount,
+                date: payment.paymentDate,
+                isPayment: true,
+              ),
+            );
+          }
 
-      // Sort by newest first
-      combined.sort((a, b) => b.date.compareTo(a.date));
-      return combined.take(5).toList();
-    },
-  );
-});
+          // Sort by newest first
+          combined.sort((a, b) => b.date.compareTo(a.date));
+          return combined.take(5).toList();
+        },
+      );
+    });
 
-final topDebtorsProvider = StreamProvider.autoDispose<List<CustomerEntity>>((ref) {
+final topDebtorsProvider = StreamProvider.autoDispose<List<CustomerEntity>>((
+  ref,
+) {
   final customerRepo = ref.watch(customerRepositoryProvider);
   return customerRepo.watchAllCustomers().map((customers) {
     final debtors = customers
-        .where((c) => c.id != 'walk-in' && c.debtBalance > 0)
+        .where((c) => !c.id.startsWith('walk-in-') && c.debtBalance > 0)
         .toList();
     debtors.sort((a, b) => b.debtBalance.compareTo(a.debtBalance));
     return debtors.take(3).toList();

@@ -23,8 +23,8 @@ final purchasesBySupplierProvider =
       return repo.getPurchasesBySupplier(supplierId);
     });
 
-final purchasesBySupplierStreamProvider =
-    StreamProvider.autoDispose.family<List<PurchaseEntity>, String>((ref, supplierId) {
+final purchasesBySupplierStreamProvider = StreamProvider.autoDispose
+    .family<List<PurchaseEntity>, String>((ref, supplierId) {
       final repo = ref.watch(purchaseRepositoryProvider);
       return repo.watchPurchasesBySupplier(supplierId);
     });

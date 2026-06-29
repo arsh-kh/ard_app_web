@@ -57,6 +57,13 @@ class InventoryRepository {
     );
   }
 
+  Future<void> updateProductImageUrl(String productId, String imageUrl) async {
+    await _firestore.collection('products').doc(productId).update({
+      'imageUrl': imageUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<void> updateProduct(ProductEntity product) async {
     final Map<String, dynamic> data = product.toJson();
     if (product.imageUrl == null) {

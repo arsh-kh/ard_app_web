@@ -10,7 +10,6 @@ import '../../core/providers/cart_providers.dart';
 import '../../core/providers/order_providers.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/providers/payment_providers.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/widgets/bouncing_widget.dart';
@@ -24,6 +23,7 @@ import '../../data/models/order_entity.dart';
 import '../../data/models/order_item_entity.dart';
 import '../../data/models/customer_entity.dart';
 import '../../data/models/product_entity.dart';
+import '../../data/models/payment_entity.dart';
 import '../../domain/enums.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/utils/formatters.dart';
@@ -54,6 +54,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   String? _selectedCustomerId;
   CustomerEntity? _selectedCustomer;
   bool _payCashImmediately = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -192,7 +193,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 ),
                 Container(
                   width: 1,
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade300,
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.grey.shade300,
                 ),
                 Expanded(
                   flex: 5,
@@ -232,59 +235,59 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         SliverAppBar(
           floating: false,
           snap: false,
-            pinned: false,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 0,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(76),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        textInputAction: TextInputAction.search,
-                        decoration: InputDecoration(
-                          hintText: searchHint,
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: isDark
-                              ? Colors.grey.shade900
-                              : Colors.grey.shade100,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _searchController.clear();
-                                      _searchQuery = '';
-                                    });
-                                  },
-                                )
-                              : null,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+          pinned: false,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 0,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(76),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: searchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: isDark
+                            ? Colors.grey.shade900
+                            : Colors.grey.shade100,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
-                        onChanged: (val) {
-                          setState(() {
-                            _searchQuery = val;
-                          });
-                        },
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val;
+                        });
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
+        ),
 
         SliverToBoxAdapter(
           child: Padding(
@@ -562,7 +565,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.black.withValues(alpha: 0.7) : Colors.white.withValues(alpha: 0.6),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.7)
+                        : Colors.white.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
@@ -673,7 +678,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade200,
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.grey.shade200,
                 ),
               ),
             ),
@@ -702,11 +709,11 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1A1A1A)
-                      : Colors.grey.shade50,
+                  color: isDark ? const Color(0xFF1A1A1A) : Colors.grey.shade50,
                   border: Border.all(
-                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade300,
+                    color: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.grey.shade300,
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -862,7 +869,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
                 border: Border(
                   top: BorderSide(
-                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade200,
+                    color: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.grey.shade200,
                   ),
                 ),
               ),
@@ -885,38 +894,42 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                       ),
                     ],
                   ),
-                  if (_selectedCustomerId != null && _selectedCustomerId != 'walk-in')
+                  if (_selectedCustomerId != null &&
+                      !(_selectedCustomerId!.startsWith('walk-in-')))
                     StatefulBuilder(
-                      builder: (BuildContext context, StateSetter setStateCheckbox) {
-                        return CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            Tr.t('auto_PayCashImmediately', lang),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          value: _payCashImmediately,
-                          onChanged: (val) {
-                            setStateCheckbox(() {
-                              _payCashImmediately = val ?? false;
-                            });
+                      builder:
+                          (BuildContext context, StateSetter setStateCheckbox) {
+                            return CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: Text(
+                                Tr.t('auto_PayCashImmediately', lang),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              value: _payCashImmediately,
+                              onChanged: (val) {
+                                setStateCheckbox(() {
+                                  _payCashImmediately = val ?? false;
+                                });
+                              },
+                              activeColor: theme.colorScheme.primary,
+                            );
                           },
-                          activeColor: theme.colorScheme.primary,
-                        );
-                      },
                     ),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: cartItems.isEmpty
+                      onPressed: _isSubmitting
                           ? null
                           : () async {
                               if (_selectedCustomerId == null) {
-                                final selected = await context
+                                final selected = await GoRouter.of(context)
                                     .push<CustomerEntity?>(
-                                      Routes.customerSelection,
-                                    );
+                                  Routes.customerSelection,
+                                );
                                 if (selected != null) {
                                   setState(() {
                                     _selectedCustomerId = selected.id;
@@ -926,18 +939,34 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                   return; // User backed out without selecting
                                 }
                               }
-                              _processCheckout(
-                                ref,
-                                cartItems,
-                                cartNotifier.totalCartPrice,
-                                _selectedCustomerId == 'walk-in',
-                                _payCashImmediately,
-                              );
+                              setState(() => _isSubmitting = true);
+                              try {
+                                await _processCheckout(
+                                  ref,
+                                  cartItems,
+                                  cartNotifier.totalCartPrice,
+                                  _selectedCustomerId?.startsWith('walk-in-') ?? false,
+                                  _payCashImmediately,
+                                );
+                              } finally {
+                                if (mounted) {
+                                  setState(() => _isSubmitting = false);
+                                }
+                              }
                             },
-                      icon: Icon(
-                        Icons.check_circle_outline,
-                        color: theme.colorScheme.onPrimary,
-                      ),
+                      icon: _isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Icon(
+                              Icons.check_circle_outline,
+                              color: theme.colorScheme.onPrimary,
+                            ),
                       label: Text(
                         Tr.t('auto_Checkout', lang),
                         style: TextStyle(
@@ -1260,7 +1289,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     );
   }
 
-  void _processCheckout(
+  Future<void> _processCheckout(
     WidgetRef ref,
     List<CartItem> cartItems,
     double totalAmount,
@@ -1286,78 +1315,91 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       title: confirmOrderStr,
       message: confirmBody,
       confirmLabel: localizations.confirm,
-      confirmColor: Colors.green,
       icon: Icons.shopping_cart_checkout,
     );
 
     if (!confirmed) return;
 
-    final String finalCustomerId = _selectedCustomerId ?? 'walk-in';
-    final orderRepo = ref.read(orderRepositoryProvider);
+    setState(() => _isSubmitting = true);
 
-    final orderId = const Uuid().v4();
-    double totalCogs = 0;
-    for (final item in cartItems) {
-      totalCogs += item.product.buyPrice * item.quantity;
-    }
+    try {
+      final String finalCustomerId = _selectedCustomerId ?? 'walk-in-anonymous';
+      final orderRepo = ref.read(orderRepositoryProvider);
 
-    final order = OrderEntity(
-      id: orderId,
-      customerId: finalCustomerId,
-      status: OrderStatus.delivered.value,
-      totalAmount: totalAmount,
-      totalCogs: totalCogs,
-      orderDate: DateTime.now(),
-    );
+      final orderId = const Uuid().v4();
+      double totalCogs = 0;
+      for (final item in cartItems) {
+        totalCogs += item.product.buyPrice * item.quantity;
+      }
 
-    final items = cartItems
-        .map(
-          (item) => OrderItemEntity(
-            id: const Uuid().v4(),
-            orderId: orderId,
-            productId: item.product.id,
-            quantity: item.quantity,
-            unitPrice: item.customPrice,
-          ),
-        )
-        .toList();
-
-    await orderRepo.createOrder(order, items);
-
-    if (isQuickSell || payCashImmediately) {
-      final paymentRepo = ref.read(paymentRepositoryProvider);
-      await paymentRepo.recordPayment(
+      final order = OrderEntity(
+        id: orderId,
         customerId: finalCustomerId,
-        amount: totalAmount,
+        status: OrderStatus.delivered.value,
+        totalAmount: totalAmount,
+        totalCogs: totalCogs,
+        orderDate: DateTime.now(),
       );
-    }
 
-    await ref
-        .read(notificationProvider.notifier)
-        .addNotification(
-          title: 'order_submitted',
-          message:
-              'Order for ${_selectedCustomer?.businessName ?? 'Walk-In'} submitted successfully.',
-          type: 'order',
-          route: '${Routes.adminOrders}?search=${orderId.substring(0, 8)}',
+      final items = cartItems
+          .map(
+            (item) => OrderItemEntity(
+              id: const Uuid().v4(),
+              orderId: orderId,
+              productId: item.product.id,
+              quantity: item.quantity,
+              unitPrice: item.customPrice,
+            ),
+          )
+          .toList();
+
+      if (isQuickSell || payCashImmediately) {
+        final payment = PaymentEntity(
+          id: const Uuid().v4(),
+          customerId: finalCustomerId,
+          amount: totalAmount,
+          paymentDate: DateTime.now(),
         );
+        await orderRepo.createOrderWithPayment(order, items, payment);
+      } else {
+        await orderRepo.createOrder(order, items);
+      }
 
-    ref.read(cartProvider.notifier).clearCart();
+      await ref
+          .read(notificationProvider.notifier)
+          .addNotification(
+            title: 'order_submitted',
+            message:
+                'Order for ${_selectedCustomer?.businessName ?? 'Walk-In'} submitted successfully.',
+            type: 'order',
+            route: '${Routes.adminOrders}?search=${orderId.substring(0, 8)}',
+          );
 
-    // reset customer
-    setState(() {
-      _selectedCustomerId = null;
-      _selectedCustomer = null;
-      _payCashImmediately = false;
-    });
+      ref.read(cartProvider.notifier).clearCart();
 
-    if (mounted) {
-      AppFeedback.showSuccess(context, localizations.success);
-      if (MediaQuery.of(context).size.width <= 800) {
-        // if we were in the bottom sheet
-        if (Navigator.of(context, rootNavigator: true).canPop()) {
-          Navigator.of(context, rootNavigator: true).pop();
+      // reset customer
+      setState(() {
+        _selectedCustomerId = null;
+        _selectedCustomer = null;
+        _payCashImmediately = false;
+      });
+
+      if (mounted) {
+        AppFeedback.showSuccess(context, localizations.success);
+        if (MediaQuery.of(context).size.width <= 800) {
+          // if we were in the bottom sheet
+          if (Navigator.of(context, rootNavigator: true).canPop()) {
+            Navigator.of(context, rootNavigator: true).pop();
+          }
         }
+      }
+    } catch (e) {
+      if (mounted) {
+        AppFeedback.showError(context, e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
       }
     }
   }

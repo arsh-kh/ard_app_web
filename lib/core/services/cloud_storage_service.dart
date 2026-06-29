@@ -4,17 +4,24 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/business_provider.dart';
 
 class CloudStorageService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final String? _businessId;
+
+  CloudStorageService(this._businessId);
 
   /// Uploads an image to Firebase Storage and returns the public download URL.
-  Future<String?> uploadImage(String imagePath, String folderName) async {
+  Future<String?> uploadImage(String imagePath, String folderName, {String? prefixId}) async {
     try {
       // Create a unique file name
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${p.basename(imagePath)}';
-      final ref = _storage.ref().child('$folderName/$fileName');
+      
+      final prefix = prefixId ?? (_businessId != null ? 'businesses/$_businessId' : null);
+      final path = prefix != null ? '$prefix/$folderName/$fileName' : '$folderName/$fileName';
+      final ref = _storage.ref().child(path);
 
       if (kIsWeb) {
         // On web, we must use putData with the bytes of the file
@@ -39,5 +46,6 @@ class CloudStorageService {
 }
 
 final cloudStorageServiceProvider = Provider<CloudStorageService>((ref) {
-  return CloudStorageService();
+  final businessId = ref.watch(currentBusinessIdProvider);
+  return CloudStorageService(businessId);
 });

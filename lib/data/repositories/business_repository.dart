@@ -75,14 +75,12 @@ class BusinessRepository {
 
     await _firestore.collection('businesses').doc(id).set(business.toJson());
 
-    try {
-      await _auditService.logAction(
-        action: 'BUSINESS_CREATED',
-        entityType: 'Business',
-        entityId: id,
-        details: 'Created business $name with code $inviteCode',
-      );
-    } catch (_) {}
+    await _auditService.logAction(
+      action: 'BUSINESS_CREATED',
+      entityType: 'Business',
+      entityId: id,
+      details: 'Created business $name with code $inviteCode',
+    );
 
     return business;
   }

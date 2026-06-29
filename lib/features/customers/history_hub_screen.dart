@@ -13,10 +13,7 @@ final historySearchTriggerProvider = StateProvider<DateTime?>((ref) => null);
 class HistoryHubScreen extends ConsumerStatefulWidget {
   final String? initialSearchQuery;
 
-  const HistoryHubScreen({
-    super.key,
-    this.initialSearchQuery,
-  });
+  const HistoryHubScreen({super.key, this.initialSearchQuery});
 
   @override
   ConsumerState<HistoryHubScreen> createState() => _HistoryHubScreenState();
@@ -29,12 +26,12 @@ class _HistoryHubScreenState extends ConsumerState<HistoryHubScreen> {
     final isRtl = Directionality.of(context).name == 'rtl';
     final theme = Theme.of(context);
 
-
     final Widget? searchButton = ref.watch(historyIsScrolledProvider)
         ? IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              ref.read(historySearchTriggerProvider.notifier).state = DateTime.now();
+              ref.read(historySearchTriggerProvider.notifier).state =
+                  DateTime.now();
             },
           )
         : null;
@@ -66,9 +63,17 @@ class _HistoryHubScreenState extends ConsumerState<HistoryHubScreen> {
             indicatorColor: theme.colorScheme.primary,
             indicatorWeight: 3,
             labelColor: theme.colorScheme.onSurface,
-            unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            unselectedLabelColor: theme.colorScheme.onSurface.withValues(
+              alpha: 0.5,
+            ),
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
             tabs: [
               Tab(
                 child: Row(
@@ -98,7 +103,10 @@ class _HistoryHubScreenState extends ConsumerState<HistoryHubScreen> {
             if (notification.metrics.axis == Axis.vertical) {
               final isScrolled = notification.metrics.pixels > 60;
               if (isScrolled != ref.read(historyIsScrolledProvider)) {
-                Future.microtask(() => ref.read(historyIsScrolledProvider.notifier).state = isScrolled);
+                Future.microtask(
+                  () => ref.read(historyIsScrolledProvider.notifier).state =
+                      isScrolled,
+                );
               }
             }
             return false;

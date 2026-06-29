@@ -20,7 +20,7 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final user = ref.read(authProvider).user;
-      if (user == null) throw Exception("User not authenticated.");
+      if (user == null) throw Exception("userNotAuthenticated");
 
       final businessRepo = ref.read(businessRepositoryProvider);
       final userRepo = ref.read(userRepositoryProvider);
@@ -39,8 +39,18 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
         'active',
       );
 
-      // Refresh auth provider to pull latest user claims
-      await ref.read(authProvider.notifier).refreshSession();
+      // Update auth provider state directly for instant UI update
+      ref
+          .read(authProvider.notifier)
+          .updateUser(
+            user.copyWith(
+              businessId: business.id,
+              role: 'admin',
+              status: 'active',
+            ),
+          );
+      // Fire and forget refresh to sync with server later
+      ref.read(authProvider.notifier).refreshSession().ignore();
     });
     if (state.hasError) throw state.error!;
   }
@@ -49,14 +59,15 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final user = ref.read(authProvider).user;
-      if (user == null) throw Exception("User not authenticated.");
+      if (user == null) throw Exception("userNotAuthenticated");
 
       final businessRepo = ref.read(businessRepositoryProvider);
       final userRepo = ref.read(userRepositoryProvider);
 
       final business = await businessRepo.getBusinessByInviteCode(inviteCode);
-      if (business == null)
-        throw Exception("Invalid Invite Code. Business not found.");
+      if (business == null) {
+        throw Exception("invalidInviteCode");
+      }
 
       // Update user doc with new business ID, employee role, pending status
       await userRepo.updateUserBusinessAndRole(
@@ -66,8 +77,18 @@ class BusinessSetupNotifier extends AsyncNotifier<void> {
         'pending',
       );
 
-      // Refresh auth provider to pull latest user claims
-      await ref.read(authProvider.notifier).refreshSession();
+      // Update auth provider state directly for instant UI update
+      ref
+          .read(authProvider.notifier)
+          .updateUser(
+            user.copyWith(
+              businessId: business.id,
+              role: 'employee',
+              status: 'pending',
+            ),
+          );
+      // Fire and forget refresh to sync with server later
+      ref.read(authProvider.notifier).refreshSession().ignore();
     });
     if (state.hasError) throw state.error!;
   }

@@ -61,15 +61,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ).ignore();
 
       String? finalImageUrl = _avatarPath;
+      bool hasNewImageToUpload = false;
+      String? localImagePath;
+
       if (_avatarPath != null && !_avatarPath!.startsWith('http')) {
-        final storage = ref.read(cloudStorageServiceProvider);
-        final uploadedUrl = await storage.uploadImage(_avatarPath!, 'profiles');
-        if (uploadedUrl != null) {
-          finalImageUrl = uploadedUrl;
-        } else {
-          // If upload fails, don't save the local path to the cloud DB!
-          finalImageUrl = null;
-        }
+        hasNewImageToUpload = true;
+        localImagePath = _avatarPath;
+        // Temporarily keep old image or null
+        finalImageUrl = ref.read(authProvider).user?.imageUrl;
       }
 
       await ref
@@ -85,6 +84,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) {
         Navigator.pop(context); // dismiss loader
         context.pop();
+      }
+
+      // Fire and forget image upload
+      if (hasNewImageToUpload && localImagePath != null) {
+        final storage = ref.read(cloudStorageServiceProvider);
+        final authNotifier = ref.read(authProvider.notifier);
+        final userId = ref.read(authProvider).user?.id;
+        () async {
+          try {
+            final uploadedUrl = await storage.uploadImage(
+              localImagePath!,
+              'profiles',
+              prefixId: 'users/$userId',
+            );
+            if (uploadedUrl != null) {
+              await authNotifier.updateProfile(
+                avatarPath: uploadedUrl,
+                removeAvatar: false,
+              );
+            }
+          } catch (e) {
+            debugPrint('Background profile image upload failed: $e');
+          }
+        }().ignore();
       }
     }
   }

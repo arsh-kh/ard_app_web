@@ -286,12 +286,13 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    int y = displayedYear - 1;
+                                    final y = displayedYear - 1;
                                     if (y < first.year) return;
                                     displayedYear = y;
                                     if (y == first.year &&
-                                        displayedMonth < first.month)
+                                        displayedMonth < first.month) {
                                       displayedMonth = first.month;
+                                    }
 
                                     int d = tempSelectedDate.day;
                                     final maxDays = DateTime(
@@ -325,15 +326,17 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                   );
                                   if (res != null) {
                                     setState(() {
-                                      int y = first.year + res;
+                                      final y = first.year + res;
                                       displayedYear = y;
                                       if (y == first.year &&
-                                          displayedMonth < first.month)
+                                          displayedMonth < first.month) {
                                         displayedMonth = first.month;
+                                      }
                                       if (y == widget.lastDate.year &&
                                           displayedMonth >
-                                              widget.lastDate.month)
+                                              widget.lastDate.month) {
                                         displayedMonth = widget.lastDate.month;
+                                      }
 
                                       int d = tempSelectedDate.day;
                                       final maxDays = DateTime(
@@ -371,12 +374,14 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    int y = displayedYear + 1;
+                                    final y = displayedYear + 1;
                                     if (y > widget.lastDate.year) return;
                                     displayedYear = y;
                                     if (y == widget.lastDate.year &&
-                                        displayedMonth > widget.lastDate.month)
+                                        displayedMonth >
+                                            widget.lastDate.month) {
                                       displayedMonth = widget.lastDate.month;
+                                    }
 
                                     int d = tempSelectedDate.day;
                                     final maxDays = DateTime(
@@ -420,8 +425,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                       y--;
                                     }
                                     if (y < first.year ||
-                                        (y == first.year && m < first.month))
+                                        (y == first.year && m < first.month)) {
                                       return; // Out of bounds
+                                    }
                                     displayedMonth = m;
                                     displayedYear = y;
 
@@ -449,12 +455,14 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                     setState(() {
                                       int m = res + 1;
                                       if (displayedYear == first.year &&
-                                          m < first.month)
+                                          m < first.month) {
                                         m = first.month;
+                                      }
                                       if (displayedYear ==
                                               widget.lastDate.year &&
-                                          m > widget.lastDate.month)
+                                          m > widget.lastDate.month) {
                                         m = widget.lastDate.month;
+                                      }
                                       displayedMonth = m;
                                       int d = tempSelectedDate.day;
                                       final maxDays = DateTime(
@@ -498,8 +506,9 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
                                     }
                                     if (y > widget.lastDate.year ||
                                         (y == widget.lastDate.year &&
-                                            m > widget.lastDate.month))
+                                            m > widget.lastDate.month)) {
                                       return; // Out of bounds
+                                    }
                                     displayedMonth = m;
                                     displayedYear = y;
 

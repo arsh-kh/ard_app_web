@@ -30,7 +30,8 @@ class Tr {
     // ── ENGLISH ────────────────────────────────────────────────
     'en': {
       'pdfShopName': 'Haji Khusro Shop',
-      'pdfShopDesc1': 'For selling flour and rice: Kirkuk flour, Salahaddin flour, Lasek flour, Das flour',
+      'pdfShopDesc1':
+          'For selling flour and rice: Kirkuk flour, Salahaddin flour, Lasek flour, Das flour',
       'pdfShopDesc2': 'Russian flour, Barley flour, Thai rice.',
       'pdfDear': 'Mr. / Dear: ',
       'pdfDate': 'Date: ',
@@ -505,6 +506,9 @@ class Tr {
           'Are you sure you want to log out from your account?',
       'businessNameTaken':
           'Business name is already taken. Please choose another.',
+      'userNotAuthenticated': 'User not authenticated.',
+      'invalidInviteCode': 'Invalid Invite Code. Business not found.',
+      'noBusinessAttached': 'No business attached.',
 
       // Nav bar labels
       'posLabel': 'POS',
@@ -517,6 +521,7 @@ class Tr {
       'noContactDetails': 'No contact details',
       'errorLoadingLogs': 'Error loading logs',
       'unknownUser': 'Unknown',
+      'statusPending': 'Pending',
       'pendingApprovalTitle': 'Pending Approval',
       'pendingApprovalBody':
           'Your account has been created successfully. Please wait for an administrator to approve your access before you can log in.',
@@ -624,7 +629,8 @@ class Tr {
     // ── SORANI KURDISH ──────────────────────────────────────────
     'ku': {
       'pdfShopName': 'محل حاج خسرو',
-      'pdfShopDesc1': 'للبيع طحين و رز: طحين كركوك، طحين صلاح الدين، طحين لاسك، طحين داس',
+      'pdfShopDesc1':
+          'للبيع طحين و رز: طحين كركوك، طحين صلاح الدين، طحين لاسك، طحين داس',
       'pdfShopDesc2': 'طحين روسي، طحين شعير، رز تايلندي.',
       'pdfDear': 'السيد / بەڕێز: ',
       'pdfDate': 'التاريخ / بەروار: ',
@@ -1095,6 +1101,9 @@ class Tr {
       'logoutProfileWarning': 'دڵنیایت دەتەوێت لە هەژمارەکەت بچیتە دەرەوە؟',
       'businessNameTaken':
           'ناوی فرۆشگاکە پێشتر بەکارهێنراوە. تکایە ناوێکی تر هەڵبژێرە.',
+      'userNotAuthenticated': 'بەکارهێنەر نەچووەتە ژوورەوە.',
+      'invalidInviteCode': 'کۆدی بانگهێشت هەڵەیە. فرۆشگاکە نەدۆزرایەوە.',
+      'noBusinessAttached': 'هیچ فرۆشگایەک پەیوەست نەکراوە.',
 
       // Nav bar labels
       'posLabel': 'فرۆشتن',
@@ -1107,6 +1116,7 @@ class Tr {
       'noContactDetails': 'هیچ زانیاری پەیوەندی نییە',
       'errorLoadingLogs': 'هەڵە لە هێنانی تۆمارەکان',
       'unknownUser': 'نەناسراو',
+      'statusPending': 'چاوەڕێ',
       'pendingApprovalTitle': 'چاوەڕێی پەسەندکردن',
       'pendingApprovalBody':
           'هەژمارەکەت بە سەرکەوتوویی دروستکرا. تکایە چاوەڕێ بکە تا بەڕێوەبەرێک پەسەندی دەکات بۆ ئەوەی بتوانیت بچیتە ژوورەوە.',
@@ -1220,7 +1230,8 @@ class Tr {
     // ── ARABIC ─────────────────────────────────────────────────
     'ar': {
       'pdfShopName': 'محل حاج خسرو',
-      'pdfShopDesc1': 'للبيع طحين و رز: طحين كركوك، طحين صلاح الدين، طحين لاسك، طحين داس',
+      'pdfShopDesc1':
+          'للبيع طحين و رز: طحين كركوك، طحين صلاح الدين، طحين لاسك، طحين داس',
       'pdfShopDesc2': 'طحين روسي، طحين شعير، رز تايلندي.',
       'pdfDear': 'السيد / بەڕێز: ',
       'pdfDate': 'التاريخ / بەروار: ',
@@ -1560,6 +1571,9 @@ class Tr {
       'logoutProfileTitle': 'تسجيل الخروج',
       'logoutProfileWarning': 'هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟',
       'businessNameTaken': 'اسم العمل مستخدم مسبقاً. يرجى اختيار اسم آخر.',
+      'userNotAuthenticated': 'المستخدم غير مسجل الدخول.',
+      'invalidInviteCode': 'رمز الدعوة غير صالح. العمل غير موجود.',
+      'noBusinessAttached': 'لا يوجد عمل مرتبط.',
 
       // Nav bar labels
       'posLabel': 'المبيعات',
@@ -1572,6 +1586,7 @@ class Tr {
       'noContactDetails': 'لا توجد تفاصيل اتصال',
       'errorLoadingLogs': 'خطأ في تحميل السجلات',
       'unknownUser': 'غير معروف',
+      'statusPending': 'قيد الانتظار',
       'pendingApprovalTitle': 'في انتظار الموافقة',
       'pendingApprovalBody':
           'تم إنشاء حسابك بنجاح. يرجى الانتظار حتى يوافق المسؤول لتتمكن من تسجيل الدخول.',
