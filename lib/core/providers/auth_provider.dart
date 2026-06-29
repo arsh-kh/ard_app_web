@@ -189,8 +189,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } on FirebaseAuthException catch (e) {
       state = state.copyWith(isLoading: false);
       return AppException.fromFirebase(e).message;
+    } on FirebaseException catch (e) {
+      state = state.copyWith(isLoading: false);
+      debugPrint('[Auth] FirebaseException during login: ${e.code} - ${e.message}');
+      return e.message ?? 'err_something_went_wrong';
     } catch (e) {
       state = state.copyWith(isLoading: false);
+      debugPrint('[Auth] Unknown exception during login: $e');
       return 'err_something_went_wrong';
     }
   }

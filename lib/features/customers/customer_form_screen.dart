@@ -93,6 +93,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         final uploadedUrl = await storage.uploadImage(_imagePath!, 'customers');
         if (uploadedUrl != null) {
           finalImageUrl = uploadedUrl;
+        } else {
+          finalImageUrl = null;
         }
       }
 

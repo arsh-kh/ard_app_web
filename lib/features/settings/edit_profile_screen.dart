@@ -66,6 +66,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         final uploadedUrl = await storage.uploadImage(_avatarPath!, 'profiles');
         if (uploadedUrl != null) {
           finalImageUrl = uploadedUrl;
+        } else {
+          // If upload fails, don't save the local path to the cloud DB!
+          finalImageUrl = null;
         }
       }
 

@@ -10,6 +10,7 @@ import '../../core/providers/auth_provider.dart';
 import '../../core/providers/business_provider.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/utils/focus_utils.dart';
+import '../../core/widgets/initials_avatar.dart';
 
 class AdminUsersScreen extends ConsumerStatefulWidget {
   const AdminUsersScreen({super.key});
@@ -181,19 +182,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                             ),
                             leading: Stack(
                               children: [
-                                CircleAvatar(
+                                InitialsAvatar(
+                                  text: user.name,
+                                  imageUrl: user.imageUrl,
                                   radius: 24,
-                                  backgroundColor: theme.colorScheme.primary
-                                      .withValues(alpha: 0.1),
-                                  backgroundImage: user.imageUrl != null
-                                      ? NetworkImage(user.imageUrl!)
-                                      : null,
-                                  child: user.imageUrl == null
-                                      ? Icon(
-                                          Icons.person,
-                                          color: theme.colorScheme.primary,
-                                        )
-                                      : null,
                                 ),
                                 Positioned(
                                   right: 0,

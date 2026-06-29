@@ -266,19 +266,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       body: Stack(
         children: [
           // Elegant Animated Monochrome Waves
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _floatAnim,
-              builder: (context, _) {
-                return CustomPaint(
-                  painter: _MonochromeWavePainter(
-                    baseColor: fg,
-                    animValue: _floatAnim.value,
-                  ),
-                );
-              },
+          if (!isDark)
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _floatAnim,
+                builder: (context, _) {
+                  return CustomPaint(
+                    painter: _MonochromeWavePainter(
+                      baseColor: fg,
+                      animValue: _floatAnim.value,
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -393,22 +394,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     // ── Premium Solid Card ───────────────────────────────────
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: isDark ? const Color(0xFF080808) : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
+                          color: isDark 
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
                           width: 1.5,
                         ),
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: isDark ? 0.3 : 0.05,
+                          if (!isDark)
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: 0.05,
+                              ),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
                             ),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
                         ],
                       ),
                       child: Column(
@@ -446,9 +450,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         width: tabWidth - 6,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.surface,
+                                            color: isDark
+                                                ? Colors.white.withValues(
+                                                    alpha: 0.1,
+                                                  )
+                                                : Theme.of(
+                                                    context,
+                                                  ).colorScheme.surface,
                                             borderRadius: BorderRadius.circular(
                                               10,
                                             ),
@@ -641,6 +649,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         'email': emailCtrl.text,
                                       })
                                     : Tr.t(error, lang),
+                                style: TextStyle(
+                                  color: error == null
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onError,
+                                ),
                               ),
                               backgroundColor: error == null
                                   ? Theme.of(context).colorScheme.primary
@@ -895,16 +908,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Theme.of(
-          context,
-        ).colorScheme.onSurface.withValues(alpha: 0.05),
+        fillColor: isDark 
+            ? Colors.white.withValues(alpha: 0.04)
+            : Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: border),
+          borderSide: BorderSide(color: isDark ? Colors.transparent : border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: border),
+          borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.06) : border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

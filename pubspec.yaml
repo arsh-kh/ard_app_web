@@ -41,7 +41,6 @@ dependencies:
 
   # UI & Design
   google_fonts: ^6.2.1
-  flutter_svg: ^2.0.17
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
   flutter_animate: ^4.5.2
@@ -75,14 +74,10 @@ dependencies:
   material_design_icons_flutter: ^7.0.7296
   image_picker: ^1.2.2
   shared_preferences: ^2.5.5
-  crypto: ^3.0.6
   flutter_native_splash: ^2.4.1
   firebase_storage: ^12.4.10
-  animated_theme_switcher: ^2.0.10
   flutter_secure_storage: ^10.3.1
   http: ^1.6.0
-  kurdish_pdf: ^1.0.3
-  screenshot: ^3.0.0
 
 
 dev_dependencies:
