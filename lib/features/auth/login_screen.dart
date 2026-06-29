@@ -886,6 +886,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       focusNode: focus,
       obscureText: obscure,
       textInputAction: textInputAction,
+      onFieldSubmitted: (_) {
+        if (textInputAction == TextInputAction.next) {
+          FocusScope.of(context).nextFocus();
+        }
+      },
       textDirection: TextDirection.ltr,
       style: TextStyle(color: fg, fontSize: 17, letterSpacing: 0.2),
       decoration: InputDecoration(

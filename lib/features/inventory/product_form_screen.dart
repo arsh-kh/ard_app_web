@@ -336,6 +336,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 controller: _nameController,
                 autofocus: isNew,
                 textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 decoration: InputDecoration(
                   labelText: nameLabel,
                   prefixIcon: const Icon(Icons.label_outline),
@@ -350,6 +351,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _supplierNameController,
                 textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 focusNode: _supplierNameFocus,
                 decoration: InputDecoration(
                   labelText: langCode == 'ku' ? 'ناوی دابینکەر (ئارەزوومەندانە)' : langCode == 'ar' ? 'اسم المورد (اختياري)' : 'Supplier Name (Optional)',
@@ -368,6 +370,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     child: TextFormField(
                       controller: _stockController,
                       textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                       decoration: InputDecoration(
                         labelText: stockLabel,
                         prefixIcon: const Icon(Icons.warehouse_outlined),
@@ -461,6 +464,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _buyPriceController,
                 textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 decoration: InputDecoration(
                   labelText: buyLabel,
                   prefixIcon: const Icon(Icons.shopping_basket_outlined),
@@ -490,7 +494,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               // Sell Price
               TextFormField(
                 controller: _sellPriceController,
-                textInputAction: TextInputAction.done,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 decoration: InputDecoration(
                   labelText: sellLabel,
                   prefixIcon: const Icon(Icons.monetization_on_outlined),
@@ -521,7 +526,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 // Delivery Fee
                 TextFormField(
                   controller: _deliveryFeeController,
-                  textInputAction: TextInputAction.done,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                   decoration: InputDecoration(
                     labelText: Tr.t('deliveryFee', langCode),
                     prefixIcon: const Icon(Icons.local_shipping_outlined),

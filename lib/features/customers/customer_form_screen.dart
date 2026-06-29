@@ -187,6 +187,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 focusNode: _nameFocus,
                 autofocus: isNew,
                 textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 decoration: InputDecoration(
                   labelText: nameLabel,
                   prefixIcon: const Icon(Icons.business_outlined),
@@ -207,6 +208,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                     : TextAlign.left,
                 textDirection: TextDirection.ltr,
                 textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 decoration: InputDecoration(
                   labelText: phoneLabel,
                   prefixIcon: const Icon(Icons.phone_outlined),
@@ -232,6 +234,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 controller: _addressController,
                 focusNode: _addressFocus,
                 textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 decoration: InputDecoration(
                   labelText: addressLabel,
                   prefixIcon: const Icon(Icons.location_on_outlined),

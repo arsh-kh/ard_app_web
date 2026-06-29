@@ -215,6 +215,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 value == null || value.trim().isEmpty
                                 ? reqError
                                 : null,
+                            textInputAction: TextInputAction.next,
                           ),
                           Padding(
                             padding: const EdgeInsetsDirectional.only(
@@ -260,6 +261,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             keyboardType: TextInputType.phone,
                             theme: theme,
                             validator: (value) => null, // Phone is optional
+                            textInputAction: TextInputAction.done,
                           ),
                         ],
                       ),
@@ -303,12 +305,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required ThemeData theme,
     required String? Function(String?) validator,
     void Function(String)? onChanged,
+    TextInputAction textInputAction = TextInputAction.next,
   }) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
       keyboardType: keyboardType,
       onChanged: onChanged,
+      textInputAction: textInputAction,
+      onFieldSubmitted: (_) {
+        if (textInputAction == TextInputAction.next) {
+          FocusScope.of(context).nextFocus();
+        }
+      },
       style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       decoration: InputDecoration(
         labelText: label,

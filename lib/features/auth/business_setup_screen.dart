@@ -654,6 +654,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
               if (v.trim().length < 3) return Tr.t('err_name_length', lang);
               return null;
             },
+            textInputAction: TextInputAction.next,
             textCapitalization: TextCapitalization.words,
           ),
           const SizedBox(height: 16),
@@ -667,6 +668,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
               if (!v.contains('@')) return Tr.t('invalidEmail', lang);
               return null;
             },
+            textInputAction: TextInputAction.done,
             textCapitalization: TextCapitalization.none,
             forceLtr: true,
           ),
@@ -692,6 +694,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     required bool isDark,
     required String? Function(String?) validator,
     required TextCapitalization textCapitalization,
+    TextInputAction textInputAction = TextInputAction.next,
     int? maxLength,
     bool forceLtr = false,
   }) {
@@ -700,7 +703,12 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
       key: key,
       controller: controller,
       textCapitalization: textCapitalization,
-      textInputAction: TextInputAction.done,
+      textInputAction: textInputAction,
+      onFieldSubmitted: (_) {
+        if (textInputAction == TextInputAction.next) {
+          FocusScope.of(context).nextFocus();
+        }
+      },
       maxLength: maxLength,
       style: TextStyle(fontSize: 16, color: fg, fontWeight: FontWeight.w600),
       cursorColor: fg,
