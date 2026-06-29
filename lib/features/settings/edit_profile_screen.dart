@@ -216,6 +216,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ? reqError
                                 : null,
                             textInputAction: TextInputAction.next,
+                            nextFocusNode: _emailFocus,
                           ),
                           Padding(
                             padding: const EdgeInsetsDirectional.only(
@@ -240,6 +241,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 value == null || value.trim().isEmpty
                                 ? reqError
                                 : null,
+                            textInputAction: TextInputAction.next,
+                            nextFocusNode: _phoneFocus,
                           ),
                           Padding(
                             padding: const EdgeInsetsDirectional.only(
@@ -306,6 +309,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required String? Function(String?) validator,
     void Function(String)? onChanged,
     TextInputAction textInputAction = TextInputAction.next,
+    FocusNode? nextFocusNode,
   }) {
     return TextFormField(
       controller: controller,
@@ -315,7 +319,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       textInputAction: textInputAction,
       onFieldSubmitted: (_) {
         if (textInputAction == TextInputAction.next) {
-          FocusScope.of(context).nextFocus();
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          } else {
+            FocusScope.of(context).nextFocus();
+          }
+        } else if (textInputAction == TextInputAction.done) {
+          FocusScope.of(context).unfocus();
         }
       },
       style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),

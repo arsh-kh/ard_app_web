@@ -100,7 +100,7 @@ class ReportData {
   });
 }
 
-final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
+final dashboardMetricsProvider = StreamProvider.autoDispose<DashboardMetrics>((ref) async* {
   final orderRepo = ref.watch(orderRepositoryProvider);
   final purchaseRepo = ref.watch(purchaseRepositoryProvider);
 
@@ -205,7 +205,7 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
   }
 });
 
-final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
+final recentActivityProvider = StreamProvider.autoDispose<List<RecentActivityItem>>((ref) {
   final langCode = ref.watch(localeProvider).languageCode;
   final orderRepo = ref.watch(orderRepositoryProvider);
   final paymentRepo = ref.watch(paymentRepositoryProvider);
@@ -274,7 +274,7 @@ final recentActivityProvider = StreamProvider<List<RecentActivityItem>>((ref) {
   );
 });
 
-final topDebtorsProvider = StreamProvider<List<CustomerEntity>>((ref) {
+final topDebtorsProvider = StreamProvider.autoDispose<List<CustomerEntity>>((ref) {
   final customerRepo = ref.watch(customerRepositoryProvider);
   return customerRepo.watchAllCustomers().map((customers) {
     final debtors = customers
@@ -285,7 +285,7 @@ final topDebtorsProvider = StreamProvider<List<CustomerEntity>>((ref) {
   });
 });
 
-final lowStockProvider = StreamProvider<List<ProductEntity>>((ref) {
+final lowStockProvider = StreamProvider.autoDispose<List<ProductEntity>>((ref) {
   final inventoryRepo = ref.watch(inventoryRepositoryProvider);
   return inventoryRepo.watchAllProducts().map((products) {
     final lowStock = products.where((p) {

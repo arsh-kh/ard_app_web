@@ -336,7 +336,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 controller: _nameController,
                 autofocus: isNew,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_supplierNameFocus),
                 decoration: InputDecoration(
                   labelText: nameLabel,
                   prefixIcon: const Icon(Icons.label_outline),
@@ -351,7 +351,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _supplierNameController,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_stockFocus),
                 focusNode: _supplierNameFocus,
                 decoration: InputDecoration(
                   labelText: langCode == 'ku' ? 'ناوی دابینکەر (ئارەزوومەندانە)' : langCode == 'ar' ? 'اسم المورد (اختياري)' : 'Supplier Name (Optional)',
@@ -370,7 +370,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     child: TextFormField(
                       controller: _stockController,
                       textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                      onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_buyPriceFocus),
                       decoration: InputDecoration(
                         labelText: stockLabel,
                         prefixIcon: const Icon(Icons.warehouse_outlined),
@@ -464,7 +464,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _buyPriceController,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_sellPriceFocus),
                 decoration: InputDecoration(
                   labelText: buyLabel,
                   prefixIcon: const Icon(Icons.shopping_basket_outlined),
@@ -495,7 +495,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _sellPriceController,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) {
+                  if (isNew) {
+                    FocusScope.of(context).requestFocus(_deliveryFeeFocus);
+                  } else {
+                    FocusScope.of(context).requestFocus(_lowStockThresholdFocus);
+                  }
+                },
                 decoration: InputDecoration(
                   labelText: sellLabel,
                   prefixIcon: const Icon(Icons.monetization_on_outlined),
@@ -527,7 +533,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 TextFormField(
                   controller: _deliveryFeeController,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_lowStockThresholdFocus),
                   decoration: InputDecoration(
                     labelText: Tr.t('deliveryFee', langCode),
                     prefixIcon: const Icon(Icons.local_shipping_outlined),
@@ -602,6 +608,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _lowStockThresholdController,
                 textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
                 decoration: InputDecoration(
                   labelText: Tr.t('lowStockThresholdLabel', langCode),
                   prefixIcon: const Icon(Icons.warning_amber_rounded),

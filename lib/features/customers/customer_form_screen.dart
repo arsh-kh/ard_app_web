@@ -187,7 +187,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 focusNode: _nameFocus,
                 autofocus: isNew,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_phoneFocus),
                 decoration: InputDecoration(
                   labelText: nameLabel,
                   prefixIcon: const Icon(Icons.business_outlined),
@@ -208,7 +208,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                     : TextAlign.left,
                 textDirection: TextDirection.ltr,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_addressFocus),
                 decoration: InputDecoration(
                   labelText: phoneLabel,
                   prefixIcon: const Icon(Icons.phone_outlined),
@@ -234,7 +234,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 controller: _addressController,
                 focusNode: _addressFocus,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_debtFocus),
                 decoration: InputDecoration(
                   labelText: addressLabel,
                   prefixIcon: const Icon(Icons.location_on_outlined),
@@ -248,6 +248,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 controller: _debtController,
                 focusNode: _debtFocus,
                 textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
                 decoration: InputDecoration(
                   labelText: debtLabel,
                   prefixIcon: const Icon(Icons.account_balance_wallet_outlined),

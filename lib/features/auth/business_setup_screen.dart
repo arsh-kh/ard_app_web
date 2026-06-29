@@ -23,6 +23,8 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
   final TextEditingController _inviteCodeController = TextEditingController();
   final TextEditingController _recoveryEmailController =
       TextEditingController();
+  final FocusNode _businessNameFocus = FocusNode();
+  final FocusNode _recoveryEmailFocus = FocusNode();
 
   bool _isJoinMode = true;
 
@@ -42,6 +44,8 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     _businessNameController.dispose();
     _inviteCodeController.dispose();
     _recoveryEmailController.dispose();
+    _businessNameFocus.dispose();
+    _recoveryEmailFocus.dispose();
     _tabCtrl.dispose();
     super.dispose();
   }
@@ -646,6 +650,8 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
 
           _buildInputField(
             controller: _businessNameController,
+            focusNode: _businessNameFocus,
+            nextFocusNode: _recoveryEmailFocus,
             hint: Tr.t('businessNameHint', lang),
             icon: Icons.store_rounded,
             isDark: isDark,
@@ -656,10 +662,12 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
             },
             textInputAction: TextInputAction.next,
             textCapitalization: TextCapitalization.words,
+            forceLtr: true,
           ),
           const SizedBox(height: 16),
           _buildInputField(
             controller: _recoveryEmailController,
+            focusNode: _recoveryEmailFocus,
             hint: Tr.t('recoveryEmailHint', lang),
             icon: Icons.email_outlined,
             isDark: isDark,
@@ -697,16 +705,25 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     TextInputAction textInputAction = TextInputAction.next,
     int? maxLength,
     bool forceLtr = false,
+    FocusNode? focusNode,
+    FocusNode? nextFocusNode,
   }) {
     final fg = isDark ? Colors.white : Colors.black;
     final Widget field = TextFormField(
       key: key,
       controller: controller,
+      focusNode: focusNode,
       textCapitalization: textCapitalization,
       textInputAction: textInputAction,
       onFieldSubmitted: (_) {
         if (textInputAction == TextInputAction.next) {
-          FocusScope.of(context).nextFocus();
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          } else {
+            FocusScope.of(context).nextFocus();
+          }
+        } else if (textInputAction == TextInputAction.done) {
+          FocusScope.of(context).unfocus();
         }
       },
       maxLength: maxLength,

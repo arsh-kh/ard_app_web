@@ -199,7 +199,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         final lang = ref.read(localeProvider).languageCode;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(Tr.t('msg_reg_success_verify', lang)),
+            content: Text(
+              Tr.t('msg_reg_success_verify', lang),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Theme.of(context).colorScheme.primary,
             shape: RoundedRectangleBorder(
@@ -218,7 +223,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       final lang = ref.read(localeProvider).languageCode;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(Tr.t(error, lang)),
+          content: Text(
+            Tr.t(error, lang),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onError,
+            ),
+          ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Theme.of(context).colorScheme.error,
           shape: RoundedRectangleBorder(
@@ -711,6 +721,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             forceLtr: true,
+            onSubmitted: (_) => FocusScope.of(context).requestFocus(_passFocus),
             validator: (v) {
               if (v == null || v.isEmpty) return req;
               if (!AppValidators.isValidEmail(v))
@@ -731,6 +742,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             obscure: _obscurePass,
             forceLtr: true,
             textInputAction: TextInputAction.done,
+            onSubmitted: (_) => FocusScope.of(context).unfocus(),
             suffix: IconButton(
               icon: Icon(
                 _obscurePass
@@ -801,6 +813,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             forceLtr: true,
+            onSubmitted: (_) => FocusScope.of(context).requestFocus(_regEmailFocus),
             validator: (v) => (v == null || v.isEmpty) ? req : null,
           ),
           const SizedBox(height: 12),
@@ -814,6 +827,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             fg: fg,
             border: border,
             forceLtr: true,
+            onSubmitted: (_) => FocusScope.of(context).requestFocus(_regPassFocus),
             validator: (v) {
               if (v == null || v.isEmpty) return req;
               if (!AppValidators.isValidEmail(v))
@@ -834,6 +848,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             obscure: _obscureRegPass,
             forceLtr: true,
             textInputAction: TextInputAction.done,
+            onSubmitted: (_) => FocusScope.of(context).unfocus(),
             suffix: IconButton(
               icon: Icon(
                 _obscureRegPass
@@ -880,17 +895,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     String? Function(String?)? validator,
     TextInputAction textInputAction = TextInputAction.next,
     bool forceLtr = false,
+    void Function(String)? onSubmitted,
   }) {
     final Widget field = TextFormField(
       controller: ctrl,
       focusNode: focus,
       obscureText: obscure,
       textInputAction: textInputAction,
-      onFieldSubmitted: (_) {
-        if (textInputAction == TextInputAction.next) {
-          FocusScope.of(context).nextFocus();
-        }
-      },
+      onFieldSubmitted: onSubmitted,
       textDirection: TextDirection.ltr,
       style: TextStyle(color: fg, fontSize: 17, letterSpacing: 0.2),
       decoration: InputDecoration(

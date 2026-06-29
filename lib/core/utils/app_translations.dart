@@ -29,6 +29,16 @@ class Tr {
   static const Map<String, Map<String, String>> _strings = {
     // ── ENGLISH ────────────────────────────────────────────────
     'en': {
+      'pdfShopName': 'Haji Khusro Shop',
+      'pdfShopDesc1': 'For selling flour and rice: Kirkuk flour, Salahaddin flour, Lasek flour, Das flour',
+      'pdfShopDesc2': 'Russian flour, Barley flour, Thai rice.',
+      'pdfDear': 'Mr. / Dear: ',
+      'pdfDate': 'Date: ',
+      'pdfTotal': 'Total',
+      'pdfQty': 'Qty',
+      'pdfUnitPrice': 'Unit Price',
+      'pdfType': 'Type',
+      'pdfFreeDelivery': 'Free Delivery',
       // Onboarding
       'onboardingWelcomeTitle': 'Welcome to Ard App',
       'onboardingWelcomeDesc':
@@ -613,6 +623,16 @@ class Tr {
     },
     // ── SORANI KURDISH ──────────────────────────────────────────
     'ku': {
+      'pdfShopName': 'محل حاج خسرو',
+      'pdfShopDesc1': 'للبيع طحين و رز: طحين كركوك، طحين صلاح الدين، طحين لاسك، طحين داس',
+      'pdfShopDesc2': 'طحين روسي، طحين شعير، رز تايلندي.',
+      'pdfDear': 'السيد / بەڕێز: ',
+      'pdfDate': 'التاريخ / بەروار: ',
+      'pdfTotal': 'المجموع / کۆی گشتی',
+      'pdfQty': 'العدد / دانە',
+      'pdfUnitPrice': 'سعر واحد كيس / نرخی یەک فەردە',
+      'pdfType': 'نوع / جۆر',
+      'pdfFreeDelivery': 'توصيل مجاني',
       // Onboarding
       'onboardingWelcomeTitle': 'بەخێربێیت بۆ ئەپی ئارد',
       'onboardingWelcomeDesc':
@@ -1199,6 +1219,16 @@ class Tr {
     },
     // ── ARABIC ─────────────────────────────────────────────────
     'ar': {
+      'pdfShopName': 'محل حاج خسرو',
+      'pdfShopDesc1': 'للبيع طحين و رز: طحين كركوك، طحين صلاح الدين، طحين لاسك، طحين داس',
+      'pdfShopDesc2': 'طحين روسي، طحين شعير، رز تايلندي.',
+      'pdfDear': 'السيد / بەڕێز: ',
+      'pdfDate': 'التاريخ / بەروار: ',
+      'pdfTotal': 'المجموع / کۆی گشتی',
+      'pdfQty': 'العدد / دانە',
+      'pdfUnitPrice': 'سعر واحد كيس / نرخی یەک فەردە',
+      'pdfType': 'نوع / جۆر',
+      'pdfFreeDelivery': 'توصيل مجاني',
       // Onboarding
       'onboardingWelcomeTitle': 'مرحباً بك في تطبيق آرد',
       'onboardingWelcomeDesc': 'الطريقة الأذكى لإدارة عملك وتتبع مبيعاتك.',

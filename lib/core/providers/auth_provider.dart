@@ -41,6 +41,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   StreamSubscription<DocumentSnapshot>? _userDocSub;
+  bool _isAuthInProgress = false;
 
   AuthNotifier() : super(const AuthState(isInitializing: true)) {
     _initAndRestore();
@@ -65,6 +66,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           await firebaseUser.reload();
 
           if (!firebaseUser.emailVerified) {
+            if (_isAuthInProgress) return; // Wait for auth flow to complete
             // User hasn't verified email, treat as logged out internally
             await _firebaseAuth.signOut();
             state = const AuthState(isInitializing: false);
@@ -152,6 +154,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String password,
   }) async {
     state = state.copyWith(isLoading: true);
+    _isAuthInProgress = true;
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email.trim().toLowerCase(),
@@ -177,13 +180,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
           .doc(firebaseUser.uid)
           .get();
 
+      UserEntity user;
+
       if (!doc.exists) {
-        await _firebaseAuth.signOut();
-        state = state.copyWith(isLoading: false);
-        return 'err_user_not_found';
+        // Heal the database: The user authenticated successfully but their profile
+        // was interrupted during creation. Recreate it securely.
+        user = UserEntity(
+          id: firebaseUser.uid,
+          businessId: '',
+          name: firebaseUser.displayName ?? email.split('@').first,
+          email: firebaseUser.email ?? email.trim().toLowerCase(),
+          passwordHash: '',
+          role: 'user',
+          status: 'pending',
+          createdAt: DateTime.now(),
+        );
+
+        await _firestore
+            .collection('users')
+            .doc(firebaseUser.uid)
+            .set(user.toJson());
+      } else {
+        user = UserEntity.fromJson({'id': doc.id, ...doc.data()!});
       }
 
-      final user = UserEntity.fromJson({'id': doc.id, ...doc.data()!});
       state = AuthState(userId: firebaseUser.uid, user: user, isLoading: false);
       return null;
     } on FirebaseAuthException catch (e) {
@@ -197,6 +217,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: false);
       debugPrint('[Auth] Unknown exception during login: $e');
       return 'err_something_went_wrong';
+    } finally {
+      _isAuthInProgress = false;
     }
   }
 
@@ -206,19 +228,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String password,
   }) async {
     state = state.copyWith(isLoading: true);
+    _isAuthInProgress = true;
     try {
       final emailLower = email.trim().toLowerCase();
-
-      // Check if user exists in Firestore first (optional, but good for custom errors)
-      final existing = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: emailLower)
-          .get();
-
-      if (existing.docs.isNotEmpty) {
-        state = state.copyWith(isLoading: false);
-        return 'err_email_in_use';
-      }
 
       if (password.length < 6) {
         state = state.copyWith(isLoading: false);
@@ -275,6 +287,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       debugPrint('Registration generic error: $e');
       state = state.copyWith(isLoading: false);
       return 'err_registration_failed';
+    } finally {
+      _isAuthInProgress = false;
     }
   }
 
