@@ -176,6 +176,29 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           : rawBuyPrice;
 
       final productId = widget.productToEdit?.id ?? const Uuid().v4();
+
+      // 1. Upload image first if needed
+      if (hasNewImageToUpload && localImagePath != null) {
+        final storage = ref.read(cloudStorageServiceProvider);
+        try {
+          final uploadedUrl = await storage.uploadImage(
+            localImagePath,
+            'products',
+          );
+          if (uploadedUrl != null) {
+            finalImageUrl = uploadedUrl;
+          } else {
+            throw Exception('Upload returned null');
+          }
+        } catch (e) {
+          if (mounted) {
+            Navigator.pop(context); // dismiss loader
+            AppFeedback.showError(context, 'Failed to upload image: $e');
+          }
+          return; // Stop saving if image upload fails
+        }
+      }
+
       final product = ProductEntity(
         id: productId,
         name: _nameController.text,
@@ -249,25 +272,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           }
           AppFeedback.showError(context, errorMsg);
         }
-      }
-
-      // Fire and forget image upload
-      if (hasNewImageToUpload && localImagePath != null) {
-        final storage = ref.read(cloudStorageServiceProvider);
-        final currentRepo = ref.read(inventoryRepositoryProvider);
-        () async {
-          try {
-            final uploadedUrl = await storage.uploadImage(
-              localImagePath!,
-              'products',
-            );
-            if (uploadedUrl != null) {
-              await currentRepo.updateProductImageUrl(productId, uploadedUrl);
-            }
-          } catch (e) {
-            debugPrint('Background image upload failed: $e');
-          }
-        }().ignore();
       }
     }
   }

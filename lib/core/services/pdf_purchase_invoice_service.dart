@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
-import '../../core/utils/arabic_reshaper_utils.dart';
+
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -47,13 +47,13 @@ class PdfPurchaseInvoiceService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tInvoice = ArabicReshaperUtils.reshape(Tr.t('purchaseInvoice', langCode));
-          final tInvoiceNum = ArabicReshaperUtils.reshape(Tr.t('purchaseNo', langCode));
-          final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
-          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
-          final tContact = ArabicReshaperUtils.reshape(Tr.t('auto_Contact', langCode));
-          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
-          final tTotal = ArabicReshaperUtils.reshape(Tr.t('auto_TotalAmount', langCode));
+          final tInvoice = Tr.t('purchaseInvoice', langCode);
+          final tInvoiceNum = Tr.t('purchaseNo', langCode);
+          final tDate = Tr.t('auto_Date', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tContact = Tr.t('auto_Contact', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tTotal = Tr.t('auto_TotalAmount', langCode);
 
           return [
             // Premium Header Banner
@@ -85,7 +85,7 @@ class PdfPurchaseInvoiceService {
                       ),
                       pw.SizedBox(height: 12),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -109,7 +109,7 @@ class PdfPurchaseInvoiceService {
                       ),
                       pw.SizedBox(height: 4),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -163,7 +163,7 @@ class PdfPurchaseInvoiceService {
                       ),
                       pw.SizedBox(height: 6),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -222,7 +222,7 @@ class PdfPurchaseInvoiceService {
                     ),
                   ),
                   child: pw.Directionality(
-                    textDirection: pw.TextDirection.ltr,
+                    textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                     child: pw.Row(
                       mainAxisSize: pw.MainAxisSize.min,
                       children: [
@@ -297,10 +297,10 @@ class PdfPurchaseInvoiceService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tItem = ArabicReshaperUtils.reshape(Tr.t('auto_Item', langCode));
-    final tQty = ArabicReshaperUtils.reshape(Tr.t('auto_Qty', langCode));
-    final tPrice = ArabicReshaperUtils.reshape(Tr.t('auto_UnitPrice', langCode));
-    final tTotal = ArabicReshaperUtils.reshape(Tr.t('auto_Total', langCode));
+    final tItem = Tr.t('auto_Item', langCode);
+    final tQty = Tr.t('auto_Qty', langCode);
+    final tPrice = Tr.t('auto_UnitPrice', langCode);
+    final tTotal = Tr.t('auto_Total', langCode);
 
     final activeItems = items
         .where((i) => (i.quantity - i.returnedQuantity) > 0)
@@ -418,13 +418,13 @@ class PdfPurchaseInvoiceService {
                   textDirection: (isKurdish || isArabic)
                       ? pw.TextDirection.rtl
                       : pw.TextDirection.ltr,
-                  child: pw.Text(ArabicReshaperUtils.reshape(product.name)),
+                  child: pw.Text(product.name),
                 ),
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(10),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
                     netQty.toString(),
                     textAlign: (isKurdish || isArabic)
@@ -436,9 +436,9 @@ class PdfPurchaseInvoiceService {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(10),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
-                    CurrencyFormatter.format(item.unitPrice),
+                    CurrencyFormatter.format(item.unitPrice, forPdf: true),
                     textAlign: (isKurdish || isArabic)
                         ? pw.TextAlign.left
                         : pw.TextAlign.right,
@@ -448,9 +448,9 @@ class PdfPurchaseInvoiceService {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(10),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
-                    CurrencyFormatter.format(netQty * item.unitPrice),
+                    CurrencyFormatter.format(netQty * item.unitPrice, forPdf: true),
                     textAlign: (isKurdish || isArabic)
                         ? pw.TextAlign.left
                         : pw.TextAlign.right,

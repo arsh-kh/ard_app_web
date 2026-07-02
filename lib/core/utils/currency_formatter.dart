@@ -9,20 +9,23 @@ class CurrencyFormatter {
 
   /// Formats a number as Iraqi Dinar currency.
   /// Example: 150000 → "IQD 150,000"
-  static String format(double amount) {
-    return '\u202A${_formatter.format(amount)} ${AppConstants.currencySymbol}\u202C';
+  static String format(double amount, {bool forPdf = false}) {
+    final str = '${_formatter.format(amount)} ${AppConstants.currencySymbol}';
+    return forPdf ? str : '\u202A$str\u202C';
   }
 
   /// Formats a number as currency without the symbol.
   /// Example: 150000 → "150,000"
-  static String formatNumber(double amount) {
-    return '\u202A${_formatter.format(amount)}\u202C';
+  static String formatNumber(double amount, {bool forPdf = false}) {
+    final str = _formatter.format(amount);
+    return forPdf ? str : '\u202A$str\u202C';
   }
 
   /// Formats a number as currency with symbol prefix.
   /// Example: 150000 → "IQD 150,000"
-  static String formatWithPrefix(double amount) {
-    return '\u202A${_formatter.format(amount)} ${AppConstants.currencySymbol}\u202C';
+  static String formatWithPrefix(double amount, {bool forPdf = false}) {
+    final str = '${_formatter.format(amount)} ${AppConstants.currencySymbol}';
+    return forPdf ? str : '\u202A$str\u202C';
   }
 
   /// Parses a formatted currency string back to double.
@@ -76,7 +79,7 @@ class CurrencyFormatter {
 
   /// Formats a compact number for dashboard stats.
   /// Example: 1500000 → "1.5M"
-  static String formatCompact(double amount) {
+  static String formatCompact(double amount, {bool forPdf = false}) {
     final bool isArabic = AppConstants.languageCode == 'ar';
     final bool isKurdish = AppConstants.languageCode == 'ku';
 
@@ -117,6 +120,6 @@ class CurrencyFormatter {
       result = '-$result';
     }
 
-    return '\u202A$result\u202C';
+    return forPdf ? result : '\u202A$result\u202C';
   }
 }

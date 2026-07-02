@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
-import '../../core/utils/arabic_reshaper_utils.dart';
+
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -46,23 +46,23 @@ class PdfReportService {
               ? 'ar'
               : 'en';
               
-          final tTitle = ArabicReshaperUtils.reshape(isMonth
+          final tTitle = isMonth
               ? (Tr.t('auto_MONTHLYREPORT', langCode))
-              : (Tr.t('auto_YEARLYREPORT', langCode)));
+              : (Tr.t('auto_YEARLYREPORT', langCode));
 
-          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
-          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
-          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
-          final tSummary = ArabicReshaperUtils.reshape(Tr.t('auto_FinancialSummar', langCode));
-          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
-          final tTopProducts = ArabicReshaperUtils.reshape(Tr.t('auto_TopSellingProdu', langCode));
-          final tTopCustomers = ArabicReshaperUtils.reshape(Tr.t('auto_TopCustomers', langCode));
-          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
-          final tNetProfit = ArabicReshaperUtils.reshape(Tr.t('auto_NetProfit', langCode));
-          final tTotalOrders = ArabicReshaperUtils.reshape(Tr.t('auto_TotalOrdersExec', langCode));
-          final tTotalRev = ArabicReshaperUtils.reshape(Tr.t('auto_TotalRevenueGro', langCode));
-          final tTotalExp = ArabicReshaperUtils.reshape(Tr.t('auto_TotalPurchasesE', langCode));
-          final tTotalReturns = ArabicReshaperUtils.reshape(Tr.t('totalReturns', langCode));
+          final tPeriod = Tr.t('auto_Period', langCode);
+          final tGenerated = Tr.t('auto_Generated', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tSummary = Tr.t('auto_FinancialSummar', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tTopProducts = Tr.t('auto_TopSellingProdu', langCode);
+          final tTopCustomers = Tr.t('auto_TopCustomers', langCode);
+          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
+          final tNetProfit = Tr.t('auto_NetProfit', langCode);
+          final tTotalOrders = Tr.t('auto_TotalOrdersExec', langCode);
+          final tTotalRev = Tr.t('auto_TotalRevenueGro', langCode);
+          final tTotalExp = Tr.t('auto_TotalPurchasesE', langCode);
+          final tTotalReturns = Tr.t('totalReturns', langCode);
 
           return [
             // Premium Header
@@ -94,7 +94,7 @@ class PdfReportService {
                       ),
                       pw.SizedBox(height: 4),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -106,7 +106,7 @@ class PdfReportService {
                               ),
                             ),
                             pw.Text(
-                              ArabicReshaperUtils.reshape(periodName),
+                              periodName,
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -117,7 +117,7 @@ class PdfReportService {
                         ),
                       ),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -211,18 +211,18 @@ class PdfReportService {
                   ),
                   _buildTableRow(
                     tTotalRev,
-                    CurrencyFormatter.format(reportData.revenue),
+                    CurrencyFormatter.format(reportData.revenue, forPdf: true),
                     isRtl: isKurdish || isArabic,
                     isGrey: true,
                   ),
                   _buildTableRow(
                     tTotalExp,
-                    CurrencyFormatter.format(reportData.cogs),
+                    CurrencyFormatter.format(reportData.cogs, forPdf: true),
                     isRtl: isKurdish || isArabic,
                   ),
                   _buildTableRow(
                     tTotalReturns,
-                    CurrencyFormatter.format(reportData.totalReturns),
+                    CurrencyFormatter.format(reportData.totalReturns, forPdf: true),
                     isRtl: isKurdish || isArabic,
                     isGrey: true,
                   ),
@@ -251,12 +251,12 @@ class PdfReportService {
                     border: pw.Border.all(color: primaryColor, width: 2),
                   ),
                   child: pw.Directionality(
-                    textDirection: pw.TextDirection.ltr,
+                    textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                     child: pw.Row(
                       children: [
                         if (isKurdish || isArabic) ...[
                           pw.Text(
-                            CurrencyFormatter.format(reportData.profit),
+                            CurrencyFormatter.format(reportData.profit, forPdf: true),
                             style: pw.TextStyle(
                               fontSize: 20,
                               fontWeight: pw.FontWeight.bold,
@@ -285,7 +285,7 @@ class PdfReportService {
                             ),
                           ),
                           pw.Text(
-                            CurrencyFormatter.format(reportData.profit),
+                            CurrencyFormatter.format(reportData.profit, forPdf: true),
                             style: pw.TextStyle(
                               fontSize: 20,
                               fontWeight: pw.FontWeight.bold,
@@ -395,7 +395,7 @@ class PdfReportService {
         pw.Padding(
           padding: const pw.EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: pw.Directionality(
-            textDirection: pw.TextDirection.ltr,
+            textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
             child: pw.Text(
               value,
               style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
@@ -418,7 +418,7 @@ class PdfReportService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Noproductsalesr', langCode));
+    final tEmpty = Tr.t('auto_Noproductsalesr', langCode);
 
     if (products.isEmpty) {
       return pw.Directionality(
@@ -432,10 +432,10 @@ class PdfReportService {
       );
     }
 
-    final tName = ArabicReshaperUtils.reshape(Tr.t('auto_ProductName', langCode));
-    final tQty = ArabicReshaperUtils.reshape(Tr.t('auto_QtySold', langCode));
-    final tRev = ArabicReshaperUtils.reshape(Tr.t('auto_Revenue', langCode));
-    final tProf = ArabicReshaperUtils.reshape(Tr.t('auto_Profit', langCode));
+    final tName = Tr.t('auto_ProductName', langCode);
+    final tQty = Tr.t('auto_QtySold', langCode);
+    final tRev = Tr.t('auto_Revenue', langCode);
+    final tProf = Tr.t('auto_Profit', langCode);
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -536,13 +536,13 @@ class PdfReportService {
                   textDirection: (isKurdish || isArabic)
                       ? pw.TextDirection.rtl
                       : pw.TextDirection.ltr,
-                  child: pw.Text(ArabicReshaperUtils.reshape(p.productName)),
+                  child: pw.Text(p.productName),
                 ),
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
                     p.quantitySold.toStringAsFixed(0),
                     textAlign: (isKurdish || isArabic)
@@ -554,9 +554,9 @@ class PdfReportService {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
-                    CurrencyFormatter.format(p.revenue),
+                    CurrencyFormatter.format(p.revenue, forPdf: true),
                     textAlign: (isKurdish || isArabic)
                         ? pw.TextAlign.left
                         : pw.TextAlign.right,
@@ -566,9 +566,9 @@ class PdfReportService {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
-                    CurrencyFormatter.format(p.profit),
+                    CurrencyFormatter.format(p.profit, forPdf: true),
                     textAlign: (isKurdish || isArabic)
                         ? pw.TextAlign.left
                         : pw.TextAlign.right,
@@ -593,7 +593,7 @@ class PdfReportService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Nocustomeractiv', langCode));
+    final tEmpty = Tr.t('auto_Nocustomeractiv', langCode);
     if (customers.isEmpty) {
       return pw.Directionality(
         textDirection: (isKurdish || isArabic)
@@ -606,9 +606,9 @@ class PdfReportService {
       );
     }
 
-    final tName = ArabicReshaperUtils.reshape(Tr.t('auto_CustomerName', langCode));
-    final tOrd = ArabicReshaperUtils.reshape(Tr.t('auto_Orders', langCode));
-    final tSpn = ArabicReshaperUtils.reshape(Tr.t('auto_TotalSpent', langCode));
+    final tName = Tr.t('auto_CustomerName', langCode);
+    final tOrd = Tr.t('auto_Orders', langCode);
+    final tSpn = Tr.t('auto_TotalSpent', langCode);
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -690,13 +690,13 @@ class PdfReportService {
                   textDirection: (isKurdish || isArabic)
                       ? pw.TextDirection.rtl
                       : pw.TextDirection.ltr,
-                  child: pw.Text(ArabicReshaperUtils.reshape(c.customerName)),
+                  child: pw.Text(c.customerName),
                 ),
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
                     c.orderCount.toString(),
                     textAlign: (isKurdish || isArabic)
@@ -708,9 +708,9 @@ class PdfReportService {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Directionality(
-                  textDirection: pw.TextDirection.ltr,
+                  textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                   child: pw.Text(
-                    CurrencyFormatter.format(c.totalSpent),
+                    CurrencyFormatter.format(c.totalSpent, forPdf: true),
                     textAlign: (isKurdish || isArabic)
                         ? pw.TextAlign.left
                         : pw.TextAlign.right,

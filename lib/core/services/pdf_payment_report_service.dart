@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
-import '../../core/utils/arabic_reshaper_utils.dart';
+
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -48,19 +48,19 @@ class PdfPaymentReportService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tTitle = ArabicReshaperUtils.reshape(Tr.t('auto_PaymentReport', langCode));
-          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
-          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
-          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
-          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
-          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
+          final tTitle = Tr.t('auto_PaymentReport', langCode);
+          final tPeriod = Tr.t('auto_Period', langCode);
+          final tGenerated = Tr.t('auto_Generated', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
 
           final tTotalPaymentsRaw = Tr.t('summaryPayments', langCode, {
             'count': payments.length.toString(),
             'total': '',
           }).replaceAll(RegExp(r'[^a-zA-Z\s]'), '').trim();
-          final tTotalPayments = ArabicReshaperUtils.reshape(tTotalPaymentsRaw.isEmpty ? "Payments" : tTotalPaymentsRaw);
-          final tTotalAmount = ArabicReshaperUtils.reshape(Tr.t('auto_TotalRevenue', langCode));
+          final tTotalPayments = tTotalPaymentsRaw.isEmpty ? "Payments" : tTotalPaymentsRaw;
+          final tTotalAmount = Tr.t('auto_TotalRevenue', langCode);
 
           final double totalRevenue = payments.fold(
             0,
@@ -98,7 +98,7 @@ class PdfPaymentReportService {
                       ),
                       pw.SizedBox(height: 8),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -110,7 +110,7 @@ class PdfPaymentReportService {
                               ),
                             ),
                             pw.Text(
-                              ArabicReshaperUtils.reshape(periodName),
+                              periodName,
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -122,7 +122,7 @@ class PdfPaymentReportService {
                       ),
                       pw.SizedBox(height: 2),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -261,9 +261,9 @@ class PdfPaymentReportService {
                         ),
                         pw.SizedBox(height: 8),
                         pw.Directionality(
-                          textDirection: pw.TextDirection.ltr,
+                          textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                           child: pw.Text(
-                            CurrencyFormatter.format(totalRevenue),
+                            CurrencyFormatter.format(totalRevenue, forPdf: true),
                             style: pw.TextStyle(
                               fontSize: 24,
                               fontWeight: pw.FontWeight.bold,
@@ -330,7 +330,7 @@ class PdfPaymentReportService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('noPaymentHistory', langCode));
+    final tEmpty = Tr.t('noPaymentHistory', langCode);
 
     if (payments.isEmpty) {
       return pw.Container(
@@ -348,9 +348,9 @@ class PdfPaymentReportService {
       );
     }
 
-    final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
-    final tCustomer = ArabicReshaperUtils.reshape(Tr.t('auto_Customer', langCode));
-    final tAmount = ArabicReshaperUtils.reshape(Tr.t('auto_Amount', langCode));
+    final tDate = Tr.t('auto_Date', langCode);
+    final tCustomer = Tr.t('auto_Customer', langCode);
+    final tAmount = Tr.t('auto_Amount', langCode);
 
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -462,7 +462,7 @@ class PdfPaymentReportService {
                       vertical: 12,
                     ),
                     child: pw.Directionality(
-                      textDirection: pw.TextDirection.ltr,
+                      textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                       child: pw.Text(
                         dateFormat.format(p.paymentDate),
                         style: const pw.TextStyle(
@@ -485,7 +485,7 @@ class PdfPaymentReportService {
                           ? pw.TextDirection.rtl
                           : pw.TextDirection.ltr,
                       child: pw.Text(
-                        ArabicReshaperUtils.reshape(customer.businessName),
+                        customer.businessName,
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,
@@ -500,9 +500,9 @@ class PdfPaymentReportService {
                       vertical: 12,
                     ),
                     child: pw.Directionality(
-                      textDirection: pw.TextDirection.ltr,
+                      textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                       child: pw.Text(
-                        CurrencyFormatter.format(p.amount),
+                        CurrencyFormatter.format(p.amount, forPdf: true),
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,

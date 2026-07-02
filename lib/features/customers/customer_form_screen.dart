@@ -99,8 +99,32 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
           finalImageUrl = widget.customerToEdit?.imageUrl;
         }
 
+        final customerId = widget.customerToEdit?.id ?? const Uuid().v4();
+
+        // 1. Upload image first if needed
+        if (hasNewImageToUpload && localImagePath != null) {
+          final storage = ref.read(cloudStorageServiceProvider);
+          try {
+            final uploadedUrl = await storage.uploadImage(
+              localImagePath,
+              'customers',
+            );
+            if (uploadedUrl != null) {
+              finalImageUrl = uploadedUrl;
+            } else {
+              throw Exception('Upload returned null');
+            }
+          } catch (e) {
+            if (mounted) {
+              Navigator.pop(context); // dismiss loader
+              AppFeedback.showError(context, 'Failed to upload image: $e');
+            }
+            return; // Stop saving if image upload fails
+          }
+        }
+
         final customer = CustomerEntity(
-          id: widget.customerToEdit?.id ?? const Uuid().v4(),
+          id: customerId,
           businessName: _nameController.text,
           phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
           address: _addressController.text,
@@ -126,24 +150,6 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 : (Tr.t('auto_Customerprofile', langCode)),
           );
           context.pop();
-        }
-
-        // Fire and forget image upload
-        if (hasNewImageToUpload && localImagePath != null) {
-          final storage = ref.read(cloudStorageServiceProvider);
-          final currentRepo = ref.read(customerRepositoryProvider);
-          final customerId = customer.id;
-          () async {
-            try {
-              final uploadedUrl = await storage.uploadImage(
-                localImagePath!,
-                'customers',
-              );
-              await currentRepo.updateCustomerImageUrl(customerId, uploadedUrl ?? '');
-            } catch (e) {
-              debugPrint('Failed to upload customer image: $e');
-            }
-          }().ignore();
         }
       } catch (e) {
         if (mounted) {

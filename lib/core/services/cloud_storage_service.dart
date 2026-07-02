@@ -35,24 +35,24 @@ class CloudStorageService {
       
       final metadata = SettableMetadata(contentType: contentType);
 
-      if (kIsWeb) {
-        // On web, we must use putData with the bytes of the file
+      if (kIsWeb || Platform.isWindows) {
+        // On web or Windows, use putData with the bytes of the file
         final bytes = await XFile(imagePath).readAsBytes();
         final uploadTask = await ref.putData(bytes, metadata);
         return await uploadTask.ref.getDownloadURL();
       } else {
-        // On mobile/desktop, we can use putFile
+        // On mobile/macOS, we can use putFile
         final file = File(imagePath);
         if (!await file.exists()) {
           debugPrint('Local file does not exist: $imagePath');
-          return null;
+          throw Exception('Local file does not exist: $imagePath');
         }
         final uploadTask = await ref.putFile(file, metadata);
         return await uploadTask.ref.getDownloadURL();
       }
     } catch (e) {
       debugPrint('Error uploading image to Firebase Storage: $e');
-      return null;
+      throw Exception('Storage Error: $e');
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
-import '../../core/utils/arabic_reshaper_utils.dart';
+
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -48,15 +48,15 @@ class PdfInvoiceLedgerService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tTitle = ArabicReshaperUtils.reshape(Tr.t('auto_INVOICESLEDGER', langCode));
-          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
-          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
-          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
-          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
-          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
+          final tTitle = Tr.t('auto_INVOICESLEDGER', langCode);
+          final tPeriod = Tr.t('auto_Period', langCode);
+          final tGenerated = Tr.t('auto_Generated', langCode);
+          final tCompany = Tr.t('auto_ArdWholesale', langCode);
+          final tDesc = Tr.t('auto_FlourDistributi', langCode);
+          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
 
-          final tTotalOrders = ArabicReshaperUtils.reshape(Tr.t('auto_TotalOrders', langCode));
-          final tTotalAmount = ArabicReshaperUtils.reshape(Tr.t('auto_TotalRevenue', langCode));
+          final tTotalOrders = Tr.t('auto_TotalOrders', langCode);
+          final tTotalAmount = Tr.t('auto_TotalRevenue', langCode);
 
           final double totalRevenue = orders.fold(
             0,
@@ -94,7 +94,7 @@ class PdfInvoiceLedgerService {
                       ),
                       pw.SizedBox(height: 8),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -106,7 +106,7 @@ class PdfInvoiceLedgerService {
                               ),
                             ),
                             pw.Text(
-                              ArabicReshaperUtils.reshape(periodName),
+                              periodName,
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -118,7 +118,7 @@ class PdfInvoiceLedgerService {
                       ),
                       pw.SizedBox(height: 2),
                       pw.Directionality(
-                        textDirection: pw.TextDirection.ltr,
+                        textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                         child: pw.Row(
                           mainAxisSize: pw.MainAxisSize.min,
                           children: [
@@ -257,9 +257,9 @@ class PdfInvoiceLedgerService {
                         ),
                         pw.SizedBox(height: 8),
                         pw.Directionality(
-                          textDirection: pw.TextDirection.ltr,
+                          textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                           child: pw.Text(
-                            CurrencyFormatter.format(totalRevenue),
+                            CurrencyFormatter.format(totalRevenue, forPdf: true),
                             style: pw.TextStyle(
                               fontSize: 24,
                               fontWeight: pw.FontWeight.bold,
@@ -326,7 +326,7 @@ class PdfInvoiceLedgerService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Noordersfoundin', langCode));
+    final tEmpty = Tr.t('auto_Noordersfoundin', langCode);
 
     if (orders.isEmpty) {
       return pw.Container(
@@ -344,10 +344,10 @@ class PdfInvoiceLedgerService {
       );
     }
 
-    final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
-    final tInvoice = ArabicReshaperUtils.reshape(Tr.t('auto_Invoice', langCode));
-    final tCustomer = ArabicReshaperUtils.reshape(Tr.t('auto_Customer', langCode));
-    final tAmount = ArabicReshaperUtils.reshape(Tr.t('auto_Amount', langCode));
+    final tDate = Tr.t('auto_Date', langCode);
+    final tInvoice = Tr.t('auto_Invoice', langCode);
+    final tCustomer = Tr.t('auto_Customer', langCode);
+    final tAmount = Tr.t('auto_Amount', langCode);
 
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -479,7 +479,7 @@ class PdfInvoiceLedgerService {
                       vertical: 12,
                     ),
                     child: pw.Directionality(
-                      textDirection: pw.TextDirection.ltr,
+                      textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                       child: pw.Text(
                         dateFormat.format(o.orderDate),
                         style: const pw.TextStyle(
@@ -498,7 +498,7 @@ class PdfInvoiceLedgerService {
                       vertical: 12,
                     ),
                     child: pw.Directionality(
-                      textDirection: pw.TextDirection.ltr,
+                      textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                       child: pw.Text(
                         o.orderNumber?.toString() ?? '...',
                         style: pw.TextStyle(
@@ -522,7 +522,7 @@ class PdfInvoiceLedgerService {
                           ? pw.TextDirection.rtl
                           : pw.TextDirection.ltr,
                       child: pw.Text(
-                        ArabicReshaperUtils.reshape(customer.businessName),
+                        customer.businessName,
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,
@@ -537,9 +537,9 @@ class PdfInvoiceLedgerService {
                       vertical: 12,
                     ),
                     child: pw.Directionality(
-                      textDirection: pw.TextDirection.ltr,
+                      textDirection: (isKurdish || isArabic) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
                       child: pw.Text(
-                        CurrencyFormatter.format(o.totalAmount),
+                        CurrencyFormatter.format(o.totalAmount, forPdf: true),
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,
