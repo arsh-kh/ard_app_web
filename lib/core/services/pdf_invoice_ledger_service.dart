@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/arabic_reshaper_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -27,10 +28,9 @@ class PdfInvoiceLedgerService {
       await rootBundle.load('assets/fonts/NotoNaskhArabic-Bold.ttf'),
     );
 
-    final primaryColor = PdfColor.fromHex('#1E293B'); // Slate 800
-    final accentColor = PdfColor.fromHex('#3B82F6'); // Blue 500
-    final secondaryColor = PdfColor.fromHex('#F8FAFC'); // Slate 50
-    final borderColor = PdfColor.fromHex('#E2E8F0'); // Slate 200
+    const primaryColor = PdfColors.black;
+    const secondaryColor = PdfColors.grey200;
+    const borderColor = PdfColors.grey400;
 
     pdf.addPage(
       pw.MultiPage(
@@ -39,7 +39,7 @@ class PdfInvoiceLedgerService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [fontRegular, fontBold],
+          fontFallback: [fontRegular, fontBold, pw.Font.helvetica()],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -48,15 +48,15 @@ class PdfInvoiceLedgerService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tTitle = Tr.t('auto_INVOICESLEDGER', langCode);
-          final tPeriod = Tr.t('auto_Period', langCode);
-          final tGenerated = Tr.t('auto_Generated', langCode);
-          final tCompany = Tr.t('auto_ArdWholesale', langCode);
-          final tDesc = Tr.t('auto_FlourDistributi', langCode);
-          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
+          final tTitle = ArabicReshaperUtils.reshape(Tr.t('auto_INVOICESLEDGER', langCode));
+          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
+          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
+          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
+          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
+          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
 
-          final tTotalOrders = Tr.t('auto_TotalOrders', langCode);
-          final tTotalAmount = Tr.t('auto_TotalRevenue', langCode);
+          final tTotalOrders = ArabicReshaperUtils.reshape(Tr.t('auto_TotalOrders', langCode));
+          final tTotalAmount = ArabicReshaperUtils.reshape(Tr.t('auto_TotalRevenue', langCode));
 
           final double totalRevenue = orders.fold(
             0,
@@ -67,9 +67,9 @@ class PdfInvoiceLedgerService {
             // Premium Header Banner
             pw.Container(
               padding: const pw.EdgeInsets.all(24),
-              decoration: pw.BoxDecoration(
+              decoration: const pw.BoxDecoration(
                 color: primaryColor,
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(16)),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(16)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -106,7 +106,7 @@ class PdfInvoiceLedgerService {
                               ),
                             ),
                             pw.Text(
-                              periodName,
+                              ArabicReshaperUtils.reshape(periodName),
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -230,12 +230,12 @@ class PdfInvoiceLedgerService {
                       vertical: 16,
                     ),
                     decoration: pw.BoxDecoration(
-                      color: PdfColor.fromHex('#F0F9FF'), // Light blue tint
+                      color: PdfColors.grey100,
                       borderRadius: const pw.BorderRadius.all(
                         pw.Radius.circular(12),
                       ),
                       border: pw.Border.all(
-                        color: PdfColor.fromHex('#BFDBFE'),
+                        color: PdfColors.grey300,
                         width: 1.5,
                       ),
                     ),
@@ -250,7 +250,7 @@ class PdfInvoiceLedgerService {
                             tTotalAmount,
                             style: pw.TextStyle(
                               fontSize: 12,
-                              color: accentColor,
+                              color: primaryColor,
                               fontWeight: pw.FontWeight.bold,
                             ),
                           ),
@@ -326,7 +326,7 @@ class PdfInvoiceLedgerService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = Tr.t('auto_Noordersfoundin', langCode);
+    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Noordersfoundin', langCode));
 
     if (orders.isEmpty) {
       return pw.Container(
@@ -344,10 +344,10 @@ class PdfInvoiceLedgerService {
       );
     }
 
-    final tDate = Tr.t('auto_Date', langCode);
-    final tInvoice = Tr.t('auto_Invoice', langCode);
-    final tCustomer = Tr.t('auto_Customer', langCode);
-    final tAmount = Tr.t('auto_Amount', langCode);
+    final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
+    final tInvoice = ArabicReshaperUtils.reshape(Tr.t('auto_Invoice', langCode));
+    final tCustomer = ArabicReshaperUtils.reshape(Tr.t('auto_Customer', langCode));
+    final tAmount = ArabicReshaperUtils.reshape(Tr.t('auto_Amount', langCode));
 
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -522,7 +522,7 @@ class PdfInvoiceLedgerService {
                           ? pw.TextDirection.rtl
                           : pw.TextDirection.ltr,
                       child: pw.Text(
-                        customer.businessName,
+                        ArabicReshaperUtils.reshape(customer.businessName),
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,

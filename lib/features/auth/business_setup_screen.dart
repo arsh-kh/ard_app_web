@@ -6,6 +6,9 @@ import '../../core/providers/locale_provider.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/widgets/custom_loader.dart';
 import '../../core/widgets/bouncing_widget.dart';
+import '../../core/utils/feedback_utils.dart';
+
+enum SetupMode { join, create, recover, reset }
 
 class BusinessSetupScreen extends ConsumerStatefulWidget {
   const BusinessSetupScreen({super.key});
@@ -19,14 +22,20 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     with TickerProviderStateMixin {
   final _joinFormKey = GlobalKey<FormState>();
   final _createFormKey = GlobalKey<FormState>();
+  final _recoverFormKey = GlobalKey<FormState>();
+  final _resetFormKey = GlobalKey<FormState>();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _inviteCodeController = TextEditingController();
   final TextEditingController _recoveryEmailController =
       TextEditingController();
+  final TextEditingController _businessPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
   final FocusNode _businessNameFocus = FocusNode();
   final FocusNode _recoveryEmailFocus = FocusNode();
+  final FocusNode _businessPasswordFocus = FocusNode();
 
-  bool _isJoinMode = true;
+  SetupMode _mode = SetupMode.join;
+  bool get _isJoinMode => _mode == SetupMode.join;
 
   late AnimationController _tabCtrl;
 
@@ -44,18 +53,24 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     _businessNameController.dispose();
     _inviteCodeController.dispose();
     _recoveryEmailController.dispose();
+    _businessPasswordController.dispose();
+    _newPasswordController.dispose();
     _businessNameFocus.dispose();
     _recoveryEmailFocus.dispose();
+    _businessPasswordFocus.dispose();
     _tabCtrl.dispose();
     super.dispose();
   }
 
   void _switchTab(bool joinMode) {
-    if (_isJoinMode == joinMode) return;
+    final newMode = joinMode ? SetupMode.join : SetupMode.create;
+    if (_mode == newMode) return;
     setState(() {
-      _isJoinMode = joinMode;
+      _mode = newMode;
       _joinFormKey.currentState?.reset();
       _createFormKey.currentState?.reset();
+      _recoverFormKey.currentState?.reset();
+      _resetFormKey.currentState?.reset();
     });
     if (joinMode) {
       _tabCtrl.reverse();
@@ -64,144 +79,87 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     }
   }
 
+  void _switchMode(SetupMode mode) {
+    setState(() {
+      _mode = mode;
+      _joinFormKey.currentState?.reset();
+      _createFormKey.currentState?.reset();
+      _recoverFormKey.currentState?.reset();
+      _resetFormKey.currentState?.reset();
+    });
+  }
+
   Future<void> _submit(String lang) async {
     final provider = ref.read(businessSetupProvider.notifier);
     if (!mounted) return;
 
     try {
-      final formKey = _isJoinMode ? _joinFormKey : _createFormKey;
+      final GlobalKey<FormState> formKey;
+      switch (_mode) {
+        case SetupMode.join: formKey = _joinFormKey; break;
+        case SetupMode.create: formKey = _createFormKey; break;
+        case SetupMode.recover: formKey = _recoverFormKey; break;
+        case SetupMode.reset: formKey = _resetFormKey; break;
+      }
+      
       if (!(formKey.currentState?.validate() ?? false)) return;
 
-      if (_isJoinMode) {
+      if (_mode == SetupMode.join) {
         final code = _inviteCodeController.text.trim().toUpperCase();
         await provider.joinBusiness(code);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                Tr.t('business_joined_success', lang),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                ),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-            ),
-          );
+          _showSuccess(Tr.t('business_joined_success', lang));
         }
-      } else {
+      } else if (_mode == SetupMode.create) {
         final name = _businessNameController.text.trim();
         final email = _recoveryEmailController.text.trim();
-        await provider.createBusiness(name, recoveryEmail: email);
+        final password = _businessPasswordController.text;
+        await provider.createBusiness(name, recoveryEmail: email, password: password);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                Tr.t('business_created_success', lang),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                ),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-            ),
-          );
+          _showSuccess(Tr.t('business_created_success', lang));
+        }
+      } else if (_mode == SetupMode.recover) {
+        final email = _recoveryEmailController.text.trim();
+        final password = _businessPasswordController.text;
+        await provider.restoreBusiness(email, password);
+        if (mounted) {
+          _showSuccess(Tr.t('businessRestoredSuccess', lang));
+        }
+      } else if (_mode == SetupMode.reset) {
+        final email = _recoveryEmailController.text.trim();
+        await provider.resetBusinessPassword(email);
+        if (mounted) {
+          _showSuccess(Tr.t('businessPasswordResetSuccess', lang));
+          // Go back to recover mode after successful reset
+          _switchMode(SetupMode.recover);
         }
       }
     } catch (e) {
       if (!mounted) return;
-      String errorMsg = e.toString().replaceAll('Exception: ', '');
-      final knownErrors = ['businessNameTaken', 'userNotAuthenticated', 'invalidInviteCode'];
-      if (knownErrors.contains(errorMsg)) {
-        errorMsg = Tr.t(errorMsg, lang);
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            errorMsg,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onInverseSurface,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppFeedback.showError(context, e);
     }
   }
 
-  void _showRecoverDialog(String lang, bool isDark, Color fg) {
-    final emailCtrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          title: Text(
-            Tr.t('recoverDialogTitle', lang),
-            style: TextStyle(color: fg, fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                Tr.t('recoverDialogBody', lang),
-                style: TextStyle(
-                  color: fg.withValues(alpha: 0.8),
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildInputField(
-                controller: emailCtrl,
-                hint: Tr.t('recoveryEmailHint', lang),
-                icon: Icons.email_outlined,
-                isDark: isDark,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return Tr.t('reqField', lang);
-                  if (!v.contains('@')) return 'Invalid email';
-                  return null;
-                },
-                textCapitalization: TextCapitalization.none,
-                forceLtr: true,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(
-                Tr.t('cancelBtn', lang),
-                style: TextStyle(color: fg.withValues(alpha: 0.5)),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: fg,
-                foregroundColor: Theme.of(context).colorScheme.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () {
-                if (emailCtrl.text.trim().isNotEmpty &&
-                    emailCtrl.text.contains('@')) {
-                  Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(Tr.t('recoverSuccess', lang)),
-                      backgroundColor: isDark ? Colors.white : Colors.black,
-                    ),
-                  );
-                }
-              },
-              child: Text(
-                Tr.t('recoverBtn', lang),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  void _showSuccess(String message) {
+    AppFeedback.showSuccess(context, message);
+  }
+
+  IconData _getIconForMode() {
+    switch (_mode) {
+      case SetupMode.join: return Icons.group_add_rounded;
+      case SetupMode.create: return Icons.domain_add_rounded;
+      case SetupMode.recover: return Icons.admin_panel_settings_rounded;
+      case SetupMode.reset: return Icons.lock_reset_rounded;
+    }
+  }
+
+  String _getTitleForMode(String lang) {
+    switch (_mode) {
+      case SetupMode.join: return Tr.t('businessSetupTitleJoin', lang);
+      case SetupMode.create: return Tr.t('businessSetupTitleCreate', lang);
+      case SetupMode.recover: return Tr.t('adminLoginTitle', lang);
+      case SetupMode.reset: return Tr.t('forgotBusinessPassword', lang);
+    }
   }
 
   @override
@@ -215,8 +173,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     final fg = Theme.of(context).colorScheme.onSurface;
     final isRTL = Directionality.of(context) == TextDirection.rtl;
 
-    final joinTitle = Tr.t('businessSetupTitleJoin', lang);
-    final createTitle = Tr.t('businessSetupTitleCreate', lang);
+    final currentTitle = _getTitleForMode(lang);
 
     return Scaffold(
       backgroundColor: bg,
@@ -249,7 +206,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                       );
                     },
                     child: Container(
-                      key: ValueKey<bool>(_isJoinMode),
+                      key: ValueKey<SetupMode>(_mode),
                       height: 110,
                       width: 110,
                       decoration: BoxDecoration(
@@ -260,9 +217,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                       ),
                       child: Center(
                         child: Icon(
-                          _isJoinMode
-                              ? Icons.group_add_rounded
-                              : Icons.domain_add_rounded,
+                          _getIconForMode(),
                           size: 52,
                           color: isDark ? Colors.white : Colors.black,
                         ),
@@ -276,7 +231,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Column(
-                      key: ValueKey(_isJoinMode),
+                      key: ValueKey(_mode),
                       children: [
                         FittedBox(
                           fit: BoxFit.scaleDown,
@@ -285,8 +240,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text:
-                                      '${(_isJoinMode ? joinTitle : createTitle).split(' ').first} ',
+                                  text: '${currentTitle.split(' ').first} ',
                                   style: TextStyle(
                                     fontSize: 32,
                                     fontWeight: FontWeight.w900,
@@ -299,10 +253,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                                   ),
                                 ),
                                 TextSpan(
-                                  text: (_isJoinMode ? joinTitle : createTitle)
-                                      .split(' ')
-                                      .skip(1)
-                                      .join(' '),
+                                  text: currentTitle.split(' ').skip(1).join(' '),
                                   style: TextStyle(
                                     fontSize: 32,
                                     fontWeight: FontWeight.w300,
@@ -346,7 +297,8 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                     child: Column(
                       children: [
                         // Tab bar
-                        Padding(
+                        if (_mode == SetupMode.join || _mode == SetupMode.create)
+                          Padding(
                           padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
                           child: LayoutBuilder(
                             builder: (context, constraints) {
@@ -446,31 +398,24 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
                               );
                             },
                             child: Padding(
-                              key: ValueKey(_isJoinMode),
+                              key: ValueKey(_mode),
                               padding: const EdgeInsets.fromLTRB(
                                 20,
                                 18,
                                 20,
                                 20,
                               ),
-                              child: _isJoinMode
-                                  ? _buildJoinForm(
-                                      lang,
-                                      isDark,
-                                      fg,
-                                      theme,
-                                      isLoading,
-                                    )
-                                  : _buildCreateForm(
-                                      lang,
-                                      isDark,
-                                      fg,
-                                      theme,
-                                      isLoading,
-                                    ),
+                              child: _mode == SetupMode.join
+                                  ? _buildJoinForm(lang, isDark, fg, theme, isLoading)
+                                  : _mode == SetupMode.create
+                                      ? _buildCreateForm(lang, isDark, fg, theme, isLoading)
+                                      : _mode == SetupMode.recover
+                                          ? _buildRecoverForm(lang, isDark, fg, theme, isLoading)
+                                          : _buildResetForm(lang, isDark, fg, theme, isLoading),
                             ),
                           ),
                         ),
+
                       ],
                     ),
                   ),
@@ -575,18 +520,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
             maxLength: 6,
             forceLtr: true,
           ),
-          const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () => _showRecoverDialog(lang, isDark, fg),
-              child: Text(
-                Tr.t('recoverPrompt', lang),
-                style: TextStyle(color: fg, fontSize: 13),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           _submitBtn(
             label: Tr.t('joinBtn', lang),
             isDark: isDark,
@@ -594,6 +528,14 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
             theme: theme,
             isLoading: isLoading,
             onTap: () => _submit(lang),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => _switchMode(SetupMode.recover),
+            child: Text(
+              Tr.t('adminLoginBtn', lang),
+              style: TextStyle(color: fg.withValues(alpha: 0.7)),
+            ),
           ),
         ],
       ),
@@ -669,6 +611,175 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
           _buildInputField(
             controller: _recoveryEmailController,
             focusNode: _recoveryEmailFocus,
+            nextFocusNode: _businessPasswordFocus,
+            hint: Tr.t('recoveryEmailHint', lang),
+            icon: Icons.email_outlined,
+            isDark: isDark,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return Tr.t('reqField', lang);
+              if (!v.contains('@')) return Tr.t('invalidEmail', lang);
+              return null;
+            },
+            textInputAction: TextInputAction.next,
+            textCapitalization: TextCapitalization.none,
+            forceLtr: true,
+          ),
+          const SizedBox(height: 16),
+          _buildInputField(
+            controller: _businessPasswordController,
+            focusNode: _businessPasswordFocus,
+            hint: Tr.t('businessPasswordHint', lang),
+            icon: Icons.lock_outline,
+            isDark: isDark,
+            isPassword: true,
+            textCapitalization: TextCapitalization.none,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return Tr.t('reqField', lang);
+              if (v.length < 6) return Tr.t('err_password_length', lang);
+              return null;
+            },
+            textInputAction: TextInputAction.done,
+            forceLtr: true,
+          ),
+          const SizedBox(height: 24),
+          _submitBtn(
+            label: Tr.t('createBtn', lang),
+            isDark: isDark,
+            fg: fg,
+            theme: theme,
+            isLoading: isLoading,
+            onTap: () => _submit(lang),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => _switchMode(SetupMode.recover),
+            child: Text(
+              Tr.t('adminLoginBtn', lang),
+              style: TextStyle(color: fg.withValues(alpha: 0.7)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecoverForm(
+    String lang,
+    bool isDark,
+    Color fg,
+    ThemeData theme,
+    bool isLoading,
+  ) {
+    return Form(
+      key: _recoverFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              Tr.t('adminLoginInfo', lang),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.white70 : Colors.black87,
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildInputField(
+            controller: _recoveryEmailController,
+            focusNode: _recoveryEmailFocus,
+            nextFocusNode: _businessPasswordFocus,
+            hint: Tr.t('recoveryEmailHint', lang),
+            icon: Icons.email_outlined,
+            isDark: isDark,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return Tr.t('reqField', lang);
+              if (!v.contains('@')) return Tr.t('invalidEmail', lang);
+              return null;
+            },
+            textInputAction: TextInputAction.next,
+            textCapitalization: TextCapitalization.none,
+            forceLtr: true,
+          ),
+          const SizedBox(height: 16),
+          _buildInputField(
+            controller: _businessPasswordController,
+            focusNode: _businessPasswordFocus,
+            hint: Tr.t('businessPasswordHint', lang),
+            icon: Icons.lock_outline,
+            isDark: isDark,
+            isPassword: true,
+            textCapitalization: TextCapitalization.none,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return Tr.t('reqField', lang);
+              return null;
+            },
+            textInputAction: TextInputAction.done,
+            forceLtr: true,
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => _switchMode(SetupMode.reset),
+              child: Text(
+                Tr.t('forgotBusinessPassword', lang),
+                style: TextStyle(color: fg, fontSize: 13),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _submitBtn(
+            label: Tr.t('adminLoginBtn', lang),
+            isDark: isDark,
+            fg: fg,
+            theme: theme,
+            isLoading: isLoading,
+            onTap: () => _submit(lang),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => _switchMode(SetupMode.join),
+            child: Text(
+              Tr.t('backToSetupBtn', lang),
+              style: TextStyle(color: fg.withValues(alpha: 0.7)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResetForm(
+    String lang,
+    bool isDark,
+    Color fg,
+    ThemeData theme,
+    bool isLoading,
+  ) {
+    return Form(
+      key: _resetFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              Tr.t('resetPasswordInfo', lang),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.white70 : Colors.black87,
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildInputField(
+            controller: _recoveryEmailController,
             hint: Tr.t('recoveryEmailHint', lang),
             icon: Icons.email_outlined,
             isDark: isDark,
@@ -683,12 +794,20 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
           ),
           const SizedBox(height: 24),
           _submitBtn(
-            label: Tr.t('createBtn', lang),
+            label: Tr.t('resetBtn', lang),
             isDark: isDark,
             fg: fg,
             theme: theme,
             isLoading: isLoading,
             onTap: () => _submit(lang),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => _switchMode(SetupMode.recover),
+            child: Text(
+              Tr.t('cancelBtn', lang),
+              style: TextStyle(color: fg.withValues(alpha: 0.7)),
+            ),
           ),
         ],
       ),
@@ -706,6 +825,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
     TextInputAction textInputAction = TextInputAction.next,
     int? maxLength,
     bool forceLtr = false,
+    bool isPassword = false,
     FocusNode? focusNode,
     FocusNode? nextFocusNode,
   }) {
@@ -716,6 +836,7 @@ class _BusinessSetupScreenState extends ConsumerState<BusinessSetupScreen>
       focusNode: focusNode,
       textCapitalization: textCapitalization,
       textInputAction: textInputAction,
+      obscureText: isPassword,
       onFieldSubmitted: (_) {
         if (textInputAction == TextInputAction.next) {
           if (nextFocusNode != null) {

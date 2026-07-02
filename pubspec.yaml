@@ -78,6 +78,9 @@ dependencies:
   firebase_storage: ^12.4.10
   flutter_secure_storage: ^10.3.1
   http: ^1.6.0
+  screenshot: ^3.0.0
+  crypto: ^3.0.7
+  arabic_reshaper: ^0.0.1
 
 
 dev_dependencies:

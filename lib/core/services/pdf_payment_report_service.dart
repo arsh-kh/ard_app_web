@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/arabic_reshaper_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -27,12 +28,9 @@ class PdfPaymentReportService {
       await rootBundle.load('assets/fonts/NotoNaskhArabic-Bold.ttf'),
     );
 
-    final primaryColor = PdfColor.fromHex(
-      '#065F46',
-    ); // Green 800 (for payments)
-    final accentColor = PdfColor.fromHex('#10B981'); // Emerald 500
-    final secondaryColor = PdfColor.fromHex('#F8FAFC'); // Slate 50
-    final borderColor = PdfColor.fromHex('#E2E8F0'); // Slate 200
+    const primaryColor = PdfColors.black;
+    const secondaryColor = PdfColors.grey200;
+    const borderColor = PdfColors.grey400;
 
     pdf.addPage(
       pw.MultiPage(
@@ -41,7 +39,7 @@ class PdfPaymentReportService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [fontRegular, fontBold],
+          fontFallback: [fontRegular, fontBold, pw.Font.helvetica()],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -50,18 +48,19 @@ class PdfPaymentReportService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tTitle = Tr.t('auto_PaymentReport', langCode);
-          final tPeriod = Tr.t('auto_Period', langCode);
-          final tGenerated = Tr.t('auto_Generated', langCode);
-          final tCompany = Tr.t('auto_ArdWholesale', langCode);
-          final tDesc = Tr.t('auto_FlourDistributi', langCode);
-          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
+          final tTitle = ArabicReshaperUtils.reshape(Tr.t('auto_PaymentReport', langCode));
+          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
+          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
+          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
+          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
+          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
 
-          final tTotalPayments = Tr.t('summaryPayments', langCode, {
+          final tTotalPaymentsRaw = Tr.t('summaryPayments', langCode, {
             'count': payments.length.toString(),
             'total': '',
           }).replaceAll(RegExp(r'[^a-zA-Z\s]'), '').trim();
-          final tTotalAmount = Tr.t('auto_TotalRevenue', langCode);
+          final tTotalPayments = ArabicReshaperUtils.reshape(tTotalPaymentsRaw.isEmpty ? "Payments" : tTotalPaymentsRaw);
+          final tTotalAmount = ArabicReshaperUtils.reshape(Tr.t('auto_TotalRevenue', langCode));
 
           final double totalRevenue = payments.fold(
             0,
@@ -72,9 +71,9 @@ class PdfPaymentReportService {
             // Premium Header Banner
             pw.Container(
               padding: const pw.EdgeInsets.all(24),
-              decoration: pw.BoxDecoration(
+              decoration: const pw.BoxDecoration(
                 color: primaryColor,
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(16)),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(16)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -111,7 +110,7 @@ class PdfPaymentReportService {
                               ),
                             ),
                             pw.Text(
-                              periodName,
+                              ArabicReshaperUtils.reshape(periodName),
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -207,9 +206,7 @@ class PdfPaymentReportService {
                               ? pw.TextDirection.rtl
                               : pw.TextDirection.ltr,
                           child: pw.Text(
-                            tTotalPayments.isEmpty
-                                ? "Payments"
-                                : tTotalPayments,
+                            tTotalPayments,
                             style: const pw.TextStyle(
                               fontSize: 12,
                               color: PdfColors.grey700,
@@ -237,12 +234,12 @@ class PdfPaymentReportService {
                       vertical: 16,
                     ),
                     decoration: pw.BoxDecoration(
-                      color: PdfColor.fromHex('#ECFDF5'), // Light emerald tint
+                      color: PdfColors.grey100,
                       borderRadius: const pw.BorderRadius.all(
                         pw.Radius.circular(12),
                       ),
                       border: pw.Border.all(
-                        color: PdfColor.fromHex('#6EE7B7'), // Emerald 300
+                        color: PdfColors.grey300,
                         width: 1.5,
                       ),
                     ),
@@ -257,7 +254,7 @@ class PdfPaymentReportService {
                             tTotalAmount,
                             style: pw.TextStyle(
                               fontSize: 12,
-                              color: accentColor,
+                              color: primaryColor,
                               fontWeight: pw.FontWeight.bold,
                             ),
                           ),
@@ -333,7 +330,7 @@ class PdfPaymentReportService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = Tr.t('noPaymentHistory', langCode);
+    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('noPaymentHistory', langCode));
 
     if (payments.isEmpty) {
       return pw.Container(
@@ -351,9 +348,9 @@ class PdfPaymentReportService {
       );
     }
 
-    final tDate = Tr.t('auto_Date', langCode);
-    final tCustomer = Tr.t('auto_Customer', langCode);
-    final tAmount = Tr.t('auto_Amount', langCode);
+    final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
+    final tCustomer = ArabicReshaperUtils.reshape(Tr.t('auto_Customer', langCode));
+    final tAmount = ArabicReshaperUtils.reshape(Tr.t('auto_Amount', langCode));
 
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -488,7 +485,7 @@ class PdfPaymentReportService {
                           ? pw.TextDirection.rtl
                           : pw.TextDirection.ltr,
                       child: pw.Text(
-                        customer.businessName,
+                        ArabicReshaperUtils.reshape(customer.businessName),
                         style: pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,

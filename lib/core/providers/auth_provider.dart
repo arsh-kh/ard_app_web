@@ -311,6 +311,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<String?> updatePassword(String newPassword) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        state = state.copyWith(isLoading: false);
+        return 'err_not_logged_in';
+      }
+      
+      await user.updatePassword(newPassword);
+      state = state.copyWith(isLoading: false);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(isLoading: false);
+      if (e.code == 'requires-recent-login') {
+        return 'requiresRecentLogin';
+      }
+      return 'passwordChangeError';
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      return 'passwordChangeError';
+    }
+  }
+
   void updateUser(UserEntity user) {
     state = state.copyWith(user: user);
   }

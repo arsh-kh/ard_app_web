@@ -211,214 +211,222 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
             margins.fold(0.0, (sum, m) => sum + m.marginPercentage) /
             margins.length;
 
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Summary Card
-            Container(
+        return CustomScrollView(
+          slivers: [
+            SliverPadding(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: isDark
-                      ? [const Color(0xFF000000), const Color(0xFF141414)]
-                      : [
-                          theme.colorScheme.primary.withValues(alpha: 0.05),
-                          theme.colorScheme.primary.withValues(alpha: 0.12),
-                        ],
-                  begin: AlignmentDirectional.topStart,
-                  end: AlignmentDirectional.bottomEnd,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF1A1A1A)
-                      : theme.colorScheme.primary.withValues(alpha: 0.15),
-                ),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary.withValues(
-                      alpha: 0.15,
-                    ),
-                    radius: 24,
-                    child: Icon(
-                      Icons.analytics,
-                      color: theme.colorScheme.primary,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t('avgMargin'),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.bold,
-                          ),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Summary Card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isDark
+                              ? [const Color(0xFF000000), const Color(0xFF141414)]
+                              : [
+                                  theme.colorScheme.primary.withValues(alpha: 0.05),
+                                  theme.colorScheme.primary.withValues(alpha: 0.12),
+                                ],
+                          begin: AlignmentDirectional.topStart,
+                          end: AlignmentDirectional.bottomEnd,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${avgMargin.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
-                          ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF1A1A1A)
+                              : theme.colorScheme.primary.withValues(alpha: 0.15),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0),
-            const SizedBox(height: 20),
-
-            // Products list
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: margins.length,
-              itemBuilder: (context, index) {
-                final item = margins[index];
-                final isTopMargin = index == 0;
-
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    item.product.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: theme.colorScheme.primary.withValues(
+                              alpha: 0.15,
+                            ),
+                            radius: 24,
+                            child: Icon(
+                              Icons.analytics,
+                              color: theme.colorScheme.primary,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  t('avgMargin'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  if (isTopMargin) ...[
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${avgMargin.toStringAsFixed(1)}%',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverList.builder(
+                itemCount: margins.length,
+                itemBuilder: (context, index) {
+                  final item = margins[index];
+                  final isTopMargin = index == 0;
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      item.product.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.teal.withValues(
-                                          alpha: 0.12,
+                                    ),
+                                    if (isTopMargin) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
                                         ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        t('topMargin'),
-                                        style: const TextStyle(
-                                          color: Colors.teal,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
+                                        decoration: BoxDecoration(
+                                          color: Colors.teal.withValues(
+                                            alpha: 0.12,
+                                          ),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          t('topMargin'),
+                                          style: const TextStyle(
+                                            color: Colors.teal,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 4,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '${t('cogs')}: ',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                        ),
+                                        Text(
+                                          CurrencyFormatter.format(
+                                            item.product.buyPrice,
+                                          ),
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '${t('sellPrice')}: ',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                        ),
+                                        Text(
+                                          CurrencyFormatter.format(
+                                            item.product.sellPrice,
+                                          ),
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '+${CurrencyFormatter.format(item.marginAmount)}',
+                                style: TextStyle(
+                                  color: Colors.green.shade600,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 4,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        '${t('cogs')}: ',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey.shade500,
-                                        ),
-                                      ),
-                                      Text(
-                                        CurrencyFormatter.format(
-                                          item.product.buyPrice,
-                                        ),
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        '${t('sellPrice')}: ',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey.shade500,
-                                        ),
-                                      ),
-                                      Text(
-                                        CurrencyFormatter.format(
-                                          item.product.sellPrice,
-                                        ),
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                              const SizedBox(height: 4),
+                              Text(
+                                '${item.marginPercentage.toStringAsFixed(1)}% ${t('margin')}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey.shade500,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '+${CurrencyFormatter.format(item.marginAmount)}',
-                              style: TextStyle(
-                                color: Colors.green.shade600,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${item.marginPercentage.toStringAsFixed(1)}% ${t('margin')}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ).animate().fadeIn(delay: (50 * index).ms, duration: 250.ms);
-              },
+                  ).animate().fadeIn(delay: (50 * index).ms, duration: 250.ms);
+                },
+              ),
             ),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
           ],
         );
       },
@@ -573,208 +581,223 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                 .toList();
 
             // For the overdue details, we will query their last order to filter clients
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Header Segment Bar Representing Risk Ratios
-                Container(
+            return CustomScrollView(
+              slivers: [
+                SliverPadding(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF141414).withValues(alpha: 0.5)
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        t('debtRiskLevel'),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '${t('total')}: ${CurrencyFormatter.format(totalDebt)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Colored Stack Bar
-                      Container(
-                        height: 16,
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).colorScheme.surface,
-                        ),
-                        child: Row(
-                          children: [
-                            if (percentRecent > 0)
-                              Expanded(
-                                flex: (percentRecent * 100).round(),
-                                child: Container(color: Colors.green),
-                              ),
-                            if (percentDue > 0)
-                              Expanded(
-                                flex: (percentDue * 100).round(),
-                                child: Container(color: Colors.amber),
-                              ),
-                            if (percentOverdue > 0)
-                              Expanded(
-                                flex: (percentOverdue * 100).round(),
-                                child: Container(color: Colors.red),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Legend Indicators
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildLegendItem(
-                            Colors.green,
-                            t('recent'),
-                            aging.recentDebt,
-                          ),
-                          _buildLegendItem(
-                            Colors.amber,
-                            t('due'),
-                            aging.dueDebt,
-                          ),
-                          _buildLegendItem(
-                            Colors.red,
-                            t('overdue'),
-                            aging.overdueDebt,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(duration: 300.ms),
-                const SizedBox(height: 24),
-
-                // Overdue Client Ledger Action Items
-                Text(
-                  t('requireActionList'),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                if (debtCustomers.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24.0),
-                    child: Center(
-                      child: Text(
-                        t('noOverdueClients'),
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 13,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  )
-                else
-                  // We show all customers with debt, sorting by highest balance first
-                  ...debtCustomers.map((customer) {
-                    return FutureBuilder<OrderEntity?>(
-                      // Find their last order to calculate exact days overdue
-                      future: () async {
-                        final orderRepo = ref.read(orderRepositoryProvider);
-                        final cOrders = await orderRepo.getOrdersByCustomer(
-                          customer.id,
-                        );
-                        final delivered = cOrders
-                            .where((o) => o.status == 'delivered')
-                            .toList();
-                        delivered.sort(
-                          (a, b) => b.orderDate.compareTo(a.orderDate),
-                        );
-                        return delivered.isNotEmpty ? delivered.first : null;
-                      }(),
-                      builder: (context, orderSnapshot) {
-                        final lastOrder = orderSnapshot.data;
-                        Color riskColor = Colors.green;
-                        String statusDesc = t('neverOrdered');
-
-                        if (lastOrder != null) {
-                          final days = DateTime.now()
-                              .difference(lastOrder.orderDate)
-                              .inDays;
-                          statusDesc = t(
-                            'lastOrder',
-                          ).replaceFirst('{days}', '$days');
-                          if (days <= 15) {
-                            riskColor = Colors.green;
-                          } else if (days <= 30) {
-                            riskColor = Colors.amber;
-                          } else {
-                            riskColor = Colors.red;
-                          }
-                        } else {
-                          // No order means long-standing manual ledger debt balance
-                          riskColor = Colors.red;
-                        }
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Header Segment Bar Representing Risk Ratios
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF141414).withValues(alpha: 0.5)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
                               color: Theme.of(
                                 context,
                               ).colorScheme.surfaceContainerHighest,
                             ),
                           ),
-                          child: ListTile(
-                            leading: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: riskColor,
-                                shape: BoxShape.circle,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                t('debtRiskLevel'),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                            title: Text(
-                              customer.businessName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                              const SizedBox(height: 6),
+                              Text(
+                                '${t('total')}: ${CurrencyFormatter.format(totalDebt)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade500,
+                                ),
                               ),
-                            ),
-                            subtitle: Text(
-                              statusDesc,
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                            trailing: Text(
-                              CurrencyFormatter.format(customer.debtBalance),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                              const SizedBox(height: 16),
+
+                              // Colored Stack Bar
+                              Container(
+                                height: 16,
+                                clipBehavior: Clip.antiAlias,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.surface,
+                                ),
+                                child: Row(
+                                  children: [
+                                    if (percentRecent > 0)
+                                      Expanded(
+                                        flex: (percentRecent * 100).round(),
+                                        child: Container(color: Colors.green),
+                                      ),
+                                    if (percentDue > 0)
+                                      Expanded(
+                                        flex: (percentDue * 100).round(),
+                                        child: Container(color: Colors.amber),
+                                      ),
+                                    if (percentOverdue > 0)
+                                      Expanded(
+                                        flex: (percentOverdue * 100).round(),
+                                        child: Container(color: Colors.red),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Legend Indicators
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildLegendItem(
+                                    Colors.green,
+                                    t('recent'),
+                                    aging.recentDebt,
+                                  ),
+                                  _buildLegendItem(
+                                    Colors.amber,
+                                    t('due'),
+                                    aging.dueDebt,
+                                  ),
+                                  _buildLegendItem(
+                                    Colors.red,
+                                    t('overdue'),
+                                    aging.overdueDebt,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ).animate().fadeIn(duration: 300.ms),
+                        const SizedBox(height: 24),
+
+                        // Overdue Client Ledger Action Items
+                        Text(
+                          t('requireActionList'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        if (debtCustomers.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24.0),
+                            child: Center(
+                              child: Text(
+                                t('noOverdueClients'),
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 13,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
-                        ).animate().fadeIn(duration: 200.ms);
+                      ],
+                    ),
+                  ),
+                ),
+                if (debtCustomers.isNotEmpty)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverList.builder(
+                      itemCount: debtCustomers.length,
+                      itemBuilder: (context, index) {
+                        final customer = debtCustomers[index];
+                        return FutureBuilder<OrderEntity?>(
+                          // Find their last order to calculate exact days overdue
+                          future: () async {
+                            final orderRepo = ref.read(orderRepositoryProvider);
+                            final cOrders = await orderRepo.getOrdersByCustomer(
+                              customer.id,
+                            );
+                            final delivered = cOrders
+                                .where((o) => o.status == 'delivered')
+                                .toList();
+                            delivered.sort(
+                              (a, b) => b.orderDate.compareTo(a.orderDate),
+                            );
+                            return delivered.isNotEmpty ? delivered.first : null;
+                          }(),
+                          builder: (context, orderSnapshot) {
+                            final lastOrder = orderSnapshot.data;
+                            Color riskColor = Colors.green;
+                            String statusDesc = t('neverOrdered');
+
+                            if (lastOrder != null) {
+                              final days = DateTime.now()
+                                  .difference(lastOrder.orderDate)
+                                  .inDays;
+                              statusDesc = t(
+                                'lastOrder',
+                              ).replaceFirst('{days}', '$days');
+                              if (days <= 15) {
+                                riskColor = Colors.green;
+                              } else if (days <= 30) {
+                                riskColor = Colors.amber;
+                              } else {
+                                riskColor = Colors.red;
+                              }
+                            } else {
+                              // No order means long-standing manual ledger debt balance
+                              riskColor = Colors.red;
+                            }
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                                ),
+                              ),
+                              child: ListTile(
+                                leading: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: riskColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                title: Text(
+                                  customer.businessName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  statusDesc,
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                trailing: Text(
+                                  CurrencyFormatter.format(customer.debtBalance),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ).animate().fadeIn(duration: 200.ms);
+                          },
+                        );
                       },
-                    );
-                  }),
+                    ),
+                  ),
               ],
             );
           },

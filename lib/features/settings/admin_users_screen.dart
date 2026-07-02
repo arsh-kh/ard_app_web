@@ -218,7 +218,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                                 ),
                                 if (isPending)
                                   Container(
-                                    margin: const EdgeInsets.only(right: 8),
+                                    margin: const EdgeInsetsDirectional.only(end: 8),
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8,
                                       vertical: 2,

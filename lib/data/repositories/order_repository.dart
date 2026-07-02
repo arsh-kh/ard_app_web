@@ -17,7 +17,12 @@ class OrderRepository {
     return DataSanitizer.sanitize(data);
   }
 
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Stream<List<OrderEntity>> watchAllOrders() {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -38,6 +43,7 @@ class OrderRepository {
     DateTime start,
     DateTime end,
   ) {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -60,6 +66,7 @@ class OrderRepository {
     DateTime start,
     DateTime end,
   ) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -77,6 +84,7 @@ class OrderRepository {
   }
 
   Future<List<OrderEntity>> getAllOrders() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -92,6 +100,7 @@ class OrderRepository {
   }
 
   Stream<List<OrderEntity>> watchOrdersByCustomer(String customerId) {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -111,6 +120,7 @@ class OrderRepository {
   }
 
   Future<List<OrderEntity>> getOrdersByCustomer(String customerId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('orders')
         .where('businessId', isEqualTo: businessId)
@@ -128,6 +138,7 @@ class OrderRepository {
   }
 
   Stream<OrderEntity?> watchOrder(String id) {
+    if (businessId.isEmpty) return Stream.value(null);
     return _firestore.collection('orders').doc(id).snapshots().map((doc) {
       if (!doc.exists) return null;
       final data = doc.data()!;
@@ -137,6 +148,7 @@ class OrderRepository {
   }
 
   Future<OrderEntity?> getOrder(String id) async {
+    if (businessId.isEmpty) return null;
     final doc = await _firestore.collection('orders').doc(id).get();
     if (!doc.exists) return null;
     final data = doc.data()!;
@@ -145,6 +157,7 @@ class OrderRepository {
   }
 
   Stream<List<OrderItemEntity>> watchOrderItems(String orderId) {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('order_items')
         .where('businessId', isEqualTo: businessId)
@@ -162,6 +175,7 @@ class OrderRepository {
   }
 
   Future<List<OrderItemEntity>> getOrderItems(String orderId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('order_items')
         .where('businessId', isEqualTo: businessId)
@@ -179,6 +193,7 @@ class OrderRepository {
   Future<List<OrderItemEntity>> getOrderItemsForOrders(
     List<String> orderIds,
   ) async {
+    if (businessId.isEmpty || orderIds.isEmpty) return [];
     final List<OrderItemEntity> allItems = [];
     for (var i = 0; i < orderIds.length; i += 30) {
       final chunk = orderIds.sublist(
@@ -208,6 +223,7 @@ class OrderRepository {
     OrderEntity order,
     List<OrderItemEntity> items,
   ) async {
+    _checkBusinessId();
     final batch = _firestore.batch();
 
     // Use atomic sequence for order number
@@ -288,6 +304,7 @@ class OrderRepository {
     List<OrderItemEntity> items,
     PaymentEntity payment,
   ) async {
+    _checkBusinessId();
     final batch = _firestore.batch();
 
     // 1. Generate Order
@@ -378,6 +395,7 @@ class OrderRepository {
   }
 
   Future<void> markOrderDelivered(String orderId) async {
+    _checkBusinessId();
     final order = await getOrder(orderId);
     if (order == null || order.status == 'delivered') return;
 
@@ -428,6 +446,7 @@ class OrderRepository {
   }
 
   Future<void> updateOrderStatus(String orderId, String newStatus) async {
+    _checkBusinessId();
     await _firestore.collection('orders').doc(orderId).update({
       'status': newStatus,
       'updatedAt': FieldValue.serverTimestamp(),
@@ -443,6 +462,7 @@ class OrderRepository {
   }
 
   Future<void> deleteOrder(String orderId) async {
+    _checkBusinessId();
     final order = await getOrder(orderId);
     if (order == null) return;
 

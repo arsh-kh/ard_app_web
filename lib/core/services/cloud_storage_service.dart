@@ -23,10 +23,22 @@ class CloudStorageService {
       final path = prefix != null ? '$prefix/$folderName/$fileName' : '$folderName/$fileName';
       final ref = _storage.ref().child(path);
 
+      final ext = p.extension(imagePath).toLowerCase();
+      String contentType = 'image/jpeg';
+      if (ext == '.png') {
+        contentType = 'image/png';
+      } else if (ext == '.gif') {
+        contentType = 'image/gif';
+      } else if (ext == '.webp') {
+        contentType = 'image/webp';
+      }
+      
+      final metadata = SettableMetadata(contentType: contentType);
+
       if (kIsWeb) {
         // On web, we must use putData with the bytes of the file
         final bytes = await XFile(imagePath).readAsBytes();
-        final uploadTask = await ref.putData(bytes);
+        final uploadTask = await ref.putData(bytes, metadata);
         return await uploadTask.ref.getDownloadURL();
       } else {
         // On mobile/desktop, we can use putFile
@@ -35,7 +47,7 @@ class CloudStorageService {
           debugPrint('Local file does not exist: $imagePath');
           return null;
         }
-        final uploadTask = await ref.putFile(file);
+        final uploadTask = await ref.putFile(file, metadata);
         return await uploadTask.ref.getDownloadURL();
       }
     } catch (e) {

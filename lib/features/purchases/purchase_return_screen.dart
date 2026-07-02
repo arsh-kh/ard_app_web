@@ -154,7 +154,7 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
       );
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', lang)}$e');
+        AppFeedback.showError(context, e);
         setState(() => _isSubmitting = false);
       }
       return;
@@ -256,7 +256,7 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', lang)}$e');
+        AppFeedback.showError(context, e);
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

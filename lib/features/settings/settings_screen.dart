@@ -14,6 +14,7 @@ import '../../core/providers/business_provider.dart';
 import '../../core/widgets/custom_theme_switch.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
 import '../../data/repositories/user_repository.dart';
+
 import 'data_wipe_dialog.dart' as data_wipe_dialog;
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -268,6 +269,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: Column(
                         children: [
                           if (user?.role == 'admin') ...[
+                            _buildSettingsRow(
+                              title: Tr.t('businessProfileTitle', langCode),
+                              theme: theme,
+                              onTap: () => context.push(Routes.businessProfile),
+                            ),
+                            _buildDivider(theme),
                             _buildSettingsRow(
                               title: Tr.t('inviteEmployeesTitle', langCode),
                               theme: theme,
@@ -688,6 +695,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ), // CustomScrollView
     );
   }
+
 
   Widget _buildSectionLabel(String text) {
     return Padding(

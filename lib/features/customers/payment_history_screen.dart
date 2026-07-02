@@ -235,7 +235,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', widget.lang)}$e');
+        AppFeedback.showError(context, e);
       }
     }
   }
@@ -293,7 +293,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
         isDialogOpen = false;
       }
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', widget.lang)}$e');
+        AppFeedback.showError(context, e);
       }
     }
   }

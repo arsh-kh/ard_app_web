@@ -13,6 +13,7 @@ import '../../core/providers/notification_providers.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/services/pdf_invoice_service.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/providers/business_provider.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
 import '../../core/widgets/shimmer_list_loader.dart';
 import '../../core/widgets/empty_state.dart';
@@ -203,6 +204,7 @@ class AdminOrdersScreen extends ConsumerWidget {
       final currentLocale = ref.read(localeProvider);
       final authState = ref.read(authProvider);
       final adminPhone = authState.user?.phone;
+      final business = ref.read(currentBusinessEntityProvider).valueOrNull;
       final pdfBytes = await PdfInvoiceService.generateInvoice(
         order: order,
         customer: resolvedCustomer,
@@ -210,6 +212,7 @@ class AdminOrdersScreen extends ConsumerWidget {
         products: products,
         isKurdish: currentLocale.languageCode == 'ku',
         isArabic: currentLocale.languageCode == 'ar',
+        shopName: business?.name ?? Tr.t('pdfShopName', currentLocale.languageCode),
         adminPhone: adminPhone,
       );
 

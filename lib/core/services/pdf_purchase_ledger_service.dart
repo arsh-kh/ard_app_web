@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/arabic_reshaper_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -25,10 +26,9 @@ class PdfPurchaseLedgerService {
       await rootBundle.load('assets/fonts/NotoNaskhArabic-Bold.ttf'),
     );
 
-    final primaryColor = PdfColor.fromHex('#1E293B'); // Slate 800
-    final accentColor = PdfColor.fromHex('#3B82F6'); // Blue 500
-    final secondaryColor = PdfColor.fromHex('#F8FAFC'); // Slate 50
-    final borderColor = PdfColor.fromHex('#E2E8F0'); // Slate 200
+    const primaryColor = PdfColors.black;
+    const secondaryColor = PdfColors.grey200;
+    const borderColor = PdfColors.grey400;
 
     pdf.addPage(
       pw.MultiPage(
@@ -37,7 +37,7 @@ class PdfPurchaseLedgerService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [fontRegular, fontBold],
+          fontFallback: [fontRegular, fontBold, pw.Font.helvetica()],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -46,18 +46,19 @@ class PdfPurchaseLedgerService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tTitle = Tr.t('auto_PURCHASESLEDGER', langCode);
-          final tPeriod = Tr.t('auto_Period', langCode);
-          final tGenerated = Tr.t('auto_Generated', langCode);
-          final tCompany = Tr.t('auto_ArdWholesale', langCode);
-          final tDesc = Tr.t('auto_FlourDistributi', langCode);
-          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
+          final tTitle = ArabicReshaperUtils.reshape(Tr.t('auto_PURCHASESLEDGER', langCode));
+          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
+          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
+          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
+          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
+          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
 
-          final tTotalPurchases = Tr.t('summaryPurchases', langCode)
+          final tTotalPurchasesRaw = Tr.t('summaryPurchases', langCode)
               .split('·')
               .first
               .replaceAll('{count}', ''); // Extracting "purchases" word
-          final tTotalAmount = Tr.t('auto_Amount', langCode);
+          final tTotalPurchases = ArabicReshaperUtils.reshape(tTotalPurchasesRaw);
+          final tTotalAmount = ArabicReshaperUtils.reshape(Tr.t('auto_Amount', langCode));
 
           final double totalExpenses = purchases.fold(
             0,
@@ -68,9 +69,9 @@ class PdfPurchaseLedgerService {
             // Premium Header Banner
             pw.Container(
               padding: const pw.EdgeInsets.all(24),
-              decoration: pw.BoxDecoration(
+              decoration: const pw.BoxDecoration(
                 color: primaryColor,
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(16)),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(16)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -107,7 +108,7 @@ class PdfPurchaseLedgerService {
                               ),
                             ),
                             pw.Text(
-                              periodName,
+                              ArabicReshaperUtils.reshape(periodName),
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -231,12 +232,12 @@ class PdfPurchaseLedgerService {
                       vertical: 16,
                     ),
                     decoration: pw.BoxDecoration(
-                      color: PdfColor.fromHex('#F0F9FF'), // Light blue tint
+                      color: PdfColors.grey100,
                       borderRadius: const pw.BorderRadius.all(
                         pw.Radius.circular(12),
                       ),
                       border: pw.Border.all(
-                        color: PdfColor.fromHex('#BFDBFE'),
+                        color: PdfColors.grey300,
                         width: 1.5,
                       ),
                     ),
@@ -251,7 +252,7 @@ class PdfPurchaseLedgerService {
                             tTotalAmount,
                             style: pw.TextStyle(
                               fontSize: 12,
-                              color: accentColor,
+                              color: primaryColor,
                               fontWeight: pw.FontWeight.bold,
                             ),
                           ),
@@ -325,7 +326,7 @@ class PdfPurchaseLedgerService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = Tr.t('auto_Noordersfoundin', langCode);
+    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Noordersfoundin', langCode));
 
     if (purchases.isEmpty) {
       return pw.Container(
@@ -343,10 +344,10 @@ class PdfPurchaseLedgerService {
       );
     }
 
-    final tDate = Tr.t('auto_Date', langCode);
-    final tPurchaseNo = Tr.t('auto_PurchaseNo', langCode);
-    final tStatus = Tr.t('auto_Status', langCode);
-    final tAmount = Tr.t('auto_Amount', langCode);
+    final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
+    final tPurchaseNo = ArabicReshaperUtils.reshape(Tr.t('auto_PurchaseNo', langCode));
+    final tStatus = ArabicReshaperUtils.reshape(Tr.t('auto_Status', langCode));
+    final tAmount = ArabicReshaperUtils.reshape(Tr.t('auto_Amount', langCode));
 
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -510,7 +511,7 @@ class PdfPurchaseLedgerService {
                     child: pw.Directionality(
                       textDirection: pw.TextDirection.ltr,
                       child: pw.Text(
-                        p.status.toUpperCase(),
+                        ArabicReshaperUtils.reshape(p.status.toUpperCase()),
                         style: pw.TextStyle(
                           fontSize: 10,
                           fontWeight: pw.FontWeight.bold,

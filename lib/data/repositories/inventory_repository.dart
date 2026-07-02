@@ -14,7 +14,12 @@ class InventoryRepository {
     return DataSanitizer.sanitize(data);
   }
 
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Stream<List<ProductEntity>> watchProducts() {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('products')
         .where('businessId', isEqualTo: businessId)
@@ -37,6 +42,7 @@ class InventoryRepository {
   }
 
   Future<void> addProduct(ProductEntity product) async {
+    _checkBusinessId();
     await _firestore.collection('products').doc(product.id).set({
       ...product.toJson(),
       'businessId': businessId,
@@ -58,6 +64,7 @@ class InventoryRepository {
   }
 
   Future<void> updateProductImageUrl(String productId, String imageUrl) async {
+    _checkBusinessId();
     await _firestore.collection('products').doc(productId).update({
       'imageUrl': imageUrl,
       'updatedAt': FieldValue.serverTimestamp(),
@@ -128,6 +135,7 @@ class InventoryRepository {
   }
 
   Future<void> deleteProduct(String id) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('products').doc(id).get();
     final data = doc.data();
     if (data != null && data['businessId'] != businessId) return; // security
@@ -145,10 +153,12 @@ class InventoryRepository {
   }
 
   Stream<List<ProductEntity>> watchAllProducts() {
+    if (businessId.isEmpty) return Stream.value([]);
     return watchProducts();
   }
 
   Future<List<ProductEntity>> getAllProducts() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('products')
         .where('businessId', isEqualTo: businessId)
@@ -169,6 +179,7 @@ class InventoryRepository {
   }
 
   Future<ProductEntity?> getProductById(String id) async {
+    if (businessId.isEmpty) return null;
     final doc = await _firestore.collection('products').doc(id).get();
     if (!doc.exists) return null;
     final data = doc.data()!;
@@ -177,6 +188,7 @@ class InventoryRepository {
   }
 
   Future<void> restockProduct(String id, double quantity) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('products').doc(id).get();
     if (doc.exists && doc.data()?['businessId'] == businessId) {
       await _firestore.collection('products').doc(id).update({

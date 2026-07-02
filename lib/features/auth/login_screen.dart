@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/feedback_utils.dart';
 
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/locale_provider.dart';
@@ -196,43 +197,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
       if (error == null && mounted) {
         // Registration success
+
         final lang = ref.read(localeProvider).languageCode;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              Tr.t('msg_reg_success_verify', lang),
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-            ),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
-            duration: const Duration(seconds: 6),
-          ),
-        );
+        AppFeedback.showSuccess(context, Tr.t('msg_reg_success_verify', lang));
         _switchTab(true); // Switch back to login tab
         return; // Don't show error snackbar
       }
     }
 
     if (error != null && mounted) {
-      final lang = ref.read(localeProvider).languageCode;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            Tr.t(error, lang),
-            style: TextStyle(color: Theme.of(context).colorScheme.onError),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.error,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(16),
-        ),
-      );
+      AppFeedback.showError(context, error);
     }
     // Router will automatically redirect on successful auth via redirect logic
   }
@@ -647,26 +621,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               .forgotPassword(emailCtrl.text);
                           if (!ctx.mounted) return;
                           Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                error == null
-                                    ? Tr.t('msg_reset_link_sent', lang, {
-                                        'email': emailCtrl.text,
-                                      })
-                                    : Tr.t(error, lang),
-                                style: TextStyle(
-                                  color: error == null
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : Theme.of(context).colorScheme.onError,
-                                ),
-                              ),
-                              backgroundColor: error == null
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.error,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          if (error == null) {
+                            AppFeedback.showSuccess(context, Tr.t('msg_reset_link_sent', lang, {'email': emailCtrl.text}));
+                          } else {
+                            AppFeedback.showError(context, error);
+                          }
                         },
                   child: isSending
                       ? const SizedBox(
@@ -759,7 +718,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
           const SizedBox(height: 4),
           Align(
-            alignment: AlignmentDirectional.centerEnd,
+            alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () => _showForgotPasswordDialog(
                 context,

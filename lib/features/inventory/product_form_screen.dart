@@ -164,7 +164,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       bool hasNewImageToUpload = false;
       String? localImagePath;
 
-      if (_imagePath != null && !_imagePath!.startsWith('http')) {
+      if (_imagePath != null && !_imagePath!.contains('firebasestorage.googleapis.com')) {
         hasNewImageToUpload = true;
         localImagePath = _imagePath;
         // Temporarily keep old image (if editing) or null
@@ -223,7 +223,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             } catch (e) {
               // Rollback the product creation if the purchase fails
               await repo.deleteProduct(productId);
-              throw Exception('Failed to add initial stock. Product creation rolled back: $e');
+              throw Exception('errProductStockRollback');
             }
           }
         } else {
@@ -243,7 +243,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       } catch (e) {
         if (mounted) {
           Navigator.pop(context); // dismiss loader
-          AppFeedback.showError(context, e.toString());
+          String errorMsg = e.toString().replaceAll('Exception: ', '');
+          if (errorMsg == 'errProductStockRollback') {
+            errorMsg = Tr.t(errorMsg, langCode);
+          }
+          AppFeedback.showError(context, errorMsg);
         }
       }
 

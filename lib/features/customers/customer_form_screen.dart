@@ -92,7 +92,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         bool hasNewImageToUpload = false;
         String? localImagePath;
 
-        if (_imagePath != null && !_imagePath!.startsWith('http')) {
+        if (_imagePath != null && !_imagePath!.contains('firebasestorage.googleapis.com')) {
           hasNewImageToUpload = true;
           localImagePath = _imagePath;
           // Temporarily keep old image (if editing) or null
@@ -148,7 +148,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       } catch (e) {
         if (mounted) {
           Navigator.pop(context); // dismiss loader
-          AppFeedback.showError(context, e.toString());
+          AppFeedback.showError(context, e);
         }
       }
     }

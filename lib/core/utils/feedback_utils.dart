@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'app_translations.dart';
+import 'error_utils.dart';
 
 /// Centralized app feedback with themed SnackBars and haptic feedback.
 /// Replaces raw ScaffoldMessenger calls for a consistent, professional feel.
@@ -15,8 +16,10 @@ class AppFeedback {
   }
 
   /// Show an error-themed SnackBar (red) with haptic feedback.
-  static void showError(BuildContext context, String message) {
+  static void showError(BuildContext context, Object error) {
     HapticFeedback.heavyImpact();
+    final langCode = Localizations.localeOf(context).languageCode;
+    final message = ErrorUtils.translate(error, langCode);
     _show(context, message, _SnackType.error);
   }
 

@@ -1,11 +1,11 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/arabic_reshaper_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../data/models/purchase_entity.dart';
 import '../../data/models/purchase_item_entity.dart';
-
 import '../../data/models/product_entity.dart';
 import '../utils/currency_formatter.dart';
 
@@ -29,7 +29,7 @@ class PdfPurchaseInvoiceService {
       await rootBundle.load('assets/fonts/NotoNaskhArabic-Bold.ttf'),
     );
 
-    final primaryColor = PdfColor.fromHex('#1E293B'); // Slate 800
+    const primaryColor = PdfColors.black; 
 
     pdf.addPage(
       pw.MultiPage(
@@ -38,7 +38,7 @@ class PdfPurchaseInvoiceService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [fontRegular, fontBold],
+          fontFallback: [fontRegular, fontBold, pw.Font.helvetica()],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -47,21 +47,21 @@ class PdfPurchaseInvoiceService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tInvoice = Tr.t('purchaseInvoice', langCode);
-          final tInvoiceNum = Tr.t('purchaseNo', langCode);
-          final tDate = Tr.t('auto_Date', langCode);
-          final tDesc = Tr.t('auto_FlourDistributi', langCode);
-          final tContact = Tr.t('auto_Contact', langCode);
-          final tCompany = Tr.t('auto_ArdWholesale', langCode);
-          final tTotal = Tr.t('auto_TotalAmount', langCode);
+          final tInvoice = ArabicReshaperUtils.reshape(Tr.t('purchaseInvoice', langCode));
+          final tInvoiceNum = ArabicReshaperUtils.reshape(Tr.t('purchaseNo', langCode));
+          final tDate = ArabicReshaperUtils.reshape(Tr.t('auto_Date', langCode));
+          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
+          final tContact = ArabicReshaperUtils.reshape(Tr.t('auto_Contact', langCode));
+          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
+          final tTotal = ArabicReshaperUtils.reshape(Tr.t('auto_TotalAmount', langCode));
 
           return [
             // Premium Header Banner
             pw.Container(
               padding: const pw.EdgeInsets.all(20),
-              decoration: pw.BoxDecoration(
+              decoration: const pw.BoxDecoration(
                 color: primaryColor,
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(12)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -215,9 +215,9 @@ class PdfPurchaseInvoiceService {
                     horizontal: 24,
                     vertical: 16,
                   ),
-                  decoration: pw.BoxDecoration(
+                  decoration: const pw.BoxDecoration(
                     color: primaryColor,
-                    borderRadius: const pw.BorderRadius.all(
+                    borderRadius: pw.BorderRadius.all(
                       pw.Radius.circular(12),
                     ),
                   ),
@@ -297,10 +297,10 @@ class PdfPurchaseInvoiceService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tItem = Tr.t('auto_Item', langCode);
-    final tQty = Tr.t('auto_Qty', langCode);
-    final tPrice = Tr.t('auto_UnitPrice', langCode);
-    final tTotal = Tr.t('auto_Total', langCode);
+    final tItem = ArabicReshaperUtils.reshape(Tr.t('auto_Item', langCode));
+    final tQty = ArabicReshaperUtils.reshape(Tr.t('auto_Qty', langCode));
+    final tPrice = ArabicReshaperUtils.reshape(Tr.t('auto_UnitPrice', langCode));
+    final tTotal = ArabicReshaperUtils.reshape(Tr.t('auto_Total', langCode));
 
     final activeItems = items
         .where((i) => (i.quantity - i.returnedQuantity) > 0)
@@ -409,7 +409,7 @@ class PdfPurchaseInvoiceService {
 
           return pw.TableRow(
             decoration: pw.BoxDecoration(
-              color: isEven ? PdfColors.grey50 : PdfColors.white,
+              color: isEven ? PdfColors.grey200 : PdfColors.white,
             ),
             children: [
               pw.Padding(
@@ -418,7 +418,7 @@ class PdfPurchaseInvoiceService {
                   textDirection: (isKurdish || isArabic)
                       ? pw.TextDirection.rtl
                       : pw.TextDirection.ltr,
-                  child: pw.Text(product.name),
+                  child: pw.Text(ArabicReshaperUtils.reshape(product.name)),
                 ),
               ),
               pw.Padding(

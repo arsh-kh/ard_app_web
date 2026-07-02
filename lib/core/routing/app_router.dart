@@ -11,6 +11,7 @@ import '../../features/dashboard/admin_dashboard_screen.dart';
 import '../../features/dashboard/main_shell_layout.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/settings/edit_profile_screen.dart';
+import '../../features/settings/business_profile_screen.dart';
 import '../../features/settings/notifications_screen.dart';
 import '../../features/settings/help_center_screen.dart';
 import '../../features/settings/about_us_screen.dart';
@@ -290,6 +291,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.editProfile,
         pageBuilder: (context, state) =>
             _buildFadeTransition(context, state, const EditProfileScreen()),
+      ),
+      GoRoute(
+        path: Routes.businessProfile,
+        pageBuilder: (context, state) =>
+            _buildFadeTransition(context, state, const BusinessProfileScreen()),
       ),
       GoRoute(
         path: Routes.notifications,

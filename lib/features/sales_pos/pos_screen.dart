@@ -142,7 +142,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 final clearMsg = Tr.t('auto_ClearCartMessage', langCode);
 
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: const EdgeInsetsDirectional.only(end: 8.0),
                   child: IconButton(
                     icon: const Icon(
                       Icons.remove_shopping_cart,
@@ -637,11 +637,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   cartNotifier.addProduct(product, newQty);
                   Navigator.pop(context);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(Tr.t('auto_Invalidquantity', langCode)),
-                    ),
-                  );
+                  AppFeedback.showError(context, Tr.t('auto_Invalidquantity', langCode));
                 }
               },
               child: Text(addText),
@@ -1395,7 +1391,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, e.toString());
+        AppFeedback.showError(context, e);
       }
     } finally {
       if (mounted) {

@@ -21,7 +21,12 @@ class UserRepository {
     return DataSanitizer.sanitize(data);
   }
 
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Stream<List<UserEntity>> watchAllUsers() {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('users')
         .where('businessId', isEqualTo: businessId)
@@ -39,6 +44,7 @@ class UserRepository {
   }
 
   Future<void> updateUserStatus(String userId, String status) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('users').doc(userId).get();
     if (!doc.exists) return;
     if (doc.data()?['businessId'] != businessId) return;
@@ -54,6 +60,7 @@ class UserRepository {
   }
 
   Future<void> updateUserRole(String userId, String role) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('users').doc(userId).get();
     if (!doc.exists) return;
     if (doc.data()?['businessId'] != businessId) return;
@@ -69,6 +76,7 @@ class UserRepository {
   }
 
   Future<void> deleteUser(String userId) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('users').doc(userId).get();
     if (!doc.exists) return;
     if (doc.data()?['businessId'] != businessId) return;

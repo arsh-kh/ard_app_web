@@ -26,6 +26,10 @@ class ReturnRepository {
   /// Reads the customer's current debt balance and computes the real
   /// new balance after applying the refund. Returns a [DebtCalculation]
   /// so the caller can display the exact before/after values.
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Future<DebtCalculation> previewDebtReduction(
     String customerId,
     double refundAmount,
@@ -71,6 +75,7 @@ class ReturnRepository {
     DebtCalculation debtCalc,
     Map<String, double> orderItemReturns,
   ) async {
+    _checkBusinessId();
     final batch = _firestore.batch();
 
     // 1. Save the return header (store actual deduction for the audit trail).
@@ -175,6 +180,7 @@ class ReturnRepository {
 
   /// Returns all returns for a given order.
   Future<List<ReturnEntity>> getReturnsForOrder(String orderId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('returns')
         .where('businessId', isEqualTo: businessId)
@@ -189,6 +195,7 @@ class ReturnRepository {
 
   /// Returns all line items for a given return.
   Future<List<ReturnItemEntity>> getReturnItems(String returnId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('return_items')
         .where('businessId', isEqualTo: businessId)
@@ -201,6 +208,7 @@ class ReturnRepository {
 
   /// Returns all returns
   Future<List<ReturnEntity>> getAllReturns() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('returns')
         .where('businessId', isEqualTo: businessId)
@@ -217,6 +225,7 @@ class ReturnRepository {
     DateTime start,
     DateTime end,
   ) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('returns')
         .where('businessId', isEqualTo: businessId)

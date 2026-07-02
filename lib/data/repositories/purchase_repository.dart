@@ -12,6 +12,10 @@ class PurchaseRepository {
 
   PurchaseRepository(this.businessId);
 
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   CollectionReference get _purchases => _firestore.collection('purchases');
   CollectionReference get _purchaseItems =>
       _firestore.collection('purchaseItems');
@@ -20,6 +24,7 @@ class PurchaseRepository {
     PurchaseEntity purchase,
     List<PurchaseItemEntity> items,
   ) async {
+    _checkBusinessId();
     final batch = _firestore.batch();
 
     // Generate strict sequence number for purchase
@@ -104,6 +109,7 @@ class PurchaseRepository {
   }
 
   Future<List<PurchaseEntity>> getAllPurchases() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _purchases
         .where('businessId', isEqualTo: businessId)
         .orderBy('purchaseDate', descending: true)
@@ -121,6 +127,7 @@ class PurchaseRepository {
   }
 
   Stream<List<PurchaseEntity>> watchAllPurchases() {
+    if (businessId.isEmpty) return Stream.value([]);
     return _purchases
         .where('businessId', isEqualTo: businessId)
         .orderBy('purchaseDate', descending: true)
@@ -140,6 +147,7 @@ class PurchaseRepository {
   }
 
   Future<List<PurchaseItemEntity>> getPurchaseItems(String purchaseId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _purchaseItems
         .where('businessId', isEqualTo: businessId)
         .where('purchaseId', isEqualTo: purchaseId)
@@ -157,6 +165,7 @@ class PurchaseRepository {
   }
 
   Future<List<PurchaseItemEntity>> getAllPurchaseItems() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _purchaseItems
         .where('businessId', isEqualTo: businessId)
         .get();
@@ -173,6 +182,7 @@ class PurchaseRepository {
   }
 
   Future<List<PurchaseEntity>> getPurchasesBySupplier(String supplierId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _purchases
         .where('businessId', isEqualTo: businessId)
         .where('supplierId', isEqualTo: supplierId)
@@ -192,6 +202,7 @@ class PurchaseRepository {
   }
 
   Stream<List<PurchaseEntity>> watchPurchasesBySupplier(String supplierId) {
+    if (businessId.isEmpty) return Stream.value([]);
     return _purchases
         .where('businessId', isEqualTo: businessId)
         .where('supplierId', isEqualTo: supplierId)
@@ -213,6 +224,7 @@ class PurchaseRepository {
   }
 
   Future<void> deletePurchase(String purchaseId) async {
+    _checkBusinessId();
     final doc = await _purchases.doc(purchaseId).get();
     if (!doc.exists) return;
 

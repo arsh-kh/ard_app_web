@@ -22,7 +22,10 @@ service firebase.storage {
     
     match /businesses/{businessId}/{allPaths=**} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isImage() && isUnderSize(5);
+      allow write: if isAuthenticated() 
+                   && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.businessId == businessId
+                   && isImage() 
+                   && isUnderSize(5);
     }
 
     // Legacy paths for old images (read-only)

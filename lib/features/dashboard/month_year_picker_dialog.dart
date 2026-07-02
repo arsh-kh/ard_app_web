@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/feedback_utils.dart';
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -46,6 +47,7 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     }
 
     try {
+
       final langCode = ref.read(localeProvider).languageCode;
       final data = await fetchReportData(ref, start, end, langCode);
       setState(() {
@@ -106,10 +108,8 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
       }
     } catch (e) {
       if (mounted) {
-        final langCode = currentLocale.languageCode;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${Tr.t('errorPrefix', langCode)}$e')),
-        );
+
+        AppFeedback.showError(context, e);
       }
     }
   }

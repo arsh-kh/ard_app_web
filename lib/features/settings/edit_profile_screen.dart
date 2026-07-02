@@ -1,4 +1,5 @@
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/feedback_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -64,7 +65,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       bool hasNewImageToUpload = false;
       String? localImagePath;
 
-      if (_avatarPath != null && !_avatarPath!.startsWith('http')) {
+      if (_avatarPath != null && !_avatarPath!.contains('firebasestorage.googleapis.com')) {
         hasNewImageToUpload = true;
         localImagePath = _avatarPath;
         // Temporarily keep old image or null
@@ -110,6 +111,199 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         }().ignore();
       }
     }
+  }
+
+  void _showChangePasswordDialog() {
+    final langCode = ref.read(localeProvider).languageCode;
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    bool isLoading = false;
+    String? errorMessage;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+            final theme = Theme.of(context);
+            
+            return Container(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: bottomInset > 0 ? bottomInset + 24 : 48,
+              ),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  )
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    Tr.t('changePasswordBtn', langCode),
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: newPasswordController,
+                    obscureText: true,
+                    onChanged: (val) {
+                      if (errorMessage != null) setState(() => errorMessage = null);
+                    },
+                    decoration: InputDecoration(
+                      hintText: Tr.t('newPasswordHint', langCode),
+                      filled: true,
+                      fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    onChanged: (val) {
+                      if (errorMessage != null) setState(() => errorMessage = null);
+                    },
+                    decoration: InputDecoration(
+                      hintText: Tr.t('confirmPasswordHint', langCode),
+                      filled: true,
+                      fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      errorText: errorMessage,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: isLoading ? null : () => Navigator.pop(ctx),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            Tr.t('cancelBtn', langCode),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () async {
+                                  final newPass = newPasswordController.text;
+                                  final confirmPass = confirmPasswordController.text;
+                                  
+                                  if (newPass.length < 6) {
+                                    setState(() => errorMessage = Tr.t('err_password_too_short', langCode));
+                                    return;
+                                  }
+                                  
+                                  if (newPass != confirmPass) {
+                                    setState(() => errorMessage = Tr.t('passwordMismatch', langCode));
+                                    return;
+                                  }
+
+                                  setState(() {
+                                    isLoading = true;
+                                    errorMessage = null;
+                                  });
+
+                                  final errorKey = await ref.read(authProvider.notifier).updatePassword(newPass);
+                                  
+                                  if (ctx.mounted) {
+                                    if (errorKey != null) {
+                                      setState(() {
+                                        isLoading = false;
+                                        errorMessage = Tr.t(errorKey, langCode);
+                                      });
+                                    } else {
+                                      Navigator.pop(ctx);
+                                      if (mounted) {
+                                        AppFeedback.showSuccess(context, Tr.t('passwordChangedSuccess', langCode));
+                                      }
+                                    }
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.onSurface,
+                            foregroundColor: theme.colorScheme.surface,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text(
+                                  Tr.t('auto_SaveChanges', langCode),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -292,6 +486,44 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ],
                       ),
                     ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1),
+
+                    const SizedBox(height: 24),
+
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: InkWell(
+                        onTap: _showChangePasswordDialog,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.lock_outline_rounded,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                Tr.t('changePasswordBtn', langCode),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 175.ms).slideY(begin: 0.1),
 
                     const SizedBox(height: 40),
 

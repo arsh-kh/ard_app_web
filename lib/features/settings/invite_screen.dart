@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/utils/feedback_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -158,17 +159,7 @@ class InviteScreen extends ConsumerWidget {
               BouncingWidget(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: inviteCode));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        Tr.t('inviteCodeCopied', langCode),
-                        style: TextStyle(
-                          color: theme.colorScheme.onInverseSurface,
-                        ),
-                      ),
-                      backgroundColor: theme.colorScheme.inverseSurface,
-                    ),
-                  );
+                  AppFeedback.showSuccess(context, Tr.t('inviteCodeCopied', langCode));
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 20),

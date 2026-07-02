@@ -63,7 +63,7 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', lang)}$e');
+        AppFeedback.showError(context, e);
       }
     } finally {
       if (mounted) setState(() => _isWiping = false);

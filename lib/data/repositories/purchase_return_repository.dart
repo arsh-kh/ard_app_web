@@ -13,6 +13,10 @@ class PurchaseReturnRepository {
 
   /// Previews how much the supplier debt will be reduced by.
   /// (Since we return items to the supplier, the amount we owe them decreases).
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Future<DebtCalculation> previewSupplierDebtReduction(
     String supplierId,
     double refundAmount,
@@ -47,6 +51,7 @@ class PurchaseReturnRepository {
     DebtCalculation debtCalc,
     Map<String, double> purchaseItemReturns,
   ) async {
+    _checkBusinessId();
     final batch = _firestore.batch();
 
     // 1. Save the return header
@@ -154,6 +159,7 @@ class PurchaseReturnRepository {
   Future<List<PurchaseReturnEntity>> getReturnsForPurchase(
     String purchaseId,
   ) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('purchase_returns')
         .where('businessId', isEqualTo: businessId)

@@ -14,6 +14,11 @@ _$BusinessEntityImpl _$$BusinessEntityImplFromJson(Map<String, dynamic> json) =>
       inviteCode: json['inviteCode'] as String,
       ownerId: json['ownerId'] as String,
       recoveryEmail: json['recoveryEmail'] as String?,
+      passwordHash: json['passwordHash'] as String?,
+      resetCodeHash: json['resetCodeHash'] as String?,
+      resetCodeExpiresAt: json['resetCodeExpiresAt'] == null
+          ? null
+          : DateTime.parse(json['resetCodeExpiresAt'] as String),
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -28,5 +33,8 @@ Map<String, dynamic> _$$BusinessEntityImplToJson(
   'inviteCode': instance.inviteCode,
   'ownerId': instance.ownerId,
   'recoveryEmail': instance.recoveryEmail,
+  'passwordHash': instance.passwordHash,
+  'resetCodeHash': instance.resetCodeHash,
+  'resetCodeExpiresAt': instance.resetCodeExpiresAt?.toIso8601String(),
   'createdAt': instance.createdAt?.toIso8601String(),
 };

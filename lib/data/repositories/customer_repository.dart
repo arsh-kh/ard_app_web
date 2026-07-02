@@ -10,7 +10,12 @@ class CustomerRepository {
 
   CustomerRepository(this._auditService, this.businessId);
 
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Stream<List<CustomerEntity>> watchCustomers() {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('customers')
         .where('businessId', isEqualTo: businessId)
@@ -34,6 +39,7 @@ class CustomerRepository {
   }
 
   Future<void> addCustomer(CustomerEntity customer) async {
+    _checkBusinessId();
     await _firestore.collection('customers').doc(customer.id).set({
       ...customer.toJson(),
       'businessId': businessId,
@@ -56,6 +62,7 @@ class CustomerRepository {
     String customerId,
     String imageUrl,
   ) async {
+    _checkBusinessId();
     await _firestore.collection('customers').doc(customerId).update({
       'imageUrl': imageUrl,
       'updatedAt': FieldValue.serverTimestamp(),
@@ -63,6 +70,7 @@ class CustomerRepository {
   }
 
   Future<void> updateCustomer(CustomerEntity customer) async {
+    _checkBusinessId();
     final Map<String, dynamic> data = customer.toJson();
     if (customer.imageUrl == null) {
       data['imageUrl'] = FieldValue.delete();
@@ -119,6 +127,7 @@ class CustomerRepository {
   }
 
   Future<void> deleteCustomer(String id) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('customers').doc(id).get();
     final name = doc.data()?['businessName'] ?? id;
 
@@ -133,6 +142,7 @@ class CustomerRepository {
   }
 
   Future<void> ensureWalkInCustomerExists() async {
+    if (businessId.isEmpty) return;
     final walkInId = 'walk-in-$businessId';
     final doc = await _firestore.collection('customers').doc(walkInId).get();
     if (!doc.exists) {
@@ -150,6 +160,7 @@ class CustomerRepository {
   }
 
   Future<List<CustomerEntity>> getAllCustomers() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('customers')
         .where('businessId', isEqualTo: businessId)
@@ -171,6 +182,7 @@ class CustomerRepository {
   }
 
   Future<CustomerEntity?> getCustomerById(String id) async {
+    if (businessId.isEmpty) return null;
     final doc = await _firestore.collection('customers').doc(id).get();
     if (!doc.exists) return null;
     final data = doc.data()!;

@@ -15,7 +15,12 @@ class PaymentRepository {
     return DataSanitizer.sanitize(data);
   }
 
+  void _checkBusinessId() {
+    if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
+  }
+
   Stream<List<PaymentEntity>> watchPaymentsByCustomer(String customerId) {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -35,6 +40,7 @@ class PaymentRepository {
   }
 
   Future<List<PaymentEntity>> getPaymentsByCustomer(String customerId) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -52,6 +58,7 @@ class PaymentRepository {
   }
 
   Future<void> addPayment(PaymentEntity payment) async {
+    _checkBusinessId();
     final batch = _firestore.batch();
 
     final paymentRef = _firestore.collection('payments').doc(payment.id);
@@ -98,6 +105,7 @@ class PaymentRepository {
   }
 
   Future<void> deletePayment(String paymentId) async {
+    _checkBusinessId();
     final doc = await _firestore.collection('payments').doc(paymentId).get();
     if (!doc.exists) return;
     final data = doc.data()!;
@@ -151,6 +159,7 @@ class PaymentRepository {
   }
 
   Stream<List<PaymentEntity>> watchAllPayments() {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -171,6 +180,7 @@ class PaymentRepository {
     DateTime start,
     DateTime end,
   ) {
+    if (businessId.isEmpty) return Stream.value([]);
     return _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -193,6 +203,7 @@ class PaymentRepository {
     DateTime start,
     DateTime end,
   ) async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -210,6 +221,7 @@ class PaymentRepository {
   }
 
   Future<List<PaymentEntity>> getAllPayments() async {
+    if (businessId.isEmpty) return [];
     final snapshot = await _firestore
         .collection('payments')
         .where('businessId', isEqualTo: businessId)
@@ -228,6 +240,7 @@ class PaymentRepository {
     required String customerId,
     required double amount,
   }) async {
+    _checkBusinessId();
     final payment = PaymentEntity(
       id: const Uuid().v4(),
       businessId: businessId,

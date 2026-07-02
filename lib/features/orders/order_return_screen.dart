@@ -149,7 +149,7 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
           .previewDebtReduction(widget.order.customerId, _totalRefund);
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', lang)}$e');
+        AppFeedback.showError(context, e);
         setState(() => _isSubmitting = false);
       }
       return;
@@ -241,7 +241,7 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(context, '${Tr.t('errorPrefix', lang)}$e');
+        AppFeedback.showError(context, e);
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

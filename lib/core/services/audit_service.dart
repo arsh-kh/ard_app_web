@@ -36,15 +36,18 @@ class AuditService {
     required String entityId,
     String? details,
     Map<String, dynamic>? metadata,
+    String? overrideBusinessId,
   }) async {
     // If we have no logged in user, maybe system action or error?
     final userId = _currentUserId ?? 'SYSTEM';
     final userName = _currentUserName ?? 'System Process';
 
+    final businessIdToUse = overrideBusinessId ?? _businessId;
+
     final id = const Uuid().v4();
     final log = AuditLogEntity(
       id: id,
-      businessId: _businessId,
+      businessId: businessIdToUse,
       userId: userId,
       userName: userName,
       action: action,

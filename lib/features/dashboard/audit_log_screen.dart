@@ -15,7 +15,7 @@ final auditLogsProvider = StreamProvider.autoDispose<List<AuditLogEntity>>((
   ref,
 ) {
   final businessId = ref.watch(currentBusinessIdProvider);
-  if (businessId == null) return Stream.value([]);
+  if (businessId == null || businessId.isEmpty) return Stream.value([]);
 
   return FirebaseFirestore.instance
       .collection('audit_logs')

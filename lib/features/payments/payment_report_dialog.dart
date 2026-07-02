@@ -10,6 +10,7 @@ import '../../core/services/pdf_payment_report_service.dart';
 import '../../core/widgets/pdf_preview_screen.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/app_date_range_picker.dart';
 
 class PaymentReportDialog extends ConsumerStatefulWidget {
@@ -30,9 +31,7 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
     final lang = ref.read(localeProvider).languageCode;
     if (_selectedRange == 'custom' &&
         (_customStart == null || _customEnd == null)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(Tr.t('selectDatesError', lang))));
+      AppFeedback.showError(context, Tr.t('selectDatesError', lang));
       return;
     }
 
@@ -43,8 +42,8 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
       DateTime start;
       DateTime end;
       String periodName;
-
       final langCode = ref.read(localeProvider).languageCode;
+
       final isKurdish = langCode == 'ku';
       final isArabic = langCode == 'ar';
 
@@ -130,10 +129,8 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        final langCode = ref.read(localeProvider).languageCode;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${Tr.t('errorPrefix', langCode)}$e')),
-        );
+
+        AppFeedback.showError(context, e);
       }
     }
   }

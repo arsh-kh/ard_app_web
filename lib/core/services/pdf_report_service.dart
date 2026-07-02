@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/arabic_reshaper_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -25,8 +26,8 @@ class PdfReportService {
       await rootBundle.load('assets/fonts/NotoNaskhArabic-Bold.ttf'),
     );
 
-    final primaryColor = PdfColor.fromHex('#1E293B'); // Slate 800
-    final secondaryColor = PdfColor.fromHex('#F8FAFC'); // Slate 50
+    const primaryColor = PdfColors.black;
+    const secondaryColor = PdfColors.grey200;
 
     pdf.addPage(
       pw.MultiPage(
@@ -35,7 +36,7 @@ class PdfReportService {
         theme: pw.ThemeData.withFont(
           base: fontRegular,
           bold: fontBold,
-          fontFallback: [fontRegular, fontBold],
+          fontFallback: [fontRegular, fontBold, pw.Font.helvetica()],
         ),
         textDirection: pw.TextDirection.rtl,
         build: (context) {
@@ -44,31 +45,32 @@ class PdfReportService {
               : isArabic
               ? 'ar'
               : 'en';
-          final tTitle = isMonth
+              
+          final tTitle = ArabicReshaperUtils.reshape(isMonth
               ? (Tr.t('auto_MONTHLYREPORT', langCode))
-              : (Tr.t('auto_YEARLYREPORT', langCode));
+              : (Tr.t('auto_YEARLYREPORT', langCode)));
 
-          final tPeriod = Tr.t('auto_Period', langCode);
-          final tGenerated = Tr.t('auto_Generated', langCode);
-          final tDesc = Tr.t('auto_FlourDistributi', langCode);
-          final tSummary = Tr.t('auto_FinancialSummar', langCode);
-          final tCompany = Tr.t('auto_ArdWholesale', langCode);
-          final tTopProducts = Tr.t('auto_TopSellingProdu', langCode);
-          final tTopCustomers = Tr.t('auto_TopCustomers', langCode);
-          final tFooter = Tr.t('auto_Thisisanautomat', langCode);
-          final tNetProfit = Tr.t('auto_NetProfit', langCode);
-          final tTotalOrders = Tr.t('auto_TotalOrdersExec', langCode);
-          final tTotalRev = Tr.t('auto_TotalRevenueGro', langCode);
-          final tTotalExp = Tr.t('auto_TotalPurchasesE', langCode);
-          final tTotalReturns = Tr.t('totalReturns', langCode);
+          final tPeriod = ArabicReshaperUtils.reshape(Tr.t('auto_Period', langCode));
+          final tGenerated = ArabicReshaperUtils.reshape(Tr.t('auto_Generated', langCode));
+          final tDesc = ArabicReshaperUtils.reshape(Tr.t('auto_FlourDistributi', langCode));
+          final tSummary = ArabicReshaperUtils.reshape(Tr.t('auto_FinancialSummar', langCode));
+          final tCompany = ArabicReshaperUtils.reshape(Tr.t('auto_ArdWholesale', langCode));
+          final tTopProducts = ArabicReshaperUtils.reshape(Tr.t('auto_TopSellingProdu', langCode));
+          final tTopCustomers = ArabicReshaperUtils.reshape(Tr.t('auto_TopCustomers', langCode));
+          final tFooter = ArabicReshaperUtils.reshape(Tr.t('auto_Thisisanautomat', langCode));
+          final tNetProfit = ArabicReshaperUtils.reshape(Tr.t('auto_NetProfit', langCode));
+          final tTotalOrders = ArabicReshaperUtils.reshape(Tr.t('auto_TotalOrdersExec', langCode));
+          final tTotalRev = ArabicReshaperUtils.reshape(Tr.t('auto_TotalRevenueGro', langCode));
+          final tTotalExp = ArabicReshaperUtils.reshape(Tr.t('auto_TotalPurchasesE', langCode));
+          final tTotalReturns = ArabicReshaperUtils.reshape(Tr.t('totalReturns', langCode));
 
           return [
             // Premium Header
             pw.Container(
               padding: const pw.EdgeInsets.all(16),
-              decoration: pw.BoxDecoration(
+              decoration: const pw.BoxDecoration(
                 color: primaryColor,
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(16)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -104,7 +106,7 @@ class PdfReportService {
                               ),
                             ),
                             pw.Text(
-                              periodName,
+                              ArabicReshaperUtils.reshape(periodName),
                               style: pw.TextStyle(
                                 color: PdfColors.white,
                                 fontWeight: pw.FontWeight.bold,
@@ -258,9 +260,7 @@ class PdfReportService {
                             style: pw.TextStyle(
                               fontSize: 20,
                               fontWeight: pw.FontWeight.bold,
-                              color: reportData.profit >= 0
-                                  ? PdfColors.green700
-                                  : PdfColors.red700,
+                              color: primaryColor,
                             ),
                           ),
                           pw.SizedBox(width: 12),
@@ -289,9 +289,7 @@ class PdfReportService {
                             style: pw.TextStyle(
                               fontSize: 20,
                               fontWeight: pw.FontWeight.bold,
-                              color: reportData.profit >= 0
-                                  ? PdfColors.green700
-                                  : PdfColors.red700,
+                              color: primaryColor,
                             ),
                           ),
                         ],
@@ -420,7 +418,7 @@ class PdfReportService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = Tr.t('auto_Noproductsalesr', langCode);
+    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Noproductsalesr', langCode));
 
     if (products.isEmpty) {
       return pw.Directionality(
@@ -434,10 +432,10 @@ class PdfReportService {
       );
     }
 
-    final tName = Tr.t('auto_ProductName', langCode);
-    final tQty = Tr.t('auto_QtySold', langCode);
-    final tRev = Tr.t('auto_Revenue', langCode);
-    final tProf = Tr.t('auto_Profit', langCode);
+    final tName = ArabicReshaperUtils.reshape(Tr.t('auto_ProductName', langCode));
+    final tQty = ArabicReshaperUtils.reshape(Tr.t('auto_QtySold', langCode));
+    final tRev = ArabicReshaperUtils.reshape(Tr.t('auto_Revenue', langCode));
+    final tProf = ArabicReshaperUtils.reshape(Tr.t('auto_Profit', langCode));
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -529,7 +527,7 @@ class PdfReportService {
           final isEven = index % 2 == 0;
           return pw.TableRow(
             decoration: pw.BoxDecoration(
-              color: isEven ? PdfColors.grey50 : PdfColors.white,
+              color: isEven ? PdfColors.grey200 : PdfColors.white,
             ),
             children: [
               pw.Padding(
@@ -538,7 +536,7 @@ class PdfReportService {
                   textDirection: (isKurdish || isArabic)
                       ? pw.TextDirection.rtl
                       : pw.TextDirection.ltr,
-                  child: pw.Text(p.productName),
+                  child: pw.Text(ArabicReshaperUtils.reshape(p.productName)),
                 ),
               ),
               pw.Padding(
@@ -595,7 +593,7 @@ class PdfReportService {
         : isArabic
         ? 'ar'
         : 'en';
-    final tEmpty = Tr.t('auto_Nocustomeractiv', langCode);
+    final tEmpty = ArabicReshaperUtils.reshape(Tr.t('auto_Nocustomeractiv', langCode));
     if (customers.isEmpty) {
       return pw.Directionality(
         textDirection: (isKurdish || isArabic)
@@ -608,9 +606,9 @@ class PdfReportService {
       );
     }
 
-    final tName = Tr.t('auto_CustomerName', langCode);
-    final tOrd = Tr.t('auto_Orders', langCode);
-    final tSpn = Tr.t('auto_TotalSpent', langCode);
+    final tName = ArabicReshaperUtils.reshape(Tr.t('auto_CustomerName', langCode));
+    final tOrd = ArabicReshaperUtils.reshape(Tr.t('auto_Orders', langCode));
+    final tSpn = ArabicReshaperUtils.reshape(Tr.t('auto_TotalSpent', langCode));
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -683,7 +681,7 @@ class PdfReportService {
           final isEven = index % 2 == 0;
           return pw.TableRow(
             decoration: pw.BoxDecoration(
-              color: isEven ? PdfColors.grey50 : PdfColors.white,
+              color: isEven ? PdfColors.grey200 : PdfColors.white,
             ),
             children: [
               pw.Padding(
@@ -692,7 +690,7 @@ class PdfReportService {
                   textDirection: (isKurdish || isArabic)
                       ? pw.TextDirection.rtl
                       : pw.TextDirection.ltr,
-                  child: pw.Text(c.customerName),
+                  child: pw.Text(ArabicReshaperUtils.reshape(c.customerName)),
                 ),
               ),
               pw.Padding(
