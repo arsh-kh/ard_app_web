@@ -670,7 +670,7 @@ class _PurchaseCard extends ConsumerWidget {
                   border: Border.all(color: statusColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
-                  purchase.status.toUpperCase(),
+                  Tr.t('status_${purchase.status}', lang).toUpperCase(),
                   style: TextStyle(
                     fontSize: 10,
                     color: statusColor,
