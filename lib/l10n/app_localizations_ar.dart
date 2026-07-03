@@ -261,13 +261,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get generateInvoice => 'إصدار الوصل';
 
   @override
-  String get printInvoice => 'طباعة الوصل';
+  String get printInvoice => 'تحميل Report/Print';
 
   @override
   String get shareInvoice => 'إرسال الوصل';
-
-  @override
-  String get downloadPdf => 'تحميل PDF';
 
   @override
   String get businessName => 'اسم العمل';
@@ -300,7 +297,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get debtReport => 'تقرير الديون';
 
   @override
-  String get exportPdf => 'تصدير كـ PDF';
+  String get printReport => 'تصدير كـ Report/Print';
 
   @override
   String get exportExcel => 'تصدير كـ Excel';

@@ -261,13 +261,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generateInvoice => 'Generate Invoice';
 
   @override
-  String get printInvoice => 'Print Invoice';
+  String get printInvoice => 'Download Report/Print';
 
   @override
   String get shareInvoice => 'Share Invoice';
-
-  @override
-  String get downloadPdf => 'Download PDF';
 
   @override
   String get businessName => 'Business Name';
@@ -300,7 +297,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debtReport => 'Debt Report';
 
   @override
-  String get exportPdf => 'Export PDF';
+  String get printReport => 'Export Report/Print';
 
   @override
   String get exportExcel => 'Export Excel';

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,8 +8,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/order_providers.dart';
 import '../../core/providers/customer_providers.dart';
-import '../../core/services/pdf_invoice_ledger_service.dart';
-import '../../core/widgets/pdf_preview_screen.dart';
+import '../../core/services/html_generator_service.dart';
+import '../../core/providers/business_provider.dart';
+import '../../core/utils/currency_formatter.dart';
+import '../../data/models/customer_entity.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../domain/enums.dart';
 import '../../core/utils/app_translations.dart';
@@ -104,27 +108,45 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
 
       final customers = await customerRepo.getAllCustomers();
 
-      final pdfBytes = await PdfInvoiceLedgerService.generateLedger(
-        orders: filteredOrders,
-        customers: customers,
+      final tDate = Tr.t('auto_Date', langCode);
+      final tInvoice = Tr.t('auto_Invoice', langCode);
+      final tCustomer = Tr.t('auto_Customer', langCode);
+      final tAmount = Tr.t('auto_Amount', langCode);
+
+      final dateFormat = DateFormat('dd/MM/yyyy');
+      final rows = filteredOrders.map((order) {
+        final customer = customers.firstWhere(
+          (c) => c.id == order.customerId,
+          orElse: () => CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
+        );
+        return [
+          dateFormat.format(order.orderDate),
+          order.orderNumber?.toString() ?? order.id.substring(0, 8),
+          customer.businessName,
+          CurrencyFormatter.format(order.totalAmount, forPrint: true),
+        ];
+      }).toList();
+
+      final totalRevenue = filteredOrders.fold(0.0, (sum, order) => sum + order.totalAmount);
+      final business = ref.read(currentBusinessEntityProvider).valueOrNull;
+
+      if (!context.mounted) return;
+      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      await HtmlGeneratorService.generateAndLaunchLedger(
+        title: Tr.t('auto_INVOICESLEDGER', langCode),
         periodName: periodName,
+        headers: [tDate, tInvoice, tCustomer, tAmount],
+        rows: rows,
+        totalLabel: Tr.t('auto_TotalRevenue', langCode),
+        totalAmount: totalRevenue,
         isKurdish: isKurdish,
         isArabic: isArabic,
+        shopName: business?.name ?? Tr.t('auto_ArdWholesale', langCode),
       );
 
       if (mounted) {
         setState(() => _isLoading = false);
         Navigator.of(context).pop();
-        Navigator.of(context, rootNavigator: true)
-            .push(
-              MaterialPageRoute(
-                builder: (_) => PdfPreviewScreen(
-                  title: 'Invoices_Ledger_$periodName',
-                  pdfBytes: pdfBytes,
-                ),
-              ),
-            )
-            .ignore();
       }
     } catch (e) {
       if (mounted) {
@@ -282,7 +304,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
                       )
                     : HeavyIOSButton(
                         label: tGenerate,
-                        icon: Icons.picture_as_pdf_rounded,
+                        icon: Icons.print_rounded,
                         onTap: _generateReport,
                       ).animate().scale(
                         duration: 200.ms,

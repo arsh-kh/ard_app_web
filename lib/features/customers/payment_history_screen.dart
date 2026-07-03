@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -22,9 +24,9 @@ import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/app_date_range_picker.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
 import '../../core/widgets/animated_segmented_pill.dart';
-import '../../core/services/pdf_invoice_service.dart';
+import '../../core/services/html_generator_service.dart';
 import '../../core/providers/auth_provider.dart';
-import '../../core/widgets/pdf_preview_screen.dart';
+
 import '../../core/widgets/heavy_ios_button.dart';
 import 'history_hub_screen.dart';
 
@@ -267,26 +269,15 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
 
       final authState = ref.read(authProvider);
       final adminPhone = authState.user?.phone;
-      final pdfBytes = await PdfInvoiceService.generatePaymentReceipt(
+      if (!context.mounted) return;
+      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      await HtmlGeneratorService.generateAndLaunchPaymentReceipt(
         payment: payment,
         customer: resolvedCustomer,
         isKurdish: widget.lang == 'ku',
         isArabic: widget.lang == 'ar',
         adminPhone: adminPhone,
       );
-
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true)
-            .push(
-              MaterialPageRoute(
-                builder: (_) => PdfPreviewScreen(
-                  title: 'Receipt_${payment.id.substring(0, 8).toUpperCase()}',
-                  pdfBytes: pdfBytes,
-                ),
-              ),
-            )
-            .ignore();
-      }
     } catch (e) {
       if (mounted && isDialogOpen) {
         Navigator.of(context, rootNavigator: true).pop();
@@ -604,7 +595,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
                         child: Row(
                           children: [
                             Icon(
-                              Icons.picture_as_pdf_rounded,
+                              Icons.print_rounded,
                               size: 14,
                               color: theme.colorScheme.surface,
                             ),

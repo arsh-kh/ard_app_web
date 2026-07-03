@@ -15,6 +15,8 @@ import '../../features/settings/business_profile_screen.dart';
 import '../../features/settings/notifications_screen.dart';
 import '../../features/settings/help_center_screen.dart';
 import '../../features/settings/about_us_screen.dart';
+import '../../features/settings/pdf_settings_screen.dart';
+
 import '../../features/settings/legal_screen.dart';
 import '../../features/settings/contact_us_screen.dart';
 import '../../features/settings/export_data_screen.dart';
@@ -376,6 +378,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.invite,
         pageBuilder: (context, state) =>
             _buildSlideTransition(context, state, const InviteScreen()),
+      ),
+      GoRoute(
+        path: Routes.pdfSettings,
+        pageBuilder: (context, state) =>
+            _buildSlideTransition(context, state, const PdfSettingsScreen()),
       ),
     ],
   );

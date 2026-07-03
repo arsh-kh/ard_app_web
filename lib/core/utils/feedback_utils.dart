@@ -133,6 +133,13 @@ class AppFeedback {
   }
 
   static double _calculateBottomMargin(BuildContext context) {
+    // If the keyboard is open, the floating snackbar is automatically pushed up.
+    // We should reset the margin to 16.0 to prevent the SnackBar from being pushed off-screen.
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    if (keyboardHeight > 0) {
+      return 16.0;
+    }
+
     // Determine if we are on a shell route with the custom pill nav bar.
     bool hasBottomNav = false;
     try {

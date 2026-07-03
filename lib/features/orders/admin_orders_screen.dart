@@ -1,5 +1,7 @@
 import '../../core/utils/app_translations.dart';
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,14 +13,14 @@ import '../../core/providers/inventory_providers.dart';
 import '../../core/routing/routes.dart';
 import '../../core/providers/notification_providers.dart';
 import '../../core/providers/auth_provider.dart';
-import '../../core/services/pdf_invoice_service.dart';
+import '../../core/services/html_generator_service.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/providers/business_provider.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
 import '../../core/widgets/shimmer_list_loader.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/heavy_ios_button.dart';
-import '../../core/widgets/pdf_preview_screen.dart';
+
 import '../../core/providers/locale_provider.dart';
 import '../../data/models/order_entity.dart';
 import '../../data/models/order_item_entity.dart';
@@ -205,30 +207,18 @@ class AdminOrdersScreen extends ConsumerWidget {
       final authState = ref.read(authProvider);
       final adminPhone = authState.user?.phone;
       final business = ref.read(currentBusinessEntityProvider).valueOrNull;
-      final pdfBytes = await PdfInvoiceService.generateInvoice(
+      if (!context.mounted) return;
+      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      await HtmlGeneratorService.generateAndLaunchInvoice(
         order: order,
         customer: resolvedCustomer,
         items: items,
         products: products,
         isKurdish: currentLocale.languageCode == 'ku',
         isArabic: currentLocale.languageCode == 'ar',
-        shopName: business?.name ?? Tr.t('pdfShopName', currentLocale.languageCode),
+        shopName: business?.name ?? Tr.t('printShopName', currentLocale.languageCode),
         adminPhone: adminPhone,
       );
-
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true)
-            .push(
-              MaterialPageRoute(
-                builder: (_) => PdfPreviewScreen(
-                  title:
-                      'Invoice_${order.orderNumber?.toString() ?? order.id.substring(0, 8)}',
-                  pdfBytes: pdfBytes,
-                ),
-              ),
-            )
-            .ignore();
-      }
     } catch (e) {
       if (context.mounted && isDialogOpen) {
         Navigator.of(context, rootNavigator: true).pop();
@@ -689,7 +679,7 @@ class _OrdersBodyState extends ConsumerState<_OrdersBody> {
                         child: Row(
                           children: [
                             Icon(
-                              Icons.picture_as_pdf_rounded,
+                              Icons.print_rounded,
                               size: 14,
                               color: Theme.of(context).colorScheme.surface,
                             ),

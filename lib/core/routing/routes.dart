@@ -12,6 +12,7 @@ class Routes {
   static const settings = '/settings';
   static const String editProfile = '/edit-profile';
   static const String businessProfile = '/business-profile';
+  static const String pdfSettings = '/pdf-settings';
   static const String notifications = '/notifications';
   static const String analytics = '/analytics';
   static const customerDetail = '/customer-detail';

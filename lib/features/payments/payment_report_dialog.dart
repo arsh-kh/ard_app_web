@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,8 +8,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/payment_providers.dart';
 import '../../core/providers/customer_providers.dart';
-import '../../core/services/pdf_payment_report_service.dart';
-import '../../core/widgets/pdf_preview_screen.dart';
+import '../../core/services/html_generator_service.dart';
+import '../../core/providers/business_provider.dart';
+import '../../core/utils/currency_formatter.dart';
+import '../../data/models/customer_entity.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/utils/feedback_utils.dart';
@@ -104,27 +108,43 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
 
       final customers = await customerRepo.getAllCustomers();
 
-      final pdfBytes = await PdfPaymentReportService.generateReport(
-        payments: filteredPayments,
-        customers: customers,
+      final tDate = Tr.t('auto_Date', langCode);
+      final tCustomer = Tr.t('auto_Customer', langCode);
+      final tAmount = Tr.t('auto_Amount', langCode);
+
+      final dateFormat = DateFormat('dd/MM/yyyy');
+      final rows = filteredPayments.map((payment) {
+        final customer = customers.firstWhere(
+          (c) => c.id == payment.customerId,
+          orElse: () => CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
+        );
+        return [
+          dateFormat.format(payment.paymentDate),
+          customer.businessName,
+          CurrencyFormatter.format(payment.amount, forPrint: true),
+        ];
+      }).toList();
+
+      final totalAmount = filteredPayments.fold(0.0, (sum, payment) => sum + payment.amount);
+      final business = ref.read(currentBusinessEntityProvider).valueOrNull;
+
+      if (!context.mounted) return;
+      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      await HtmlGeneratorService.generateAndLaunchLedger(
+        title: Tr.t('auto_PAYMENTSREPORT', langCode),
         periodName: periodName,
+        headers: [tDate, tCustomer, tAmount],
+        rows: rows,
+        totalLabel: Tr.t('auto_TotalReceived', langCode),
+        totalAmount: totalAmount,
         isKurdish: isKurdish,
         isArabic: isArabic,
+        shopName: business?.name ?? Tr.t('auto_ArdWholesale', langCode),
       );
 
       if (mounted) {
         setState(() => _isLoading = false);
         Navigator.of(context).pop();
-        Navigator.of(context, rootNavigator: true)
-            .push(
-              MaterialPageRoute(
-                builder: (_) => PdfPreviewScreen(
-                  title: 'Payment_Report_$periodName',
-                  pdfBytes: pdfBytes,
-                ),
-              ),
-            )
-            .ignore();
       }
     } catch (e) {
       if (mounted) {
@@ -282,7 +302,7 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
                       )
                     : HeavyIOSButton(
                         label: tGenerate,
-                        icon: Icons.picture_as_pdf_rounded,
+                        icon: Icons.print_rounded,
                         onTap: _generateReport,
                       ).animate().scale(
                         duration: 200.ms,

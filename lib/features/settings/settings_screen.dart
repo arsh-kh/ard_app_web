@@ -237,6 +237,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         if (user?.role == 'admin') ...[
                           _buildDivider(theme),
                           _buildSettingsRow(
+                            title: Tr.t('pdfPrintSettingsTitle', langCode),
+                            subtitle: '',
+                            theme: theme,
+                            onTap: () => context.push(Routes.pdfSettings),
+                          ),
+                          _buildDivider(theme),
+                          _buildSettingsRow(
                             title: Tr.t('auditLogs', langCode),
                             subtitle: '',
                             theme: theme,

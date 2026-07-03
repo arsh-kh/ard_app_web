@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
@@ -17,8 +19,7 @@ import '../../data/models/purchase_item_entity.dart';
 import '../../data/models/product_entity.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/utils/feedback_utils.dart';
-import '../../core/services/pdf_purchase_invoice_service.dart';
-import 'package:printing/printing.dart';
+import '../../core/services/html_generator_service.dart';
 import 'purchase_return_screen.dart';
 import '../../core/utils/app_date_range_picker.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
@@ -513,7 +514,7 @@ class _PurchasesBodyState extends ConsumerState<_PurchasesBody> {
                         child: Row(
                           children: [
                             Icon(
-                              Icons.picture_as_pdf_rounded,
+                              Icons.print_rounded,
                               size: 14,
                               color: Theme.of(context).colorScheme.surface,
                             ),
@@ -939,18 +940,14 @@ class _PurchaseCard extends ConsumerWidget {
                                 );
                                 if (p != null) products.add(p);
                               }
-                              final pdfBytes =
-                                  await PdfPurchaseInvoiceService.generateInvoice(
-                                    purchase: purchase,
-                                    items: items,
-                                    products: products,
-                                    isKurdish: lang == 'ku',
-                                    isArabic: lang == 'ar',
-                                  );
-                              await Printing.layoutPdf(
-                                onLayout: (_) => pdfBytes,
-                                name:
-                                    'Purchase_${purchase.purchaseNumber ?? purchase.id}.pdf',
+                              if (!context.mounted) return;
+                              if (!await PdfInterceptor.checkAndNavigate(context)) return;
+                              await HtmlGeneratorService.generateAndLaunchPurchaseInvoice(
+                                purchase: purchase,
+                                items: items,
+                                products: products,
+                                isKurdish: lang == 'ku',
+                                isArabic: lang == 'ar',
                               );
                             },
                           ),

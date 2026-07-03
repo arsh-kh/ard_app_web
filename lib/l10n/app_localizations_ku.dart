@@ -261,13 +261,10 @@ class AppLocalizationsKu extends AppLocalizations {
   String get generateInvoice => 'دەرکردنی وەسڵ';
 
   @override
-  String get printInvoice => 'چاپکردنی وەسڵ';
+  String get printInvoice => 'داگرتن بە Report/Print';
 
   @override
   String get shareInvoice => 'ناردنی وەسڵ';
-
-  @override
-  String get downloadPdf => 'داگرتن بە PDF';
 
   @override
   String get businessName => 'ناوی کار';
@@ -300,7 +297,7 @@ class AppLocalizationsKu extends AppLocalizations {
   String get debtReport => 'ڕاپۆرتی قەرزەکان';
 
   @override
-  String get exportPdf => 'دەرکردن بە PDF';
+  String get printReport => 'دەرکردن بە Report/Print';
 
   @override
   String get exportExcel => 'دەرکردن بە Excel';

@@ -607,7 +607,7 @@ abstract class AppLocalizations {
   /// Button label for printing an invoice
   ///
   /// In en, this message translates to:
-  /// **'Print Invoice'**
+  /// **'Download Report/Print'**
   String get printInvoice;
 
   /// Button label for sharing an invoice via other apps
@@ -615,12 +615,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share Invoice'**
   String get shareInvoice;
-
-  /// Button label for downloading invoice as PDF
-  ///
-  /// In en, this message translates to:
-  /// **'Download PDF'**
-  String get downloadPdf;
 
   /// Input field label for the user's business name in settings
   ///
@@ -682,11 +676,11 @@ abstract class AppLocalizations {
   /// **'Debt Report'**
   String get debtReport;
 
-  /// Button label for exporting data as PDF
+  /// No description provided for @printReport.
   ///
   /// In en, this message translates to:
-  /// **'Export PDF'**
-  String get exportPdf;
+  /// **'Export Report/Print'**
+  String get printReport;
 
   /// Button label for exporting data as Excel spreadsheet
   ///

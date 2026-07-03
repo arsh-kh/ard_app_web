@@ -104,7 +104,7 @@
   "generateInvoice": "دەرکردنی وەسڵ",
   "printInvoice": "چاپکردنی وەسڵ",
   "shareInvoice": "ناردنی وەسڵ",
-  "downloadPdf": "داگرتن بە PDF",
+  "printInvoice": "داگرتن بە Report/Print",
 
   "businessName": "ناوی کار",
   "businessAddress": "ناونیشانی کار",
@@ -119,7 +119,7 @@
   "salesReport": "ڕاپۆرتی فرۆشتنەکان",
   "debtReport": "ڕاپۆرتی قەرزەکان",
 
-  "exportPdf": "دەرکردن بە PDF",
+  "printReport": "دەرکردن بە Report/Print",
   "exportExcel": "دەرکردن بە Excel",
 
   "syncStatus": "دۆخی هاوکاتکردن",

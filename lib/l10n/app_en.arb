@@ -432,9 +432,9 @@
     "description": "Button label for sharing an invoice via other apps"
   },
 
-  "downloadPdf": "Download PDF",
-  "@downloadPdf": {
-    "description": "Button label for downloading invoice as PDF"
+  "printInvoice": "Download Report/Print",
+  "@downloadReport/Print": {
+    "description": "Button label for downloading invoice as Report/Print"
   },
 
   "businessName": "Business Name",
@@ -487,9 +487,9 @@
     "description": "Report type: outstanding debts summary"
   },
 
-  "exportPdf": "Export PDF",
-  "@exportPdf": {
-    "description": "Button label for exporting data as PDF"
+  "printReport": "Export Report/Print",
+  "@exportReport/Print": {
+    "description": "Button label for exporting data as Report/Print"
   },
 
   "exportExcel": "Export Excel",

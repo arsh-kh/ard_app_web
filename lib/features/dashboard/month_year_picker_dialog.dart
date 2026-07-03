@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import '../../core/utils/app_translations.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/widgets/custom_loader.dart';
@@ -8,8 +10,8 @@ import 'package:intl/intl.dart';
 import '../../core/providers/dashboard_providers.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../core/services/pdf_report_service.dart';
-import '../../core/widgets/pdf_preview_screen.dart';
+import '../../core/services/html_generator_service.dart';
+
 
 class ReportPickerModal extends ConsumerStatefulWidget {
   final bool isMonth;
@@ -83,29 +85,19 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
     _fetchData();
   }
 
-  Future<void> _exportPdf(String dateLabel, bool isMonth) async {
+  Future<void> _printReport(String dateLabel, bool isMonth) async {
     if (reportData == null) return;
     final currentLocale = ref.read(localeProvider);
     try {
-      final bytes = await PdfReportService.generateReport(
+      if (!context.mounted) return;
+      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      await HtmlGeneratorService.generateAndLaunchReport(
         reportData: reportData!,
         periodName: dateLabel,
         isMonth: isMonth,
         isKurdish: currentLocale.languageCode == 'ku',
         isArabic: currentLocale.languageCode == 'ar',
       );
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true)
-            .push(
-              MaterialPageRoute(
-                builder: (_) => PdfPreviewScreen(
-                  title: 'Report_$dateLabel',
-                  pdfBytes: bytes,
-                ),
-              ),
-            )
-            .ignore();
-      }
     } catch (e) {
       if (mounted) {
 
@@ -228,9 +220,9 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: () => _exportPdf(dateLabel, widget.isMonth),
-                icon: const Icon(Icons.picture_as_pdf),
-                label: Text(Tr.t('auto_ExportPDF', langCode)),
+                onPressed: () => _printReport(dateLabel, widget.isMonth),
+                icon: const Icon(Icons.print),
+                label: Text(Tr.t('auto_printReport', langCode)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,

@@ -32,9 +32,6 @@ dependencies:
   connectivity_plus: ^6.1.4
   internet_connection_checker_plus: ^2.7.1
 
-  # PDF & Printing
-  pdf: ^3.11.2
-  printing: ^5.13.5
 
   # Charts
   fl_chart: ^0.70.2

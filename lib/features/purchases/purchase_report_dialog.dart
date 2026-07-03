@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/pdf_interceptor.dart';
+
 import '../../core/widgets/custom_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/purchase_providers.dart';
-import '../../core/services/pdf_purchase_ledger_service.dart';
-import '../../core/widgets/pdf_preview_screen.dart';
+import '../../core/services/html_generator_service.dart';
+import '../../core/providers/business_provider.dart';
+import '../../core/utils/currency_formatter.dart';
 import '../../core/widgets/heavy_ios_button.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/utils/feedback_utils.dart';
@@ -101,26 +104,41 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
         (a, b) => b.purchaseDate.compareTo(a.purchaseDate),
       );
 
-      final pdfBytes = await PdfPurchaseLedgerService.generateLedger(
-        purchases: filteredPurchases,
+      final tDate = Tr.t('auto_Date', langCode);
+      final tPurchaseNo = Tr.t('auto_PurchaseNo', langCode);
+      final tStatus = Tr.t('auto_Status', langCode);
+      final tAmount = Tr.t('auto_Amount', langCode);
+
+      final dateFormat = DateFormat('dd/MM/yyyy');
+      final rows = filteredPurchases.map((purchase) {
+        return [
+          dateFormat.format(purchase.purchaseDate),
+          purchase.purchaseNumber?.toString() ?? purchase.id.substring(0, 8),
+          Tr.t('auto_${purchase.status.toLowerCase()}', langCode),
+          CurrencyFormatter.format(purchase.totalAmount, forPrint: true),
+        ];
+      }).toList();
+
+      final totalAmount = filteredPurchases.fold(0.0, (sum, purchase) => sum + purchase.totalAmount);
+      final business = ref.read(currentBusinessEntityProvider).valueOrNull;
+
+      if (!context.mounted) return;
+      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      await HtmlGeneratorService.generateAndLaunchLedger(
+        title: Tr.t('auto_PURCHASESLEDGER', langCode),
         periodName: periodName,
+        headers: [tDate, tPurchaseNo, tStatus, tAmount],
+        rows: rows,
+        totalLabel: Tr.t('auto_TotalPurchases', langCode),
+        totalAmount: totalAmount,
         isKurdish: isKurdish,
         isArabic: isArabic,
+        shopName: business?.name ?? Tr.t('auto_ArdWholesale', langCode),
       );
 
       if (mounted) {
         setState(() => _isLoading = false);
         Navigator.of(context).pop();
-        Navigator.of(context, rootNavigator: true)
-            .push(
-              MaterialPageRoute(
-                builder: (_) => PdfPreviewScreen(
-                  title: 'Purchases_Ledger_$periodName',
-                  pdfBytes: pdfBytes,
-                ),
-              ),
-            )
-            .ignore();
       }
     } catch (e) {
       if (mounted) {
@@ -278,7 +296,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
                       )
                     : HeavyIOSButton(
                         label: tGenerate,
-                        icon: Icons.picture_as_pdf_rounded,
+                        icon: Icons.print_rounded,
                         onTap: _generateReport,
                       ).animate().scale(
                         duration: 200.ms,
