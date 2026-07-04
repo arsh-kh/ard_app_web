@@ -26,13 +26,15 @@ class _ReturnLine {
   final OrderItemEntity orderItem;
   final ProductEntity? product;
   final TextEditingController qtyController;
+  final double correctionRatio;
+  
   double get originalQty => orderItem.quantity;
   double get maxReturnQty => orderItem.quantity - orderItem.returnedQuantity;
-  double get unitPrice => orderItem.unitPrice;
+  double get unitPrice => orderItem.unitPrice * correctionRatio;
+  
   String productName(String lang) {
     final name = product?.name;
     if (name != null && name.isNotEmpty) return name;
-    // Don't show raw UUID — show a friendly fallback
     return orderItem.productId.length > 20
         ? '${Tr.t('unknownProduct', lang)} (${orderItem.productId.substring(0, 6).toUpperCase()})'
         : orderItem.productId;
@@ -42,7 +44,7 @@ class _ReturnLine {
 
   late final FocusNode focusNode;
 
-  _ReturnLine({required this.orderItem, this.product})
+  _ReturnLine({required this.orderItem, this.product, this.correctionRatio = 1.0})
     : qtyController = TextEditingController(
         text: (orderItem.quantity - orderItem.returnedQuantity)
             .toInt()
@@ -90,10 +92,23 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
   void initState() {
     super.initState();
     final productMap = {for (final p in widget.products) p.id: p};
+    
+    double sumOfItems = 0;
+    for (final item in widget.items) {
+      sumOfItems += item.quantity * item.unitPrice;
+    }
+    final double correctionRatio = (sumOfItems > 0 && sumOfItems != widget.order.totalAmount) 
+        ? (widget.order.totalAmount / sumOfItems) 
+        : 1.0;
+        
     _lines = widget.items
         .map(
           (item) =>
-              _ReturnLine(orderItem: item, product: productMap[item.productId]),
+              _ReturnLine(
+                orderItem: item, 
+                product: productMap[item.productId],
+                correctionRatio: correctionRatio,
+              ),
         )
         .toList();
     for (final line in _lines) {

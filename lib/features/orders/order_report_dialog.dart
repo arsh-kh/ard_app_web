@@ -119,15 +119,16 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
           (c) => c.id == order.customerId,
           orElse: () => CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
         );
+        final netAmount = order.totalAmount - order.totalReturnedAmount;
         return [
           dateFormat.format(order.orderDate),
           order.orderNumber?.toString() ?? order.id.substring(0, 8),
           customer.businessName,
-          CurrencyFormatter.format(order.totalAmount, forPrint: true),
+          CurrencyFormatter.format(netAmount, forPrint: true),
         ];
       }).toList();
 
-      final totalRevenue = filteredOrders.fold(0.0, (sum, order) => sum + order.totalAmount);
+      final totalRevenue = filteredOrders.fold(0.0, (sum, order) => sum + (order.totalAmount - order.totalReturnedAmount));
       final business = ref.read(currentBusinessEntityProvider).valueOrNull;
 
       if (!context.mounted) return;

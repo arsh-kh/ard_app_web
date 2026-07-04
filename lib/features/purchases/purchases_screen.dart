@@ -701,14 +701,17 @@ class _PurchaseCard extends ConsumerWidget {
               ),
             ),
             if (purchase.hasReturn)
-              Text(
-                CurrencyFormatter.format(
-                  purchase.totalAmount - purchase.totalReturnedAmount,
-                ),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: Colors.orange,
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  CurrencyFormatter.format(
+                    purchase.totalAmount - purchase.totalReturnedAmount,
+                  ),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: Colors.orange,
+                  ),
                 ),
               ),
           ],
@@ -766,8 +769,25 @@ class _PurchaseCard extends ConsumerWidget {
                           if (items.isEmpty) {
                             return Text(Tr.t('noItemsFound', lang));
                           }
+
+                          double sumOfItems = 0;
+                          for (final i in items) {
+                            sumOfItems += i.quantity * i.unitPrice;
+                          }
+                          final double correctionRatio = (sumOfItems > 0 && sumOfItems != purchase.totalAmount) 
+                              ? (purchase.totalAmount / sumOfItems) 
+                              : 1.0;
+
                           return Column(
                             children: items.map((item) {
+                              final rawItemGross = item.quantity * item.unitPrice;
+                              final itemGross = rawItemGross * correctionRatio;
+                              
+                              final rawItemReturn = item.returnedQuantity * item.unitPrice;
+                              final itemReturnDeduction = rawItemReturn * correctionRatio;
+                              
+                              final itemNet = itemGross - itemReturnDeduction;
+
                               return FutureBuilder<ProductEntity?>(
                                 future: inventoryRepo.getProductById(
                                   item.productId,
@@ -801,10 +821,7 @@ class _PurchaseCard extends ConsumerWidget {
                                                 ),
                                               ),
                                               Text(
-                                                CurrencyFormatter.format(
-                                                  item.quantity *
-                                                      item.unitPrice,
-                                                ),
+                                                CurrencyFormatter.format(itemGross),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 13,
@@ -834,10 +851,7 @@ class _PurchaseCard extends ConsumerWidget {
                                                     ),
                                                   ),
                                                   Text(
-                                                    CurrencyFormatter.format(
-                                                      item.quantity *
-                                                          item.unitPrice,
-                                                    ),
+                                                    CurrencyFormatter.format(itemGross),
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       decoration: TextDecoration
@@ -863,7 +877,7 @@ class _PurchaseCard extends ConsumerWidget {
                                                     ),
                                                   ),
                                                   Text(
-                                                    '- ${CurrencyFormatter.format(item.returnedQuantity * item.unitPrice)}',
+                                                    '- ${CurrencyFormatter.format(itemReturnDeduction)}',
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       color: Colors.redAccent,
@@ -891,11 +905,7 @@ class _PurchaseCard extends ConsumerWidget {
                                                       ),
                                                     ),
                                                     Text(
-                                                      CurrencyFormatter.format(
-                                                        (item.quantity -
-                                                                item.returnedQuantity) *
-                                                            item.unitPrice,
-                                                      ),
+                                                      CurrencyFormatter.format(itemNet),
                                                       style: const TextStyle(
                                                         fontSize: 13,
                                                         fontWeight:

@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../data/models/order_entity.dart';
 import '../../data/models/customer_entity.dart';
@@ -15,6 +15,7 @@ import '../../data/models/purchase_item_entity.dart';
 import '../utils/currency_formatter.dart';
 import '../utils/app_translations.dart';
 import '../services/pdf_settings_service.dart';
+import '../providers/dashboard_providers.dart';
 
 class HtmlGeneratorService {
   /// Base CSS shared across all HTML documents
@@ -33,6 +34,7 @@ class HtmlGeneratorService {
     }
     
     return '''
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <style>
       @font-face {
         font-family: 'Noto Naskh Arabic';
@@ -50,12 +52,10 @@ class HtmlGeneratorService {
       :root {
         --primary-gold: #f1c40f;
         --gold-light: #fef9e7;
-        --text-dark: #2c3e50;
-        --text-muted: #7f8c8d;
-        --border-color: #bdc3c7;
-        --bg-light: #f8f9fa;
-        --success: #27ae60;
-        --danger: #c0392b;
+        --primary-black: #000000;
+        --text-dark: #000000;
+        --border-color: #000000;
+        --bg-light: #f4f4f4;
       }
 
       * {
@@ -65,105 +65,97 @@ class HtmlGeneratorService {
         color-adjust: exact !important;
       }
 
+      @page {
+        margin: 10mm;
+      }
+
       body {
         font-family: 'Noto Naskh Arabic', sans-serif;
         margin: 0;
-        padding: 20px;
-        color: var(--text-dark);
+        padding: 0;
+        color: var(--primary-black);
         line-height: 1.6;
-        font-size: 14px;
+        font-size: 14pt;
         background: #fff;
+        width: 100%;
       }
 
       .invoice-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 30px;
-        border: 2px solid var(--primary-gold);
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        border: 3px solid var(--primary-black);
+        border-radius: 8px;
       }
 
       .header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        padding: 20px;
-        background: #2c3e50;
+        padding: 25px;
+        background: var(--primary-black);
         color: white;
-        border-radius: 8px;
-        margin-bottom: 25px;
-        border-bottom: 4px solid var(--primary-gold);
+        border-radius: 6px;
+        margin-bottom: 30px;
+        border-bottom: 4px solid var(--primary-black);
       }
 
       .header-title {
-        font-size: 28px;
+        font-size: 26pt;
         font-weight: bold;
         margin: 0;
-        color: var(--primary-gold);
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
 
       .header-info p {
-        margin: 4px 0;
-        color: #ecf0f1;
+        margin: 6px 0;
+        color: #f0f0f0;
+        font-size: 14pt;
       }
 
       .header-info strong {
         color: white;
-      }
-
-      .shop-info h2 {
-        margin: 0 0 5px 0;
-        font-size: 24px;
-        color: var(--primary-gold);
-      }
-
-      .shop-info p {
-        margin: 2px 0;
-        color: #ecf0f1;
+        font-size: 15pt;
       }
 
       .customer-box {
         background: var(--bg-light);
         padding: 20px;
-        border-radius: 8px;
-        border-right: 5px solid var(--primary-gold);
-        margin-bottom: 25px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        border-radius: 6px;
+        border-left: 5px solid var(--primary-black);
+        border-right: 5px solid var(--primary-black);
+        margin-bottom: 30px;
       }
 
       table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-bottom: 25px;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        overflow: hidden;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        border: 2px solid var(--primary-black);
       }
 
       th {
-        background: var(--primary-gold);
-        color: #2c3e50;
-        padding: 15px 12px;
+        background: var(--primary-black);
+        color: #ffffff;
+        padding: 18px 12px;
         text-align: center;
         font-weight: bold;
-        font-size: 15px;
+        font-size: 16pt;
+        border: 2px solid var(--primary-black);
       }
 
       td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
+        padding: 15px 12px;
+        border: 1px solid var(--primary-black);
         text-align: center;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 15pt;
+        color: var(--primary-black);
       }
 
-      tr:last-child td {
-        border-bottom: none;
-      }
-
-tr {
+      tr {
         page-break-inside: avoid;
       }
 
@@ -176,17 +168,18 @@ tr {
       .totals-box {
         width: 350px;
         background: var(--bg-light);
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #eee;
+        padding: 20px;
+        border-radius: 6px;
+        border: 2px solid var(--primary-black);
       }
 
       .total-row {
         display: flex;
         justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px dashed var(--border-color);
-        font-size: 15px;
+        padding: 12px 0;
+        border-bottom: 2px dashed var(--primary-black);
+        font-size: 16pt;
+        font-weight: bold;
       }
       
       .total-row:last-child {
@@ -194,13 +187,13 @@ tr {
       }
 
       .total-row.grand-total {
-        font-size: 20px;
-        font-weight: bold;
-        background: var(--primary-gold);
-        color: #2c3e50;
+        font-size: 20pt;
+        background: var(--primary-black);
+        color: #ffffff;
         padding: 15px;
-        border-radius: 6px;
-        margin-top: 10px;
+        margin-top: 15px;
+        border-radius: 4px;
+        border-bottom: none;
       }
 
       .footer {
@@ -416,8 +409,8 @@ tr {
 
       @media print {
         body { padding: 0; }
-        .invoice-container { max-width: 100%; }
-        @page { margin: 15mm; size: A4; }
+        .invoice-container { max-width: 100%; width: 100%; margin: 0; }
+        @page { margin: 10mm; }
       }
     </style>
     ''';
@@ -455,10 +448,35 @@ tr {
     }
 
     String itemsHtml = '';
+    double netSubtotal = 0;
+    
+    double sumOfItems = 0;
     for (var item in items) {
+      sumOfItems += item.quantity * item.unitPrice;
+    }
+    final double correctionRatio = (sumOfItems > 0 && sumOfItems != order.totalAmount) 
+        ? (order.totalAmount / sumOfItems) 
+        : 1.0;
+    
+    for (var item in items) {
+      final rawItemGross = item.quantity * item.unitPrice;
+      final itemGross = rawItemGross * correctionRatio;
+      
+      final rawItemReturn = item.returnedQuantity * item.unitPrice;
+      final itemReturnDeduction = rawItemReturn * correctionRatio;
+      
+      final itemNet = itemGross - itemReturnDeduction;
+
+      final netQty = item.quantity - item.returnedQuantity;
+      if (netQty <= 0) continue;
+      
+      netSubtotal += itemNet;
+      
+      final effectiveUnitPrice = (netQty > 0) ? (itemNet / netQty) : 0.0;
+      
       final product = products.firstWhere(
         (p) => p.id == item.productId,
-        orElse: () => ProductEntity(
+        orElse: () => const ProductEntity(
           id: '', name: 'Unknown', categoryId: '',
           buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: '',
         ),
@@ -466,28 +484,25 @@ tr {
       itemsHtml += '''
         <tr>
           <td dir="auto" style="text-align: center; word-break: break-word;">${product.name}</td>
-          <td dir="ltr">${CurrencyFormatter.formatNumber(item.unitPrice, forPrint: true)}</td>
-          <td dir="ltr">${item.quantity}</td>
-          <td dir="ltr">${CurrencyFormatter.formatNumber(item.unitPrice * item.quantity, forPrint: true)}</td>
+          <td dir="ltr">${CurrencyFormatter.formatNumber(effectiveUnitPrice, forPrint: true)}</td>
+          <td dir="ltr">$netQty</td>
+          <td dir="ltr">${CurrencyFormatter.formatNumber(itemNet, forPrint: true)}</td>
         </tr>
       ''';
     }
 
-    // Totals block sitting neatly on the bottom left (using colspan 2 for empty space)
     itemsHtml += '''
       <tr class="totals-row">
-        <td colspan="3" style="background-color: var(--primary-gold) !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Amount", "${tr("Total Amount", "المجموع الكلي / کۆی گشتی")}")}</td>
-        <td dir="ltr" style="font-weight: bold; color: #2c3e50; font-size: 15pt;">${CurrencyFormatter.formatNumber(order.totalAmount, forPrint: true)}</td>
+        <td colspan="3" style="background-color: var(--primary-gold) !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Amount", "المجموع الكلي / کۆی گشتی")}</td>
+        <td dir="ltr" style="font-weight: bold; color: #2c3e50; font-size: 15pt;">${CurrencyFormatter.formatNumber(netSubtotal, forPrint: true)}</td>
       </tr>
     ''';
-
-    // Discount rows have been explicitly removed per user request
 
     if (customer.debtBalance > 0) {
       itemsHtml += '''
         <tr>
           <td colspan="3" style="background-color: #fff !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Previous Debt", "الديون السابقة / قەرزی پێشوو")}</td>
-          <td dir="ltr" style="font-weight: bold; color: #2c3e50; font-size: 15pt;">${CurrencyFormatter.formatNumber(customer.debtBalance - order.totalAmount + order.discount, forPrint: true)}</td>
+          <td dir="ltr" style="font-weight: bold; color: #2c3e50; font-size: 15pt;">${CurrencyFormatter.formatNumber(customer.debtBalance - netSubtotal, forPrint: true)}</td>
         </tr>
         <tr>
           <td colspan="3" style="background-color: #fff !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Debt", "إجمالي الديون / کۆی قەرزەکان")}</td>
@@ -689,7 +704,7 @@ tr {
             ${pdfSettings.description2.isNotEmpty ? '<p class="old-shop-desc"><b>${pdfSettings.description2}</b></p>' : (isRtl ? '<p class="old-shop-desc"><b>ئێمە ئامادەین بۆ گەیاندنی باشترین جۆرەکانی ئارد و برنج بە گونجاترین نرخ.</b></p>' : '')}
           </div>
           <div class="old-header-logo">
-            <img src="${bakerImageSrc}" alt="Logo" style="max-width: 100%; max-height: 100%;" />
+            <img src="$bakerImageSrc" alt="Logo" style="max-width: 100%; max-height: 100%;" />
           </div>
         </div>
 
@@ -701,7 +716,7 @@ tr {
           </div>
           <!-- Date Section -->
           <div class="meta-box">
-            <span class="meta-label">${tr("Date:", "${tr("Date", "${tr("Date", "التاريخ / بەروار")}")}:")}</span>
+            <span class="meta-label">${tr("Date:", "التاريخ / بەروار:")}</span>
             <span class="meta-value meta-date" dir="ltr">${dateFormat.format(order.orderDate)}</span>
           </div>
         </div>
@@ -755,7 +770,6 @@ tr {
     required bool isArabic,
     String? adminPhone,
   }) async {
-    final pdfSettings = await PdfSettingsService.getSettings();
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
     final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
     final baseStyles = await _getPerfectBaseStyles();
@@ -763,8 +777,6 @@ tr {
     final tReceipt = isKurdish ? 'پسوڵەی پاره‌دان' : isArabic ? 'وصل استلام' : 'Payment Receipt';
     final tReceiptId = isKurdish ? 'ژمارە' : isArabic ? 'رقم الوصل' : 'Receipt No';
     final tDate = Tr.t('auto_Date', langCode);
-    final tCompany = Tr.t('auto_ArdWholesale', langCode);
-    final tContact = Tr.t('auto_Contact', langCode);
     final tReceivedFrom = isKurdish ? 'وەرگیراوە لە' : isArabic ? 'استلمت من' : 'Received From';
     final tAmountPaid = isKurdish ? 'بڕی پاره‌دان' : isArabic ? 'المبلغ المدفوع' : 'Amount Paid';
     final tDebt = Tr.t('auto_CurrentDebtBala', langCode);
@@ -790,12 +802,7 @@ tr {
             <p>$tReceiptId: <strong>${payment.id.substring(0, 8)}</strong></p>
             <p>$tDate: <strong dir="ltr">${dateFormat.format(payment.paymentDate)}</strong></p>
           </div>
-          <div class="shop-info">
-            <h2 dir="auto">${pdfSettings.shopName.isNotEmpty ? pdfSettings.shopName : tCompany}</h2>
-            ${pdfSettings.phone1.isNotEmpty ? '<p>$tContact: <strong dir="ltr">${pdfSettings.phone1}</strong></p>' : (adminPhone?.isNotEmpty == true ? '<p>$tContact: <strong dir="ltr">$adminPhone</strong></p>' : '<p>$tContact: <strong dir="ltr">-</strong></p>')}
-            ${pdfSettings.phone2.isNotEmpty ? '<p>$tContact: <strong dir="ltr">${pdfSettings.phone2}</strong></p>' : ''}
-            ${pdfSettings.phone3.isNotEmpty ? '<p>$tContact: <strong dir="ltr">${pdfSettings.phone3}</strong></p>' : ''}
-          </div>
+
         </div>
 
         <div class="customer-box" style="display: flex; flex-direction: column; gap: 20px;">
@@ -838,7 +845,6 @@ tr {
     required bool isArabic,
     String? adminPhone,
   }) async {
-    final pdfSettings = await PdfSettingsService.getSettings();
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
     final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
     final baseStyles = await _getPerfectBaseStyles();
@@ -846,26 +852,48 @@ tr {
     final tInvoice = Tr.t('purchaseInvoice', langCode);
     final tInvoiceNum = Tr.t('purchaseNo', langCode);
     final tDate = Tr.t('auto_Date', langCode);
-    final tDesc = Tr.t('auto_FlourDistributi', langCode);
-    final tContact = Tr.t('auto_Contact', langCode);
-    final tCompany = Tr.t('auto_ArdWholesale', langCode);
     final tTotal = Tr.t('auto_TotalAmount', langCode);
 
     final isRtl = isKurdish || isArabic;
     final dir = isRtl ? 'rtl' : 'ltr';
 
     String itemsHtml = '';
+    double netSubtotal = 0;
+
+    double sumOfItems = 0;
     for (var item in items) {
+      sumOfItems += item.quantity * item.unitPrice;
+    }
+    final double correctionRatio = (sumOfItems > 0 && sumOfItems != purchase.totalAmount) 
+        ? (purchase.totalAmount / sumOfItems) 
+        : 1.0;
+
+    for (var item in items) {
+      final rawItemGross = item.quantity * item.unitPrice;
+      final itemGross = rawItemGross * correctionRatio;
+      
+      final rawItemReturn = item.returnedQuantity * item.unitPrice;
+      final itemReturnDeduction = rawItemReturn * correctionRatio;
+      
+      final itemNet = itemGross - itemReturnDeduction;
+
+      final netQty = item.quantity - item.returnedQuantity;
+      if (netQty <= 0) continue;
+      
+      netSubtotal += itemNet;
+      
+      final effectiveUnitPrice = (netQty > 0) ? (itemNet / netQty) : 0.0;
+
       final product = products.firstWhere(
         (p) => p.id == item.productId,
-        orElse: () => ProductEntity(id: '', name: 'Unknown', categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''),
+        orElse: () => const ProductEntity(id: '', name: 'Unknown', categoryId: '', buyPrice: 0, sellPrice: 0, stockQuantity: 0, unitType: ''),
       );
       itemsHtml += '''
         <tr>
           <td><strong dir="auto" style="font-size: 16px;">${product.name}</strong></td>
-          <td dir="ltr">${item.quantity}</td>
-          <td dir="ltr">${CurrencyFormatter.format(item.unitPrice, forPrint: true)}</td>
-          <td dir="ltr" style="color: var(--primary-black); font-size: 16px;"><strong>${CurrencyFormatter.format(item.unitPrice * item.quantity, forPrint: true)}</strong></td>
+          <td dir="ltr">$netQty</td>
+          <td dir="ltr">${CurrencyFormatter.format(effectiveUnitPrice, forPrint: true)}</td>
+          <td dir="ltr" style="color: var(--primary-black); font-size: 16px;"><strong>${CurrencyFormatter.format(itemNet, forPrint: true)}</strong></td>
         </tr>
       ''';
     }
@@ -887,13 +915,7 @@ tr {
             <p>$tInvoiceNum: <strong>${purchase.purchaseNumber ?? purchase.id.substring(0, 8)}</strong></p>
             <p>$tDate: <strong dir="ltr">${dateFormat.format(purchase.purchaseDate)}</strong></p>
           </div>
-          <div class="shop-info">
-            <h2 dir="auto">${pdfSettings.shopName.isNotEmpty ? pdfSettings.shopName : tCompany}</h2>
-            <p dir="auto">${pdfSettings.description1.isNotEmpty ? pdfSettings.description1 : tDesc}</p>
-            ${pdfSettings.phone1.isNotEmpty ? '<p>$tContact: <strong dir="ltr">${pdfSettings.phone1}</strong></p>' : (adminPhone?.isNotEmpty == true ? '<p>$tContact: <strong dir="ltr">$adminPhone</strong></p>' : '<p>$tContact: <strong dir="ltr">-</strong></p>')}
-            ${pdfSettings.phone2.isNotEmpty ? '<p>$tContact: <strong dir="ltr">${pdfSettings.phone2}</strong></p>' : ''}
-            ${pdfSettings.phone3.isNotEmpty ? '<p>$tContact: <strong dir="ltr">${pdfSettings.phone3}</strong></p>' : ''}
-          </div>
+
         </div>
 
         <table>
@@ -914,7 +936,7 @@ tr {
           <div class="totals-box">
             <div class="total-row grand-total">
               <span>$tTotal:</span>
-              <span dir="ltr">${CurrencyFormatter.format(purchase.totalAmount, forPrint: true)}</span>
+              <span dir="ltr">${CurrencyFormatter.format(netSubtotal, forPrint: true)}</span>
             </div>
           </div>
         </div>
@@ -927,13 +949,12 @@ tr {
   }
 
   static Future<void> generateAndLaunchReport({
-    required dynamic reportData,
+    required ReportData reportData,
     required String periodName,
     required bool isMonth,
     required bool isKurdish,
     required bool isArabic,
   }) async {
-    final pdfSettings = await PdfSettingsService.getSettings();
     final now = DateTime.now();
     final generatedDate = DateFormat('dd/MM/yyyy HH:mm').format(now);
     final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
@@ -943,12 +964,10 @@ tr {
     final tPeriod = Tr.t('auto_Period', langCode);
     final tGenerated = Tr.t('auto_Generated', langCode);
     final tSummary = Tr.t('auto_FinancialSummar', langCode);
-    final tCompany = Tr.t('auto_ArdWholesale', langCode);
     final tNetProfit = Tr.t('auto_NetProfit', langCode);
     final tTotalOrders = Tr.t('auto_TotalOrdersExec', langCode);
     final tTotalRev = Tr.t('auto_TotalRevenueGro', langCode);
     final tTotalExp = Tr.t('auto_TotalPurchasesE', langCode);
-    final tTotalReturns = Tr.t('totalReturns', langCode);
 
     final isRtl = isKurdish || isArabic;
     final dir = isRtl ? 'rtl' : 'ltr';
@@ -993,9 +1012,7 @@ tr {
             <p>$tPeriod: <strong dir="ltr">$periodName</strong></p>
             <p>$tGenerated: <strong dir="ltr">$generatedDate</strong></p>
           </div>
-          <div class="shop-info">
-            <h2 dir="auto">${pdfSettings.shopName.isNotEmpty ? pdfSettings.shopName : tCompany}</h2>
-          </div>
+
         </div>
 
         <h3 style="border-bottom: 2px solid var(--primary-black); padding-bottom: 10px; font-size: 20px; color: var(--primary-black); text-transform: uppercase; letter-spacing: 1px;">$tSummary</h3>
@@ -1011,12 +1028,6 @@ tr {
             <div class="stat-title">$tTotalExp</div>
             <div class="stat-value" dir="ltr">
               ${CurrencyFormatter.format(reportData.cogs, forPrint: true)}
-            </div>
-          </div>
-          <div class="stat-card returns">
-            <div class="stat-title">$tTotalReturns</div>
-            <div class="stat-value" dir="ltr">
-              ${CurrencyFormatter.format(reportData.totalReturns, forPrint: true)}
             </div>
           </div>
           <div class="stat-card">
@@ -1052,7 +1063,6 @@ tr {
     required bool isArabic,
     required String shopName,
   }) async {
-    final pdfSettings = await PdfSettingsService.getSettings();
     final now = DateTime.now();
     final generatedDate = DateFormat('dd/MM/yyyy HH:mm').format(now);
     final langCode = isKurdish ? 'ku' : isArabic ? 'ar' : 'en';
@@ -1093,9 +1103,7 @@ tr {
             <p>Period: <strong dir="ltr">$periodName</strong></p>
             <p>Generated: <strong dir="ltr">$generatedDate</strong></p>
           </div>
-          <div class="shop-info">
-            <h2 dir="auto">${pdfSettings.shopName.isNotEmpty ? pdfSettings.shopName : shopName}</h2>
-          </div>
+
         </div>
 
         <table>
@@ -1126,13 +1134,22 @@ tr {
   }
 
   static Future<void> _saveAndLaunchHtml(String htmlContent, String filename) async {
+    // 1. Get temporary directory to store the PDF
     final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/$filename');
-    await file.writeAsString(htmlContent);
+    final targetPath = tempDir.path;
+    final targetFileName = filename.replaceAll('.html', '');
 
-    final result = await OpenFile.open(file.path);
-    if (result.type != ResultType.done) {
-      throw Exception('Could not open HTML receipt: ${result.message}');
-    }
+    // 2. Convert HTML to PDF using flutter_html_to_pdf
+    final generatedPdfFile = await FlutterHtmlToPdf.convertFromHtmlContent(
+      htmlContent,
+      targetPath,
+      targetFileName,
+    );
+
+    // 3. Immediately launch the native Share sheet with the generated PDF
+    await Share.shareXFiles(
+      [XFile(generatedPdfFile.path)],
+      text: 'Invoice',
+    );
   }
 }

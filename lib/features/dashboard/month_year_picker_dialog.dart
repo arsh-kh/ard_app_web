@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../../core/utils/pdf_interceptor.dart';
 
@@ -151,26 +152,29 @@ class _ReportPickerModalState extends ConsumerState<ReportPickerModal> {
             const SizedBox(height: 16),
 
             // Date Selector
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: _prev,
-                  icon: const Icon(Icons.chevron_left, size: 30),
-                ),
-                Text(
-                  dateLabel,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
+            Directionality(
+              textDirection: ui.TextDirection.ltr,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: _prev,
+                    icon: const Icon(Icons.chevron_left, size: 30),
                   ),
-                ),
-                IconButton(
-                  onPressed: _next,
-                  icon: const Icon(Icons.chevron_right, size: 30),
-                ),
-              ],
+                  Text(
+                    dateLabel,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _next,
+                    icon: const Icon(Icons.chevron_right, size: 30),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 

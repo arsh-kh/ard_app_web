@@ -270,7 +270,9 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
       final authState = ref.read(authProvider);
       final adminPhone = authState.user?.phone;
       if (!context.mounted) return;
-      if (!await PdfInterceptor.checkAndNavigate(context)) return;
+      final pdfIntercept = await PdfInterceptor.checkAndNavigate(context);
+      if (!pdfIntercept) return;
+
       await HtmlGeneratorService.generateAndLaunchPaymentReceipt(
         payment: payment,
         customer: resolvedCustomer,

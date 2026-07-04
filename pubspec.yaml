@@ -78,6 +78,9 @@ dependencies:
   screenshot: ^3.0.0
   crypto: ^3.0.7
   arabic_reshaper: ^0.0.1
+  printing: ^5.14.3
+  pdf: ^3.12.0
+  flutter_html_to_pdf: ^0.7.0
 
 
 dev_dependencies:

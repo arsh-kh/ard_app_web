@@ -888,10 +888,10 @@ class _OrderCard extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
         border: Border(
           top: BorderSide(
-            color: isDarkLocal ? const Color(0xFF2E2E2E) : Colors.grey.shade300,
+            color: isDarkLocal ? const Color(0xFF2E2E2E) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -919,7 +919,7 @@ class _OrderCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: isDarkLocal ? const Color(0xFF1C1C1E) : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -941,8 +941,25 @@ class _OrderCard extends ConsumerWidget {
                       return const Center(child: CustomLoader());
                     }
                     final items = itemsSnapshot.data ?? [];
+                    
+                    double sumOfItems = 0;
+                    for (final i in items) {
+                      sumOfItems += i.quantity * i.unitPrice;
+                    }
+                    final double correctionRatio = (sumOfItems > 0 && sumOfItems != order.totalAmount) 
+                        ? (order.totalAmount / sumOfItems) 
+                        : 1.0;
+
                     return Column(
                       children: items.map((item) {
+                        final rawItemGross = item.quantity * item.unitPrice;
+                        final itemGross = rawItemGross * correctionRatio;
+                        
+                        final rawItemReturn = item.returnedQuantity * item.unitPrice;
+                        final itemReturnDeduction = rawItemReturn * correctionRatio;
+                        
+                        final itemNet = itemGross - itemReturnDeduction;
+
                         return FutureBuilder<ProductEntity?>(
                           future: inventoryRepo.getProductById(item.productId),
                           builder: (context, prodSnapshot) {
@@ -953,7 +970,7 @@ class _OrderCard extends ConsumerWidget {
                               margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
+                                color: isDarkLocal ? Colors.white.withValues(alpha: 0.05) : Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: item.returnedQuantity == 0
@@ -970,9 +987,7 @@ class _OrderCard extends ConsumerWidget {
                                           ),
                                         ),
                                         Text(
-                                          CurrencyFormatter.format(
-                                            item.quantity * item.unitPrice,
-                                          ),
+                                          CurrencyFormatter.format(itemGross),
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 13,
@@ -1000,9 +1015,7 @@ class _OrderCard extends ConsumerWidget {
                                               ),
                                             ),
                                             Text(
-                                              CurrencyFormatter.format(
-                                                item.quantity * item.unitPrice,
-                                              ),
+                                              CurrencyFormatter.format(itemGross),
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 decoration:
@@ -1026,7 +1039,7 @@ class _OrderCard extends ConsumerWidget {
                                               ),
                                             ),
                                             Text(
-                                              '- ${CurrencyFormatter.format(item.returnedQuantity * item.unitPrice)}',
+                                              '- ${CurrencyFormatter.format(itemReturnDeduction)}',
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.redAccent,
@@ -1051,11 +1064,7 @@ class _OrderCard extends ConsumerWidget {
                                                 ),
                                               ),
                                               Text(
-                                                CurrencyFormatter.format(
-                                                  (item.quantity -
-                                                          item.returnedQuantity) *
-                                                      item.unitPrice,
-                                                ),
+                                                CurrencyFormatter.format(itemNet),
                                                 style: const TextStyle(
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.bold,
@@ -1082,12 +1091,11 @@ class _OrderCard extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                    ),
-                    onPressed: () async {
+                  child: HeavyIOSButton(
+                    label: t('reject'),
+                    icon: Icons.cancel_outlined,
+                    color: Colors.red,
+                    onTap: () async {
                       final confirmed = await AppFeedback.showConfirmDialog(
                         context,
                         title: t('rejectOrderTitle'),
@@ -1118,13 +1126,15 @@ class _OrderCard extends ConsumerWidget {
                         AppFeedback.showInfo(context, t('orderRejectedInfo'));
                       }
                     },
-                    child: Text(t('reject')),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
+                  child: HeavyIOSButton(
+                    label: t('markDelivered'),
+                    icon: Icons.local_shipping,
+                    color: Colors.green,
+                    onTap: () async {
                       final confirmed = await AppFeedback.showConfirmDialog(
                         context,
                         title: t('markDeliveredTitle'),
@@ -1159,7 +1169,6 @@ class _OrderCard extends ConsumerWidget {
                         );
                       }
                     },
-                    child: Text(t('markDelivered')),
                   ),
                 ),
               ],

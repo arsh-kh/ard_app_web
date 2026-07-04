@@ -182,8 +182,8 @@ class HelpCenterScreen extends ConsumerWidget {
             '١. بڕۆ بۆ بەشی "فرۆشتن" (ئایکۆنی خوارەوە).\n٢. ئەو کاڵایانە هەڵبژێرە کە کڕیارەکە دەیەوێت.\n٣. کرتە بکە سەر دوگمەی "پارەدان".\n٤. دیاری بکە ئایا پارەکە کاشە یان قەرزە، پاشان پسوڵەکە خەزن بکە.',
           ),
           FaqItem(
-            'چۆن داشکاندن (خصم) بۆ کڕیار بکەم؟',
-            'لە کاتی پارەداندا، لە بەشی چەپی هەر بەرهەمێکدا دوگمەی دەستکاریکردنی نرخی تاکی هەر بەرهەمێک هەیە، کە دەتوانی ئەو نرخە کەم بکەیتەوە بە مەبەستی داشکاندن.',
+            'چۆن نرخێکی جیاواز بە کڕیار بدەم؟',
+            'لە کاتی پارەداندا، لە بەشی چەپی هەر بەرهەمێکدا دوگمەی دەستکاریکردنی نرخی تاکی هەر بەرهەمێک هەیە، کە دەتوانی ئەو نرخە کەم یان زیاد بکەیت.',
           ),
           FaqItem(
             'چۆن کاڵایەکی فرۆشراو وەربگرمەوە (گەڕاندنەوە)؟',
@@ -277,8 +277,8 @@ class HelpCenterScreen extends ConsumerWidget {
             '١. اذهب إلى قسم "المبيعات" في أسفل الشاشة.\n٢. حدد المنتجات التي يريد العميل شراءها.\n٣. انقر على زر "الدفع" في الأسفل.\n٤. حدد ما إذا كان الدفع نقداً أو بالآجل ثم احفظ الإيصال.',
           ),
           FaqItem(
-            'كيف أطبق خصماً لعميل؟',
-            'أثناء البيع في شاشة الدفع، ستجد حقلاً مخصصاً للخصم. أدخل المبلغ الذي تريد التنازل عنه، وسيتم تقليل الإجمالي تلقائياً.',
+            'كيف أعطي سعراً مختلفاً للعميل؟',
+            'أثناء البيع، يمكنك النقر على أيقونة القلم بجانب أي منتج لتعديل سعر الوحدة الخاص به مباشرة.',
           ),
           FaqItem(
             'كيف أسترجع منتجاً مباعاً (إرجاع)؟',
@@ -372,8 +372,8 @@ class HelpCenterScreen extends ConsumerWidget {
             '1. Go to the "Sales" section at the bottom of the screen.\n2. Select the products the customer wishes to buy.\n3. Click the "Checkout" button.\n4. Specify whether they are paying in cash or accumulating debt, then save the receipt.',
           ),
           FaqItem(
-            'How do I apply a discount for a customer?',
-            'While creating a sale, in the checkout screen, simply enter the amount you want to deduct in the "Discount" field. The total will adjust automatically.',
+            'How do I give a specific price to a customer?',
+            'While creating a sale, click the pencil icon next to any product to adjust its individual unit price.',
           ),
           FaqItem(
             'How do I process a return for a sold item?',

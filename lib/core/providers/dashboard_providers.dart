@@ -367,21 +367,31 @@ Future<ReportData> fetchReportData(
   }
 
   for (final o in orders) {
-    revenue += o.totalAmount;
+    final netAmount = o.totalAmount - o.totalReturnedAmount;
+    revenue += netAmount;
 
     customerOrderCount[o.customerId] =
         (customerOrderCount[o.customerId] ?? 0) + 1;
     customerSpent[o.customerId] =
-        (customerSpent[o.customerId] ?? 0) + o.totalAmount;
+        (customerSpent[o.customerId] ?? 0) + netAmount;
 
     final oItems = itemsByOrderId[o.id] ?? [];
-    double rawTotal = 0.0;
+    double rawNetTotal = 0.0;
     for (final item in oItems) {
-      rawTotal += item.unitPrice * item.quantity;
+      final actualQty = (item.quantity - item.returnedQuantity).clamp(
+        0.0,
+        double.infinity,
+      );
+      rawNetTotal += item.unitPrice * actualQty;
     }
-    final discountRatio = rawTotal > 0 ? o.totalAmount / rawTotal : 1.0;
+    final discountRatio = rawNetTotal > 0 ? netAmount / rawNetTotal : 1.0;
 
     for (final item in oItems) {
+      final actualQty = (item.quantity - item.returnedQuantity).clamp(
+        0.0,
+        double.infinity,
+      );
+
       final p = allProducts.firstWhere(
         (prod) => prod.id == item.productId,
         orElse: () => ProductEntity(
@@ -396,12 +406,6 @@ Future<ReportData> fetchReportData(
       );
 
       final costPrice = item.buyPrice > 0 ? item.buyPrice : p.buyPrice;
-
-      // Fix: deduct returned items from COGS and product revenue
-      final actualQty = (item.quantity - item.returnedQuantity).clamp(
-        0.0,
-        double.infinity,
-      );
       final cost = costPrice * actualQty;
       final rev = (item.unitPrice * actualQty) * discountRatio;
       final prof = rev - cost;
@@ -414,7 +418,7 @@ Future<ReportData> fetchReportData(
   }
 
   cogs = actualPurchases;
-  final profit = revenue - cogs - totalReturns;
+  final profit = revenue - cogs;
 
   final topProducts = productQty.keys.map((pId) {
     final p = allProducts.firstWhere(

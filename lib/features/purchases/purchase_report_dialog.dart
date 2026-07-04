@@ -111,15 +111,16 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
 
       final dateFormat = DateFormat('dd/MM/yyyy');
       final rows = filteredPurchases.map((purchase) {
+        final netAmount = purchase.totalAmount - purchase.totalReturnedAmount;
         return [
           dateFormat.format(purchase.purchaseDate),
           purchase.purchaseNumber?.toString() ?? purchase.id.substring(0, 8),
           Tr.t('auto_${purchase.status.toLowerCase()}', langCode),
-          CurrencyFormatter.format(purchase.totalAmount, forPrint: true),
+          CurrencyFormatter.format(netAmount, forPrint: true),
         ];
       }).toList();
 
-      final totalAmount = filteredPurchases.fold(0.0, (sum, purchase) => sum + purchase.totalAmount);
+      final totalAmount = filteredPurchases.fold(0.0, (sum, purchase) => sum + (purchase.totalAmount - purchase.totalReturnedAmount));
       final business = ref.read(currentBusinessEntityProvider).valueOrNull;
 
       if (!context.mounted) return;

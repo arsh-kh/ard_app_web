@@ -25,11 +25,12 @@ class _ReturnLine {
   final PurchaseItemEntity purchaseItem;
   final ProductEntity? product;
   final TextEditingController qtyController;
+  final double correctionRatio;
 
   double get originalQty => purchaseItem.quantity;
   double get maxReturnQty =>
       purchaseItem.quantity - purchaseItem.returnedQuantity;
-  double get unitPrice => purchaseItem.unitPrice;
+  double get unitPrice => purchaseItem.unitPrice * correctionRatio;
 
   String productName(String lang) {
     final name = product?.name;
@@ -43,7 +44,7 @@ class _ReturnLine {
 
   late final FocusNode focusNode;
 
-  _ReturnLine({required this.purchaseItem, this.product})
+  _ReturnLine({required this.purchaseItem, this.product, this.correctionRatio = 1.0})
     : qtyController = TextEditingController(
         text: (purchaseItem.quantity - purchaseItem.returnedQuantity)
             .toInt()
@@ -82,7 +83,6 @@ class PurchaseReturnScreen extends ConsumerStatefulWidget {
   ConsumerState<PurchaseReturnScreen> createState() =>
       _PurchaseReturnScreenState();
 }
-
 class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
   late final List<_ReturnLine> _lines;
   bool _isSubmitting = false;
@@ -91,11 +91,21 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
   void initState() {
     super.initState();
     final productMap = {for (final p in widget.products) p.id: p};
+    
+    double sumOfItems = 0;
+    for (final item in widget.items) {
+      sumOfItems += item.quantity * item.unitPrice;
+    }
+    final double correctionRatio = (sumOfItems > 0 && sumOfItems != widget.purchase.totalAmount) 
+        ? (widget.purchase.totalAmount / sumOfItems) 
+        : 1.0;
+        
     _lines = widget.items
         .map(
           (item) => _ReturnLine(
             purchaseItem: item,
             product: productMap[item.productId],
+            correctionRatio: correctionRatio,
           ),
         )
         .toList();

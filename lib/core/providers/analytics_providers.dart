@@ -73,7 +73,10 @@ final topCustomersProvider = FutureProvider<List<CustomerSalesData>>((
 
   final list = customers.map((c) {
     final cOrders = ordersByCustomer[c.id] ?? [];
-    final sales = cOrders.fold(0.0, (sum, o) => sum + o.totalAmount);
+    final sales = cOrders.fold(
+      0.0,
+      (sum, o) => sum + (o.totalAmount - o.totalReturnedAmount),
+    );
     return CustomerSalesData(
       customer: c,
       totalSales: sales,

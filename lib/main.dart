@@ -14,6 +14,7 @@ import 'core/widgets/connectivity_banner.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/services/database_sanitization_service.dart';
 import 'firebase_options.dart';
 
 late final SharedPreferences sharedPrefs;
@@ -47,6 +48,7 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await DatabaseSanitizationService.run();
     FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true,
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
