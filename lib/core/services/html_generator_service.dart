@@ -207,14 +207,22 @@ class HtmlGeneratorService {
       }
 
       @media print {
-        body { padding: 0; background: white; }
+        @page { margin: 0; size: A4; }
+        body { 
+          padding: 0; 
+          background: white; 
+          margin: 0; 
+          padding-left: 15mm !important; /* Push right */
+          padding-right: 5mm !important;
+          padding-top: 10mm !important;
+        }
         .invoice-container { 
           border: none; 
           box-shadow: none;
           padding: 0; 
-          max-width: 100%;
+          margin: 0;
+          width: calc(100% - 20mm);
         }
-        @page { margin: 10mm; size: A4; }
       }
     </style>
     ''';
@@ -408,9 +416,19 @@ class HtmlGeneratorService {
       }
 
       @media print {
-        body { padding: 0; }
-        .invoice-container { max-width: 100%; width: 100%; margin: 0; }
-        @page { margin: 10mm; }
+        @page { margin: 0; size: A4; }
+        body { 
+          padding: 0; 
+          margin: 0; 
+          box-sizing: border-box; 
+          padding-left: 15mm !important; /* Push right */
+          padding-right: 5mm !important;
+          padding-top: 10mm !important;
+        }
+        .invoice-container { 
+          margin: 0;
+          width: calc(100% - 20mm); 
+        }
       }
     </style>
     ''';
@@ -493,7 +511,7 @@ class HtmlGeneratorService {
 
     itemsHtml += '''
       <tr class="totals-row">
-        <td colspan="3" style="background-color: var(--primary-gold) !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Amount", "المجموع الكلي / کۆی گشتی")}</td>
+        <td colspan="3" style="background-color: var(--primary-gold) !important; border-left: 1px solid #e0e0e0 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Amount", "المجموع الكلي / کۆی گشتی")}</td>
         <td dir="ltr" style="font-weight: bold; color: #2c3e50; font-size: 15pt;">${CurrencyFormatter.formatNumber(netSubtotal, forPrint: true)}</td>
       </tr>
     ''';
@@ -501,11 +519,11 @@ class HtmlGeneratorService {
     if (customer.debtBalance > 0) {
       itemsHtml += '''
         <tr>
-          <td colspan="3" style="background-color: #fff !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Previous Debt", "الديون السابقة / قەرزی پێشوو")}</td>
+          <td colspan="3" style="background-color: #fff !important; border-left: 1px solid #e0e0e0 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Previous Debt", "الديون السابقة / قەرزی پێشوو")}</td>
           <td dir="ltr" style="font-weight: bold; color: #2c3e50; font-size: 15pt;">${CurrencyFormatter.formatNumber(customer.debtBalance - netSubtotal, forPrint: true)}</td>
         </tr>
         <tr>
-          <td colspan="3" style="background-color: #fff !important; border-left: 1px solid #2c3e50 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Debt", "إجمالي الديون / کۆی قەرزەکان")}</td>
+          <td colspan="3" style="background-color: #fff !important; border-left: 1px solid #e0e0e0 !important; font-weight: bold; color: #2c3e50; font-size: 15pt; white-space: nowrap; text-align: right; padding-right: 15px;">${tr("Total Debt", "إجمالي الديون / کۆی قەرزەکان")}</td>
           <td dir="ltr" style="font-weight: bold; color: var(--danger); font-size: 15pt;">${CurrencyFormatter.formatNumber(customer.debtBalance, forPrint: true)}</td>
         </tr>
       ''';
@@ -620,15 +638,21 @@ class HtmlGeneratorService {
         .meta-date {
           color: #2c3e50;
           font-size: 17pt;
-        }                                                                                        .old-table {
+        }                                                                                        .old-table-wrapper {
           width: 100%;
-          border-collapse: separate;
-          border-spacing: 0;
           margin-bottom: auto;
           box-sizing: border-box;
           border: 2px solid #2c3e50;
           border-radius: 8px;
           overflow: hidden;
+        }
+
+        .old-table {
+          width: 100%;
+          border-collapse: collapse;
+          box-sizing: border-box;
+          border: none;
+          margin: 0;
         }
         
         .old-table th {
@@ -680,12 +704,19 @@ class HtmlGeneratorService {
         }
         
         @media print {
-          body { padding: 0; margin: 0; box-sizing: border-box; }
-          .old-invoice-container { 
-            /* border: 2px solid #2c3e50; removed per user request */ 
+          @page { margin: 0; size: A4; }
+          body { 
             padding: 0; 
-            margin: 0 auto;
-            width: 100%;
+            margin: 0; 
+            box-sizing: border-box; 
+            padding-left: 8mm !important; /* Push right to fix Android RTL shift */
+            padding-right: 2mm !important;
+            padding-top: 5mm !important;
+          }
+          .old-invoice-container { 
+            padding: 0; 
+            margin: 0;
+            width: calc(100% - 10mm);
             box-sizing: border-box;
             height: 285mm; 
             max-height: 285mm;
@@ -721,19 +752,23 @@ class HtmlGeneratorService {
           </div>
         </div>
 
-        <div style="padding: 0 4px; margin-bottom: auto;"><table class="old-table" border="1" bordercolor="#2c3e50">
-          <thead>
-            <tr>
-              <th style="width: 35%;">${tr("Type", "نوع<br>جۆر")}</th>
-              <th style="width: 25%;">${tr("Unit Price", "سعر كيس واحد<br>نرخی یەک فەردە")}</th>
-              <th style="width: 15%;">${tr("Qty", "العدد<br>دانە")}</th>
-              <th style="width: 25%;">${tr("Total", "المجموع<br>کۆی نرخ")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            $itemsHtml
-          </tbody>
-        </table></div>
+        <div style="padding: 0 4px; margin-bottom: auto;">
+          <div class="old-table-wrapper">
+            <table class="old-table">
+              <thead>
+                <tr>
+                  <th style="width: 35%;">${tr("Type", "نوع<br>جۆر")}</th>
+                  <th style="width: 25%;">${tr("Unit Price", "سعر كيس واحد<br>نرخی یەک فەردە")}</th>
+                  <th style="width: 15%;">${tr("Qty", "العدد<br>دانە")}</th>
+                  <th style="width: 25%;">${tr("Total", "المجموع<br>کۆی نرخ")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                $itemsHtml
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         <div class="old-footer">
           <!-- Right side in RTL (First child) - Phone Numbers -->
