@@ -6,6 +6,10 @@ import '../../core/utils/feedback_utils.dart';
 import '../../core/widgets/custom_top_bar_helper.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/providers/business_provider.dart';
+import '../../core/utils/formatters.dart';
+import '../../core/widgets/custom_loader.dart';
+import '../../core/utils/feedback_utils.dart';
 
 class PdfSettingsScreen extends ConsumerStatefulWidget {
   const PdfSettingsScreen({super.key});
@@ -34,7 +38,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final settings = await PdfSettingsService.getSettings();
+    final businessId = ref.read(currentBusinessIdProvider) ?? '';
+    final settings = await PdfSettingsService.getSettings(businessId);
+    if (!mounted) return;
     setState(() {
       _shopNameController.text = settings.shopName;
       _desc1Controller.text = settings.description1;
@@ -71,7 +77,16 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
       phone3: _phone3Controller.text,
     );
     
-    await PdfSettingsService.saveSettings(settings);
+    final businessId = ref.read(currentBusinessIdProvider) ?? '';
+    try {
+      await PdfSettingsService.saveSettings(settings, businessId);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        AppFeedback.showError(context, e.toString());
+      }
+      return;
+    }
     
     if (mounted) {
       setState(() => _isSaving = false);
@@ -151,6 +166,12 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 TextFormField(
                   controller: _phone1Controller,
                   keyboardType: TextInputType.phone,
+                  textDirection: TextDirection.ltr,
+                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  inputFormatters: [
+                    ArabicToEnglishFormatter(),
+                    PhoneInputFormatter(),
+                  ],
                   decoration: InputDecoration(
                     labelText: Tr.t('phone1Label', langCode),
                     border: const OutlineInputBorder(),
@@ -165,6 +186,12 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 TextFormField(
                   controller: _phone2Controller,
                   keyboardType: TextInputType.phone,
+                  textDirection: TextDirection.ltr,
+                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  inputFormatters: [
+                    ArabicToEnglishFormatter(),
+                    PhoneInputFormatter(),
+                  ],
                   decoration: InputDecoration(
                     labelText: Tr.t('phone2Label', langCode),
                     border: const OutlineInputBorder(),
@@ -175,6 +202,12 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 TextFormField(
                   controller: _phone3Controller,
                   keyboardType: TextInputType.phone,
+                  textDirection: TextDirection.ltr,
+                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  inputFormatters: [
+                    ArabicToEnglishFormatter(),
+                    PhoneInputFormatter(),
+                  ],
                   decoration: InputDecoration(
                     labelText: Tr.t('phone3Label', langCode),
                     border: const OutlineInputBorder(),
@@ -189,7 +222,7 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : () => _saveSettings(langCode),
                     child: _isSaving
-                        ? const CircularProgressIndicator()
+                        ? const CustomLoader(size: 24)
                         : Text(Tr.t('saveSettings', langCode)),
                   ),
                 ),

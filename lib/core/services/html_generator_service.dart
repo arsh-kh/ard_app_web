@@ -209,19 +209,22 @@ class HtmlGeneratorService {
       @media print {
         @page { margin: 0; size: A4; }
         body { 
-          padding: 0; 
-          background: white; 
-          margin: 0; 
-          padding-left: 15mm !important; /* Push right */
-          padding-right: 5mm !important;
-          padding-top: 10mm !important;
+          margin: 0 !important; 
+          padding: 0;
+          box-sizing: border-box; 
+          padding-left: 5mm !important; 
+          padding-right: 5mm !important; 
+          padding-top: 5mm !important;
         }
         .invoice-container { 
           border: none; 
           box-shadow: none;
           padding: 0; 
-          margin: 0;
-          width: calc(100% - 20mm);
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          width: 100% !important;
+          max-width: none !important;
+          box-sizing: border-box;
         }
       }
     </style>
@@ -418,16 +421,20 @@ class HtmlGeneratorService {
       @media print {
         @page { margin: 0; size: A4; }
         body { 
-          padding: 0; 
-          margin: 0; 
+          margin: 0 !important; 
+          padding: 0;
           box-sizing: border-box; 
-          padding-left: 15mm !important; /* Push right */
-          padding-right: 5mm !important;
-          padding-top: 10mm !important;
+          padding-left: 5mm !important; 
+          padding-right: 5mm !important; 
+          padding-top: 5mm !important;
         }
         .invoice-container { 
-          margin: 0;
-          width: calc(100% - 20mm); 
+          padding: 0;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          width: 100% !important; 
+          max-width: none !important;
+          box-sizing: border-box;
         }
       }
     </style>
@@ -445,7 +452,7 @@ class HtmlGeneratorService {
     required String shopName,
     String? adminPhone,
   }) async {
-    final pdfSettings = await PdfSettingsService.getSettings();
+    final pdfSettings = await PdfSettingsService.getSettings(order.businessId ?? '');
     final bool isRtl = isKurdish || isArabic;
     final String textDir = isRtl ? 'rtl' : 'ltr';
     String tr(String en, String arKu) {
@@ -561,13 +568,14 @@ class HtmlGeneratorService {
         }
         
         .old-header {
+          width: 100% !important;
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 25px;
           border-bottom: 3px solid var(--primary-gold);
           padding-bottom: 15px;
-          gap: 30px;
+          gap: 5px;
         }
         
         .old-header-text {
@@ -595,16 +603,18 @@ class HtmlGeneratorService {
         }
         
         .old-header-logo {
-          width: 240px;
-          height: 240px;
+          width: 255px;
+          height: 255px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-left: 0px;
+          margin-left: -15px;
+          margin-right: -40px;
           flex-shrink: 0;
         }
         
         .meta-info-container {
+          width: 100% !important;
           display: flex; 
           justify-content: space-between; 
           margin-bottom: 20px; 
@@ -632,7 +642,8 @@ class HtmlGeneratorService {
           font-size: 18pt; 
           font-weight: bold; 
           color: #c0392b; 
-          padding-bottom: 2px;
+          padding-bottom: 0px;
+          line-height: 0.8;
         }
         
         .meta-date {
@@ -695,6 +706,7 @@ class HtmlGeneratorService {
           font-weight: bold;
         }
         .old-footer {
+          width: 100% !important;
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -706,17 +718,19 @@ class HtmlGeneratorService {
         @media print {
           @page { margin: 0; size: A4; }
           body { 
-            padding: 0; 
-            margin: 0; 
+            margin: 0 !important; 
+            padding: 0;
             box-sizing: border-box; 
-            padding-left: 8mm !important; /* Push right to fix Android RTL shift */
-            padding-right: 2mm !important;
+            padding-left: 5mm !important; 
+            padding-right: 5mm !important; 
             padding-top: 5mm !important;
           }
           .old-invoice-container { 
             padding: 0; 
-            margin: 0;
-            width: calc(100% - 10mm);
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+            max-width: none !important;
             box-sizing: border-box;
             height: 285mm; 
             max-height: 285mm;

@@ -44,12 +44,18 @@ class PdfSettings {
 
 class PdfSettingsService {
   static final _firestore = FirebaseFirestore.instance;
-  static const _collection = 'settings';
-  static const _document = 'pdf_settings';
 
-  static Future<PdfSettings> getSettings() async {
+  static Future<PdfSettings> getSettings(String businessId) async {
+    if (businessId.isEmpty) return _getDefaultSettings();
+    
     try {
-      final doc = await _firestore.collection(_collection).doc(_document).get();
+      final doc = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('settings')
+          .doc('pdf_settings')
+          .get();
+          
       if (doc.exists && doc.data() != null) {
         return PdfSettings.fromMap(doc.data()!);
       }
@@ -57,7 +63,26 @@ class PdfSettingsService {
       // Ignored
     }
     
-    // Return default empty settings if none exist
+    return _getDefaultSettings();
+  }
+
+  static Future<void> saveSettings(PdfSettings settings, String businessId) async {
+    if (businessId.isEmpty) throw Exception('No business selected');
+    
+    await _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('settings')
+        .doc('pdf_settings')
+        .set(settings.toMap());
+  }
+
+  static Future<bool> hasRequiredSettings(String businessId) async {
+    final settings = await getSettings(businessId);
+    return settings.isConfigured;
+  }
+  
+  static PdfSettings _getDefaultSettings() {
     return PdfSettings(
       shopName: '',
       description1: 'نحن مستعدون لتوصيل أفضل أنواع الطحين والرز بأنسب الأسعار.',
@@ -66,15 +91,6 @@ class PdfSettingsService {
       phone2: '',
       phone3: '',
     );
-  }
-
-  static Future<void> saveSettings(PdfSettings settings) async {
-    await _firestore.collection(_collection).doc(_document).set(settings.toMap());
-  }
-
-  static Future<bool> hasRequiredSettings() async {
-    final settings = await getSettings();
-    return settings.isConfigured;
   }
 }
 
