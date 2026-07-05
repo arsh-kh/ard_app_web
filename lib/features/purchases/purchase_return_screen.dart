@@ -53,11 +53,11 @@ class _ReturnLine {
     focusNode = SelectAllFocusNode(controller: qtyController);
   }
 
-  double get returnedQty =>
-      double.tryParse(
-        qtyController.text.replaceAll(',', '').replaceAll('،', ''),
-      ) ??
-      0;
+  double get returnedQty {
+    final val = CurrencyFormatter.tryParse(qtyController.text) ?? 0.0;
+    if (val < 0) return 0.0;
+    return val;
+  }
 
   double get lineRefund => returnedQty * unitPrice;
 

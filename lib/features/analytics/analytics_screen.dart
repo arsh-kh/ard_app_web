@@ -721,9 +721,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                             final cOrders = await orderRepo.getOrdersByCustomer(
                               customer.id,
                             );
-                            final delivered = cOrders
-                                .where((o) => o.status == 'delivered')
-                                .toList();
+                            final delivered = cOrders.toList();
                             delivered.sort(
                               (a, b) => b.orderDate.compareTo(a.orderDate),
                             );

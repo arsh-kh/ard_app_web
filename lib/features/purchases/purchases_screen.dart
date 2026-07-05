@@ -593,38 +593,12 @@ class _PurchaseCard extends ConsumerWidget {
     required this.isEmbedded,
   });
 
-  Color _statusColor() {
-    switch (purchase.status) {
-      case 'received':
-        return Colors.green;
-      case 'cancelled':
-        return Colors.red;
-      case 'pending':
-        return Colors.orange;
-      default:
-        return Colors.blue;
-    }
-  }
 
-  IconData _statusIcon() {
-    switch (purchase.status) {
-      case 'received':
-        return Icons.check_circle;
-      case 'cancelled':
-        return Icons.cancel;
-      case 'pending':
-        return Icons.access_time_filled;
-      default:
-        return Icons.inventory;
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final purchaseRepo = ref.read(purchaseRepositoryProvider);
     final inventoryRepo = ref.read(inventoryRepositoryProvider);
-    final statusColor = _statusColor();
-    final statusIcon = _statusIcon();
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -640,8 +614,8 @@ class _PurchaseCard extends ConsumerWidget {
         shape: const Border(),
         collapsedShape: const Border(),
         leading: CircleAvatar(
-          backgroundColor: statusColor.withValues(alpha: 0.1),
-          child: Icon(statusIcon, color: statusColor, size: 20),
+          backgroundColor: Colors.blue.withValues(alpha: 0.1),
+          child: const Icon(Icons.inventory, color: Colors.blue, size: 20),
         ),
         title: Text(
           '${Tr.t('purchaseLabel', lang)} #${purchase.purchaseNumber ?? index + 1}',
@@ -947,10 +921,7 @@ class _PurchaseCard extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (purchase.status == 'received' &&
-                            (purchase.totalAmount -
-                                    purchase.totalReturnedAmount) >
-                                0) ...[
+                        if ((purchase.totalAmount - purchase.totalReturnedAmount) > 0) ...[
                           Expanded(
                             child: HeavyIOSButton(
                               label: Tr.t('processReturn', lang),

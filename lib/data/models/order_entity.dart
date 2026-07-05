@@ -10,7 +10,6 @@ class OrderEntity with _$OrderEntity {
     String? businessId,
     int? orderNumber,
     required String customerId,
-    required String status,
     required double totalAmount,
     @Default(0.0) double discount,
     @Default(0.0) double totalCogs,

@@ -94,98 +94,112 @@ service cloud.firestore {
 
     // Collections that require Employee/Admin access and MUST match businessId
     match /products/{productId} {
-      allow read: if isAuthenticated() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isAuthenticated() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isAuthenticated() && hasValidBusinessId(resource.data);
       allow create: if isAdmin() && hasValidBusinessId(request.resource.data);
       allow update: if isAdmin() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /categories/{categoryId} {
-      allow read: if isAuthenticated() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isAuthenticated() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isAuthenticated() && hasValidBusinessId(resource.data);
       allow create: if isAdmin() && hasValidBusinessId(request.resource.data);
       allow update: if isAdmin() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /orders/{orderId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /order_items/{itemId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /customers/{customerId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /payments/{paymentId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /returns/{returnId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /return_items/{itemId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /purchases/{purchaseId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /purchaseItems/{itemId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /purchase_returns/{returnId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /purchase_return_items/{itemId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /suppliers/{supplierId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     match /supplierPayments/{paymentId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
@@ -193,14 +207,16 @@ service cloud.firestore {
 
     // Audit Logs
     match /audit_logs/{logId} {
-      allow read: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isAdmin() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update, delete: if false; // Logs are immutable
     }
 
     // Counters (Sequences for invoices, orders)
     match /counters/{counterId} {
-      allow read: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow get: if isEmployee() && (resource == null || hasValidBusinessId(resource.data));
+      allow list: if isEmployee() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
       allow update: if isEmployee() && (resource == null || hasValidBusinessId(resource.data)) && hasValidBusinessId(request.resource.data);
       allow delete: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));

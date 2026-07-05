@@ -244,20 +244,17 @@ class OrderRepository {
       final finalItem = item.copyWith(businessId: businessId);
       batch.set(itemRef, finalItem.toJson());
 
-      // If delivered immediately, update stock
-      if (finalOrder.status == 'delivered') {
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await prodRef.get();
-        if (prodDoc.exists) {
-          batch.update(prodRef, {
-            'stockQuantity': FieldValue.increment(-item.quantity),
-          });
-        }
+      // Update stock
+      final prodRef = _firestore.collection('products').doc(item.productId);
+      final prodDoc = await prodRef.get();
+      if (prodDoc.exists) {
+        batch.update(prodRef, {
+          'stockQuantity': FieldValue.increment(-item.quantity),
+        });
       }
     }
 
-    if (finalOrder.status == 'delivered' &&
-        !finalOrder.customerId.startsWith('walk-in-')) {
+    if (!finalOrder.customerId.startsWith('walk-in-')) {
       final custRef = _firestore
           .collection('customers')
           .doc(finalOrder.customerId);
@@ -294,7 +291,6 @@ class OrderRepository {
         'customerId': finalOrder.customerId,
         'customerName': customerName,
         'itemsCount': items.length,
-        'status': finalOrder.status,
       },
     );
   }
@@ -325,15 +321,13 @@ class OrderRepository {
       final finalItem = item.copyWith(businessId: businessId);
       batch.set(itemRef, finalItem.toJson());
 
-      // If delivered immediately, update stock
-      if (finalOrder.status == 'delivered') {
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await prodRef.get();
-        if (prodDoc.exists) {
-          batch.update(prodRef, {
-            'stockQuantity': FieldValue.increment(-item.quantity),
-          });
-        }
+      // Update stock
+      final prodRef = _firestore.collection('products').doc(item.productId);
+      final prodDoc = await prodRef.get();
+      if (prodDoc.exists) {
+        batch.update(prodRef, {
+          'stockQuantity': FieldValue.increment(-item.quantity),
+        });
       }
     }
 
@@ -358,7 +352,10 @@ class OrderRepository {
 
     // 2. Generate Payment
     final paymentRef = _firestore.collection('payments').doc(payment.id);
-    final finalPayment = payment.copyWith(businessId: businessId);
+    final finalPayment = payment.copyWith(
+      businessId: businessId,
+      orderId: finalOrder.id,
+    );
     batch.set(paymentRef, finalPayment.toJson());
 
     // Commit all together
@@ -389,77 +386,11 @@ class OrderRepository {
         'customerId': finalOrder.customerId,
         'customerName': customerName,
         'itemsCount': items.length,
-        'status': finalOrder.status,
       },
     );
   }
 
-  Future<void> markOrderDelivered(String orderId) async {
-    _checkBusinessId();
-    final order = await getOrder(orderId);
-    if (order == null || order.status == 'delivered') return;
 
-    final items = await getOrderItems(orderId);
-    final batch = _firestore.batch();
-
-    final orderRef = _firestore.collection('orders').doc(orderId);
-    batch.update(orderRef, {
-      'status': 'delivered',
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    for (final item in items) {
-      final prodRef = _firestore.collection('products').doc(item.productId);
-      final prodDoc = await prodRef.get();
-      if (prodDoc.exists) {
-        batch.update(prodRef, {
-          'stockQuantity': FieldValue.increment(-item.quantity),
-        });
-      }
-    }
-
-    if (!order.customerId.startsWith('walk-in-')) {
-      final custRef = _firestore.collection('customers').doc(order.customerId);
-      final custDoc = await custRef.get();
-      if (custDoc.exists) {
-        batch.update(custRef, {
-          'debtBalance': FieldValue.increment(order.totalAmount),
-        });
-      }
-    }
-
-    await batch.commit();
-
-    await _auditService.logAction(
-      action: 'DELIVERED',
-      entityType: 'Order',
-      entityId: orderId,
-      details:
-          'Marked Order #${order.orderNumber} as Delivered. Stock deducted and debt updated.',
-      metadata: {
-        'orderNumber': order.orderNumber,
-        'totalAmount': order.totalAmount,
-        'customerId': order.customerId,
-        'itemsCount': items.length,
-      },
-    );
-  }
-
-  Future<void> updateOrderStatus(String orderId, String newStatus) async {
-    _checkBusinessId();
-    await _firestore.collection('orders').doc(orderId).update({
-      'status': newStatus,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    await _auditService.logAction(
-      action: 'STATUS_UPDATED',
-      entityType: 'Order',
-      entityId: orderId,
-      details: 'Changed Order status to $newStatus',
-      metadata: {'newStatus': newStatus},
-    );
-  }
 
   Future<void> deleteOrder(String orderId) async {
     _checkBusinessId();
@@ -497,64 +428,77 @@ class OrderRepository {
       }
     }
 
-    // If the order was delivered, restore stock and reduce debt.
-    if (order.status == 'delivered') {
-      // ── Parse items safely through _sanitizeData ─────────────────────────
-      final items = itemsSnapshot.docs
-          .map((doc) {
-            try {
-              return OrderItemEntity.fromJson(
-                _sanitizeData({'id': doc.id, ...doc.data()}),
-              );
-            } catch (_) {
-              return null;
-            }
-          })
-          .whereType<OrderItemEntity>()
-          .toList();
+    // Also delete any explicitly linked payments to fix double-credit ledger bug
+    final paymentsSnapshot = await _firestore
+        .collection('payments')
+        .where('businessId', isEqualTo: businessId)
+        .where('orderId', isEqualTo: orderId)
+        .get();
+        
+    double totalDeletedPayments = 0.0;
+    for (final pDoc in paymentsSnapshot.docs) {
+      totalDeletedPayments += (pDoc.data()['amount'] as num?)?.toDouble() ?? 0.0;
+      batch.delete(pDoc.reference);
+    }
 
-      for (final item in items) {
-        // Guard: only update if the product document still exists.
-        final prodDoc = await _firestore
-            .collection('products')
-            .doc(item.productId)
-            .get();
-        if (prodDoc.exists) {
-          final netQuantityRevert = item.quantity - item.returnedQuantity;
-          if (netQuantityRevert > 0) {
-            batch.update(prodDoc.reference, {
-              'stockQuantity': FieldValue.increment(netQuantityRevert),
-            });
+    // Restore stock and reduce debt.
+    // ── Parse items safely through _sanitizeData ─────────────────────────
+    final items = itemsSnapshot.docs
+        .map((doc) {
+          try {
+            return OrderItemEntity.fromJson(
+              _sanitizeData({'id': doc.id, ...doc.data()}),
+            );
+          } catch (_) {
+            return null;
           }
+        })
+        .whereType<OrderItemEntity>()
+        .toList();
+
+    for (final item in items) {
+      // Guard: only update if the product document still exists.
+      final prodDoc = await _firestore
+          .collection('products')
+          .doc(item.productId)
+          .get();
+      if (prodDoc.exists) {
+        final netQuantityRevert = item.quantity - item.returnedQuantity;
+        if (netQuantityRevert > 0) {
+          batch.update(prodDoc.reference, {
+            'stockQuantity': FieldValue.increment(netQuantityRevert),
+          });
         }
       }
+    }
 
-      if (!order.customerId.startsWith('walk-in-')) {
-        // Fetch all returns for this order to find actual debt deductions
-        final returnsSnapshot = await _firestore
-            .collection('returns')
-            .where('businessId', isEqualTo: businessId)
-            .where('orderId', isEqualTo: orderId)
-            .get();
+    if (!order.customerId.startsWith('walk-in-')) {
+      // Fetch all returns for this order to find actual debt deductions
+      final returnsSnapshot = await _firestore
+          .collection('returns')
+          .where('businessId', isEqualTo: businessId)
+          .where('orderId', isEqualTo: orderId)
+          .get();
 
-        double totalDeductedByReturns = 0.0;
-        for (final rDoc in returnsSnapshot.docs) {
-          totalDeductedByReturns +=
-              (rDoc.data()['actualDeduction'] as num?)?.toDouble() ?? 0.0;
-        }
+      double totalDeductedByReturns = 0.0;
+      for (final rDoc in returnsSnapshot.docs) {
+        totalDeductedByReturns +=
+            (rDoc.data()['actualDeduction'] as num?)?.toDouble() ?? 0.0;
+      }
 
-        final netDebtRevert = order.totalAmount - totalDeductedByReturns;
+      // The net debt revert must also account for any deleted upfront payments.
+      // If we delete the payment, we must add its value back to the debt.
+      final netDebtRevert = order.totalAmount - totalDeductedByReturns - totalDeletedPayments;
 
-        if (netDebtRevert > 0) {
-          final custRef = _firestore
-              .collection('customers')
-              .doc(order.customerId);
-          final custDoc = await custRef.get();
-          if (custDoc.exists) {
-            batch.update(custRef, {
-              'debtBalance': FieldValue.increment(-netDebtRevert),
-            });
-          }
+      if (netDebtRevert != 0) {
+        final custRef = _firestore
+            .collection('customers')
+            .doc(order.customerId);
+        final custDoc = await custRef.get();
+        if (custDoc.exists) {
+          batch.update(custRef, {
+            'debtBalance': FieldValue.increment(-netDebtRevert),
+          });
         }
       }
     }
@@ -571,7 +515,6 @@ class OrderRepository {
         'orderNumber': order.orderNumber,
         'totalAmount': order.totalAmount,
         'customerId': order.customerId,
-        'statusBeforeDelete': order.status,
       },
     );
   }

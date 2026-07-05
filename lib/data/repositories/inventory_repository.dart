@@ -65,6 +65,10 @@ class InventoryRepository {
 
   Future<void> updateProductImageUrl(String productId, String imageUrl) async {
     _checkBusinessId();
+    final doc = await _firestore.collection('products').doc(productId).get();
+    if (!doc.exists || doc.data()?['businessId'] != businessId) {
+      throw Exception('Product not found or unauthorized access.');
+    }
     await _firestore.collection('products').doc(productId).update({
       'imageUrl': imageUrl,
       'updatedAt': FieldValue.serverTimestamp(),
@@ -82,6 +86,11 @@ class InventoryRepository {
         .collection('products')
         .doc(product.id)
         .get();
+        
+    if (!oldDoc.exists || oldDoc.data()?['businessId'] != businessId) {
+      throw Exception('Product not found or unauthorized access.');
+    }
+
     final Map<String, dynamic> changes = {};
     if (oldDoc.exists && oldDoc.data() != null) {
       final oldData = oldDoc.data()!;
@@ -136,6 +145,23 @@ class InventoryRepository {
 
   Future<void> deleteProduct(String id) async {
     _checkBusinessId();
+
+    final ordersQuery = await _firestore.collection('order_items')
+        .where('businessId', isEqualTo: businessId)
+        .where('productId', isEqualTo: id)
+        .limit(1).get();
+    if (ordersQuery.docs.isNotEmpty) {
+      throw Exception('Cannot delete a product that has been ordered.');
+    }
+
+    final purchasesQuery = await _firestore.collection('purchaseItems')
+        .where('businessId', isEqualTo: businessId)
+        .where('productId', isEqualTo: id)
+        .limit(1).get();
+    if (purchasesQuery.docs.isNotEmpty) {
+      throw Exception('Cannot delete a product that has purchase history.');
+    }
+
     final doc = await _firestore.collection('products').doc(id).get();
     final data = doc.data();
     if (data != null && data['businessId'] != businessId) return; // security

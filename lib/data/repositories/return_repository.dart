@@ -54,10 +54,8 @@ class ReturnRepository {
 
     final currentDebt = (doc.data()?['debtBalance'] as num?)?.toDouble() ?? 0.0;
 
-    // If the customer has negative debt (store credit) or no debt, we deduct nothing.
-    final deduction = currentDebt <= 0
-        ? 0.0
-        : (refundAmount > currentDebt ? currentDebt : refundAmount);
+    // We always issue full store credit for returns, bringing debt negative if needed.
+    final deduction = refundAmount;
     final newDebt = currentDebt - deduction;
 
     return DebtCalculation(
@@ -76,84 +74,81 @@ class ReturnRepository {
     Map<String, double> orderItemReturns,
   ) async {
     _checkBusinessId();
-    final batch = _firestore.batch();
-
-    // 1. Save the return header (store actual deduction for the audit trail).
-    final returnRef = _firestore.collection('returns').doc(returnRecord.id);
-    final returnJson = returnRecord.toJson();
-    returnJson['businessId'] = businessId; // Force businessId
-    batch.set(returnRef, {
-      ...returnJson,
-      'debtBefore': debtCalc.debtBefore,
-      'debtAfter': debtCalc.debtAfter,
-      'actualDeduction': debtCalc.actualDeduction,
-    });
-
-    // 2. Save each return line item.
-    for (final item in items) {
-      final itemRef = _firestore.collection('return_items').doc(item.id);
-      // Wait, ReturnItemEntity uses Freezed?
-      // No, it's a standard class.
-      // We manually add businessId when creating it, or we add it to toJson.
-      // Wait, I updated ReturnItemEntity earlier to accept businessId and include it in toJson.
-      // Wait, there's no copyWith on ReturnItemEntity. I'll just rely on toJson().
-      final itemJson = item.toJson();
-      itemJson['businessId'] = businessId; // Force it
-      batch.set(itemRef, itemJson);
-    }
-
-    // 3. Atomically decrement the debt by the actual deduction.
     final isWalkIn = returnRecord.customerId.startsWith('walk-in-');
-    if (!isWalkIn && debtCalc.actualDeduction > 0) {
-      final custRef = _firestore
-          .collection('customers')
-          .doc(returnRecord.customerId);
-      final custDoc = await custRef.get();
-      if (custDoc.exists) {
-        batch.update(custRef, {
-          'debtBalance': FieldValue.increment(-debtCalc.actualDeduction),
-        });
-      }
-    }
 
-    // 4. Update the original order's return tracking fields
-    final orderRef = _firestore.collection('orders').doc(returnRecord.orderId);
-    final orderDoc = await orderRef.get();
-    if (orderDoc.exists) {
-      batch.update(orderRef, {
-        'hasReturn': true,
-        'totalReturnedAmount': FieldValue.increment(returnRecord.totalRefund),
+    double finalDebtBefore = debtCalc.debtBefore;
+    double finalDebtAfter = debtCalc.debtAfter;
+
+    await _firestore.runTransaction((tx) async {
+      // 1. Recalculate debt securely inside transaction
+      if (!isWalkIn && debtCalc.actualDeduction > 0) {
+        final custRef = _firestore.collection('customers').doc(returnRecord.customerId);
+        final custDoc = await tx.get(custRef);
+        if (custDoc.exists) {
+          final currentDebt = (custDoc.data()?['debtBalance'] as num?)?.toDouble() ?? 0.0;
+          finalDebtBefore = currentDebt;
+          finalDebtAfter = currentDebt - debtCalc.actualDeduction;
+          
+          tx.update(custRef, {
+            'debtBalance': FieldValue.increment(-debtCalc.actualDeduction),
+          });
+        }
+      }
+
+      // 2. Save the return header
+      final returnRef = _firestore.collection('returns').doc(returnRecord.id);
+      final returnJson = returnRecord.toJson();
+      returnJson['businessId'] = businessId; // Force businessId
+      tx.set(returnRef, {
+        ...returnJson,
+        'debtBefore': finalDebtBefore,
+        'debtAfter': finalDebtAfter,
+        'actualDeduction': debtCalc.actualDeduction,
       });
 
-      // 5. Update the specific order items' returned quantities
-      for (final entry in orderItemReturns.entries) {
-        if (entry.value > 0) {
-          final orderItemRef = _firestore
-              .collection('order_items')
-              .doc(entry.key);
-          final oiDoc = await orderItemRef.get();
-          if (oiDoc.exists) {
-            batch.update(orderItemRef, {
-              'returnedQuantity': FieldValue.increment(entry.value),
-            });
+      // 3. Save each return line item.
+      for (final item in items) {
+        final itemRef = _firestore.collection('return_items').doc(item.id);
+        final itemJson = item.toJson();
+        itemJson['businessId'] = businessId; // Force it
+        tx.set(itemRef, itemJson);
+      }
+
+      // 4. Update the original order's return tracking fields
+      final orderRef = _firestore.collection('orders').doc(returnRecord.orderId);
+      final orderDoc = await tx.get(orderRef);
+      if (orderDoc.exists) {
+        tx.update(orderRef, {
+          'hasReturn': true,
+          'totalReturnedAmount': FieldValue.increment(returnRecord.totalRefund),
+        });
+
+        // 5. Update the specific order items' returned quantities
+        for (final entry in orderItemReturns.entries) {
+          if (entry.value > 0) {
+            final orderItemRef = _firestore.collection('order_items').doc(entry.key);
+            final oiDoc = await tx.get(orderItemRef);
+            if (oiDoc.exists) {
+              tx.update(orderItemRef, {
+                'returnedQuantity': FieldValue.increment(entry.value),
+              });
+            }
           }
         }
       }
-    }
 
-    // 4. Restore stock for each returned item inside the batch
-    for (final item in items) {
-      if (item.returnedQty <= 0) continue;
-      final prodRef = _firestore.collection('products').doc(item.productId);
-      final prodDoc = await prodRef.get();
-      if (prodDoc.exists) {
-        batch.update(prodRef, {
-          'stockQuantity': FieldValue.increment(item.returnedQty),
-        });
+      // 6. Restore stock for each returned item
+      for (final item in items) {
+        if (item.returnedQty <= 0) continue;
+        final prodRef = _firestore.collection('products').doc(item.productId);
+        final prodDoc = await tx.get(prodRef);
+        if (prodDoc.exists) {
+          tx.update(prodRef, {
+            'stockQuantity': FieldValue.increment(item.returnedQty),
+          });
+        }
       }
-    }
-
-    await batch.commit();
+    });
 
     // 5. Write a detailed audit log entry.
     await _auditService.logAction(
@@ -163,15 +158,15 @@ class ReturnRepository {
       details:
           'Return for Order #${returnRecord.orderId.substring(0, 8).toUpperCase()}. '
           'Refund value: ${returnRecord.totalRefund.toStringAsFixed(0)} IQD. '
-          'Debt: ${debtCalc.debtBefore.toStringAsFixed(0)} → ${debtCalc.debtAfter.toStringAsFixed(0)} IQD '
+          'Debt: ${finalDebtBefore.toStringAsFixed(0)} → ${finalDebtAfter.toStringAsFixed(0)} IQD '
           '(deducted ${debtCalc.actualDeduction.toStringAsFixed(0)} IQD). '
           '${items.length} item(s) returned.',
       metadata: {
         'orderId': returnRecord.orderId,
         'customerId': returnRecord.customerId,
         'totalRefund': returnRecord.totalRefund,
-        'debtBefore': debtCalc.debtBefore,
-        'debtAfter': debtCalc.debtAfter,
+        'debtBefore': finalDebtBefore,
+        'debtAfter': finalDebtAfter,
         'actualDeduction': debtCalc.actualDeduction,
         'itemsReturned': items.length,
       },

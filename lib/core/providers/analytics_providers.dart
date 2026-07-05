@@ -61,7 +61,7 @@ final topCustomersProvider = FutureProvider<List<CustomerSalesData>>((
 
   // Fetch all delivered orders
   final allOrders = await orderRepo.getAllOrders();
-  final orders = allOrders.where((o) => o.status == 'delivered').toList();
+  final orders = allOrders.toList();
 
   final allCustomers = await customerRepo.getAllCustomers();
   final customers = allCustomers.toList();
@@ -112,7 +112,7 @@ final debtAgingProvider = FutureProvider<DebtAgingData>((ref) async {
   final customers = allCustomers.where((c) => c.debtBalance > 0).toList();
   final allOrders = await orderRepo.getAllOrders();
   final deliveredOrders = allOrders
-      .where((o) => o.status == 'delivered')
+
       .toList();
   final Map<String, List<OrderEntity>> ordersByCustomer = {};
   for (final o in deliveredOrders) {

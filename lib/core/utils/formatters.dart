@@ -14,7 +14,9 @@ class CurrencyInputFormatter extends TextInputFormatter {
           newValue.text.length - newValue.selection.end;
 
       // Clean string
-      final String cleanText = newValue.text.replaceAll(',', '');
+      final String cleanText = newValue.text
+          .replaceAll(RegExp(r'[,٬،]'), '')
+          .replaceAll('٫', '.');
 
       // Handle decimals
       final parts = cleanText.split('.');

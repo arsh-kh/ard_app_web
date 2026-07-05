@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import '../../core/utils/currency_formatter.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/providers/customer_providers.dart';
@@ -128,8 +129,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
           businessName: _nameController.text,
           phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
           address: _addressController.text,
-          debtBalance:
-              double.tryParse(_debtController.text.replaceAll(',', '')) ?? 0.0,
+          debtBalance: CurrencyFormatter.tryParse(_debtController.text) ?? 0.0,
           imageUrl: finalImageUrl,
         );
 
@@ -300,9 +300,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 ],
                 validator: (value) {
                   if (value == null || value.isEmpty) return debtReq;
-                  final doubleValue = double.tryParse(
-                    value.replaceAll(',', ''),
-                  );
+                  final doubleValue = CurrencyFormatter.tryParse(value);
                   if (doubleValue == null) return numReqLabel;
                   if (doubleValue < 0) return negLabel;
                   return null;

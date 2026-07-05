@@ -11,6 +11,7 @@ class PaymentEntity with _$PaymentEntity {
     required String customerId,
     required double amount,
     required DateTime paymentDate,
+    String? orderId,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,

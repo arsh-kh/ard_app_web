@@ -14,21 +14,7 @@ enum UserRole {
   }
 }
 
-/// Order lifecycle status.
-enum OrderStatus {
-  pending,
-  delivered,
-  cancelled;
 
-  String get value => name;
-
-  static OrderStatus fromValue(String value) {
-    return OrderStatus.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => OrderStatus.pending,
-    );
-  }
-}
 
 /// Payment completion status.
 enum PaymentStatus {
@@ -80,29 +66,7 @@ enum UnitType {
   }
 }
 
-/// Delivery tracking status.
-enum DeliveryStatus {
-  pending,
-  inTransit,
-  delivered;
 
-  String get value {
-    switch (this) {
-      case DeliveryStatus.inTransit:
-        return 'in_transit';
-      default:
-        return name;
-    }
-  }
-
-  static DeliveryStatus fromValue(String value) {
-    if (value == 'in_transit') return DeliveryStatus.inTransit;
-    return DeliveryStatus.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => DeliveryStatus.pending,
-    );
-  }
-}
 
 /// Global sorting options for UI screens.
 enum SortOptionType {

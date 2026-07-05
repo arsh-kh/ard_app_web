@@ -28,8 +28,6 @@ mixin _$BusinessEntity {
   String get ownerId => throw _privateConstructorUsedError;
   String? get recoveryEmail => throw _privateConstructorUsedError;
   String? get passwordHash => throw _privateConstructorUsedError;
-  String? get resetCodeHash => throw _privateConstructorUsedError;
-  DateTime? get resetCodeExpiresAt => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this BusinessEntity to a JSON map.
@@ -57,8 +55,6 @@ abstract class $BusinessEntityCopyWith<$Res> {
     String ownerId,
     String? recoveryEmail,
     String? passwordHash,
-    String? resetCodeHash,
-    DateTime? resetCodeExpiresAt,
     DateTime? createdAt,
   });
 }
@@ -85,8 +81,6 @@ class _$BusinessEntityCopyWithImpl<$Res, $Val extends BusinessEntity>
     Object? ownerId = null,
     Object? recoveryEmail = freezed,
     Object? passwordHash = freezed,
-    Object? resetCodeHash = freezed,
-    Object? resetCodeExpiresAt = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -119,14 +113,6 @@ class _$BusinessEntityCopyWithImpl<$Res, $Val extends BusinessEntity>
                 ? _value.passwordHash
                 : passwordHash // ignore: cast_nullable_to_non_nullable
                       as String?,
-            resetCodeHash: freezed == resetCodeHash
-                ? _value.resetCodeHash
-                : resetCodeHash // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            resetCodeExpiresAt: freezed == resetCodeExpiresAt
-                ? _value.resetCodeExpiresAt
-                : resetCodeExpiresAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -154,8 +140,6 @@ abstract class _$$BusinessEntityImplCopyWith<$Res>
     String ownerId,
     String? recoveryEmail,
     String? passwordHash,
-    String? resetCodeHash,
-    DateTime? resetCodeExpiresAt,
     DateTime? createdAt,
   });
 }
@@ -181,8 +165,6 @@ class __$$BusinessEntityImplCopyWithImpl<$Res>
     Object? ownerId = null,
     Object? recoveryEmail = freezed,
     Object? passwordHash = freezed,
-    Object? resetCodeHash = freezed,
-    Object? resetCodeExpiresAt = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -215,14 +197,6 @@ class __$$BusinessEntityImplCopyWithImpl<$Res>
             ? _value.passwordHash
             : passwordHash // ignore: cast_nullable_to_non_nullable
                   as String?,
-        resetCodeHash: freezed == resetCodeHash
-            ? _value.resetCodeHash
-            : resetCodeHash // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        resetCodeExpiresAt: freezed == resetCodeExpiresAt
-            ? _value.resetCodeExpiresAt
-            : resetCodeExpiresAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -243,8 +217,6 @@ class _$BusinessEntityImpl implements _BusinessEntity {
     required this.ownerId,
     this.recoveryEmail,
     this.passwordHash,
-    this.resetCodeHash,
-    this.resetCodeExpiresAt,
     this.createdAt,
   });
 
@@ -266,15 +238,11 @@ class _$BusinessEntityImpl implements _BusinessEntity {
   @override
   final String? passwordHash;
   @override
-  final String? resetCodeHash;
-  @override
-  final DateTime? resetCodeExpiresAt;
-  @override
   final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'BusinessEntity(id: $id, name: $name, nameLower: $nameLower, inviteCode: $inviteCode, ownerId: $ownerId, recoveryEmail: $recoveryEmail, passwordHash: $passwordHash, resetCodeHash: $resetCodeHash, resetCodeExpiresAt: $resetCodeExpiresAt, createdAt: $createdAt)';
+    return 'BusinessEntity(id: $id, name: $name, nameLower: $nameLower, inviteCode: $inviteCode, ownerId: $ownerId, recoveryEmail: $recoveryEmail, passwordHash: $passwordHash, createdAt: $createdAt)';
   }
 
   @override
@@ -293,10 +261,6 @@ class _$BusinessEntityImpl implements _BusinessEntity {
                 other.recoveryEmail == recoveryEmail) &&
             (identical(other.passwordHash, passwordHash) ||
                 other.passwordHash == passwordHash) &&
-            (identical(other.resetCodeHash, resetCodeHash) ||
-                other.resetCodeHash == resetCodeHash) &&
-            (identical(other.resetCodeExpiresAt, resetCodeExpiresAt) ||
-                other.resetCodeExpiresAt == resetCodeExpiresAt) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -312,8 +276,6 @@ class _$BusinessEntityImpl implements _BusinessEntity {
     ownerId,
     recoveryEmail,
     passwordHash,
-    resetCodeHash,
-    resetCodeExpiresAt,
     createdAt,
   );
 
@@ -343,8 +305,6 @@ abstract class _BusinessEntity implements BusinessEntity {
     required final String ownerId,
     final String? recoveryEmail,
     final String? passwordHash,
-    final String? resetCodeHash,
-    final DateTime? resetCodeExpiresAt,
     final DateTime? createdAt,
   }) = _$BusinessEntityImpl;
 
@@ -365,10 +325,6 @@ abstract class _BusinessEntity implements BusinessEntity {
   String? get recoveryEmail;
   @override
   String? get passwordHash;
-  @override
-  String? get resetCodeHash;
-  @override
-  DateTime? get resetCodeExpiresAt;
   @override
   DateTime? get createdAt;
 

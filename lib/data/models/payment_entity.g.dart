@@ -13,6 +13,7 @@ _$PaymentEntityImpl _$$PaymentEntityImplFromJson(Map<String, dynamic> json) =>
       customerId: json['customerId'] as String,
       amount: (json['amount'] as num).toDouble(),
       paymentDate: DateTime.parse(json['paymentDate'] as String),
+      orderId: json['orderId'] as String?,
       createdBy: json['createdBy'] as String?,
       updatedBy: json['updatedBy'] as String?,
       createdAt: json['createdAt'] == null
@@ -30,6 +31,7 @@ Map<String, dynamic> _$$PaymentEntityImplToJson(_$PaymentEntityImpl instance) =>
       'customerId': instance.customerId,
       'amount': instance.amount,
       'paymentDate': instance.paymentDate.toIso8601String(),
+      'orderId': instance.orderId,
       'createdBy': instance.createdBy,
       'updatedBy': instance.updatedBy,
       'createdAt': instance.createdAt?.toIso8601String(),

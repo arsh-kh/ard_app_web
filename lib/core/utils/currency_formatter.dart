@@ -30,13 +30,20 @@ class CurrencyFormatter {
 
   /// Parses a formatted currency string back to double.
   static double parse(String formatted) {
+    return tryParse(formatted) ?? 0.0;
+  }
+
+  /// Tries to parse a string to double, handling commas and Arabic/Persian separators.
+  static double? tryParse(String formatted) {
+    if (formatted.isEmpty) return null;
     final cleaned = formatted
         .replaceAll(AppConstants.currencySymbol, '')
-        .replaceAll(',', '')
+        .replaceAll(RegExp(r'[,٬،]'), '') // English & Arabic thousands separators & text comma
+        .replaceAll('٫', '.') // Arabic decimal separator
         .replaceAll('\u202A', '')
         .replaceAll('\u202C', '')
         .trim();
-    return double.tryParse(cleaned) ?? 0;
+    return double.tryParse(cleaned);
   }
 
   /// Formats quantity with unit.

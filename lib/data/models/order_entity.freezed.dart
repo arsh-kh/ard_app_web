@@ -25,7 +25,6 @@ mixin _$OrderEntity {
   String? get businessId => throw _privateConstructorUsedError;
   int? get orderNumber => throw _privateConstructorUsedError;
   String get customerId => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
   double get totalAmount => throw _privateConstructorUsedError;
   double get discount => throw _privateConstructorUsedError;
   double get totalCogs => throw _privateConstructorUsedError;
@@ -59,7 +58,6 @@ abstract class $OrderEntityCopyWith<$Res> {
     String? businessId,
     int? orderNumber,
     String customerId,
-    String status,
     double totalAmount,
     double discount,
     double totalCogs,
@@ -92,7 +90,6 @@ class _$OrderEntityCopyWithImpl<$Res, $Val extends OrderEntity>
     Object? businessId = freezed,
     Object? orderNumber = freezed,
     Object? customerId = null,
-    Object? status = null,
     Object? totalAmount = null,
     Object? discount = null,
     Object? totalCogs = null,
@@ -121,10 +118,6 @@ class _$OrderEntityCopyWithImpl<$Res, $Val extends OrderEntity>
             customerId: null == customerId
                 ? _value.customerId
                 : customerId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
                       as String,
             totalAmount: null == totalAmount
                 ? _value.totalAmount
@@ -186,7 +179,6 @@ abstract class _$$OrderEntityImplCopyWith<$Res>
     String? businessId,
     int? orderNumber,
     String customerId,
-    String status,
     double totalAmount,
     double discount,
     double totalCogs,
@@ -218,7 +210,6 @@ class __$$OrderEntityImplCopyWithImpl<$Res>
     Object? businessId = freezed,
     Object? orderNumber = freezed,
     Object? customerId = null,
-    Object? status = null,
     Object? totalAmount = null,
     Object? discount = null,
     Object? totalCogs = null,
@@ -247,10 +238,6 @@ class __$$OrderEntityImplCopyWithImpl<$Res>
         customerId: null == customerId
             ? _value.customerId
             : customerId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
                   as String,
         totalAmount: null == totalAmount
             ? _value.totalAmount
@@ -305,7 +292,6 @@ class _$OrderEntityImpl implements _OrderEntity {
     this.businessId,
     this.orderNumber,
     required this.customerId,
-    required this.status,
     required this.totalAmount,
     this.discount = 0.0,
     this.totalCogs = 0.0,
@@ -329,8 +315,6 @@ class _$OrderEntityImpl implements _OrderEntity {
   final int? orderNumber;
   @override
   final String customerId;
-  @override
-  final String status;
   @override
   final double totalAmount;
   @override
@@ -358,7 +342,7 @@ class _$OrderEntityImpl implements _OrderEntity {
 
   @override
   String toString() {
-    return 'OrderEntity(id: $id, businessId: $businessId, orderNumber: $orderNumber, customerId: $customerId, status: $status, totalAmount: $totalAmount, discount: $discount, totalCogs: $totalCogs, hasReturn: $hasReturn, totalReturnedAmount: $totalReturnedAmount, orderDate: $orderDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'OrderEntity(id: $id, businessId: $businessId, orderNumber: $orderNumber, customerId: $customerId, totalAmount: $totalAmount, discount: $discount, totalCogs: $totalCogs, hasReturn: $hasReturn, totalReturnedAmount: $totalReturnedAmount, orderDate: $orderDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -373,7 +357,6 @@ class _$OrderEntityImpl implements _OrderEntity {
                 other.orderNumber == orderNumber) &&
             (identical(other.customerId, customerId) ||
                 other.customerId == customerId) &&
-            (identical(other.status, status) || other.status == status) &&
             (identical(other.totalAmount, totalAmount) ||
                 other.totalAmount == totalAmount) &&
             (identical(other.discount, discount) ||
@@ -404,7 +387,6 @@ class _$OrderEntityImpl implements _OrderEntity {
     businessId,
     orderNumber,
     customerId,
-    status,
     totalAmount,
     discount,
     totalCogs,
@@ -437,7 +419,6 @@ abstract class _OrderEntity implements OrderEntity {
     final String? businessId,
     final int? orderNumber,
     required final String customerId,
-    required final String status,
     required final double totalAmount,
     final double discount,
     final double totalCogs,
@@ -461,8 +442,6 @@ abstract class _OrderEntity implements OrderEntity {
   int? get orderNumber;
   @override
   String get customerId;
-  @override
-  String get status;
   @override
   double get totalAmount;
   @override

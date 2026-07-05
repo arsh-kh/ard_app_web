@@ -137,20 +137,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       final langCode = currentLocale.languageCode;
       final isAdd = widget.productToEdit == null;
 
-      final stockQty =
-          double.tryParse(_stockController.text.replaceAll(',', '')) ?? 0.0;
-      final rawBuyPrice =
-          double.tryParse(_buyPriceController.text.replaceAll(',', '')) ?? 0.0;
-      final deliveryFee =
-          double.tryParse(_deliveryFeeController.text.replaceAll(',', '')) ??
-          0.0;
-      final sellPrice =
-          double.tryParse(_sellPriceController.text.replaceAll(',', '')) ?? 0.0;
-      final lowStockThreshold =
-          double.tryParse(
-            _lowStockThresholdController.text.replaceAll(',', ''),
-          ) ??
-          30.0;
+      final stockQty = CurrencyFormatter.tryParse(_stockController.text) ?? 0.0;
+      final rawBuyPrice = CurrencyFormatter.tryParse(_buyPriceController.text) ?? 0.0;
+      final deliveryFee = CurrencyFormatter.tryParse(_deliveryFeeController.text) ?? 0.0;
+      final sellPrice = CurrencyFormatter.tryParse(_sellPriceController.text) ?? 0.0;
+      final lowStockThreshold = CurrencyFormatter.tryParse(_lowStockThresholdController.text) ?? 30.0;
 
       showDialog(
         context: context,
@@ -236,7 +227,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               final purchase = PurchaseEntity(
                 id: purchaseId,
                 supplierId: targetSupplierId,
-                status: 'received', // Auto-received since stock is added directly
+ // Auto-received since stock is added directly
                 totalAmount: (rawBuyPrice * stockQty) + deliveryFee,
                 deliveryFee: deliveryFee,
                 purchaseDate: DateTime.now(),
@@ -475,9 +466,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) return reqLabel;
-                        final doubleValue = double.tryParse(
-                          value.replaceAll(',', ''),
-                        );
+                        final doubleValue = CurrencyFormatter.tryParse(value);
                         if (doubleValue == null) return numReqLabel;
                         if (doubleValue < 0) return negLabel;
                         return null;
@@ -531,9 +520,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 focusNode: _buyPriceFocus,
                 validator: (value) {
                   if (value == null || value.isEmpty) return reqLabel;
-                  final doubleValue = double.tryParse(
-                    value.replaceAll(',', ''),
-                  );
+                  final doubleValue = CurrencyFormatter.tryParse(value);
                   if (doubleValue == null) return numReqLabel;
                   if (doubleValue < 0) return negLabel;
                   return null;
@@ -570,9 +557,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 focusNode: _sellPriceFocus,
                 validator: (value) {
                   if (value == null || value.isEmpty) return reqLabel;
-                  final doubleValue = double.tryParse(
-                    value.replaceAll(',', ''),
-                  );
+                  final doubleValue = CurrencyFormatter.tryParse(value);
                   if (doubleValue == null) return numReqLabel;
                   if (doubleValue < 0) return negLabel;
                   return null;
@@ -608,21 +593,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 // Calculated True Cost
                 Builder(
                   builder: (context) {
-                    final stockQty =
-                        double.tryParse(
-                          _stockController.text.replaceAll(',', ''),
-                        ) ??
-                        0.0;
-                    final rawBuyPrice =
-                        double.tryParse(
-                          _buyPriceController.text.replaceAll(',', ''),
-                        ) ??
-                        0.0;
-                    final deliveryFee =
-                        double.tryParse(
-                          _deliveryFeeController.text.replaceAll(',', ''),
-                        ) ??
-                        0.0;
+                    final stockQty = CurrencyFormatter.tryParse(_stockController.text) ?? 0.0;
+                    final rawBuyPrice = CurrencyFormatter.tryParse(_buyPriceController.text) ?? 0.0;
+                    final deliveryFee = CurrencyFormatter.tryParse(_deliveryFeeController.text) ?? 0.0;
+
                     double trueUnitCost = rawBuyPrice;
                     if (stockQty > 0 && deliveryFee > 0) {
                       trueUnitCost = rawBuyPrice + (deliveryFee / stockQty);

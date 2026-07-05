@@ -21,7 +21,8 @@ service firebase.storage {
     }
     
     match /businesses/{businessId}/{allPaths=**} {
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() 
+                  && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.businessId == businessId;
       allow write: if isAuthenticated() 
                    && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.businessId == businessId
                    && isImage() 

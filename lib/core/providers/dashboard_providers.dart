@@ -44,7 +44,7 @@ class RecentActivityItem {
   final double totalAmount;
   final DateTime date;
   final bool isPayment;
-  final String? status;
+
   final int? orderNumber;
 
   RecentActivityItem({
@@ -53,7 +53,7 @@ class RecentActivityItem {
     required this.totalAmount,
     required this.date,
     this.isPayment = false,
-    this.status,
+
     this.orderNumber,
   });
 }
@@ -136,7 +136,7 @@ final dashboardMetricsProvider = StreamProvider.autoDispose<DashboardMetrics>((
     final List<double> dailyRevenues = List.filled(7, 0.0);
 
     for (final o in orders) {
-      if (o.status == 'cancelled') continue;
+
 
       final isThisWeek =
           o.orderDate.isAfter(thisWeekStart) ||
@@ -169,7 +169,7 @@ final dashboardMetricsProvider = StreamProvider.autoDispose<DashboardMetrics>((
     }
 
     for (final p in purchases) {
-      if (p.status == 'cancelled') continue;
+
 
       final isThisWeek =
           p.purchaseDate.isAfter(thisWeekStart) ||
@@ -242,7 +242,7 @@ final recentActivityProvider =
                 totalAmount: order.totalAmount,
                 date: order.orderDate,
                 isPayment: false,
-                status: order.status,
+
                 orderNumber: order.orderNumber,
               ),
             );
@@ -319,7 +319,6 @@ Future<ReportData> fetchReportData(
   final orders = allOrders
       .where(
         (o) =>
-            o.status != 'cancelled' &&
             o.orderDate.isAfter(start) &&
             o.orderDate.isBefore(end),
       )
@@ -337,7 +336,6 @@ Future<ReportData> fetchReportData(
   final purchasesInPeriod = allPurchases
       .where(
         (p) =>
-            p.status != 'cancelled' &&
             p.purchaseDate.isAfter(start) &&
             p.purchaseDate.isBefore(end),
       )

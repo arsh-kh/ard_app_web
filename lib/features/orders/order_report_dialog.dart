@@ -13,7 +13,7 @@ import '../../core/providers/business_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/customer_entity.dart';
 import '../../core/widgets/heavy_ios_button.dart';
-import '../../domain/enums.dart';
+
 import '../../core/utils/app_translations.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/app_date_range_picker.dart';
@@ -96,7 +96,6 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
       final filteredOrders = allOrders
           .where(
             (o) =>
-                o.status == OrderStatus.delivered.value &&
                 o.orderDate.isAfter(
                   start.subtract(const Duration(seconds: 1)),
                 ) &&

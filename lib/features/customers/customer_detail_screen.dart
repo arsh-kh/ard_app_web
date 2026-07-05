@@ -10,7 +10,7 @@ import '../../core/providers/order_providers.dart';
 import '../../core/routing/routes.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/focus_utils.dart';
-import '../../core/utils/order_status_utils.dart';
+
 import '../../core/utils/feedback_utils.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/initials_avatar.dart';
@@ -506,16 +506,12 @@ class CustomerDetailScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: OrderStatusUtils.getStatusColor(
-                                    item.status,
-                                  ).withValues(alpha: 0.1),
+                                  color: Colors.blue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Icon(
-                                  OrderStatusUtils.getStatusIcon(item.status),
-                                  color: OrderStatusUtils.getStatusColor(
-                                    item.status,
-                                  ),
+                                child: const Icon(
+                                  Icons.shopping_cart,
+                                  color: Colors.blue,
                                   size: 18,
                                 ),
                               ),
@@ -557,10 +553,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                                       fontSize: 14,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  OrderStatusUtils.buildStatusBadge(
-                                    item.status,
-                                  ),
+
                                 ],
                               ),
                             ],
@@ -741,9 +734,7 @@ class CustomerDetailScreen extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                final amount = double.tryParse(
-                  controller.text.replaceAll(',', ''),
-                );
+                final amount = CurrencyFormatter.tryParse(controller.text);
                 if (amount != null && amount > 0) {
                   // Use PaymentRepositoryImpl for atomic payment + debt reduction
                   await ref

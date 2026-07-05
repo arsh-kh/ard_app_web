@@ -43,43 +43,41 @@ class PurchaseRepository {
 
     // 2. Create Items & Update Stock
     for (var item in items) {
-      // If status is received, immediately increment stock
-      if (finalPurchase.status == 'received') {
-        final productRef = _firestore
-            .collection('products')
-            .doc(item.productId);
-        final prodDoc = await productRef.get();
-        if (prodDoc.exists) {
-          final data = prodDoc.data() as Map<String, dynamic>;
-          final double oldPrice = ((data['buyPrice'] as num?) ?? 0).toDouble();
-          final double newQty = item.quantity;
-          final double newPrice = item.unitPrice;
+      // Increment stock
+      final productRef = _firestore
+          .collection('products')
+          .doc(item.productId);
+      final prodDoc = await productRef.get();
+      if (prodDoc.exists) {
+        final data = prodDoc.data() as Map<String, dynamic>;
+        final double oldPrice = ((data['buyPrice'] as num?) ?? 0).toDouble();
+        final double newQty = item.quantity;
+        final double newPrice = item.unitPrice;
 
-          if (oldPrice > 0 && oldPrice != newPrice) {
-            // Split into a new product
-            final newProductId = const Uuid().v4();
-            final newProductData = Map<String, dynamic>.from(data);
-            newProductData['id'] = newProductId;
-            final formatter = NumberFormat('#,###');
-            newProductData['name'] =
-                '${data['name']} (${formatter.format(newPrice)})';
-            newProductData['buyPrice'] = newPrice;
-            newProductData['stockQuantity'] = newQty;
+        if (oldPrice > 0 && oldPrice != newPrice) {
+          // Split into a new product
+          final newProductId = const Uuid().v4();
+          final newProductData = Map<String, dynamic>.from(data);
+          newProductData['id'] = newProductId;
+          final formatter = NumberFormat('#,###');
+          newProductData['name'] =
+              '${data['name']} (${formatter.format(newPrice)})';
+          newProductData['buyPrice'] = newPrice;
+          newProductData['stockQuantity'] = newQty;
 
-            // Create new product
-            batch.set(
-              _firestore.collection('products').doc(newProductId),
-              newProductData,
-            );
+          // Create new product
+          batch.set(
+            _firestore.collection('products').doc(newProductId),
+            newProductData,
+          );
 
-            // Update item to point to the new product
-            item = item.copyWith(productId: newProductId);
-          } else {
-            // Normal increment
-            batch.update(productRef, {
-              'stockQuantity': FieldValue.increment(item.quantity),
-            });
-          }
+          // Update item to point to the new product
+          item = item.copyWith(productId: newProductId);
+        } else {
+          // Normal increment
+          batch.update(productRef, {
+            'stockQuantity': FieldValue.increment(item.quantity),
+          });
         }
       }
 
@@ -90,8 +88,7 @@ class PurchaseRepository {
     }
 
     // 3. Update Supplier Debt (we owe them more money)
-    if (finalPurchase.status == 'received' && 
-        finalPurchase.supplierId != null && 
+    if (finalPurchase.supplierId != null && 
         finalPurchase.supplierId != 'no_supplier') {
       final supplierRef = _firestore
           .collection('suppliers')
@@ -265,41 +262,39 @@ class PurchaseRepository {
       }
     }
 
-    if (purchase.status == 'received') {
-      // Revert Stock
-      for (final item in items) {
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await prodRef.get();
-        if (prodDoc.exists) {
-          final netQuantityRevert = item.quantity - item.returnedQuantity;
-          if (netQuantityRevert > 0) {
-            batch.update(prodRef, {
-              'stockQuantity': FieldValue.increment(-netQuantityRevert),
-            });
-          }
-        }
-      }
-
-      // Calculate net debt revert
-      double totalDeductedByReturns = 0.0;
-      for (final rDoc in returnsSnapshot.docs) {
-        totalDeductedByReturns +=
-            (rDoc.data()['actualDeduction'] as num?)?.toDouble() ?? 0.0;
-      }
-      final netDebtRevert = purchase.totalAmount - totalDeductedByReturns;
-
-      // Revert Supplier Debt
-      if (netDebtRevert > 0) {
-        final supplierRef = _firestore
-            .collection('suppliers')
-            .doc(purchase.supplierId);
-        final supplierDoc = await supplierRef.get();
-        if (supplierDoc.exists) {
-          batch.update(supplierRef, {
-            'debtBalance': FieldValue.increment(-netDebtRevert),
-            'updatedAt': FieldValue.serverTimestamp(),
+    // Revert Stock
+    for (final item in items) {
+      final prodRef = _firestore.collection('products').doc(item.productId);
+      final prodDoc = await prodRef.get();
+      if (prodDoc.exists) {
+        final netQuantityRevert = item.quantity - item.returnedQuantity;
+        if (netQuantityRevert > 0) {
+          batch.update(prodRef, {
+            'stockQuantity': FieldValue.increment(-netQuantityRevert),
           });
         }
+      }
+    }
+
+    // Calculate net debt revert
+    double totalDeductedByReturns = 0.0;
+    for (final rDoc in returnsSnapshot.docs) {
+      totalDeductedByReturns +=
+          (rDoc.data()['actualDeduction'] as num?)?.toDouble() ?? 0.0;
+    }
+    final netDebtRevert = purchase.totalAmount - totalDeductedByReturns;
+
+    // Revert Supplier Debt
+    if (netDebtRevert != 0) {
+      final supplierRef = _firestore
+          .collection('suppliers')
+          .doc(purchase.supplierId);
+      final supplierDoc = await supplierRef.get();
+      if (supplierDoc.exists) {
+        batch.update(supplierRef, {
+          'debtBalance': FieldValue.increment(-netDebtRevert),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
       }
     }
 

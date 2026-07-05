@@ -10,7 +10,6 @@ class PurchaseEntity with _$PurchaseEntity {
     String? businessId,
     int? purchaseNumber,
     String? supplierId,
-    required String status, // 'pending', 'received', 'cancelled'
     required double totalAmount,
     @Default(0.0) double discount,
     @Default(0.0) double deliveryFee,

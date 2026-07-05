@@ -106,7 +106,6 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
 
       final tDate = Tr.t('auto_Date', langCode);
       final tPurchaseNo = Tr.t('auto_PurchaseNo', langCode);
-      final tStatus = Tr.t('auto_Status', langCode);
       final tAmount = Tr.t('auto_Amount', langCode);
 
       final dateFormat = DateFormat('dd/MM/yyyy');
@@ -115,7 +114,6 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
         return [
           dateFormat.format(purchase.purchaseDate),
           purchase.purchaseNumber?.toString() ?? purchase.id.substring(0, 8),
-          Tr.t('auto_${purchase.status.toLowerCase()}', langCode),
           CurrencyFormatter.format(netAmount, forPrint: true),
         ];
       }).toList();
@@ -128,7 +126,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
       await HtmlGeneratorService.generateAndLaunchLedger(
         title: Tr.t('auto_PURCHASESLEDGER', langCode),
         periodName: periodName,
-        headers: [tDate, tPurchaseNo, tStatus, tAmount],
+        headers: [tDate, tPurchaseNo, tAmount],
         rows: rows,
         totalLabel: Tr.t('auto_TotalPurchases', langCode),
         totalAmount: totalAmount,

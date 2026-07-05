@@ -26,6 +26,7 @@ mixin _$PaymentEntity {
   String get customerId => throw _privateConstructorUsedError;
   double get amount => throw _privateConstructorUsedError;
   DateTime get paymentDate => throw _privateConstructorUsedError;
+  String? get orderId => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
   String? get updatedBy => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -54,6 +55,7 @@ abstract class $PaymentEntityCopyWith<$Res> {
     String customerId,
     double amount,
     DateTime paymentDate,
+    String? orderId,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -81,6 +83,7 @@ class _$PaymentEntityCopyWithImpl<$Res, $Val extends PaymentEntity>
     Object? customerId = null,
     Object? amount = null,
     Object? paymentDate = null,
+    Object? orderId = freezed,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
     Object? createdAt = freezed,
@@ -108,6 +111,10 @@ class _$PaymentEntityCopyWithImpl<$Res, $Val extends PaymentEntity>
                 ? _value.paymentDate
                 : paymentDate // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            orderId: freezed == orderId
+                ? _value.orderId
+                : orderId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             createdBy: freezed == createdBy
                 ? _value.createdBy
                 : createdBy // ignore: cast_nullable_to_non_nullable
@@ -145,6 +152,7 @@ abstract class _$$PaymentEntityImplCopyWith<$Res>
     String customerId,
     double amount,
     DateTime paymentDate,
+    String? orderId,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -171,6 +179,7 @@ class __$$PaymentEntityImplCopyWithImpl<$Res>
     Object? customerId = null,
     Object? amount = null,
     Object? paymentDate = null,
+    Object? orderId = freezed,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
     Object? createdAt = freezed,
@@ -198,6 +207,10 @@ class __$$PaymentEntityImplCopyWithImpl<$Res>
             ? _value.paymentDate
             : paymentDate // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        orderId: freezed == orderId
+            ? _value.orderId
+            : orderId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         createdBy: freezed == createdBy
             ? _value.createdBy
             : createdBy // ignore: cast_nullable_to_non_nullable
@@ -228,6 +241,7 @@ class _$PaymentEntityImpl implements _PaymentEntity {
     required this.customerId,
     required this.amount,
     required this.paymentDate,
+    this.orderId,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
@@ -248,6 +262,8 @@ class _$PaymentEntityImpl implements _PaymentEntity {
   @override
   final DateTime paymentDate;
   @override
+  final String? orderId;
+  @override
   final String? createdBy;
   @override
   final String? updatedBy;
@@ -258,7 +274,7 @@ class _$PaymentEntityImpl implements _PaymentEntity {
 
   @override
   String toString() {
-    return 'PaymentEntity(id: $id, businessId: $businessId, customerId: $customerId, amount: $amount, paymentDate: $paymentDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PaymentEntity(id: $id, businessId: $businessId, customerId: $customerId, amount: $amount, paymentDate: $paymentDate, orderId: $orderId, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -274,6 +290,7 @@ class _$PaymentEntityImpl implements _PaymentEntity {
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.paymentDate, paymentDate) ||
                 other.paymentDate == paymentDate) &&
+            (identical(other.orderId, orderId) || other.orderId == orderId) &&
             (identical(other.createdBy, createdBy) ||
                 other.createdBy == createdBy) &&
             (identical(other.updatedBy, updatedBy) ||
@@ -293,6 +310,7 @@ class _$PaymentEntityImpl implements _PaymentEntity {
     customerId,
     amount,
     paymentDate,
+    orderId,
     createdBy,
     updatedBy,
     createdAt,
@@ -320,6 +338,7 @@ abstract class _PaymentEntity implements PaymentEntity {
     required final String customerId,
     required final double amount,
     required final DateTime paymentDate,
+    final String? orderId,
     final String? createdBy,
     final String? updatedBy,
     final DateTime? createdAt,
@@ -339,6 +358,8 @@ abstract class _PaymentEntity implements PaymentEntity {
   double get amount;
   @override
   DateTime get paymentDate;
+  @override
+  String? get orderId;
   @override
   String? get createdBy;
   @override

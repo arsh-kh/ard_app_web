@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/app_translations.dart';
+import '../../core/utils/currency_formatter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -414,7 +415,7 @@ class AuditLogScreen extends ConsumerWidget {
   }
 
   String _formatCurrency(String raw) {
-    final val = double.tryParse(raw.replaceAll(',', ''));
+    final val = CurrencyFormatter.tryParse(raw);
     if (val != null) {
       return NumberFormat('#,###').format(val);
     }

@@ -52,7 +52,7 @@ class ExportDataService {
 
   static Future<void> exportMonthlySales(List<OrderEntity> orders) async {
     final List<List<dynamic>> rows = [];
-    rows.add(['Order ID', 'Date', 'Customer ID', 'Total Amount', 'Status']);
+    rows.add(['Order ID', 'Date', 'Customer ID', 'Total Amount']);
 
     for (var o in orders) {
       rows.add([
@@ -60,7 +60,6 @@ class ExportDataService {
         o.orderDate.toString(),
         o.customerId,
         o.totalAmount,
-        o.status,
       ]);
     }
 
@@ -70,7 +69,7 @@ class ExportDataService {
   // New CSV Exports
   static Future<void> exportPurchases(List<PurchaseEntity> purchases) async {
     final List<List<dynamic>> rows = [];
-    rows.add(['Purchase ID', 'Date', 'Supplier ID', 'Total Amount', 'Status']);
+    rows.add(['Purchase ID', 'Date', 'Supplier ID', 'Total Amount']);
 
     for (var p in purchases) {
       rows.add([
@@ -78,7 +77,6 @@ class ExportDataService {
         p.purchaseDate.toString(),
         p.supplierId,
         p.totalAmount,
-        p.status,
       ]);
     }
 

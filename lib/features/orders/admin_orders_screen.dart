@@ -10,8 +10,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/order_providers.dart';
 import '../../core/providers/customer_providers.dart';
 import '../../core/providers/inventory_providers.dart';
-import '../../core/routing/routes.dart';
-import '../../core/providers/notification_providers.dart';
+
+
 import '../../core/providers/auth_provider.dart';
 import '../../core/services/html_generator_service.dart';
 import '../../core/utils/currency_formatter.dart';
@@ -141,13 +141,7 @@ class AdminOrdersScreen extends ConsumerWidget {
         }
 
         final allOrders = snapshot.data ?? [];
-        final pastOrders = allOrders
-            .where(
-              (o) =>
-                  o.status == OrderStatus.delivered.value ||
-                  o.status == OrderStatus.cancelled.value,
-            )
-            .toList();
+        final pastOrders = allOrders.toList();
 
         return Scaffold(
           backgroundColor: isEmbedded ? Colors.transparent : null,
@@ -881,7 +875,7 @@ class _OrderCard extends ConsumerWidget {
     final orderRepo = ref.read(orderRepositoryProvider);
     final inventoryRepo = ref.read(inventoryRepositoryProvider);
     final customerRepo = ref.read(customerRepositoryProvider);
-    final notifNotifier = ref.read(notificationProvider.notifier);
+
     final isDarkLocal = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -1086,94 +1080,7 @@ class _OrderCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          if (order.status == OrderStatus.pending.value) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: HeavyIOSButton(
-                    label: t('reject'),
-                    icon: Icons.cancel_outlined,
-                    color: Colors.red,
-                    onTap: () async {
-                      final confirmed = await AppFeedback.showConfirmDialog(
-                        context,
-                        title: t('rejectOrderTitle'),
-                        message: t('rejectOrderMsg')
-                            .replaceFirst(
-                              '{orderId}',
-                              order.id.substring(0, 8).toUpperCase(),
-                            )
-                            .replaceFirst('{client}', customerName),
-                        confirmLabel: t('reject'),
-                        confirmColor: Colors.red,
-                        icon: Icons.cancel_outlined,
-                      );
-                      if (!confirmed) return;
-                      await orderRepo.updateOrderStatus(
-                        order.id,
-                        OrderStatus.cancelled.value,
-                      );
-                      await notifNotifier.addNotification(
-                        title: 'order_rejected',
-                        message:
-                            'Order of ${CurrencyFormatter.format(order.totalAmount)} for $customerName was rejected.',
-                        type: 'order',
-                        route:
-                            '${Routes.adminOrders}?search=${order.orderNumber ?? order.id.substring(0, 8)}',
-                      );
-                      if (context.mounted) {
-                        AppFeedback.showInfo(context, t('orderRejectedInfo'));
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: HeavyIOSButton(
-                    label: t('markDelivered'),
-                    icon: Icons.local_shipping,
-                    color: Colors.green,
-                    onTap: () async {
-                      final confirmed = await AppFeedback.showConfirmDialog(
-                        context,
-                        title: t('markDeliveredTitle'),
-                        message: t('markDeliveredMsg')
-                            .replaceFirst(
-                              '{orderId}',
-                              order.id.substring(0, 8).toUpperCase(),
-                            )
-                            .replaceFirst(
-                              '{amount}',
-                              CurrencyFormatter.format(order.totalAmount),
-                            )
-                            .replaceFirst('{client}', customerName),
-                        confirmLabel: t('markDelivered'),
-                        confirmColor: Colors.green,
-                        icon: Icons.local_shipping,
-                      );
-                      if (!confirmed) return;
-                      await orderRepo.markOrderDelivered(order.id);
-                      await notifNotifier.addNotification(
-                        title: 'order_delivered',
-                        message:
-                            'Order of ${CurrencyFormatter.format(order.totalAmount)} for $customerName delivered.',
-                        type: 'order',
-                        route:
-                            '${Routes.adminOrders}?search=${order.orderNumber ?? order.id.substring(0, 8)}',
-                      );
-                      if (context.mounted) {
-                        AppFeedback.showSuccess(
-                          context,
-                          t('orderDeliveredSuccess'),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ] else if (order.status == OrderStatus.delivered.value ||
-              order.status == OrderStatus.cancelled.value) ...[
+
             Row(
               children: [
                 if (!isWalkIn) ...[
@@ -1186,8 +1093,7 @@ class _OrderCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                 ],
-                if (order.status == OrderStatus.delivered.value &&
-                    (order.totalAmount - order.totalReturnedAmount) > 0) ...[
+                if ((order.totalAmount - order.totalReturnedAmount) > 0) ...[
                   Expanded(
                     child: HeavyIOSButton(
                       label: Tr.t('processReturn', langCode),
@@ -1259,7 +1165,6 @@ class _OrderCard extends ConsumerWidget {
                 ),
               ],
             ),
-          ],
         ],
       ),
     );

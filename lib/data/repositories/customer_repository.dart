@@ -63,6 +63,10 @@ class CustomerRepository {
     String imageUrl,
   ) async {
     _checkBusinessId();
+    final doc = await _firestore.collection('customers').doc(customerId).get();
+    if (!doc.exists || doc.data()?['businessId'] != businessId) {
+      throw Exception('Customer not found or unauthorized access.');
+    }
     await _firestore.collection('customers').doc(customerId).update({
       'imageUrl': imageUrl,
       'updatedAt': FieldValue.serverTimestamp(),
@@ -82,6 +86,11 @@ class CustomerRepository {
         .collection('customers')
         .doc(customer.id)
         .get();
+        
+    if (!oldDoc.exists || oldDoc.data()?['businessId'] != businessId) {
+      throw Exception('Customer not found or unauthorized access.');
+    }
+
     final Map<String, dynamic> changes = {};
     if (oldDoc.exists && oldDoc.data() != null) {
       final oldData = oldDoc.data()!;
@@ -128,6 +137,32 @@ class CustomerRepository {
 
   Future<void> deleteCustomer(String id) async {
     _checkBusinessId();
+
+    // Enforce referential integrity: prevent deletion if records exist
+    final ordersQuery = await _firestore.collection('orders')
+        .where('businessId', isEqualTo: businessId)
+        .where('customerId', isEqualTo: id)
+        .limit(1).get();
+    if (ordersQuery.docs.isNotEmpty) {
+      throw Exception('Cannot delete a customer with existing orders.');
+    }
+
+    final paymentsQuery = await _firestore.collection('payments')
+        .where('businessId', isEqualTo: businessId)
+        .where('customerId', isEqualTo: id)
+        .limit(1).get();
+    if (paymentsQuery.docs.isNotEmpty) {
+      throw Exception('Cannot delete a customer with existing payments.');
+    }
+
+    final returnsQuery = await _firestore.collection('returns')
+        .where('businessId', isEqualTo: businessId)
+        .where('customerId', isEqualTo: id)
+        .limit(1).get();
+    if (returnsQuery.docs.isNotEmpty) {
+      throw Exception('Cannot delete a customer with existing returns.');
+    }
+
     final doc = await _firestore.collection('customers').doc(id).get();
     final name = doc.data()?['businessName'] ?? id;
 

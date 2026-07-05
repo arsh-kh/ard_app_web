@@ -25,8 +25,6 @@ mixin _$PurchaseEntity {
   String? get businessId => throw _privateConstructorUsedError;
   int? get purchaseNumber => throw _privateConstructorUsedError;
   String? get supplierId => throw _privateConstructorUsedError;
-  String get status =>
-      throw _privateConstructorUsedError; // 'pending', 'received', 'cancelled'
   double get totalAmount => throw _privateConstructorUsedError;
   double get discount => throw _privateConstructorUsedError;
   double get deliveryFee => throw _privateConstructorUsedError;
@@ -60,7 +58,6 @@ abstract class $PurchaseEntityCopyWith<$Res> {
     String? businessId,
     int? purchaseNumber,
     String? supplierId,
-    String status,
     double totalAmount,
     double discount,
     double deliveryFee,
@@ -93,7 +90,6 @@ class _$PurchaseEntityCopyWithImpl<$Res, $Val extends PurchaseEntity>
     Object? businessId = freezed,
     Object? purchaseNumber = freezed,
     Object? supplierId = freezed,
-    Object? status = null,
     Object? totalAmount = null,
     Object? discount = null,
     Object? deliveryFee = null,
@@ -123,10 +119,6 @@ class _$PurchaseEntityCopyWithImpl<$Res, $Val extends PurchaseEntity>
                 ? _value.supplierId
                 : supplierId // ignore: cast_nullable_to_non_nullable
                       as String?,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String,
             totalAmount: null == totalAmount
                 ? _value.totalAmount
                 : totalAmount // ignore: cast_nullable_to_non_nullable
@@ -187,7 +179,6 @@ abstract class _$$PurchaseEntityImplCopyWith<$Res>
     String? businessId,
     int? purchaseNumber,
     String? supplierId,
-    String status,
     double totalAmount,
     double discount,
     double deliveryFee,
@@ -219,7 +210,6 @@ class __$$PurchaseEntityImplCopyWithImpl<$Res>
     Object? businessId = freezed,
     Object? purchaseNumber = freezed,
     Object? supplierId = freezed,
-    Object? status = null,
     Object? totalAmount = null,
     Object? discount = null,
     Object? deliveryFee = null,
@@ -249,10 +239,6 @@ class __$$PurchaseEntityImplCopyWithImpl<$Res>
             ? _value.supplierId
             : supplierId // ignore: cast_nullable_to_non_nullable
                   as String?,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String,
         totalAmount: null == totalAmount
             ? _value.totalAmount
             : totalAmount // ignore: cast_nullable_to_non_nullable
@@ -306,7 +292,6 @@ class _$PurchaseEntityImpl implements _PurchaseEntity {
     this.businessId,
     this.purchaseNumber,
     this.supplierId,
-    required this.status,
     required this.totalAmount,
     this.discount = 0.0,
     this.deliveryFee = 0.0,
@@ -330,9 +315,6 @@ class _$PurchaseEntityImpl implements _PurchaseEntity {
   final int? purchaseNumber;
   @override
   final String? supplierId;
-  @override
-  final String status;
-  // 'pending', 'received', 'cancelled'
   @override
   final double totalAmount;
   @override
@@ -360,7 +342,7 @@ class _$PurchaseEntityImpl implements _PurchaseEntity {
 
   @override
   String toString() {
-    return 'PurchaseEntity(id: $id, businessId: $businessId, purchaseNumber: $purchaseNumber, supplierId: $supplierId, status: $status, totalAmount: $totalAmount, discount: $discount, deliveryFee: $deliveryFee, purchaseDate: $purchaseDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt, hasReturn: $hasReturn, totalReturnedAmount: $totalReturnedAmount)';
+    return 'PurchaseEntity(id: $id, businessId: $businessId, purchaseNumber: $purchaseNumber, supplierId: $supplierId, totalAmount: $totalAmount, discount: $discount, deliveryFee: $deliveryFee, purchaseDate: $purchaseDate, createdBy: $createdBy, updatedBy: $updatedBy, createdAt: $createdAt, updatedAt: $updatedAt, hasReturn: $hasReturn, totalReturnedAmount: $totalReturnedAmount)';
   }
 
   @override
@@ -375,7 +357,6 @@ class _$PurchaseEntityImpl implements _PurchaseEntity {
                 other.purchaseNumber == purchaseNumber) &&
             (identical(other.supplierId, supplierId) ||
                 other.supplierId == supplierId) &&
-            (identical(other.status, status) || other.status == status) &&
             (identical(other.totalAmount, totalAmount) ||
                 other.totalAmount == totalAmount) &&
             (identical(other.discount, discount) ||
@@ -406,7 +387,6 @@ class _$PurchaseEntityImpl implements _PurchaseEntity {
     businessId,
     purchaseNumber,
     supplierId,
-    status,
     totalAmount,
     discount,
     deliveryFee,
@@ -442,7 +422,6 @@ abstract class _PurchaseEntity implements PurchaseEntity {
     final String? businessId,
     final int? purchaseNumber,
     final String? supplierId,
-    required final String status,
     required final double totalAmount,
     final double discount,
     final double deliveryFee,
@@ -466,8 +445,6 @@ abstract class _PurchaseEntity implements PurchaseEntity {
   int? get purchaseNumber;
   @override
   String? get supplierId;
-  @override
-  String get status; // 'pending', 'received', 'cancelled'
   @override
   double get totalAmount;
   @override

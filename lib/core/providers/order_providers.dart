@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import '../services/audit_service.dart';
 import '../../data/repositories/order_repository.dart';
-import '../../domain/enums.dart';
+
 import 'inventory_providers.dart';
 import '../../data/models/order_entity.dart';
 
@@ -24,7 +24,7 @@ final pendingOrdersCountProvider = StreamProvider.autoDispose<int>((ref) {
   final orderRepo = ref.watch(orderRepositoryProvider);
   return orderRepo.watchAllOrders().map(
     (orders) =>
-        orders.where((o) => o.status == OrderStatus.pending.value).length,
+        0,
   );
 });
 

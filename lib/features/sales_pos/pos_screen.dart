@@ -614,7 +614,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               labelText: hint,
             ),
             onSubmitted: (val) {
-              final newQty = double.tryParse(val);
+              final newQty = CurrencyFormatter.tryParse(val);
               if (newQty != null &&
                   newQty > 0 &&
                   newQty <= product.stockQuantity) {
@@ -630,7 +630,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                final newQty = double.tryParse(controller.text);
+                final newQty = CurrencyFormatter.tryParse(controller.text);
                 if (newQty != null &&
                     newQty > 0 &&
                     newQty <= product.stockQuantity) {
@@ -1268,9 +1268,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              final newPrice = double.tryParse(
-                controller.text.replaceAll(',', ''),
-              );
+              final newPrice = CurrencyFormatter.tryParse(controller.text);
               if (newPrice != null && newPrice >= 0) {
                 ref
                     .read(cartProvider.notifier)
@@ -1331,7 +1329,6 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       final order = OrderEntity(
         id: orderId,
         customerId: finalCustomerId,
-        status: OrderStatus.delivered.value,
         totalAmount: totalAmount,
         totalCogs: totalCogs,
         orderDate: DateTime.now(),
