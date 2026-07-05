@@ -210,7 +210,8 @@ service cloud.firestore {
       allow get: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));
       allow list: if isAdmin() && hasValidBusinessId(resource.data);
       allow create: if isEmployee() && hasValidBusinessId(request.resource.data);
-      allow update, delete: if false; // Logs are immutable
+      allow update: if false; // Logs are immutable
+      allow delete: if isAdmin() && (resource == null || hasValidBusinessId(resource.data));
     }
 
     // Counters (Sequences for invoices, orders)
