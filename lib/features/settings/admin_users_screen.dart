@@ -69,6 +69,8 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
             child: TextField(
               controller: _searchCtrl,
               focusNode: _searchFocus,
+              textInputAction: TextInputAction.search,
+              onSubmitted: (_) => FocusScope.of(context).unfocus(),
               onChanged: (val) =>
                   setState(() => _searchQuery = val.toLowerCase()),
               decoration: InputDecoration(

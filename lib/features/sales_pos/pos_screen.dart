@@ -602,6 +602,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
           content: TextField(
             controller: controller,
             focusNode: focusNode,
+            textInputAction: TextInputAction.done,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               ArabicToEnglishFormatter(),
@@ -1249,6 +1250,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         content: TextField(
           controller: controller,
           focusNode: focusNode,
+          textInputAction: TextInputAction.done,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
             ArabicToEnglishFormatter(),
@@ -1260,6 +1262,15 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             labelText: Tr.t('auto_Priceperunit', langCode),
             hintText: '0',
           ),
+          onSubmitted: (_) {
+            final newPrice = CurrencyFormatter.tryParse(controller.text);
+            if (newPrice != null && newPrice >= 0) {
+              ref
+                  .read(cartProvider.notifier)
+                  .updateProductPrice(item.product, newPrice);
+              Navigator.pop(ctx);
+            }
+          },
         ),
         actions: [
           TextButton(

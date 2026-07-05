@@ -413,6 +413,8 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
                                         child: TextField(
                                           controller: line.qtyController,
                                           textAlign: TextAlign.center,
+                                          textInputAction: TextInputAction.done,
+                                          onSubmitted: (_) => FocusScope.of(context).unfocus(),
                                           keyboardType: TextInputType.number,
                                           inputFormatters: [
                                             ArabicToEnglishFormatter(),

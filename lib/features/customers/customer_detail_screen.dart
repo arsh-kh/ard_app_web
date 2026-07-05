@@ -710,6 +710,7 @@ class CustomerDetailScreen extends ConsumerWidget {
               TextField(
                 controller: controller,
                 focusNode: focusNode,
+                textInputAction: TextInputAction.done,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -724,6 +725,27 @@ class CustomerDetailScreen extends ConsumerWidget {
                   prefixIcon: const Icon(Icons.payments),
                   hintText: '0',
                 ),
+                onSubmitted: (_) async {
+                  final amount = CurrencyFormatter.tryParse(controller.text);
+                  if (amount != null && amount > 0) {
+                    await ref
+                        .read(paymentRepositoryProvider)
+                        .recordPayment(customerId: customer.id, amount: amount);
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      AppFeedback.showSuccess(
+                        context,
+                        Tr.t('paymentApplied', langCode),
+                      );
+                    }
+                  } else {
+                    AppFeedback.showError(
+                      context,
+                      Tr.t('enterValidAmount', langCode),
+                    );
+                  }
+                },
               ),
             ],
           ),

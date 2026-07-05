@@ -117,6 +117,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final langCode = ref.read(localeProvider).languageCode;
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
+    final newPasswordFocus = SelectAllFocusNode(controller: newPasswordController);
+    final confirmPasswordFocus = SelectAllFocusNode(controller: confirmPasswordController);
     bool isLoading = false;
     String? errorMessage;
 
@@ -174,6 +176,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 24),
                   TextField(
                     controller: newPasswordController,
+                    focusNode: newPasswordFocus,
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) => FocusScope.of(context).requestFocus(confirmPasswordFocus),
                     obscureText: true,
                     onChanged: (val) {
                       if (errorMessage != null) setState(() => errorMessage = null);
@@ -192,6 +197,36 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: confirmPasswordController,
+                    focusNode: confirmPasswordFocus,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) async {
+                      if (isLoading) return;
+                      final newPass = newPasswordController.text;
+                      final confirmPass = confirmPasswordController.text;
+                      
+                      if (newPass.length < 6) {
+                        setState(() => errorMessage = Tr.t('err_password_too_short', langCode));
+                        return;
+                      }
+                      
+                      if (newPass != confirmPass) {
+                        setState(() => errorMessage = Tr.t('passwordMismatch', langCode));
+                        return;
+                      }
+
+                      setState(() => isLoading = true);
+                      try {
+                        await ref.read(authProvider.notifier).updatePassword(newPass);
+                        if (ctx.mounted) {
+                          Navigator.pop(ctx);
+                          AppFeedback.showSuccess(ctx, Tr.t('passwordChanged', langCode));
+                        }
+                      } catch (e) {
+                        setState(() => errorMessage = e.toString());
+                      } finally {
+                        if (mounted) setState(() => isLoading = false);
+                      }
+                    },
                     obscureText: true,
                     onChanged: (val) {
                       if (errorMessage != null) setState(() => errorMessage = null);

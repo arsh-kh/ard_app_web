@@ -367,6 +367,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                             const SizedBox(height: 16),
                                             TextField(
                                               autofocus: true,
+                                              textInputAction: TextInputAction.done,
+                                              onSubmitted: (_) async {
+                                                if (isMatch) {
+                                                  Navigator.pop(ctx);
+                                                  final userId = user?.id;
+                                                  if (userId != null) {
+                                                    try {
+                                                      await ref
+                                                          .read(userRepositoryProvider)
+                                                          .updateUserBusinessAndRole(
+                                                            userId,
+                                                            '',
+                                                            'employee',
+                                                            'pending',
+                                                          );
+                                                    } catch (e) {
+                                                      debugPrint('Error leaving workspace: $e');
+                                                    }
+                                                  }
+                                                }
+                                              },
                                               onChanged: (val) {
                                                 setState(() => typedName = val);
                                               },

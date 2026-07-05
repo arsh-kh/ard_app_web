@@ -138,6 +138,12 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
             TextField(
               controller: _confirmController,
               focusNode: _confirmFocus,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) {
+                if (_confirmController.text.trim() == 'DELETE' && _isUnderstood) {
+                  _performWipe();
+                }
+              },
               decoration: InputDecoration(
                 hintText: 'DELETE',
                 filled: true,

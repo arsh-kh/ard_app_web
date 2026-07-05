@@ -29,6 +29,13 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
   final _phone2Controller = TextEditingController();
   final _phone3Controller = TextEditingController();
 
+  final _shopNameFocus = FocusNode();
+  final _desc1Focus = FocusNode();
+  final _desc2Focus = FocusNode();
+  final _phone1Focus = FocusNode();
+  final _phone2Focus = FocusNode();
+  final _phone3Focus = FocusNode();
+
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -61,6 +68,13 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
     _phone1Controller.dispose();
     _phone2Controller.dispose();
     _phone3Controller.dispose();
+    
+    _shopNameFocus.dispose();
+    _desc1Focus.dispose();
+    _desc2Focus.dispose();
+    _phone1Focus.dispose();
+    _phone2Focus.dispose();
+    _phone3Focus.dispose();
     super.dispose();
   }
 
@@ -127,6 +141,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 
                 TextFormField(
                   controller: _shopNameController,
+                  focusNode: _shopNameFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_desc1Focus),
                   decoration: InputDecoration(
                     labelText: Tr.t('shopNameLabel', langCode),
                     border: const OutlineInputBorder(),
@@ -140,6 +157,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 
                 TextFormField(
                   controller: _desc1Controller,
+                  focusNode: _desc1Focus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_desc2Focus),
                   decoration: InputDecoration(
                     labelText: Tr.t('desc1Label', langCode),
                     hintText: Tr.t('desc1Hint', langCode),
@@ -150,6 +170,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 
                 TextFormField(
                   controller: _desc2Controller,
+                  focusNode: _desc2Focus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_phone1Focus),
                   decoration: InputDecoration(
                     labelText: Tr.t('desc2Label', langCode),
                     hintText: Tr.t('desc2Hint', langCode),
@@ -166,6 +189,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 
                 TextFormField(
                   controller: _phone1Controller,
+                  focusNode: _phone1Focus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_phone2Focus),
                   keyboardType: TextInputType.phone,
                   textDirection: TextDirection.ltr,
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
@@ -186,6 +212,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 
                 TextFormField(
                   controller: _phone2Controller,
+                  focusNode: _phone2Focus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_phone3Focus),
                   keyboardType: TextInputType.phone,
                   textDirection: TextDirection.ltr,
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
@@ -202,6 +231,9 @@ class _PdfSettingsScreenState extends ConsumerState<PdfSettingsScreen> {
                 
                 TextFormField(
                   controller: _phone3Controller,
+                  focusNode: _phone3Focus,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _saveSettings(langCode),
                   keyboardType: TextInputType.phone,
                   textDirection: TextDirection.ltr,
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,

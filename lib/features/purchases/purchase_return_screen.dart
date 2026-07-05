@@ -424,6 +424,8 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                         child: TextField(
                                           controller: line.qtyController,
                                           textAlign: TextAlign.center,
+                                          textInputAction: TextInputAction.done,
+                                          onSubmitted: (_) => FocusScope.of(context).unfocus(),
                                           keyboardType: TextInputType.number,
                                           inputFormatters: [
                                             ArabicToEnglishFormatter(),
