@@ -254,10 +254,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
       final customerRepo = ref.read(customerRepositoryProvider);
       final customer = await customerRepo.getCustomerById(payment.customerId);
 
-      if (mounted && isDialogOpen) {
-        Navigator.of(context, rootNavigator: true).pop();
-        isDialogOpen = false;
-      }
+
 
       // For walk-in payments, create a placeholder customer entity
       final resolvedCustomer = customer ??
@@ -281,12 +278,13 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
         adminPhone: adminPhone,
       );
     } catch (e) {
+      if (mounted) {
+        AppFeedback.showError(context, e);
+      }
+    } finally {
       if (mounted && isDialogOpen) {
         Navigator.of(context, rootNavigator: true).pop();
         isDialogOpen = false;
-      }
-      if (mounted) {
-        AppFeedback.showError(context, e);
       }
     }
   }

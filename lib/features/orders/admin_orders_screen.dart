@@ -173,6 +173,7 @@ class AdminOrdersScreen extends ConsumerWidget {
     OrderEntity order,
     String Function(String) t,
   ) async {
+    final nav = Navigator.of(context, rootNavigator: true);
     bool isDialogOpen = true;
     showDialog(
       context: context,
@@ -189,10 +190,7 @@ class AdminOrdersScreen extends ConsumerWidget {
       final items = await orderRepo.getOrderItems(order.id);
       final products = await inventoryRepo.getAllProducts();
 
-      if (context.mounted && isDialogOpen) {
-        Navigator.of(context, rootNavigator: true).pop();
-        isDialogOpen = false;
-      }
+
 
       // For walk-in orders, create a placeholder customer entity
       final langCode = ref.read(localeProvider).languageCode;
@@ -220,15 +218,16 @@ class AdminOrdersScreen extends ConsumerWidget {
         adminPhone: adminPhone,
       );
     } catch (e) {
-      if (context.mounted && isDialogOpen) {
-        Navigator.of(context, rootNavigator: true).pop();
-        isDialogOpen = false;
-      }
       if (context.mounted) {
         AppFeedback.showError(
           context,
           t('errorGeneratingInvoice').replaceFirst('{error}', e.toString()),
         );
+      }
+    } finally {
+      if (isDialogOpen) {
+        nav.pop();
+        isDialogOpen = false;
       }
     }
   }

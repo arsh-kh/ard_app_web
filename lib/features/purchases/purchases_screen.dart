@@ -661,23 +661,7 @@ class _PurchaseCard extends ConsumerWidget {
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.5)),
-                ),
-                child: Text(
-                  Tr.t('status_${purchase.status}', lang).toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+
             ],
           ),
         ),

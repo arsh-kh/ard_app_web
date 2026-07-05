@@ -809,7 +809,9 @@ class HtmlGeneratorService {
     </html>
     ''';
 
-    await _saveAndLaunchHtml(htmlContent, 'invoice_${order.orderNumber ?? order.id}.html');
+    final tInvoiceTitle = tr("Invoice", "پسوڵە");
+    final safeCustomerName = customer.businessName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    await _saveAndLaunchHtml(htmlContent, '${tInvoiceTitle}_$safeCustomerName.html', shareText: '$tInvoiceTitle - ${customer.businessName}');
   }
 
   static Future<void> generateAndLaunchPaymentReceipt({
@@ -883,7 +885,8 @@ class HtmlGeneratorService {
     </html>
     ''';
 
-    await _saveAndLaunchHtml(htmlContent, 'receipt_${payment.id.substring(0, 8)}.html');
+    final safeCustomerName = customer.businessName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    await _saveAndLaunchHtml(htmlContent, '${tReceipt}_$safeCustomerName.html', shareText: '$tReceipt - ${customer.businessName}');
   }
 
   static Future<void> generateAndLaunchPurchaseInvoice({
@@ -902,6 +905,11 @@ class HtmlGeneratorService {
     final tInvoiceNum = Tr.t('purchaseNo', langCode);
     final tDate = Tr.t('auto_Date', langCode);
     final tTotal = Tr.t('auto_TotalAmount', langCode);
+    
+    final tProduct = Tr.t('auto_ProductName', langCode);
+    final tQty = Tr.t('auto_Qty', langCode);
+    final tCost = Tr.t('cost', langCode); // Use 'cost' if available or just hardcode localized fallback
+    final tTotalCost = Tr.t('auto_Total', langCode);
 
     final isRtl = isKurdish || isArabic;
     final dir = isRtl ? 'rtl' : 'ltr';
@@ -970,10 +978,10 @@ class HtmlGeneratorService {
         <table>
           <thead>
             <tr>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Cost</th>
-              <th>Total Cost</th>
+              <th>$tProduct</th>
+              <th>$tQty</th>
+              <th>$tCost</th>
+              <th>$tTotalCost</th>
             </tr>
           </thead>
           <tbody>
@@ -994,7 +1002,7 @@ class HtmlGeneratorService {
     </html>
     ''';
 
-    await _saveAndLaunchHtml(htmlContent, 'purchase_${purchase.purchaseNumber ?? purchase.id}.html');
+    await _saveAndLaunchHtml(htmlContent, '${tInvoice}_${purchase.purchaseNumber ?? purchase.id}.html', shareText: tInvoice);
   }
 
   static Future<void> generateAndLaunchReport({
@@ -1098,7 +1106,7 @@ class HtmlGeneratorService {
     </html>
     ''';
 
-    await _saveAndLaunchHtml(htmlContent, 'report_${periodName.replaceAll('/', '-')}.html');
+    await _saveAndLaunchHtml(htmlContent, '${tTitle}_${periodName.replaceAll('/', '-')}.html', shareText: tTitle);
   }
 
   static Future<void> generateAndLaunchLedger({
@@ -1149,8 +1157,8 @@ class HtmlGeneratorService {
         <div class="header">
           <div class="header-info">
             <h1 class="header-title">$title</h1>
-            <p>Period: <strong dir="ltr">$periodName</strong></p>
-            <p>Generated: <strong dir="ltr">$generatedDate</strong></p>
+            <p>${Tr.t('auto_Period', isKurdish ? 'ku' : isArabic ? 'ar' : 'en')}: <strong dir="ltr">$periodName</strong></p>
+            <p>${Tr.t('auto_Generated', isKurdish ? 'ku' : isArabic ? 'ar' : 'en')}: <strong dir="ltr">$generatedDate</strong></p>
           </div>
 
         </div>
@@ -1179,10 +1187,10 @@ class HtmlGeneratorService {
     </html>
     ''';
 
-    await _saveAndLaunchHtml(htmlContent, 'ledger_${DateTime.now().millisecondsSinceEpoch}.html');
+    await _saveAndLaunchHtml(htmlContent, '${title}_${DateTime.now().millisecondsSinceEpoch}.html', shareText: title);
   }
 
-  static Future<void> _saveAndLaunchHtml(String htmlContent, String filename) async {
+  static Future<void> _saveAndLaunchHtml(String htmlContent, String filename, {String shareText = ''}) async {
     // 1. Get temporary directory to store the PDF
     final tempDir = await getTemporaryDirectory();
     final targetPath = tempDir.path;
@@ -1196,9 +1204,9 @@ class HtmlGeneratorService {
     );
 
     // 3. Immediately launch the native Share sheet with the generated PDF
-    await Share.shareXFiles(
+    Share.shareXFiles(
       [XFile(generatedPdfFile.path)],
-      text: 'Invoice',
-    );
+      text: shareText.isNotEmpty ? shareText : 'Document',
+    ).ignore();
   }
 }
