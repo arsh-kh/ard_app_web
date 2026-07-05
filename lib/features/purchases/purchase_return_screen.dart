@@ -19,8 +19,6 @@ import '../../data/models/purchase_item_entity.dart';
 import '../../data/models/product_entity.dart';
 import '../../data/models/purchase_return_entity.dart';
 import '../../data/models/purchase_return_item_entity.dart';
-import '../../data/repositories/return_repository.dart'; // For DebtCalculation
-
 class _ReturnLine {
   final PurchaseItemEntity purchaseItem;
   final ProductEntity? product;
@@ -155,42 +153,19 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
     }
 
     setState(() => _isSubmitting = true);
-    late DebtCalculation debtCalc;
-    try {
-      debtCalc = const DebtCalculation(
-        debtBefore: 0,
-        debtAfter: 0,
-        actualDeduction: 0,
-      );
-    } catch (e) {
-      if (mounted) {
-        AppFeedback.showError(context, e);
-        setState(() => _isSubmitting = false);
-      }
-      return;
-    }
+    
+    // Simulating loading to show UI changes cleanly
+    await Future.delayed(const Duration(milliseconds: 300));
+
     if (mounted) setState(() => _isSubmitting = false);
 
     final refundStr = CurrencyFormatter.format(_totalRefund);
-    final debtBeforeStr = CurrencyFormatter.format(debtCalc.debtBefore);
-    final debtAfterStr = CurrencyFormatter.format(debtCalc.debtAfter);
-    final deductionStr = CurrencyFormatter.format(debtCalc.actualDeduction);
 
-    String confirmMsg = Tr.t(
+    final String confirmMsg = Tr.t(
       'returnConfirmMsg',
       lang,
     ).replaceFirst('{refund}', refundStr);
 
-    if (debtCalc.debtBefore > 0) {
-      confirmMsg +=
-          '\n\n'
-          '${Tr.t('debtBefore', lang)}: $debtBeforeStr\n'
-          '${Tr.t('debtAfter', lang)}: $debtAfterStr';
-      if (_totalRefund > debtCalc.debtBefore) {
-        confirmMsg +=
-            '\n\n${Tr.t('debtExceedsMsg', lang).replaceFirst('{deductible}', deductionStr)}';
-      }
-    }
 
     if (!mounted) return;
     final confirmed = await AppFeedback.showConfirmDialog(
@@ -242,7 +217,6 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
           .createPurchaseReturn(
             returnRecord,
             returnItems,
-            debtCalc,
             purchaseItemReturns,
           );
 

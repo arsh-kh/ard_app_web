@@ -87,20 +87,6 @@ class PurchaseRepository {
       batch.set(itemRef, finalItem.toJson());
     }
 
-    // 3. Update Supplier Debt (we owe them more money)
-    if (finalPurchase.supplierId != null && 
-        finalPurchase.supplierId != 'no_supplier') {
-      final supplierRef = _firestore
-          .collection('suppliers')
-          .doc(finalPurchase.supplierId);
-      final supplierDoc = await supplierRef.get();
-      if (supplierDoc.exists) {
-        batch.update(supplierRef, {
-          'debtBalance': FieldValue.increment(finalPurchase.totalAmount),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-    }
 
     await batch.commit();
   }
@@ -225,12 +211,6 @@ class PurchaseRepository {
     final doc = await _purchases.doc(purchaseId).get();
     if (!doc.exists) return;
 
-    final purchase = PurchaseEntity.fromJson(
-      DataSanitizer.sanitize({
-        'id': doc.id,
-        ...doc.data() as Map<String, dynamic>,
-      }),
-    );
     final items = await getPurchaseItems(purchaseId);
 
     final batch = _firestore.batch();
@@ -276,27 +256,6 @@ class PurchaseRepository {
       }
     }
 
-    // Calculate net debt revert
-    double totalDeductedByReturns = 0.0;
-    for (final rDoc in returnsSnapshot.docs) {
-      totalDeductedByReturns +=
-          (rDoc.data()['actualDeduction'] as num?)?.toDouble() ?? 0.0;
-    }
-    final netDebtRevert = purchase.totalAmount - totalDeductedByReturns;
-
-    // Revert Supplier Debt
-    if (netDebtRevert != 0) {
-      final supplierRef = _firestore
-          .collection('suppliers')
-          .doc(purchase.supplierId);
-      final supplierDoc = await supplierRef.get();
-      if (supplierDoc.exists) {
-        batch.update(supplierRef, {
-          'debtBalance': FieldValue.increment(-netDebtRevert),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-    }
 
     await batch.commit();
   }

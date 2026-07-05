@@ -116,7 +116,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
       final rows = filteredOrders.map((order) {
         final customer = customers.firstWhere(
           (c) => c.id == order.customerId,
-          orElse: () => CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
+          orElse: () => const CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
         );
         final netAmount = order.totalAmount - order.totalReturnedAmount;
         return [
@@ -130,7 +130,7 @@ class _OrderReportDialogState extends ConsumerState<OrderReportDialog> {
       final totalRevenue = filteredOrders.fold(0.0, (sum, order) => sum + (order.totalAmount - order.totalReturnedAmount));
       final business = ref.read(currentBusinessEntityProvider).valueOrNull;
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       if (!await PdfInterceptor.checkAndNavigate(context)) return;
       await HtmlGeneratorService.generateAndLaunchLedger(
         title: Tr.t('auto_INVOICESLEDGER', langCode),

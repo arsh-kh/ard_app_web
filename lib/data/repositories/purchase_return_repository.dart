@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/services/audit_service.dart';
 import '../models/purchase_return_entity.dart';
 import '../models/purchase_return_item_entity.dart';
-import 'return_repository.dart'; // for DebtCalculation
+import '../../core/utils/data_sanitizer.dart';
 
 class PurchaseReturnRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,74 +11,24 @@ class PurchaseReturnRepository {
 
   PurchaseReturnRepository(this._auditService, this.businessId);
 
-  /// Previews how much the supplier debt will be reduced by.
-  /// (Since we return items to the supplier, the amount we owe them decreases).
+
   void _checkBusinessId() {
     if (businessId.isEmpty) throw Exception('tenant_isolation_error: No business selected.');
-  }
-
-  Future<DebtCalculation> previewSupplierDebtReduction(
-    String supplierId,
-    double refundAmount,
-  ) async {
-    if (refundAmount <= 0) {
-      return const DebtCalculation(
-        debtBefore: 0,
-        debtAfter: 0,
-        actualDeduction: 0,
-      );
-    }
-
-    final doc = await _firestore.collection('suppliers').doc(supplierId).get();
-    final currentDebt = (doc.data()?['debtBalance'] as num?)?.toDouble() ?? 0.0;
-
-    final deduction = refundAmount;
-    final newDebt = currentDebt - deduction;
-
-    return DebtCalculation(
-      debtBefore: currentDebt,
-      debtAfter: newDebt,
-      actualDeduction: deduction,
-    );
   }
 
   Future<void> createPurchaseReturn(
     PurchaseReturnEntity returnRecord,
     List<PurchaseReturnItemEntity> items,
-    DebtCalculation debtCalc,
     Map<String, double> purchaseItemReturns,
   ) async {
     _checkBusinessId();
-    double finalDebtBefore = debtCalc.debtBefore;
-    double finalDebtAfter = debtCalc.debtAfter;
 
     await _firestore.runTransaction((tx) async {
-      // 1. Recalculate debt securely inside transaction
-      if (debtCalc.actualDeduction > 0) {
-        final supplierRef = _firestore.collection('suppliers').doc(returnRecord.supplierId);
-        final supplierDoc = await tx.get(supplierRef);
-        if (supplierDoc.exists) {
-          final currentDebt = (supplierDoc.data()?['debtBalance'] as num?)?.toDouble() ?? 0.0;
-          finalDebtBefore = currentDebt;
-          finalDebtAfter = currentDebt - debtCalc.actualDeduction;
-          
-          tx.update(supplierRef, {
-            'debtBalance': FieldValue.increment(-debtCalc.actualDeduction),
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-        }
-      }
-
       // 2. Save the return header
       final returnRef = _firestore.collection('purchase_returns').doc(returnRecord.id);
       final returnJson = returnRecord.toJson();
       returnJson['businessId'] = businessId; // Enforce businessId
-      tx.set(returnRef, {
-        ...returnJson,
-        'debtBefore': finalDebtBefore,
-        'debtAfter': finalDebtAfter,
-        'actualDeduction': debtCalc.actualDeduction,
-      });
+      tx.set(returnRef, returnJson);
 
       // 3. Save each return line item
       for (final item in items) {
@@ -135,16 +85,11 @@ class PurchaseReturnRepository {
       details:
           'Return for Purchase #${returnRecord.purchaseId.substring(0, 8).toUpperCase()}. '
           'Refund value: ${returnRecord.totalRefund.toStringAsFixed(0)}. '
-          'Supplier Debt: ${finalDebtBefore.toStringAsFixed(0)} → ${finalDebtAfter.toStringAsFixed(0)} '
-          '(deducted ${debtCalc.actualDeduction.toStringAsFixed(0)}). '
           '${items.length} item(s) returned.',
       metadata: {
         'purchaseId': returnRecord.purchaseId,
         'supplierId': returnRecord.supplierId,
         'totalRefund': returnRecord.totalRefund,
-        'debtBefore': finalDebtBefore,
-        'debtAfter': finalDebtAfter,
-        'actualDeduction': debtCalc.actualDeduction,
         'itemsReturned': items.length,
       },
     );
@@ -161,7 +106,7 @@ class PurchaseReturnRepository {
         .get();
     final list = snapshot.docs
         .map(
-          (doc) => PurchaseReturnEntity.fromJson({'id': doc.id, ...doc.data()}),
+          (doc) => PurchaseReturnEntity.fromJson(DataSanitizer.sanitize({'id': doc.id, ...doc.data()})),
         )
         .toList();
     list.sort((a, b) => b.returnDate.compareTo(a.returnDate));

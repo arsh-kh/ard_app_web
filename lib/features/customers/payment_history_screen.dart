@@ -266,7 +266,7 @@ class _PaymentsBodyState extends ConsumerState<_PaymentsBody> {
 
       final authState = ref.read(authProvider);
       final adminPhone = authState.user?.phone;
-      if (!context.mounted) return;
+      if (!mounted) return;
       final pdfIntercept = await PdfInterceptor.checkAndNavigate(context);
       if (!pdfIntercept) return;
 

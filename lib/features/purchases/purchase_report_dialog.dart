@@ -121,7 +121,7 @@ class _PurchaseReportDialogState extends ConsumerState<PurchaseReportDialog> {
       final totalAmount = filteredPurchases.fold(0.0, (sum, purchase) => sum + (purchase.totalAmount - purchase.totalReturnedAmount));
       final business = ref.read(currentBusinessEntityProvider).valueOrNull;
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       if (!await PdfInterceptor.checkAndNavigate(context)) return;
       await HtmlGeneratorService.generateAndLaunchLedger(
         title: Tr.t('auto_PURCHASESLEDGER', langCode),

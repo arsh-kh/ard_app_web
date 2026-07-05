@@ -566,6 +566,8 @@ class _ChangeBusinessPasswordSheetState extends ConsumerState<_ChangeBusinessPas
               ).animate().fadeIn().slideY(begin: -0.1),
             TextFormField(
               controller: _oldPassController,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
               obscureText: _obscureOld,
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return Tr.t('reqField', langCode);
@@ -589,6 +591,8 @@ class _ChangeBusinessPasswordSheetState extends ConsumerState<_ChangeBusinessPas
             const SizedBox(height: 16),
             TextFormField(
               controller: _newPassController,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
               obscureText: _obscureNew,
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return Tr.t('reqField', langCode);
@@ -613,6 +617,8 @@ class _ChangeBusinessPasswordSheetState extends ConsumerState<_ChangeBusinessPas
             const SizedBox(height: 16),
             TextFormField(
               controller: _confirmPassController,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submit(),
               obscureText: _obscureConfirm,
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return Tr.t('reqField', langCode);

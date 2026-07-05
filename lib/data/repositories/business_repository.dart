@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/data_sanitizer.dart';
 
 
 import '../models/business_entity.dart';
@@ -197,7 +198,7 @@ class BusinessRepository {
       details: 'Business access restored by admin',
     );
 
-    return BusinessEntity.fromJson(data);
+    return BusinessEntity.fromJson(DataSanitizer.sanitize(data));
   }
 
   Future<void> resetBusinessPasswordByRecoveryEmail(String recoveryEmail) async {
@@ -254,6 +255,6 @@ class BusinessRepository {
     if (snapshot.docs.isEmpty) return null;
 
     final doc = snapshot.docs.first;
-    return BusinessEntity.fromJson({'id': doc.id, ...doc.data()});
+    return BusinessEntity.fromJson(DataSanitizer.sanitize({'id': doc.id, ...doc.data()}));
   }
 }

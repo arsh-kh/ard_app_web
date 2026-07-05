@@ -25,8 +25,6 @@ class DataWipeService {
       'purchaseItems',
       'purchase_returns',
       'purchase_return_items',
-      'suppliers',
-      'supplierPayments',
       'audit_logs',
       'counters',
     ];

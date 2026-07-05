@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/services/audit_service.dart';
 import '../models/return_entity.dart';
 import '../models/return_item_entity.dart';
+import '../../core/utils/data_sanitizer.dart';
 
 /// Holds the before/after debt figures for display in the UI.
 class DebtCalculation {
@@ -182,7 +183,8 @@ class ReturnRepository {
         .where('orderId', isEqualTo: orderId)
         .get();
     final list = snapshot.docs
-        .map((doc) => ReturnEntity.fromJson({'id': doc.id, ...doc.data()}))
+        .map((doc) => ReturnEntity.fromJson(
+            DataSanitizer.sanitize({'id': doc.id, ...doc.data()})))
         .toList();
     list.sort((a, b) => b.returnDate.compareTo(a.returnDate));
     return list;
@@ -197,7 +199,8 @@ class ReturnRepository {
         .where('returnId', isEqualTo: returnId)
         .get();
     return snapshot.docs
-        .map((doc) => ReturnItemEntity.fromJson({'id': doc.id, ...doc.data()}))
+        .map((doc) => ReturnItemEntity.fromJson(
+            DataSanitizer.sanitize({'id': doc.id, ...doc.data()})))
         .toList();
   }
 
@@ -212,7 +215,7 @@ class ReturnRepository {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      return ReturnEntity.fromJson(data);
+      return ReturnEntity.fromJson(DataSanitizer.sanitize(data));
     }).toList();
   }
 
@@ -231,7 +234,7 @@ class ReturnRepository {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      return ReturnEntity.fromJson(data);
+      return ReturnEntity.fromJson(DataSanitizer.sanitize(data));
     }).toList();
   }
 }

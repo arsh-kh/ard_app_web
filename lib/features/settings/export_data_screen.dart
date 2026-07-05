@@ -266,8 +266,6 @@ class ExportDataScreen extends ConsumerWidget {
       'orders',
       'payments',
       'purchases',
-      'suppliers',
-      'supplier_payments',
       'audit_logs',
       'returns',
       'purchase_returns',

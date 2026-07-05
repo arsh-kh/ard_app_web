@@ -182,23 +182,12 @@ class DatabaseSanitizationService {
 
                 debugPrint(
                     '🔴 [Sanitization] Fixing Purchase Return ${returnDoc.id}: $retTotal -> $scaledRefund. Diff: $diff');
-
-                final actualDed =
-                    (retData['actualDeduction'] as num?)?.toDouble();
                     
                 await firestore
                     .collection('purchase_returns')
                     .doc(returnDoc.id)
                     .update({
                   'totalRefund': scaledRefund,
-                  if (actualDed != null)
-                    'actualDeduction': actualDed * correctionRatio,
-                });
-
-                debugPrint(
-                    '🔴 [Sanitization] Fixing Supplier $suppId debt: +$diff');
-                await firestore.collection('suppliers').doc(suppId).update({
-                  'debtBalance': FieldValue.increment(diff),
                 });
               }
             }

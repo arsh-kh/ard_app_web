@@ -116,7 +116,7 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
       final rows = filteredPayments.map((payment) {
         final customer = customers.firstWhere(
           (c) => c.id == payment.customerId,
-          orElse: () => CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
+          orElse: () => const CustomerEntity(id: '', businessName: 'Unknown', debtBalance: 0),
         );
         return [
           dateFormat.format(payment.paymentDate),
@@ -128,7 +128,7 @@ class _PaymentReportDialogState extends ConsumerState<PaymentReportDialog> {
       final totalAmount = filteredPayments.fold(0.0, (sum, payment) => sum + payment.amount);
       final business = ref.read(currentBusinessEntityProvider).valueOrNull;
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       if (!await PdfInterceptor.checkAndNavigate(context)) return;
       await HtmlGeneratorService.generateAndLaunchLedger(
         title: Tr.t('auto_PAYMENTSREPORT', langCode),
