@@ -23,9 +23,12 @@ class CustomerRepository {
         .map((snapshot) {
           final list = snapshot.docs
               .map(
-                (doc) => CustomerEntity.fromJson(
-                  DataSanitizer.sanitize({'id': doc.id, ...doc.data()}),
-                ),
+                (doc) {
+                final data = doc.data() as Map<String, dynamic>? ?? {};
+                return CustomerEntity.fromJson(
+                  DataSanitizer.sanitize({'id': doc.id, ...data}),
+                );
+              },
               )
               .where((c) => !c.id.startsWith('walk-in-'))
               .toList();
@@ -64,7 +67,7 @@ class CustomerRepository {
   ) async {
     _checkBusinessId();
     final doc = await _firestore.collection('customers').doc(customerId).get();
-    if (!doc.exists || doc.data()?['businessId'] != businessId) {
+    if (!doc.exists || (doc.data())?['businessId'] != businessId) {
       throw Exception('Customer not found or unauthorized access.');
     }
     await _firestore.collection('customers').doc(customerId).update({
@@ -87,13 +90,13 @@ class CustomerRepository {
         .doc(customer.id)
         .get();
         
-    if (!oldDoc.exists || oldDoc.data()?['businessId'] != businessId) {
+    if (!oldDoc.exists || (oldDoc.data())?['businessId'] != businessId) {
       throw Exception('Customer not found or unauthorized access.');
     }
 
     final Map<String, dynamic> changes = {};
     if (oldDoc.exists && oldDoc.data() != null) {
-      final oldData = oldDoc.data()!;
+      final oldData = oldDoc.data() ?? {};
       if (oldData['businessName'] != customer.businessName) {
         changes['businessName'] = {
           'old': oldData['businessName'],
@@ -164,7 +167,7 @@ class CustomerRepository {
     }
 
     final doc = await _firestore.collection('customers').doc(id).get();
-    final name = doc.data()?['businessName'] ?? id;
+    final name = (doc.data())?['businessName'] ?? id;
 
     await _firestore.collection('customers').doc(id).delete();
     await _auditService.logAction(
@@ -202,9 +205,12 @@ class CustomerRepository {
         .get();
     final list = snapshot.docs
         .map(
-          (doc) => CustomerEntity.fromJson(
-            DataSanitizer.sanitize({'id': doc.id, ...doc.data()}),
-          ),
+          (doc) {
+          final data = doc.data() as Map<String, dynamic>? ?? {};
+          return CustomerEntity.fromJson(
+            DataSanitizer.sanitize({'id': doc.id, ...data}),
+          );
+        },
         )
         .where((c) => !c.id.startsWith('walk-in-'))
         .toList();
@@ -220,7 +226,7 @@ class CustomerRepository {
     if (businessId.isEmpty) return null;
     final doc = await _firestore.collection('customers').doc(id).get();
     if (!doc.exists) return null;
-    final data = doc.data()!;
+    final data = doc.data() ?? {};
     if (data['businessId'] != businessId) return null; // Security check
     return CustomerEntity.fromJson(
       DataSanitizer.sanitize({'id': doc.id, ...data}),

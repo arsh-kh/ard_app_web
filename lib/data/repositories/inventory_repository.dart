@@ -26,11 +26,12 @@ class InventoryRepository {
         .snapshots()
         .map((snapshot) {
           final list = snapshot.docs
-              .map(
-                (doc) => ProductEntity.fromJson(
-                  _sanitizeData({'id': doc.id, ...doc.data()}),
-                ),
-              )
+              .map((doc) {
+                final data = doc.data() as Map<String, dynamic>? ?? {};
+                return ProductEntity.fromJson(
+                  _sanitizeData({'id': doc.id, ...data}),
+                );
+              })
               .toList();
           list.sort((a, b) {
             final aDate = a.updatedAt ?? a.createdAt ?? DateTime(2000);
@@ -66,7 +67,7 @@ class InventoryRepository {
   Future<void> updateProductImageUrl(String productId, String imageUrl) async {
     _checkBusinessId();
     final doc = await _firestore.collection('products').doc(productId).get();
-    if (!doc.exists || doc.data()?['businessId'] != businessId) {
+    if (!doc.exists || (doc.data())?['businessId'] != businessId) {
       throw Exception('Product not found or unauthorized access.');
     }
     await _firestore.collection('products').doc(productId).update({
@@ -87,13 +88,13 @@ class InventoryRepository {
         .doc(product.id)
         .get();
         
-    if (!oldDoc.exists || oldDoc.data()?['businessId'] != businessId) {
+    if (!oldDoc.exists || (oldDoc.data())?['businessId'] != businessId) {
       throw Exception('Product not found or unauthorized access.');
     }
 
     final Map<String, dynamic> changes = {};
     if (oldDoc.exists && oldDoc.data() != null) {
-      final oldData = oldDoc.data()!;
+      final oldData = oldDoc.data() ?? {};
       if (oldData['name'] != product.name) {
         changes['name'] = {'old': oldData['name'], 'new': product.name};
       }
@@ -190,11 +191,12 @@ class InventoryRepository {
         .where('businessId', isEqualTo: businessId)
         .get();
     final list = snapshot.docs
-        .map(
-          (doc) => ProductEntity.fromJson(
-            _sanitizeData({'id': doc.id, ...doc.data()}),
-          ),
-        )
+        .map((doc) {
+          final data = doc.data() as Map<String, dynamic>? ?? {};
+          return ProductEntity.fromJson(
+            _sanitizeData({'id': doc.id, ...data}),
+          );
+        })
         .toList();
     list.sort((a, b) {
       final aDate = a.updatedAt ?? a.createdAt ?? DateTime(2000);
@@ -208,7 +210,7 @@ class InventoryRepository {
     if (businessId.isEmpty) return null;
     final doc = await _firestore.collection('products').doc(id).get();
     if (!doc.exists) return null;
-    final data = doc.data()!;
+    final data = doc.data() ?? {};
     if (data['businessId'] != businessId) return null; // Security check
     return ProductEntity.fromJson(_sanitizeData({'id': doc.id, ...data}));
   }

@@ -49,7 +49,7 @@ class PurchaseRepository {
           .doc(item.productId);
       final prodDoc = await productRef.get();
       if (prodDoc.exists) {
-        final data = prodDoc.data() as Map<String, dynamic>;
+        final data = prodDoc.data() ?? {};
         final double oldPrice = ((data['buyPrice'] as num?) ?? 0).toDouble();
         final double newQty = item.quantity;
         final double newPrice = item.unitPrice;
@@ -102,7 +102,7 @@ class PurchaseRepository {
           (doc) => PurchaseEntity.fromJson(
             DataSanitizer.sanitize({
               'id': doc.id,
-              ...doc.data() as Map<String, dynamic>,
+              ...doc.data() as Map<String, dynamic>? ?? {},
             }),
           ),
         )
@@ -121,7 +121,7 @@ class PurchaseRepository {
                 (doc) => PurchaseEntity.fromJson(
                   DataSanitizer.sanitize({
                     'id': doc.id,
-                    ...doc.data() as Map<String, dynamic>,
+                    ...doc.data() as Map<String, dynamic>? ?? {},
                   }),
                 ),
               )
@@ -140,7 +140,7 @@ class PurchaseRepository {
           (doc) => PurchaseItemEntity.fromJson(
             DataSanitizer.sanitize({
               'id': doc.id,
-              ...doc.data() as Map<String, dynamic>,
+              ...doc.data() as Map<String, dynamic>? ?? {},
             }),
           ),
         )
@@ -157,7 +157,7 @@ class PurchaseRepository {
           (doc) => PurchaseItemEntity.fromJson(
             DataSanitizer.sanitize({
               'id': doc.id,
-              ...doc.data() as Map<String, dynamic>,
+              ...doc.data() as Map<String, dynamic>? ?? {},
             }),
           ),
         )
@@ -175,7 +175,7 @@ class PurchaseRepository {
           (doc) => PurchaseEntity.fromJson(
             DataSanitizer.sanitize({
               'id': doc.id,
-              ...doc.data() as Map<String, dynamic>,
+              ...doc.data() as Map<String, dynamic>? ?? {},
             }),
           ),
         )
@@ -196,7 +196,7 @@ class PurchaseRepository {
                 (doc) => PurchaseEntity.fromJson(
                   DataSanitizer.sanitize({
                     'id': doc.id,
-                    ...doc.data() as Map<String, dynamic>,
+                    ...doc.data() as Map<String, dynamic>? ?? {},
                   }),
                 ),
               )

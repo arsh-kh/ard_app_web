@@ -86,7 +86,8 @@ class PaymentRepository {
           .doc(finalPayment.customerId)
           .get();
       if (custDoc.exists) {
-        customerName = custDoc.data()?['businessName'] ?? 'Unknown Client';
+        final custData = custDoc.data();
+        customerName = custData?['businessName'] ?? 'Unknown Client';
       }
     }
 
@@ -108,7 +109,7 @@ class PaymentRepository {
     _checkBusinessId();
     final doc = await _firestore.collection('payments').doc(paymentId).get();
     if (!doc.exists) return;
-    final data = doc.data()!;
+    final data = doc.data() ?? {};
     if (data['businessId'] != businessId) return;
 
     final payment = PaymentEntity.fromJson(
@@ -139,7 +140,8 @@ class PaymentRepository {
           .doc(payment.customerId)
           .get();
       if (custDoc.exists) {
-        customerName = custDoc.data()?['businessName'] ?? 'Unknown Client';
+        final custData = custDoc.data();
+        customerName = custData?['businessName'] ?? 'Unknown Client';
       }
     }
 

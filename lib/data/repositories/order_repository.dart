@@ -140,8 +140,8 @@ class OrderRepository {
   Stream<OrderEntity?> watchOrder(String id) {
     if (businessId.isEmpty) return Stream.value(null);
     return _firestore.collection('orders').doc(id).snapshots().map((doc) {
-      if (!doc.exists) return null;
-      final data = doc.data()!;
+      if (!doc.exists || doc.data() == null) return null;
+      final data = doc.data() as Map<String, dynamic>;
       if (data['businessId'] != businessId) return null;
       return OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...data}));
     });
@@ -150,8 +150,8 @@ class OrderRepository {
   Future<OrderEntity?> getOrder(String id) async {
     if (businessId.isEmpty) return null;
     final doc = await _firestore.collection('orders').doc(id).get();
-    if (!doc.exists) return null;
-    final data = doc.data()!;
+    if (!doc.exists || doc.data() == null) return null;
+    final data = doc.data() as Map<String, dynamic>;
     if (data['businessId'] != businessId) return null;
     return OrderEntity.fromJson(_sanitizeData({'id': doc.id, ...data}));
   }
@@ -437,7 +437,8 @@ class OrderRepository {
         
     double totalDeletedPayments = 0.0;
     for (final pDoc in paymentsSnapshot.docs) {
-      totalDeletedPayments += (pDoc.data()['amount'] as num?)?.toDouble() ?? 0.0;
+      final pData = pDoc.data() as Map<String, dynamic>?;
+      totalDeletedPayments += (pData?['amount'] as num?)?.toDouble() ?? 0.0;
       batch.delete(pDoc.reference);
     }
 
@@ -482,8 +483,8 @@ class OrderRepository {
 
       double totalDeductedByReturns = 0.0;
       for (final rDoc in returnsSnapshot.docs) {
-        totalDeductedByReturns +=
-            (rDoc.data()['actualDeduction'] as num?)?.toDouble() ?? 0.0;
+        final rData = rDoc.data() as Map<String, dynamic>?;
+        totalDeductedByReturns += (rData?['actualDeduction'] as num?)?.toDouble() ?? 0.0;
       }
 
       // The net debt revert must also account for any deleted upfront payments.

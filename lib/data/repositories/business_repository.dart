@@ -133,7 +133,9 @@ class BusinessRepository {
   Future<void> updateBusinessPassword(String id, String oldPassword, String newPassword) async {
     final doc = await _firestore.collection('businesses').doc(id).get();
     if (!doc.exists) throw Exception('businessNotFound');
-    final recoveryEmail = doc.data()!['recoveryEmail'];
+    final data = doc.data();
+    if (data == null) throw Exception('Business data is corrupted or missing.');
+    final recoveryEmail = data['recoveryEmail'];
 
     await _businessAuthHelper.updateBusinessPassword(recoveryEmail, oldPassword, newPassword);
 
@@ -188,7 +190,8 @@ class BusinessRepository {
       throw Exception('businessNotFound');
     }
 
-    final data = doc.data()!;
+    final data = doc.data();
+    if (data == null) throw Exception('Business data is empty.');
     data['id'] = doc.id;
     
     await _auditService.logAction(
@@ -255,6 +258,7 @@ class BusinessRepository {
     if (snapshot.docs.isEmpty) return null;
 
     final doc = snapshot.docs.first;
-    return BusinessEntity.fromJson(DataSanitizer.sanitize({'id': doc.id, ...doc.data()}));
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    return BusinessEntity.fromJson(DataSanitizer.sanitize({'id': doc.id, ...data}));
   }
 }
