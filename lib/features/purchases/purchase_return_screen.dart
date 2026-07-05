@@ -173,7 +173,6 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
       title: Tr.t('processPurchaseReturn', lang),
       message: confirmMsg,
       confirmLabel: Tr.t('processPurchaseReturn', lang),
-      confirmColor: Colors.orange,
       icon: Icons.replay_rounded,
     );
     if (!confirmed) return;

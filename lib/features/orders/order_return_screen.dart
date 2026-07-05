@@ -197,7 +197,6 @@ class _OrderReturnScreenState extends ConsumerState<OrderReturnScreen> {
       title: Tr.t('processReturn', lang),
       message: confirmMsg,
       confirmLabel: Tr.t('processReturn', lang),
-      confirmColor: Colors.orange,
       icon: Icons.replay_rounded,
     );
     if (!confirmed) return;
