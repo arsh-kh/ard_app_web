@@ -81,19 +81,46 @@ class ReturnRepository {
     double finalDebtAfter = debtCalc.debtAfter;
 
     await _firestore.runTransaction((tx) async {
-      // 1. Recalculate debt securely inside transaction
+      // --- ALL READS ---
+      // 1. Read customer
+      DocumentSnapshot? custDoc;
       if (!isWalkIn && debtCalc.actualDeduction > 0) {
         final custRef = _firestore.collection('customers').doc(returnRecord.customerId);
-        final custDoc = await tx.get(custRef);
-        if (custDoc.exists) {
-          final currentDebt = (custDoc.data()?['debtBalance'] as num?)?.toDouble() ?? 0.0;
-          finalDebtBefore = currentDebt;
-          finalDebtAfter = currentDebt - debtCalc.actualDeduction;
-          
-          tx.update(custRef, {
-            'debtBalance': FieldValue.increment(-debtCalc.actualDeduction),
-          });
+        custDoc = await tx.get(custRef);
+      }
+
+      // 2. Read order
+      final orderRef = _firestore.collection('orders').doc(returnRecord.orderId);
+      final orderDoc = await tx.get(orderRef);
+
+      // 3. Read order items
+      final Map<String, DocumentSnapshot> oiDocs = {};
+      for (final entry in orderItemReturns.entries) {
+        if (entry.value > 0) {
+          final orderItemRef = _firestore.collection('order_items').doc(entry.key);
+          oiDocs[entry.key] = await tx.get(orderItemRef);
         }
+      }
+
+      // 4. Read products
+      final Map<String, DocumentSnapshot> prodDocs = {};
+      for (final item in items) {
+        if (item.returnedQty <= 0) continue;
+        final prodRef = _firestore.collection('products').doc(item.productId);
+        prodDocs[item.productId] = await tx.get(prodRef);
+      }
+
+      // --- ALL WRITES ---
+      // 1. Recalculate debt securely inside transaction
+      if (custDoc != null && custDoc.exists) {
+        final data = custDoc.data() as Map<String, dynamic>?;
+        final currentDebt = (data?['debtBalance'] as num?)?.toDouble() ?? 0.0;
+        finalDebtBefore = currentDebt;
+        finalDebtAfter = currentDebt - debtCalc.actualDeduction;
+        
+        tx.update(custDoc.reference, {
+          'debtBalance': FieldValue.increment(-debtCalc.actualDeduction),
+        });
       }
 
       // 2. Save the return header
@@ -116,8 +143,6 @@ class ReturnRepository {
       }
 
       // 4. Update the original order's return tracking fields
-      final orderRef = _firestore.collection('orders').doc(returnRecord.orderId);
-      final orderDoc = await tx.get(orderRef);
       if (orderDoc.exists) {
         tx.update(orderRef, {
           'hasReturn': true,
@@ -126,14 +151,11 @@ class ReturnRepository {
 
         // 5. Update the specific order items' returned quantities
         for (final entry in orderItemReturns.entries) {
-          if (entry.value > 0) {
+          if (entry.value > 0 && oiDocs[entry.key]?.exists == true) {
             final orderItemRef = _firestore.collection('order_items').doc(entry.key);
-            final oiDoc = await tx.get(orderItemRef);
-            if (oiDoc.exists) {
-              tx.update(orderItemRef, {
-                'returnedQuantity': FieldValue.increment(entry.value),
-              });
-            }
+            tx.update(orderItemRef, {
+              'returnedQuantity': FieldValue.increment(entry.value),
+            });
           }
         }
       }
@@ -141,9 +163,8 @@ class ReturnRepository {
       // 6. Restore stock for each returned item
       for (final item in items) {
         if (item.returnedQty <= 0) continue;
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await tx.get(prodRef);
-        if (prodDoc.exists) {
+        if (prodDocs[item.productId]?.exists == true) {
+          final prodRef = _firestore.collection('products').doc(item.productId);
           tx.update(prodRef, {
             'stockQuantity': FieldValue.increment(item.returnedQty),
           });

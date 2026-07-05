@@ -24,6 +24,26 @@ class PurchaseReturnRepository {
     _checkBusinessId();
 
     await _firestore.runTransaction((tx) async {
+      // --- READ PHASE ---
+      final purchaseRef = _firestore.collection('purchases').doc(returnRecord.purchaseId);
+      final purchaseDoc = await tx.get(purchaseRef);
+
+      final Map<String, DocumentSnapshot> piDocs = {};
+      for (final entry in purchaseItemReturns.entries) {
+        if (entry.value > 0) {
+          final piRef = _firestore.collection('purchaseItems').doc(entry.key);
+          piDocs[entry.key] = await tx.get(piRef);
+        }
+      }
+
+      final Map<String, DocumentSnapshot> prodDocs = {};
+      for (final item in items) {
+        if (item.returnedQty <= 0) continue;
+        final prodRef = _firestore.collection('products').doc(item.productId);
+        prodDocs[item.productId] = await tx.get(prodRef);
+      }
+
+      // --- WRITE PHASE ---
       // 2. Save the return header
       final returnRef = _firestore.collection('purchase_returns').doc(returnRecord.id);
       final returnJson = returnRecord.toJson();
@@ -39,8 +59,6 @@ class PurchaseReturnRepository {
       }
 
       // 4. Update the original purchase's return tracking fields
-      final purchaseRef = _firestore.collection('purchases').doc(returnRecord.purchaseId);
-      final purchaseDoc = await tx.get(purchaseRef);
       if (purchaseDoc.exists) {
         tx.update(purchaseRef, {
           'hasReturn': true,
@@ -50,15 +68,12 @@ class PurchaseReturnRepository {
 
         // 5. Update the specific purchase items' returned quantities
         for (final entry in purchaseItemReturns.entries) {
-          if (entry.value > 0) {
+          if (entry.value > 0 && piDocs[entry.key]?.exists == true) {
             final piRef = _firestore.collection('purchaseItems').doc(entry.key);
-            final piDoc = await tx.get(piRef);
-            if (piDoc.exists) {
-              tx.update(piRef, {
-                'returnedQuantity': FieldValue.increment(entry.value),
-                'updatedAt': FieldValue.serverTimestamp(),
-              });
-            }
+            tx.update(piRef, {
+              'returnedQuantity': FieldValue.increment(entry.value),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
           }
         }
       }
@@ -66,9 +81,8 @@ class PurchaseReturnRepository {
       // 6. Reduce stock for each returned item (inside batch)
       for (final item in items) {
         if (item.returnedQty <= 0) continue;
-        final prodRef = _firestore.collection('products').doc(item.productId);
-        final prodDoc = await tx.get(prodRef);
-        if (prodDoc.exists) {
+        if (prodDocs[item.productId]?.exists == true) {
+          final prodRef = _firestore.collection('products').doc(item.productId);
           tx.update(prodRef, {
             // Important: DECREMENT stock because we are giving it back to the supplier
             'stockQuantity': FieldValue.increment(-item.returnedQty),
