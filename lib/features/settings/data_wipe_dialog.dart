@@ -74,6 +74,7 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+    const dangerColor = Color(0xFFD32F2F);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -84,12 +85,12 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: theme.colorScheme.error.withValues(alpha: 0.3),
+            color: dangerColor.withValues(alpha: 0.3),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: theme.colorScheme.error.withValues(alpha: 0.2),
+              color: dangerColor.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -99,19 +100,19 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
+            const Icon(
               Icons.warning_rounded,
-              color: theme.colorScheme.error,
+              color: dangerColor,
               size: 56,
             ),
             const SizedBox(height: 16),
             Text(
               Tr.t('wipeAllDataTitle', lang),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: theme.colorScheme.error,
+                color: dangerColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -171,7 +172,7 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
                   width: 24,
                   child: Checkbox(
                     value: _isUnderstood,
-                    activeColor: theme.colorScheme.error,
+                    activeColor: dangerColor,
                     onChanged: (val) {
                       setState(() => _isUnderstood = val ?? false);
                     },
@@ -211,7 +212,7 @@ class _DataWipeDialogState extends ConsumerState<DataWipeDialog> {
                     color:
                         _confirmController.text.trim() == 'DELETE' &&
                             _isUnderstood
-                        ? theme.colorScheme.error
+                        ? dangerColor
                         : theme.colorScheme.surfaceContainerHighest,
                   ),
                   const SizedBox(height: 12),
