@@ -12,7 +12,7 @@ import '../../core/utils/focus_utils.dart';
 import '../../core/utils/feedback_utils.dart';
 import '../../core/routing/routes.dart';
 import '../../core/utils/formatters.dart';
-import '../../core/widgets/heavy_ios_button.dart';
+
 
 import '../../data/models/purchase_entity.dart';
 import '../../data/models/purchase_item_entity.dart';
@@ -278,7 +278,7 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    final isRTL = lang == 'ku' || lang == 'ar';
+
 
     final purchaseTitle =
         '${Tr.t('purchaseLabel', lang)} #${widget.purchase.purchaseNumber ?? ''}';
@@ -362,26 +362,16 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                       child:
                           Container(
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isOver
-                                    ? Colors.red.withValues(alpha: 0.5)
-                                    : hasReturn
-                                    ? theme.colorScheme.primary.withValues(
-                                        alpha: 0.45,
-                                      )
-                                    : theme.colorScheme.onSurface.withValues(
-                                        alpha: 0.1,
-                                      ),
-                              ),
+                              border: isOver
+                                  ? Border.all(color: Colors.red.withValues(alpha: 0.5))
+                                  : null,
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.04,
-                                  ),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
@@ -395,9 +385,7 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                   // Product info
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: isRTL
-                                          ? CrossAxisAlignment.end
-                                          : CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           line.productName(lang),
@@ -407,75 +395,22 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 5),
-                                        Wrap(
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
-                                          alignment: isRTL
-                                              ? WrapAlignment.end
-                                              : WrapAlignment.start,
-                                          spacing: 8,
-                                          runSpacing: 4,
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 7,
-                                                    vertical: 2,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: theme.colorScheme.primary
-                                                    .withValues(alpha: 0.09),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                '${Tr.t('ordered', lang)}: ${line.originalQty.toInt()} ${Tr.localiseUnit(line.unitType, lang)}',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color:
-                                                      theme.colorScheme.primary,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                            Text(
-                                              CurrencyFormatter.format(
-                                                line.unitPrice,
-                                              ),
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: theme
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withValues(alpha: 0.45),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        if (hasReturn) ...[
-                                          const SizedBox(height: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 3,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: theme.colorScheme.primary
-                                                  .withValues(alpha: 0.12),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              '↩ ${CurrencyFormatter.format(line.lineRefund)}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color:
-                                                    theme.colorScheme.primary,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                          Text(
+                                            '${Tr.t('ordered', lang)}: ${line.originalQty.toInt()} ${Tr.localiseUnit(line.unitType, lang)}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                             ),
                                           ),
-                                        ],
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '1 ${Tr.localiseUnit(line.unitType, lang)} = ${CurrencyFormatter.format(line.unitPrice)}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: theme.colorScheme.primary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -566,7 +501,7 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
                                             ),
                                           ),
                                           child: Text(
-                                            Tr.t('maxQty', lang),
+                                            '${Tr.t('maxQty', lang)}: ${line.maxReturnQty.toInt()}',
                                             style: TextStyle(
                                               fontSize: 10,
                                               color: theme.colorScheme.primary,
@@ -595,113 +530,99 @@ class _PurchaseReturnScreenState extends ConsumerState<PurchaseReturnScreen> {
           ),
 
           // ── Sticky bottom panel ────────────────────────────────────────
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, -6),
-                ),
-              ],
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
+          GestureDetector(
+            onTap: _isSubmitting || selectedCount == 0 ? null : _submit,
+            child: Container(
+              margin: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                16 + MediaQuery.of(context).padding.bottom,
               ),
-            ),
-            padding: EdgeInsets.fromLTRB(
-              20,
-              14,
-              20,
-              20 + MediaQuery.of(context).padding.bottom,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle
-                Container(
-                  width: 36,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 14),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      Tr.t('itemsToReturn', lang),
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.55,
-                        ),
-                        fontSize: 13,
-                      ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
+              decoration: BoxDecoration(
+                color: selectedCount > 0 ? theme.colorScheme.primary : Colors.grey,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  if (selectedCount > 0)
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: selectedCount > 0
-                            ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                            : theme.colorScheme.onSurface.withValues(
-                                alpha: 0.08,
-                              ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '$selectedCount / ${_lines.length}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: selectedCount > 0
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.35,
+                ],
+              ),
+              child: _isSubmitting
+                  ? Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary))
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.onPrimary.withValues(
+                                  alpha: 0.2,
                                 ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      Tr.t('returnTotal', lang),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      CurrencyFormatter.format(_totalRefund),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        color: _totalRefund > 0
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurface.withValues(
-                                alpha: 0.3,
+                                shape: BoxShape.circle,
                               ),
-                      ),
+                              child: Text(
+                                '$selectedCount',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  Tr.t('returnTotal', lang),
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onPrimary.withValues(
+                                      alpha: 0.8,
+                                    ),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  CurrencyFormatter.format(_totalRefund),
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onPrimary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              Tr.t('processReturn', lang),
+                              style: TextStyle(
+                                color: theme.colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: theme.colorScheme.onPrimary,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _isSubmitting
-                    ? const Center(child: CircularProgressIndicator())
-                    : HeavyIOSButton(
-                        label: Tr.t('processPurchaseReturn', lang),
-                        icon: Icons.replay_rounded,
-                        onTap: _submit,
-                      ),
-              ],
             ),
           ),
         ],
