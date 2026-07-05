@@ -9,15 +9,17 @@ class CustomTopBarHelper {
     Widget? searchButton,
   }) {
     final List<Widget> children = [];
-    if (hasBackButton && !isRtl) {
+    
+    // ALWAYS put the BackButton in the leading position so iOS users can swipe/tap naturally.
+    if (hasBackButton) {
       children.add(const BackButton());
     }
 
     if (isRtl) {
-      // RTL Leading is Physical Right. We want Search here.
+      // RTL Leading is Physical Right.
       if (searchButton != null) children.add(searchButton);
     } else {
-      // LTR Leading is Physical Left. We want History here.
+      // LTR Leading is Physical Left.
       if (historyButton != null) children.add(historyButton);
     }
 
@@ -36,20 +38,11 @@ class CustomTopBarHelper {
   }) {
     final List<Widget> actions = [];
 
-    if (isRtl && hasBackButton) {
-      actions.add(
-        const Directionality(
-          textDirection: TextDirection.ltr,
-          child: BackButton(),
-        ),
-      );
-    }
-
     if (isRtl) {
-      // RTL Actions is Physical Left. We want History here.
+      // RTL Actions is Physical Left.
       if (historyButton != null) actions.add(historyButton);
     } else {
-      // LTR Actions is Physical Right. We want Search here.
+      // LTR Actions is Physical Right.
       if (searchButton != null) actions.add(searchButton);
     }
 
