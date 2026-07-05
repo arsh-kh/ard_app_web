@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../data/models/order_entity.dart';
 import '../../data/models/customer_entity.dart';
@@ -1191,6 +1193,17 @@ class HtmlGeneratorService {
   }
 
   static Future<void> _saveAndLaunchHtml(String htmlContent, String filename, {String shareText = ''}) async {
+    if (kIsWeb) {
+      // On Web, we can't use flutter_html_to_pdf or local file system.
+      // Instead, we encode the HTML to a base64 data URI and open it in a new tab natively.
+      // The user can view the receipt and use the browser's native Print (Ctrl+P) to save as PDF.
+      final bytes = utf8.encode(htmlContent);
+      final base64Str = base64Encode(bytes);
+      final uri = Uri.parse('data:text/html;base64,$base64Str');
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+      return;
+    }
+
     // 1. Get temporary directory to store the PDF
     final tempDir = await getTemporaryDirectory();
     final targetPath = tempDir.path;

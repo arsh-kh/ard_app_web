@@ -35,7 +35,7 @@ class CloudStorageService {
       
       final metadata = SettableMetadata(contentType: contentType);
 
-      if (kIsWeb || Platform.isWindows) {
+      if (kIsWeb || defaultTargetPlatform == TargetPlatform.windows) {
         // On web or Windows, use putData with the bytes of the file
         final bytes = await XFile(imagePath).readAsBytes();
         final uploadTask = await ref.putData(bytes, metadata);

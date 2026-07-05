@@ -129,9 +129,22 @@ class ExportDataService {
   ) async {
     try {
       final jsonString = jsonEncode(fullDataSnapshot);
-      final directory = await getTemporaryDirectory();
       final dateStr = DateTime.now().toIso8601String().split('T')[0];
-      final path = '${directory.path}/workspace_backup_$dateStr.json';
+      final filename = 'workspace_backup_$dateStr.json';
+
+      if (kIsWeb) {
+        final bytes = utf8.encode(jsonString);
+        final xFile = XFile.fromData(
+          Uint8List.fromList(bytes),
+          mimeType: 'application/json',
+          name: filename,
+        );
+        await Share.shareXFiles([xFile], text: 'Here is your secure workspace backup (JSON).');
+        return;
+      }
+
+      final directory = await getTemporaryDirectory();
+      final path = '${directory.path}/$filename';
       final file = File(path);
 
       await file.writeAsString(jsonString);
@@ -151,6 +164,17 @@ class ExportDataService {
   ) async {
     try {
       final String csv = const ListToCsvConverter().convert(rows);
+
+      if (kIsWeb) {
+        final bytes = [0xEF, 0xBB, 0xBF, ...utf8.encode(csv)];
+        final xFile = XFile.fromData(
+          Uint8List.fromList(bytes),
+          mimeType: 'text/csv',
+          name: '$fileName.csv',
+        );
+        await Share.shareXFiles([xFile], text: 'Here is the $fileName exported data.');
+        return;
+      }
 
       final directory = await getTemporaryDirectory();
       final path = '${directory.path}/$fileName.csv';
